@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "title": "Sunshine Realty",
+  "meta_description": "Find your dream property",
+  "company_display_name": "Sunshine Realty",
+  "logo_url": "https://example.com/logo.png",
+  "default_currency": "EUR",
+  "default_area_unit": "sqm",
+  "og": {
+    "og:title": "Sunshine Realty",
+    "og:type": "website"
+  },
+  "twitter": {},
+  "json_ld": {},
+  "analytics": null
+}

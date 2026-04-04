@@ -1,0 +1,79 @@
+---
+import type { PropertyDetailData } from '../lib/pwb/detail-formatter'
+
+interface Props {
+  detail: PropertyDetailData
+}
+
+const { detail } = Astro.props
+---
+
+<article class="property-detail">
+  <!-- Photo gallery -->
+  {detail.photos.length > 0 && (
+    <div class="property-detail__gallery">
+      {detail.photos.map((photo, i) => (
+        <img
+          src={photo.url}
+          alt={photo.alt ?? `${detail.title} photo ${i + 1}`}
+          class={i === 0 ? 'property-detail__photo--main' : 'property-detail__photo'}
+          loading={i === 0 ? 'eager' : 'lazy'}
+        />
+      ))}
+    </div>
+  )}
+
+  <div class="property-detail__content">
+    <header class="property-detail__header">
+      {detail.featured && <span class="property-card__badge">Featured</span>}
+      <h1 class="property-detail__title">{detail.title}</h1>
+      {detail.price && <p class="property-detail__price">{detail.price}</p>}
+      <p class="property-detail__address">{detail.fullAddress}</p>
+    </header>
+
+    <ul class="property-detail__specs">
+      {detail.bedrooms != null && (
+        <li><strong>{detail.bedrooms}</strong> Bedrooms</li>
+      )}
+      {detail.bathrooms != null && (
+        <li><strong>{detail.bathrooms}</strong> Bathrooms</li>
+      )}
+      {detail.garages != null && (
+        <li><strong>{detail.garages}</strong> Garages</li>
+      )}
+      {detail.area && (
+        <li><strong>{detail.area}</strong> Built</li>
+      )}
+      <li><strong>{detail.propertyTypeLabel}</strong></li>
+    </ul>
+
+    {detail.description && (
+      <div class="property-detail__description" set:html={detail.description} />
+    )}
+  </div>
+</article>
+
+<style>
+  .property-detail__gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .property-detail__photo--main { grid-row: span 2; width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+  .property-detail__photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+  .property-detail__title { font-size: var(--text-3xl); margin: 0.5rem 0; }
+  .property-detail__price { font-size: var(--text-2xl); color: var(--color-primary); font-weight: 700; }
+  .property-detail__address { color: var(--color-text-muted); }
+  .property-detail__specs {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    margin: 1.5rem 0;
+  }
+  .property-detail__description { line-height: 1.8; }
+</style>

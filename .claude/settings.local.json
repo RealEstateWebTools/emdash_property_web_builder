@@ -8,7 +8,19 @@
       "Bash(printf 'pwb-emfront\\\\n')",
       "Bash(npx --yes create-emdash@latest --help)",
       "Bash(npm show:*)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(npm pack:*)",
+      "Bash(curl -s https://registry.npmjs.org/create-emdash/-/create-emdash-0.1.0.tgz)",
+      "Bash(tar xz:*)",
+      "Bash(rm -f AGENTS.md astro.config.mjs CHANGELOG.md CLAUDE.md create-emdash-0.1.0.tgz emdash-env.d.ts package.json tsconfig.json)",
+      "Bash(rm -rf seed src .agents)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); d.setdefault\\('pnpm', {}\\)['onlyBuiltDependencies'] = ['msw']; print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Bash(cp /tmp/pkg.json package.json)",
+      "Bash(python3 -c \" import sys, json d = json.load\\(sys.stdin\\) d['scripts']['test'] = 'vitest' d['scripts']['test:run'] = 'vitest run' d['scripts']['test:coverage'] = 'vitest run --coverage' print\\(json.dumps\\(d, indent='\\\\t'\\)\\) \")",
+      "Bash(pnpm test:run)"
     ]
   }
 }

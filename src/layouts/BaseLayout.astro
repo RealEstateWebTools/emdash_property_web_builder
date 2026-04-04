@@ -1,0 +1,80 @@
+---
+import { buildPageMeta } from '../lib/pwb/site-config'
+import SiteHeader from '../components/SiteHeader.astro'
+import type { SiteDetails } from '../lib/pwb/types'
+
+interface Props {
+  site: SiteDetails
+  title?: string
+  description?: string
+  canonical?: string
+}
+
+const { site, title, description, canonical } = Astro.props
+const meta = buildPageMeta(site, { title, description, canonical })
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{meta.title}</title>
+    {meta.description && <meta name="description" content={meta.description} />}
+    {meta.canonical && <link rel="canonical" href={meta.canonical} />}
+
+    <!-- PWB API URL for client-side fetch (contact form) -->
+    <meta name="pwb-api-url" content={import.meta.env.PWB_API_URL} />
+
+    <!-- Open Graph -->
+    {Object.entries(meta.og).map(([property, content]) => (
+      <meta property={property} content={content} />
+    ))}
+
+    <!-- Twitter -->
+    {Object.entries(meta.twitter).map(([name, content]) => (
+      <meta name={name} content={content} />
+    ))}
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify(meta.jsonLd)} />
+
+    <!-- Google Analytics 4 -->
+    {site.analytics?.ga4_id && (
+      <>
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${site.analytics.ga4_id}`}
+        />
+        <script define:vars={{ ga4Id: site.analytics.ga4_id }}>
+          window.dataLayer = window.dataLayer || []
+          function gtag() { dataLayer.push(arguments) }
+          gtag('js', new Date())
+          gtag('config', ga4Id)
+        </script>
+      </>
+    )}
+
+    <link rel="stylesheet" href="/styles/theme.css" />
+  </head>
+  <body>
+    <SiteHeader site={site} />
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>&copy; {new Date().getFullYear()} {site.company_display_name ?? site.title}</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    padding: 2rem var(--spacing-page);
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-top: 4rem;
+  }
+</style>

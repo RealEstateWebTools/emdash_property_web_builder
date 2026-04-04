@@ -1,0 +1,21 @@
+---
+import PropertyCard from './PropertyCard.astro'
+import type { PropertyCardData } from '../lib/pwb/formatters'
+
+interface Props {
+  cards: PropertyCardData[]
+}
+
+const { cards } = Astro.props
+---
+
+{cards.length === 0
+  ? <p class="property-grid__empty">No properties found matching your search.</p>
+  : (
+    <div class="property-grid">
+      {cards.map((card) => (
+        <PropertyCard card={card} />
+      ))}
+    </div>
+  )
+}

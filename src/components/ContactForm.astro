@@ -1,0 +1,124 @@
+---
+interface Props {
+  propertyId?: number
+  propertyTitle?: string
+}
+
+const { propertyId, propertyTitle } = Astro.props
+const formId = `enquiry-form-${propertyId ?? 'general'}`
+---
+
+<form
+  id={formId}
+  class="contact-form"
+  data-property-id={propertyId}
+  novalidate
+>
+  <h2>
+    {propertyTitle ? `Enquire about ${propertyTitle}` : 'Contact Us'}
+  </h2>
+
+  <div class="form-group">
+    <label for="name">Name *</label>
+    <input type="text" id="name" name="name" required autocomplete="name" />
+    <span class="field-error" data-field="name" aria-live="polite"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email *</label>
+    <input type="email" id="email" name="email" required autocomplete="email" />
+    <span class="field-error" data-field="email" aria-live="polite"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="phone">Phone (optional)</label>
+    <input type="tel" id="phone" name="phone" autocomplete="tel" />
+  </div>
+
+  <div class="form-group">
+    <label for="message">Message *</label>
+    <textarea id="message" name="message" rows="5" required></textarea>
+    <span class="field-error" data-field="message" aria-live="polite"></span>
+  </div>
+
+  <div class="form-status" aria-live="polite"></div>
+
+  <button type="submit" class="btn btn-primary">
+    <span class="btn-text">Send Enquiry</span>
+    <span class="btn-loading" hidden>Sending…</span>
+  </button>
+</form>
+
+<script>
+  import { validateEnquiry } from '../lib/pwb/enquiry-validator'
+
+  document.querySelectorAll<HTMLFormElement>('.contact-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const data = Object.fromEntries(new FormData(form))
+      const validation = validateEnquiry({
+        name: String(data.name ?? ''),
+        email: String(data.email ?? ''),
+        message: String(data.message ?? ''),
+      })
+
+      // Clear previous errors
+      form.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''))
+      form.querySelector('.form-status')!.textContent = ''
+
+      if (!validation.valid) {
+        Object.entries(validation.errors).forEach(([field, msg]) => {
+          const el = form.querySelector<HTMLElement>(`[data-field="${field}"]`)
+          if (el) el.textContent = msg ?? ''
+        })
+        return
+      }
+
+      // Show loading state
+      const btnText = form.querySelector('.btn-text')!
+      const btnLoading = form.querySelector<HTMLElement>('.btn-loading')!
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type=submit]')!
+      btnText.setAttribute('hidden', '')
+      btnLoading.removeAttribute('hidden')
+      submitBtn.disabled = true
+
+      const propertyId = form.dataset.propertyId
+      const pwbUrl = document.querySelector<HTMLMetaElement>('meta[name="pwb-api-url"]')?.content
+
+      try {
+        const res = await fetch(`${pwbUrl}/api_public/v1/enquiries`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            enquiry: {
+              name: data.name,
+              email: data.email,
+              phone: data.phone || undefined,
+              message: data.message,
+              property_id: propertyId ?? undefined,
+            },
+          }),
+        })
+
+        const result = await res.json() as { success: boolean; message?: string; errors?: string[] }
+        const status = form.querySelector('.form-status')!
+
+        if (result.success) {
+          form.reset()
+          status.textContent = result.message ?? 'Your enquiry has been sent!'
+          status.className = 'form-status success'
+        } else {
+          status.textContent = result.errors?.join(', ') ?? 'Something went wrong. Please try again.'
+          status.className = 'form-status error'
+        }
+      } catch {
+        form.querySelector('.form-status')!.textContent = 'Network error. Please try again.'
+      } finally {
+        btnText.removeAttribute('hidden')
+        btnLoading.setAttribute('hidden', '')
+        submitBtn.disabled = false
+      }
+    })
+  })
+</script>

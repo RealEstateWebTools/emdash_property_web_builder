@@ -1,6 +1,11 @@
+docs
 node_modules
+.env
+.env.*
+!.env.example
+!.env.test
 dist
 .astro
 uploads
 data.db
-docs
+.wrangler

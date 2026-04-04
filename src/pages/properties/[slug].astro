@@ -1,0 +1,51 @@
+---
+import { createPwbClient } from '../../lib/pwb/client'
+import { formatPropertyDetail } from '../../lib/pwb/detail-formatter'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import PropertyDetail from '../../components/PropertyDetail.astro'
+import ContactForm from '../../components/ContactForm.astro'
+import SimilarProperties from '../../components/SimilarProperties.astro'
+
+const { slug } = Astro.params
+
+if (!slug) return Astro.redirect('/properties')
+
+const client = createPwbClient()
+
+let property, site
+try {
+  ;[property, site] = await Promise.all([
+    client.getProperty(slug),
+    client.getSiteDetails(),
+  ])
+} catch {
+  return Astro.redirect('/404')
+}
+
+const detail = formatPropertyDetail(property)
+
+// Pull similar properties from PWB's page_contents response
+const similarListing = property.page_contents.find(
+  (pc) => pc.page_part_key === 'summary_listings_part/similar_properties'
+)
+const similarProperties = similarListing?.summ_listings ?? []
+---
+
+<BaseLayout
+  site={site}
+  title={detail.title}
+  description={property.description?.replace(/<[^>]*>/g, '').slice(0, 160)}
+  canonical={`${Astro.site}/properties/${slug}`}
+>
+  <div class="property-detail-page">
+    <PropertyDetail detail={detail} />
+    <ContactForm propertyId={property.id} propertyTitle={property.title} />
+    {similarProperties.length > 0 && (
+      <SimilarProperties properties={similarProperties} />
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .property-detail-page { max-width: 1000px; margin: 0 auto; padding: 2rem var(--spacing-page); }
+</style>

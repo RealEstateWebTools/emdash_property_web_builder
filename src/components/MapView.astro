@@ -1,0 +1,44 @@
+---
+import type { MapMarker } from '../lib/pwb/types'
+
+interface Props {
+  markers: MapMarker[]
+}
+
+const { markers } = Astro.props
+const markersJson = JSON.stringify(markers)
+---
+
+<div id="map" class="map-view" aria-label="Property locations map"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script define:vars={{ markersJson }}>
+  const markers = JSON.parse(markersJson)
+  if (markers.length === 0) {
+    document.getElementById('map')?.remove()
+  } else {
+    const map = L.map('map')
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map)
+
+    const bounds = []
+    markers.forEach((m) => {
+      const popup = `<a href="${m.url}"><strong>${m.title}</strong><br>${m.price ?? ''}</a>`
+      L.marker([m.lat, m.lng]).bindPopup(popup).addTo(map)
+      bounds.push([m.lat, m.lng])
+    })
+    map.fitBounds(bounds, { padding: [40, 40] })
+  }
+</script>
+
+<style>
+  .map-view {
+    height: 400px;
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin: 2rem 0;
+  }
+</style>

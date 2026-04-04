@@ -1,0 +1,62 @@
+---
+import type { PropertyCardData } from '../lib/pwb/formatters'
+
+interface Props {
+  card: PropertyCardData
+}
+
+const { card } = Astro.props
+---
+
+<article class="property-card">
+  <a href={card.href} class="property-card__link" aria-label={card.title}>
+    {card.image
+      ? <img class="property-card__image" src={card.image} alt={card.title} loading="lazy" />
+      : <div class="property-card__image property-card__image--placeholder" aria-hidden="true" />
+    }
+  </a>
+
+  {card.featured && (
+    <span class="property-card__badge">Featured</span>
+  )}
+
+  <div class="property-card__body">
+    {card.price && <p class="property-card__price">{card.price}</p>}
+    <h2 class="property-card__title">
+      <a href={card.href}>{card.title}</a>
+    </h2>
+    <ul class="property-card__meta">
+      {card.bedrooms != null && <li>{card.bedrooms} bed</li>}
+      {card.bathrooms != null && <li>{card.bathrooms} bath</li>}
+      {card.area && <li>{card.area}</li>}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .property-card__link { display: block; }
+  .property-card__image--placeholder {
+    aspect-ratio: 16/9;
+    background: var(--color-bg-soft);
+  }
+  .property-card__badge {
+    display: inline-block;
+    background: var(--color-accent);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    margin: 0.5rem 1rem;
+  }
+  .property-card__title a { text-decoration: none; color: var(--color-text); }
+  .property-card__title a:hover { color: var(--color-primary); }
+  .property-card__meta {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-top: 0.5rem;
+  }
+</style>

@@ -1,0 +1,42 @@
+{
+  "data": [
+    {
+      "id": 42,
+      "slug": "beautiful-villa-marbella",
+      "reference": "REF-001",
+      "title": "Beautiful Villa in Marbella",
+      "price_sale_current_cents": 45000000,
+      "price_rental_monthly_current_cents": null,
+      "formatted_price": "€450,000",
+      "currency": "EUR",
+      "count_bedrooms": 4,
+      "count_bathrooms": 3,
+      "count_garages": 1,
+      "constructed_area": 280,
+      "area_unit": "sqm",
+      "highlighted": true,
+      "for_sale": true,
+      "for_rent": false,
+      "primary_image_url": "https://example.com/villa.jpg",
+      "prop_photos": []
+    }
+  ],
+  "map_markers": [
+    {
+      "id": 42,
+      "slug": "beautiful-villa-marbella",
+      "lat": 36.51,
+      "lng": -4.88,
+      "title": "Beautiful Villa in Marbella",
+      "price": "€450,000",
+      "image": "https://example.com/villa.jpg",
+      "url": "/properties/beautiful-villa-marbella"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "page": 1,
+    "per_page": 12,
+    "total_pages": 1
+  }
+}

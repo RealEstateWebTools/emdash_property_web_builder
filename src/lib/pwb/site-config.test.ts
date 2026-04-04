@@ -1,0 +1,39 @@
+import { describe, it, expect } from 'vitest'
+import { buildPageMeta } from './site-config'
+import siteDetails from '../../test/fixtures/site-details.json'
+import type { SiteDetails } from './types'
+
+describe('buildPageMeta', () => {
+  const site = siteDetails as SiteDetails
+
+  it('uses the site title when no page title given', () => {
+    const meta = buildPageMeta(site)
+    expect(meta.title).toBe('Sunshine Realty')
+  })
+
+  it('appends site name to page title when given', () => {
+    const meta = buildPageMeta(site, { title: 'Villas for Sale' })
+    expect(meta.title).toBe('Villas for Sale | Sunshine Realty')
+  })
+
+  it('falls back to default meta description', () => {
+    const meta = buildPageMeta(site)
+    expect(meta.description).toBe('Find your dream property')
+  })
+
+  it('uses page-specific description when provided', () => {
+    const meta = buildPageMeta(site, { description: 'Search our listings' })
+    expect(meta.description).toBe('Search our listings')
+  })
+
+  it('includes canonical URL when provided', () => {
+    const meta = buildPageMeta(site, { canonical: 'https://example.com/properties' })
+    expect(meta.canonical).toBe('https://example.com/properties')
+  })
+
+  it('merges OG tags with page overrides', () => {
+    const meta = buildPageMeta(site, { title: 'Villas' })
+    expect(meta.og['og:title']).toBe('Villas | Sunshine Realty')
+    expect(meta.og['og:type']).toBe('website')
+  })
+})

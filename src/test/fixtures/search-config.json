@@ -1,0 +1,20 @@
+{
+  "property_types": [
+    { "key": "villa", "label": "Villa", "count": 10 },
+    { "key": "apartment", "label": "Apartment", "count": 14 }
+  ],
+  "price_options": {
+    "sale": { "from": [0, 100000, 250000], "to": [100000, 250000, 500000] },
+    "rent": { "from": [0, 500, 1000], "to": [500, 1000, 2000] }
+  },
+  "features": [{ "key": "pool", "label": "Pool" }],
+  "bedrooms": [0, 1, 2, 3, 4, 5],
+  "bathrooms": [0, 1, 2, 3],
+  "sort_options": [
+    { "value": "price_asc", "label": "Price: Low to High" },
+    { "value": "price_desc", "label": "Price: High to Low" },
+    { "value": "newest", "label": "Newest First" }
+  ],
+  "area_unit": "sqm",
+  "currency": "EUR"
+}

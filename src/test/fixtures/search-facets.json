@@ -1,0 +1,12 @@
+{
+  "total_count": 24,
+  "property_types": { "villa": 10, "apartment": 14 },
+  "zones": { "Marbella": 12, "Malaga": 12 },
+  "localities": { "Golden Mile": 5, "Old Town": 7 },
+  "bedrooms": { "2": 8, "3": 10, "4": 6 },
+  "bathrooms": { "2": 12, "3": 12 },
+  "price_ranges": [
+    { "label": "< €100k", "count": 2, "min": 0, "max": 10000000 },
+    { "label": "€100k - €250k", "count": 8, "min": 10000000, "max": 25000000 }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": 5,
+  "slug": "about",
+  "title": "About Us",
+  "meta_description": "Learn more about our agency",
+  "page_contents": [
+    {
+      "id": 10,
+      "page_part_key": "content_block",
+      "sort_order": 1,
+      "visible": true,
+      "is_rails_part": false,
+      "rendered_html": "<h2>Our Story</h2><p>We have been selling properties since 2005.</p>",
+      "label": "Main Content"
+    }
+  ]
+}

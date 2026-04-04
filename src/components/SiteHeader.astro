@@ -1,0 +1,52 @@
+---
+import type { SiteDetails } from '../lib/pwb/types'
+
+interface Props {
+  site: SiteDetails
+}
+
+const { site } = Astro.props
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a href="/" class="site-header__logo">
+      {site.logo_url
+        ? <img src={site.logo_url} alt={site.company_display_name ?? site.title} height="40" />
+        : <span class="site-header__title">{site.company_display_name ?? site.title}</span>
+      }
+    </a>
+
+    <nav class="site-header__nav" aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/properties">Properties for Sale</a>
+      <a href="/properties?mode=rental">Properties for Rent</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .site-header__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.75rem var(--spacing-page);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  .site-header__logo { text-decoration: none; }
+  .site-header__title { font-size: var(--text-xl); font-weight: 700; color: var(--color-primary); }
+  .site-header__nav { display: flex; gap: 1.5rem; }
+  .site-header__nav a { text-decoration: none; color: var(--color-text); font-size: var(--text-sm); }
+  .site-header__nav a:hover { color: var(--color-primary); }
+</style>

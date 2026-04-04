@@ -1,0 +1,21 @@
+---
+import PropertyCard from './PropertyCard.astro'
+import { formatPropertyCard } from '../lib/pwb/formatters'
+import type { PropertySummary } from '../lib/pwb/types'
+
+interface Props {
+  properties: PropertySummary[]
+}
+
+const { properties } = Astro.props
+const cards = properties.map(formatPropertyCard)
+---
+
+<section class="similar-properties">
+  <h2 class="similar-properties__heading">Similar Properties</h2>
+  <div class="property-grid">
+    {cards.map((card) => (
+      <PropertyCard card={card} />
+    ))}
+  </div>
+</section>
