@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uvx showboat:*)",
+      "Read(//Users/etewiah/dev/sites-older/property_web_builder/**)",
+      "Bash(pnpm --version)",
+      "Bash(pnpm create:*)",
+      "Bash(printf 'pwb-emfront\\\\n')",
+      "Bash(npx --yes create-emdash@latest --help)",
+      "Bash(npm show:*)",
+      "Bash(npx:*)"
+    ]
+  }
+}
