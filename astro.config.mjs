@@ -25,4 +25,23 @@ export default defineConfig({
 		}),
 	],
 	devToolbar: { enabled: false },
+	vite: {
+		optimizeDeps: {
+			exclude: [
+				"emdash",
+				"emdash/astro",
+				"emdash/middleware",
+				"emdash/middleware/redirect",
+				"emdash/middleware/setup",
+				"emdash/middleware/auth",
+				"emdash/middleware/request-context",
+				"emdash/media/local-runtime",
+				"@emdash-cms/cloudflare",
+				"@emdash-cms/cloudflare/db/d1",
+				"@emdash-cms/cloudflare/storage/r2",
+				"@emdash-cms/plugin-forms",
+				"@emdash-cms/plugin-webhook-notifier",
+			],
+		},
+	},
 });

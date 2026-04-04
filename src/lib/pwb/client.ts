@@ -12,18 +12,25 @@ import type {
 
 export class PwbClient {
   baseUrl: string
+  locale: string
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, locale = 'en') {
     // Strip trailing slash so all paths work with leading slash
     this.baseUrl = baseUrl.replace(/\/$/, '')
+    this.locale = locale
   }
 
   private get apiBase() {
     return `${this.baseUrl}/api_public/v1`
   }
 
-  private async get<T>(path: string, params?: Record<string, string>): Promise<T> {
-    const url = new URL(`${this.apiBase}${path}`)
+  private get localizedApiBase() {
+    return `${this.baseUrl}/api_public/v1/${this.locale}`
+  }
+
+  private async get<T>(path: string, params?: Record<string, string>, localized = false): Promise<T> {
+    const base = localized ? this.localizedApiBase : this.apiBase
+    const url = new URL(`${base}${path}`)
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null && v !== '') {
@@ -36,13 +43,13 @@ export class PwbClient {
     })
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`)
+      throw new Error((body as { error?: string }).error ?? `HTTP ${res.status} ${url.toString()}`)
     }
     return res.json() as Promise<T>
   }
 
   async getSiteDetails(): Promise<SiteDetails> {
-    return this.get<SiteDetails>('/site_details')
+    return this.get<SiteDetails>('/site_details', undefined, true)
   }
 
   async searchProperties(params: SearchParams): Promise<SearchResults> {
@@ -50,11 +57,11 @@ export class PwbClient {
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined) stringParams[k] = String(v)
     })
-    return this.get<SearchResults>('/properties/search', stringParams)
+    return this.get<SearchResults>('/properties', stringParams, true)
   }
 
   async getProperty(slug: string): Promise<Property> {
-    const url = new URL(`${this.apiBase}/properties/${encodeURIComponent(slug)}`)
+    const url = new URL(`${this.localizedApiBase}/properties/${encodeURIComponent(slug)}`)
     const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } })
     if (res.status === 404) throw new Error('Property not found')
     if (!res.ok) {
@@ -65,16 +72,15 @@ export class PwbClient {
   }
 
   async getSearchFacets(saleOrRental: 'sale' | 'rental' = 'sale'): Promise<SearchFacets> {
-    return this.get<SearchFacets>('/search/facets', { sale_or_rental: saleOrRental })
+    return this.get<SearchFacets>('/search/facets', { sale_or_rental: saleOrRental }, true)
   }
 
-  async getSearchConfig(locale?: string): Promise<SearchConfig> {
-    const params = locale ? { locale } : undefined
-    return this.get<SearchConfig>('/search/config', params)
+  async getSearchConfig(): Promise<SearchConfig> {
+    return this.get<SearchConfig>('/search/config', undefined, true)
   }
 
   async getPageBySlug(slug: string): Promise<Page> {
-    return this.get<Page>('/pages', { slug, include_rendered: 'true' })
+    return this.get<Page>(`/localized_page/by_slug/${encodeURIComponent(slug)}`, undefined, true)
   }
 
   async submitEnquiry(input: EnquiryInput): Promise<EnquiryResponse> {
@@ -95,8 +101,8 @@ export class PwbClient {
 
 // Singleton used by all Astro pages at runtime.
 // In tests, create a new PwbClient(testBaseUrl) directly.
-export function createPwbClient(): PwbClient {
+export function createPwbClient(locale = 'en'): PwbClient {
   const url = import.meta.env.PWB_API_URL
   if (!url) throw new Error('PWB_API_URL environment variable is not set')
-  return new PwbClient(url)
+  return new PwbClient(url, locale)
 }
