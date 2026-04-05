@@ -1,5 +1,6 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
+import { fileURLToPath } from "node:url";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { formsPlugin } from "@emdash-cms/plugin-forms";
 import { webhookNotifierPlugin } from "@emdash-cms/plugin-webhook-notifier";
@@ -56,6 +57,15 @@ export default defineConfig({
 		resolve: {
 			// Ensure a single React instance across the page and the admin UI.
 			dedupe: ["react", "react-dom"],
+			alias: {
+				// use-sync-external-store ships a CJS shim that Vite can't serve as ESM
+				// when its importer (emdash) is excluded from optimizeDeps. React 19
+				// exports useSyncExternalStore natively, so we redirect to that instead.
+				"use-sync-external-store/shim/index.js": fileURLToPath(new URL("./src/shims/use-sync-external-store-shim.js", import.meta.url)),
+				"use-sync-external-store/shim/with-selector.js": fileURLToPath(
+					new URL("./src/shims/use-sync-external-store-with-selector-shim.js", import.meta.url),
+				),
+			},
 		},
 		ssr: {
 			// Prevent Vite from trying to bundle native Node modules or local-only
