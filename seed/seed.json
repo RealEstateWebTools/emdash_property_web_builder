@@ -118,8 +118,8 @@
 				{ "type": "custom", "label": "Home", "url": "/" },
 				{ "type": "custom", "label": "Properties for Sale", "url": "/properties" },
 				{ "type": "custom", "label": "Properties for Rent", "url": "/properties?mode=rental" },
-				{ "type": "custom", "label": "About", "url": "/about" },
-				{ "type": "custom", "label": "Contact", "url": "/contact" }
+				{ "type": "custom", "label": "About", "url": "/pages/about" },
+				{ "type": "custom", "label": "Contact", "url": "/pages/contact" }
 			]
 		}
 	],
@@ -282,6 +282,26 @@
 								{
 									"_type": "span",
 									"text": "Built with Astro and EmDash. The source is open if you want to see how it works."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contact Us",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Get in touch with our team. We'd love to hear from you."
 								}
 							]
 						}

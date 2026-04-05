@@ -152,6 +152,8 @@ The site header nav is driven by the EmDash **Primary Navigation** menu — it i
 
 **To edit it in the admin:** go to `/_emdash/admin` → **Menus** → **Primary Navigation**. You can add, remove, and reorder items there without touching code.
 
+**Note:** Menu URLs must point to existing routes. CMS pages live at `/pages/<slug>` (e.g. `/pages/about`, `/pages/contact`), not bare `/about`. The bare paths `/about` and `/contact` are handled by a PWB catch-all and will 404 if the page doesn't exist there.
+
 **To change the seed defaults** (i.e. what gets populated on a fresh database), edit the `"menus"` array in `seed/seed.json`:
 
 ```json
