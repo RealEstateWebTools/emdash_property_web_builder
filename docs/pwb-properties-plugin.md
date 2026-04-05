@@ -3,6 +3,9 @@
 This document describes a coherent way to build a `pwb-properties` EmDash plugin for this
 repo.
 
+For the next stage, where the plugin becomes write-capable and supports editing listings in
+PWB, see [`docs/pwb-properties-plugin-write-capable.md`](./pwb-properties-plugin-write-capable.md).
+
 The goal is narrow:
 
 - add a read-only **Properties** admin page inside EmDash
