@@ -237,6 +237,26 @@
 	"content": {
 		"pages": [
 			{
+				"id": "homepage",
+				"slug": "homepage",
+				"status": "published",
+				"data": {
+					"title": "Find Your Dream Property",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Browse our exclusive selection of properties for sale and rent. Expert local knowledge, exceptional service."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
 				"id": "about",
 				"slug": "about",
 				"status": "published",

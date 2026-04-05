@@ -8,25 +8,25 @@ import searchConfig from '../fixtures/search-config.json'
 import page from '../fixtures/page.json'
 
 const BASE = 'http://localhost:3001/api_public/v1'
+const LBASE = `${BASE}/:locale`
 
 export const handlers = [
-  http.get(`${BASE}/site_details`, () => HttpResponse.json(siteDetails)),
+  // Localized endpoints (new path structure with locale prefix)
+  http.get(`${BASE}/:locale/site_details`, () => HttpResponse.json(siteDetails)),
 
-  http.get(`${BASE}/properties/search`, () => HttpResponse.json(searchResults)),
+  http.get(`${BASE}/:locale/properties`, () => HttpResponse.json(searchResults)),
 
-  http.get(`${BASE}/properties/:slug`, ({ params }) => {
+  http.get(`${BASE}/:locale/properties/:slug`, ({ params }) => {
     if (params.slug === property.slug) return HttpResponse.json(property)
     return HttpResponse.json({ error: 'Not Found' }, { status: 404 })
   }),
 
-  http.get(`${BASE}/search/facets`, () => HttpResponse.json(searchFacets)),
+  http.get(`${BASE}/:locale/search/facets`, () => HttpResponse.json(searchFacets)),
 
-  http.get(`${BASE}/search/config`, () => HttpResponse.json(searchConfig)),
+  http.get(`${BASE}/:locale/search/config`, () => HttpResponse.json(searchConfig)),
 
-  http.get(`${BASE}/pages`, ({ request }) => {
-    const url = new URL(request.url)
-    const slug = url.searchParams.get('slug')
-    if (slug === 'about') return HttpResponse.json(page)
+  http.get(`${BASE}/:locale/localized_page/by_slug/:slug`, ({ params }) => {
+    if (params.slug === 'about') return HttpResponse.json(page)
     return HttpResponse.json({ error: 'Not Found' }, { status: 404 })
   }),
 
