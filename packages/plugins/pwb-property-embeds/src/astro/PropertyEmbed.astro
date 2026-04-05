@@ -1,0 +1,191 @@
+---
+import { getPropertyBySlug, getPropertyUrl } from "./pwb.js";
+
+const { node } = Astro.props;
+const slugSource =
+	typeof node?.id === "string" && node.id.trim()
+		? node.id
+		: typeof node?.slug === "string"
+			? node.slug
+			: "";
+const slug = slugSource.trim();
+const variant = typeof node?.variant === "string" ? node.variant : "card";
+const ctaLabel =
+	typeof node?.ctaLabel === "string" && node.ctaLabel.trim() ? node.ctaLabel.trim() : "View Property";
+
+let property = null;
+let error = "";
+
+if (slug) {
+	try {
+		property = await getPropertyBySlug(slug);
+	} catch (err) {
+		error = err instanceof Error ? err.message : "Property unavailable";
+	}
+} else {
+	error = "Property slug is missing";
+}
+
+const href = slug ? getPropertyUrl(slug) : "/properties";
+const title = property?.title ?? "Property unavailable";
+const price = property?.formatted_price ?? null;
+const location = [property?.city, property?.region, property?.country_code].filter(Boolean).join(", ");
+const beds = property?.count_bedrooms != null ? `${property.count_bedrooms} bd` : null;
+const baths = property?.count_bathrooms != null ? `${property.count_bathrooms} ba` : null;
+const image = property?.primary_image_url ?? property?.prop_photos?.[0]?.url ?? null;
+const meta = [price, beds, baths, location].filter(Boolean).join(" · ");
+---
+
+{variant === "inline" ? (
+	<span class={`property-embed property-embed--inline ${property ? "" : "property-embed--missing"}`}>
+		<a href={href}>{title}</a>{price ? <span class="property-embed__inline-meta"> ({price})</span> : null}
+	</span>
+) : variant === "compact" ? (
+	<aside class={`property-embed property-embed--compact ${property ? "" : "property-embed--missing"}`}>
+		<p class="property-embed__eyebrow">Featured Property</p>
+		<h3 class="property-embed__title"><a href={href}>{title}</a></h3>
+		{meta ? <p class="property-embed__meta">{meta}</p> : null}
+		<a class="property-embed__cta" href={href}>{ctaLabel}</a>
+		{!property && error ? <p class="property-embed__status">{error}</p> : null}
+	</aside>
+) : (
+	<aside class={`property-embed property-embed--card ${property ? "" : "property-embed--missing"}`}>
+		{image ? (
+			<a class="property-embed__image-link" href={href}>
+				<img class="property-embed__image" src={image} alt={title} loading="lazy" />
+			</a>
+		) : null}
+		<div class="property-embed__body">
+			<p class="property-embed__eyebrow">Featured Property</p>
+			<h3 class="property-embed__title"><a href={href}>{title}</a></h3>
+			{meta ? <p class="property-embed__meta">{meta}</p> : null}
+			<a class="property-embed__cta" href={href}>{ctaLabel}</a>
+			{!property && error ? <p class="property-embed__status">{error}</p> : null}
+		</div>
+	</aside>
+)}
+
+<style>
+	.property-embed {
+		--embed-border: color-mix(in srgb, var(--color-border, #d6d6d6) 80%, white);
+		--embed-surface: color-mix(in srgb, var(--color-surface, #faf8f3) 92%, white);
+		--embed-accent: var(--color-accent, #8a6a2f);
+		--embed-text: var(--color-text, #1d1b18);
+		--embed-muted: var(--color-muted, #6c665f);
+		color: var(--embed-text);
+	}
+
+	.property-embed--card,
+	.property-embed--compact {
+		border: 1px solid var(--embed-border);
+		background: var(--embed-surface);
+	}
+
+	.property-embed--card {
+		display: grid;
+		grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+		gap: 1rem;
+		margin: 2rem 0;
+		overflow: hidden;
+		border-radius: 1rem;
+	}
+
+	.property-embed--compact {
+		margin: 1.5rem 0;
+		padding: 1rem 1.125rem;
+		border-radius: 0.875rem;
+	}
+
+	.property-embed--inline {
+		display: inline;
+	}
+
+	.property-embed__image-link {
+		display: block;
+		background: color-mix(in srgb, var(--embed-surface) 70%, black 8%);
+	}
+
+	.property-embed__image {
+		display: block;
+		width: 100%;
+		height: 100%;
+		min-height: 220px;
+		object-fit: cover;
+	}
+
+	.property-embed__body {
+		padding: 1rem 1rem 1rem 0;
+	}
+
+	.property-embed__eyebrow {
+		margin: 0 0 0.4rem;
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--embed-accent);
+	}
+
+	.property-embed__title {
+		margin: 0;
+		font-size: 1.25rem;
+		line-height: 1.2;
+	}
+
+	.property-embed__title a,
+	.property-embed--inline a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.property-embed__title a:hover,
+	.property-embed--inline a:hover {
+		text-decoration: underline;
+	}
+
+	.property-embed__meta,
+	.property-embed__inline-meta,
+	.property-embed__status {
+		color: var(--embed-muted);
+	}
+
+	.property-embed__meta {
+		margin: 0.65rem 0 0;
+		line-height: 1.5;
+	}
+
+	.property-embed__inline-meta {
+		font-size: 0.95em;
+	}
+
+	.property-embed__cta {
+		display: inline-flex;
+		margin-top: 1rem;
+		font-weight: 700;
+		color: var(--embed-accent);
+		text-decoration: none;
+	}
+
+	.property-embed__cta:hover {
+		text-decoration: underline;
+	}
+
+	.property-embed__status {
+		margin: 0.75rem 0 0;
+		font-size: 0.92rem;
+	}
+
+	.property-embed--missing {
+		border-style: dashed;
+	}
+
+	@media (max-width: 720px) {
+		.property-embed--card {
+			grid-template-columns: 1fr;
+		}
+
+		.property-embed__body {
+			padding: 0 1rem 1rem;
+		}
+	}
+</style>

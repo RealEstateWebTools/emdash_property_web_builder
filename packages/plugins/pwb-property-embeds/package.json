@@ -1,0 +1,12 @@
+{
+  "name": "pwb-property-embeds",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./astro": "./src/astro/index.js"
+  },
+  "peerDependencies": {
+    "emdash": "*"
+  }
+}

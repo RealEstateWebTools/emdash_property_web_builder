@@ -6,6 +6,7 @@ import { webhookNotifierPlugin } from "@emdash-cms/plugin-webhook-notifier";
 import { defineConfig, sessionDrivers } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
+import { pwbPropertyEmbedsPlugin } from "pwb-property-embeds";
 import { pwbPropertiesPlugin } from "pwb-properties";
 
 const isDev = process.env.NODE_ENV !== "production";
@@ -42,8 +43,8 @@ export default defineConfig({
 				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
 			plugins: isDev
-				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin()]
-				: [formsPlugin()],
+				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbPropertyEmbedsPlugin()]
+				: [formsPlugin(), pwbPropertyEmbedsPlugin()],
 			sandboxed: isDev ? [] : [webhookNotifierPlugin(), pwbPropertiesPlugin()],
 			sandboxRunner: isDev ? undefined : sandbox(),
 			marketplace: isDev ? undefined : "https://marketplace.emdashcms.com",
@@ -90,6 +91,7 @@ export default defineConfig({
 				"@emdash-cms/cloudflare/storage/r2",
 				"@emdash-cms/plugin-forms",
 				"@emdash-cms/plugin-webhook-notifier",
+				"pwb-property-embeds",
 				"pwb-properties",
 			],
 		},
