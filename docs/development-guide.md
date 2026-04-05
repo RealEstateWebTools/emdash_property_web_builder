@@ -146,6 +146,33 @@ The `{...entry.edit.fieldName}` spreads `data-emdash-*` attributes that activate
 
 ---
 
+## Editing the navigation menu
+
+The site header nav is driven by the EmDash **Primary Navigation** menu — it is not hardcoded.
+
+**To edit it in the admin:** go to `/_emdash/admin` → **Menus** → **Primary Navigation**. You can add, remove, and reorder items there without touching code.
+
+**To change the seed defaults** (i.e. what gets populated on a fresh database), edit the `"menus"` array in `seed/seed.json`:
+
+```json
+"menus": [
+  {
+    "name": "primary",
+    "label": "Primary Navigation",
+    "items": [
+      { "type": "custom", "label": "Home", "url": "/" },
+      { "type": "custom", "label": "Properties for Sale", "url": "/properties" }
+    ]
+  }
+]
+```
+
+Then re-seed: `npx emdash seed seed/seed.json`
+
+**How it works:** `SiteHeader.astro` calls `getMenu('primary')` from `emdash` and renders whatever items are stored in the database. The menu name `"primary"` must match the seed's `"name"` field exactly.
+
+---
+
 ## Adding a new PWB API endpoint
 
 All PWB API calls go through `src/lib/pwb/client.ts`. Always follow the Red-Green TDD pattern:

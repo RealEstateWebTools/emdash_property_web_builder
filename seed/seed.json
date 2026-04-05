@@ -116,8 +116,10 @@
 			"label": "Primary Navigation",
 			"items": [
 				{ "type": "custom", "label": "Home", "url": "/" },
-				{ "type": "custom", "label": "About", "url": "/pages/about" },
-				{ "type": "custom", "label": "Posts", "url": "/posts" }
+				{ "type": "custom", "label": "Properties for Sale", "url": "/properties" },
+				{ "type": "custom", "label": "Properties for Rent", "url": "/properties?mode=rental" },
+				{ "type": "custom", "label": "About", "url": "/about" },
+				{ "type": "custom", "label": "Contact", "url": "/contact" }
 			]
 		}
 	],
