@@ -86,12 +86,10 @@ function excerpt(value, max = 320) {
 	return `${text.slice(0, max - 1).trimEnd()}…`;
 }
 
-function buildBanner(text, tone = "warning") {
-	return {
-		type: "banner",
-		tone,
-		text,
-	};
+function buildBanner(title, variant = "alert", description) {
+	const block = { type: "banner", variant, title };
+	if (description) block.description = description;
+	return block;
 }
 
 function buildFilterActions(activeMode) {
@@ -122,15 +120,22 @@ function buildFilterActions(activeMode) {
 
 function buildSettingsBlocks(currentUrl, error) {
 	const blocks = [
-		{ type: "header", text: "PWB Settings" },
+		{ type: "header", text: "PWB Connection" },
 		{
 			type: "context",
-			text: "Set the base URL for the PWB API, for example http://localhost:3000 or https://example.com.",
+			text: "Enter the base URL of your PWB Rails backend. No trailing slash. Example: http://localhost:3000",
 		},
 	];
 
 	if (error) {
 		blocks.push(buildBanner(error, "error"));
+	}
+
+	if (currentUrl) {
+		blocks.push({
+			type: "fields",
+			fields: [{ label: "Current URL", value: currentUrl }],
+		});
 	}
 
 	blocks.push({
@@ -156,13 +161,17 @@ function buildListBlocks(search, state, apiUrl, error) {
 
 	if (!apiUrl) {
 		blocks.push(
-			buildBanner("PWB API URL is not configured. Open Settings and save a valid URL.", "warning"),
+			buildBanner(
+				"PWB API URL is not configured.",
+				"alert",
+				"Open Settings and save a valid URL to connect to your PWB backend.",
+			),
 		);
 		return blocks;
 	}
 
 	if (error) {
-		blocks.push(buildBanner(error, "error"));
+		blocks.push(buildBanner("Could not load properties.", "error", error));
 		return blocks;
 	}
 
@@ -171,10 +180,16 @@ function buildListBlocks(search, state, apiUrl, error) {
 		return blocks;
 	}
 
-	blocks.push({
-		type: "context",
-		text: `${search.meta.total} properties found. Page ${search.meta.page} of ${search.meta.total_pages}.`,
-	});
+	// Summary stats row
+	const statsItems = [
+		{ label: "Total", value: String(search.meta.total) },
+		{ label: "Page", value: `${search.meta.page} of ${search.meta.total_pages}` },
+	];
+	if (state.mode === "sale") statsItems.push({ label: "Filter", value: "For Sale" });
+	else if (state.mode === "rental") statsItems.push({ label: "Filter", value: "For Rent" });
+
+	blocks.push({ type: "stats", items: statsItems });
+	blocks.push({ type: "divider" });
 
 	if (search.data.length === 0) {
 		blocks.push({ type: "section", text: "No properties found for the current filter." });
@@ -182,20 +197,22 @@ function buildListBlocks(search, state, apiUrl, error) {
 	}
 
 	for (const property of search.data) {
-		const meta = [
-			property.formatted_price ?? null,
-			modeLabel(property),
-			property.count_bedrooms != null ? `${property.count_bedrooms} bd` : null,
-			property.count_bathrooms != null ? `${property.count_bathrooms} ba` : null,
-			property.prop_type_key,
-			compactLocation(property),
+		const details = [
+			property.count_bedrooms != null ? `${property.count_bedrooms} bed` : null,
+			property.count_bathrooms != null ? `${property.count_bathrooms} bath` : null,
+			property.prop_type_key ?? null,
+			compactLocation(property) || null,
 		]
 			.filter(Boolean)
-			.join(" · ");
+			.join("  ·  ");
+
+		const price = property.formatted_price ? `*${property.formatted_price}*  ` : "";
+		const mode = `${modeLabel(property)}`;
+		const subtitle = [price + mode, details].filter(Boolean).join("\n");
 
 		blocks.push({
 			type: "section",
-			text: meta ? `*${property.title}*\n${meta}` : `*${property.title}*`,
+			text: `*${property.title}*\n${subtitle}`,
 			accessory: {
 				type: "button",
 				text: "View",
@@ -204,51 +221,65 @@ function buildListBlocks(search, state, apiUrl, error) {
 		});
 	}
 
+	blocks.push({ type: "divider" });
+
 	const pagination = [];
 	if (search.meta.page > 1) {
 		pagination.push({
 			type: "button",
-			text: "Previous",
+			text: "← Previous",
 			action_id: `page:${search.meta.page - 1}:${state.mode ?? ""}`,
 		});
 	}
 	if (search.meta.page < search.meta.total_pages) {
 		pagination.push({
 			type: "button",
-			text: "Next",
+			text: "Next →",
 			action_id: `page:${search.meta.page + 1}:${state.mode ?? ""}`,
 		});
 	}
 	if (pagination.length > 0) {
 		blocks.push({ type: "actions", elements: pagination });
+	} else {
+		blocks.push({
+			type: "context",
+			text: `Showing all ${search.meta.total} ${search.meta.total === 1 ? "property" : "properties"}.`,
+		});
 	}
 
 	return blocks;
 }
 
 function buildDetailBlocks(property, apiUrl, state) {
-	const fields = [
-		{ label: "Price", value: property.formatted_price ?? "—" },
-		{ label: "Mode", value: modeLabel(property) },
-		{
-			label: "Bedrooms",
-			value: property.count_bedrooms != null ? String(property.count_bedrooms) : "—",
-		},
-		{
-			label: "Bathrooms",
-			value: property.count_bathrooms != null ? String(property.count_bathrooms) : "—",
-		},
-		{ label: "Type", value: property.prop_type_key ?? "—" },
+	const keyStats = [];
+	if (property.formatted_price) {
+		keyStats.push({ label: "Price", value: property.formatted_price });
+	}
+	if (property.count_bedrooms != null) {
+		keyStats.push({ label: "Bedrooms", value: String(property.count_bedrooms) });
+	}
+	if (property.count_bathrooms != null) {
+		keyStats.push({ label: "Bathrooms", value: String(property.count_bathrooms) });
+	}
+	keyStats.push({ label: "Listing Type", value: modeLabel(property) });
+
+	const metaFields = [
+		{ label: "Property Type", value: property.prop_type_key ?? "—" },
 		{
 			label: "Location",
 			value: [property.address, compactLocation(property)].filter(Boolean).join(", ") || "—",
 		},
+		{ label: "Slug / Reference", value: property.slug ?? "—" },
 	];
+
+	if (property.status) {
+		metaFields.push({ label: "Status", value: property.status });
+	}
 
 	const actions = [
 		{
 			type: "button",
-			text: "Back",
+			text: "← Back to list",
 			action_id: `back_to_list:${encodeState(state.page, state.mode)}`,
 		},
 	];
@@ -256,37 +287,36 @@ function buildDetailBlocks(property, apiUrl, state) {
 	if (apiUrl) {
 		actions.push({
 			type: "button",
-			text: "Open Public Page",
+			text: "View on site ↗",
 			url: `${apiUrl}/properties/${property.slug}`,
 			style: "primary",
 		});
 	}
 
-	const blocks = [
-		{ type: "header", text: property.title },
-		{
-			type: "fields",
-			fields,
-		},
-	];
+	const blocks = [{ type: "header", text: property.title }];
 
-	if (property.description) {
+	if (keyStats.length > 0) {
+		blocks.push({ type: "stats", items: keyStats });
+	}
+
+	blocks.push({ type: "divider" });
+	blocks.push({ type: "fields", fields: metaFields });
+
+	const descriptionText =
+		property.description ??
+		(Array.isArray(property.page_contents)
+			? property.page_contents.find((item) => item.rendered_html)?.rendered_html
+			: null);
+
+	if (descriptionText) {
+		blocks.push({ type: "divider" });
 		blocks.push({
 			type: "section",
-			text: excerpt(property.description),
+			text: excerpt(descriptionText, 500),
 		});
 	}
 
-	if (Array.isArray(property.page_contents) && property.page_contents.length > 0) {
-		const firstContent = property.page_contents.find((item) => item.rendered_html)?.rendered_html;
-		if (firstContent) {
-			blocks.push({
-				type: "context",
-				text: excerpt(firstContent, 220),
-			});
-		}
-	}
-
+	blocks.push({ type: "divider" });
 	blocks.push({ type: "actions", elements: actions });
 	return blocks;
 }
