@@ -2,14 +2,14 @@
 	"$schema": "https://emdashcms.com/seed.schema.json",
 	"version": "1",
 	"meta": {
-		"name": "Blog Starter",
-		"description": "A blog with posts and pages",
+		"name": "Property Web Builder",
+		"description": "An estate agent website with property listings and pages",
 		"author": "EmDash"
 	},
 
 	"settings": {
-		"title": "My Blog",
-		"tagline": "Thoughts on building for the web"
+		"title": "PropertyWebBuilder",
+		"tagline": "Expert local knowledge, exceptional service"
 	},
 
 	"collections": [
@@ -81,9 +81,11 @@
 			"hierarchical": true,
 			"collections": ["posts"],
 			"terms": [
-				{ "slug": "development", "label": "Development" },
-				{ "slug": "design", "label": "Design" },
-				{ "slug": "notes", "label": "Notes" }
+				{ "slug": "market-news", "label": "Market News" },
+				{ "slug": "buying-guides", "label": "Buying Guides" },
+				{ "slug": "selling-tips", "label": "Selling Tips" },
+				{ "slug": "renting", "label": "Renting" },
+				{ "slug": "lifestyle", "label": "Lifestyle" }
 			]
 		},
 		{
@@ -93,10 +95,11 @@
 			"hierarchical": false,
 			"collections": ["posts"],
 			"terms": [
-				{ "slug": "webdev", "label": "Web Development" },
-				{ "slug": "opinion", "label": "Opinion" },
-				{ "slug": "tools", "label": "Tools" },
-				{ "slug": "creativity", "label": "Creativity" }
+				{ "slug": "first-time-buyer", "label": "First Time Buyer" },
+				{ "slug": "investment", "label": "Investment" },
+				{ "slug": "mortgage", "label": "Mortgage" },
+				{ "slug": "property-tips", "label": "Property Tips" },
+				{ "slug": "local-area", "label": "Local Area" }
 			]
 		}
 	],
@@ -104,14 +107,13 @@
 	"bylines": [
 		{
 			"id": "byline-editorial",
-			"slug": "emdash-editorial",
-			"displayName": "EmDash Editorial"
+			"slug": "pwb-editorial",
+			"displayName": "PWB Editorial Team"
 		},
 		{
-			"id": "byline-guest",
-			"slug": "guest-contributor",
-			"displayName": "Guest Contributor",
-			"isGuest": true
+			"id": "byline-agent",
+			"slug": "senior-agent",
+			"displayName": "Senior Property Agent"
 		}
 	],
 
@@ -133,7 +135,7 @@
 		{
 			"name": "sidebar",
 			"label": "Sidebar",
-			"description": "Widget area displayed on single post pages",
+			"description": "Widget area displayed on article pages",
 			"widgets": [
 				{
 					"type": "component",
@@ -143,30 +145,32 @@
 				{
 					"type": "component",
 					"componentId": "core:categories",
-					"title": "Categories"
-				},
-				{
-					"type": "component",
-					"componentId": "core:tags",
-					"title": "Tags"
+					"title": "Property Guides"
 				},
 				{
 					"type": "component",
 					"componentId": "core:recent-posts",
-					"title": "Recent Posts",
+					"title": "Latest Articles",
 					"settings": {
 						"count": 5,
 						"showDate": true
 					}
 				},
 				{
-					"type": "component",
-					"componentId": "core:archives",
-					"title": "Archives",
-					"settings": {
-						"type": "monthly",
-						"limit": 6
-					}
+					"type": "content",
+					"title": "Get in Touch",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Looking to buy, sell, or rent? Our expert team is here to help. Contact us today for a free valuation."
+								}
+							]
+						}
+					]
 				}
 			]
 		},
@@ -177,7 +181,7 @@
 			"widgets": [
 				{
 					"type": "content",
-					"title": "About",
+					"title": "About Us",
 					"content": [
 						{
 							"_type": "block",
@@ -185,7 +189,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "A blog about software, design, and the occasional stray thought."
+									"text": "Expert estate agents helping buyers, sellers, and landlords get the best results. Local knowledge, exceptional service."
 								}
 							]
 						}
@@ -197,16 +201,16 @@
 
 	"sections": [
 		{
-			"slug": "newsletter-signup",
-			"title": "Newsletter Signup",
-			"description": "A call-to-action block for newsletter subscriptions",
-			"keywords": ["newsletter", "subscribe", "email", "cta"],
+			"slug": "property-alerts",
+			"title": "Property Alerts",
+			"description": "A call-to-action block for property alert sign-ups",
+			"keywords": ["alerts", "subscribe", "email", "cta", "notifications"],
 			"source": "theme",
 			"content": [
 				{
 					"_type": "block",
 					"style": "h3",
-					"children": [{ "_type": "span", "text": "Stay in the loop" }]
+					"children": [{ "_type": "span", "text": "Never miss a property" }]
 				},
 				{
 					"_type": "block",
@@ -214,26 +218,31 @@
 					"children": [
 						{
 							"_type": "span",
-							"text": "Get notified when new posts are published. No spam, unsubscribe anytime."
+							"text": "Register for property alerts and be the first to hear about new listings that match your requirements."
 						}
 					]
 				}
 			]
 		},
 		{
-			"slug": "about-author",
-			"title": "About the Author",
-			"description": "Brief author bio for use in posts or pages",
-			"keywords": ["author", "bio", "about"],
+			"slug": "free-valuation",
+			"title": "Free Valuation",
+			"description": "Call-to-action for booking a free property valuation",
+			"keywords": ["valuation", "sell", "estimate", "cta"],
 			"source": "theme",
 			"content": [
+				{
+					"_type": "block",
+					"style": "h3",
+					"children": [{ "_type": "span", "text": "How much is your property worth?" }]
+				},
 				{
 					"_type": "block",
 					"style": "normal",
 					"children": [
 						{
 							"_type": "span",
-							"text": "A software developer who writes about building things on the web. Based somewhere with good coffee and reliable internet."
+							"text": "Get a free, no-obligation valuation from our local property experts. We'll give you an honest assessment of your home's market value."
 						}
 					]
 				}
@@ -269,7 +278,7 @@
 				"slug": "about",
 				"status": "published",
 				"data": {
-					"title": "About",
+					"title": "About Us",
 					"content": [
 						{
 							"_type": "block",
@@ -277,7 +286,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "A place for writing about software, design, and the occasional stray thought. No posting schedule, no newsletter funnel. Just things I wanted to write down."
+									"text": "We are a leading independent estate agency with deep roots in the local community. Our team of experienced property professionals is dedicated to helping you buy, sell, or rent with confidence."
 								}
 							]
 						},
@@ -287,7 +296,22 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Built with Astro and EmDash. The source is open if you want to see how it works."
+									"text": "Whether you're a first-time buyer taking your first step onto the property ladder, an investor growing your portfolio, or a landlord looking for reliable management, we provide expert guidance every step of the way."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Why choose us?" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Local expertise, honest advice, and a results-driven approach. We combine in-depth knowledge of the local market with the latest technology to get you the best possible outcome."
 								}
 							]
 						}
@@ -318,16 +342,16 @@
 		"posts": [
 			{
 				"id": "post-1",
-				"slug": "building-for-the-long-term",
+				"slug": "first-time-buyer-guide",
 				"status": "published",
 				"data": {
-					"title": "Building for the Long Term",
-					"excerpt": "The frameworks will change. The databases will change. What survives is the clarity of your thinking.",
+					"title": "A First-Time Buyer's Guide to Getting on the Property Ladder",
+					"excerpt": "Buying your first home can feel overwhelming. Here's a clear, practical guide to help you navigate the process with confidence.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=800&fit=crop",
-							"alt": "Code on a monitor in a dark room",
-							"filename": "building-long-term.jpg"
+							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
+							"alt": "Front door of a residential property",
+							"filename": "first-time-buyer.jpg"
 						}
 					},
 					"content": [
@@ -337,24 +361,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Every few years the industry collectively decides that everything we've been doing is wrong and there's a better way. New frameworks, new paradigms, new build tools. The churn is relentless, and if you're not careful, you spend more time migrating than building."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "I've been writing software long enough to have seen several of these cycles. jQuery to Backbone to Angular to React to whatever comes next. Each transition felt urgent at the time. Looking back, the things that actually mattered were rarely about the framework."
+									"text": "Getting onto the property ladder is one of the most significant financial decisions you'll ever make. It's also one of the most rewarding. With the right preparation, the process is far more manageable than it might first appear."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "What survives" }]
+							"children": [{ "_type": "span", "text": "Start with your finances" }]
 						},
 						{
 							"_type": "block",
@@ -362,80 +376,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Clean data models survive. Clear boundaries between systems survive. Good naming survives. The decision to keep things simple when you could have made them clever - that definitely survives."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "What doesn't survive is code that was written to impress, abstractions built for problems that never materialized, and architectures designed around a framework's opinions rather than the domain's reality."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "The best code I've written is boring. It reads like prose, does one thing well, and doesn't require a PhD in category theory to understand. The worst code I've written was technically impressive at the time."
-								}
-							]
-						}
-					]
-				},
-				"bylines": [
-					{ "byline": "byline-editorial" },
-					{ "byline": "byline-guest", "roleLabel": "Guest essay" }
-				],
-				"taxonomies": {
-					"category": ["development"],
-					"tag": ["opinion"]
-				}
-			},
-			{
-				"id": "post-2",
-				"slug": "the-case-for-static",
-				"status": "published",
-				"data": {
-					"title": "The Case for Static",
-					"excerpt": "Static sites aren't a step backwards. They're what you get when you take performance and simplicity seriously.",
-					"featured_image": {
-						"$media": {
-							"url": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&h=800&fit=crop",
-							"alt": "Laptop and coffee on a wooden table",
-							"filename": "case-for-static.jpg"
-						}
-					},
-					"content": [
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "There's a certain irony in the fact that the web started static, went dynamic, and is now swinging back toward static again. But the static sites of today aren't the hand-coded HTML pages of 1998. They're generated, optimized, and deployed to edge networks that serve them in milliseconds."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "The pitch for server-rendered everything was compelling: dynamic content, personalization, real-time data. But most sites don't need most of that most of the time. A blog post doesn't need to be rendered on every request. A product page doesn't change every second."
+									"text": "Before you start viewing properties, get a clear picture of your finances. How much deposit do you have? What can you realistically afford each month? Speak to a mortgage adviser early — a mortgage in principle will tell you your budget and show sellers you're a serious buyer."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "The performance argument" }]
+							"children": [{ "_type": "span", "text": "Research the area" }]
 						},
 						{
 							"_type": "block",
@@ -443,7 +391,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "A static file served from a CDN is as fast as the web gets. No cold starts, no database queries, no server-side rendering overhead. The Time to First Byte is essentially the network latency to your nearest edge node. You can't beat physics."
+									"text": "Beyond the property itself, think about the neighbourhood. Transport links, schools, local amenities — these factors affect both your quality of life and the long-term value of your investment. Visit at different times of day to get a true feel for the area."
 								}
 							]
 						},
@@ -453,7 +401,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "And when you do need dynamic behavior, you can add it surgically. An island of interactivity in a sea of static HTML. The best of both worlds, without paying the cost of either at all times."
+									"text": "Our team knows the local market inside out. Get in touch and we'll help you find the right area as well as the right property."
 								}
 							]
 						}
@@ -461,22 +409,85 @@
 				},
 				"bylines": [{ "byline": "byline-editorial" }],
 				"taxonomies": {
-					"category": ["development"],
-					"tag": ["webdev", "opinion"]
+					"category": ["buying-guides"],
+					"tag": ["first-time-buyer", "mortgage"]
+				}
+			},
+			{
+				"id": "post-2",
+				"slug": "how-to-prepare-your-home-for-sale",
+				"status": "published",
+				"data": {
+					"title": "How to Prepare Your Home for Sale",
+					"excerpt": "A well-prepared property sells faster and for a better price. Here are the steps that make the biggest difference.",
+					"featured_image": {
+						"$media": {
+							"url": "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop",
+							"alt": "A bright, well-presented living room",
+							"filename": "prepare-home-for-sale.jpg"
+						}
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "First impressions count enormously in property. Buyers often make up their minds within seconds of arriving at a viewing. The good news is that you don't need to spend a fortune to present your home in its best light."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Declutter and depersonalise" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Buyers need to be able to imagine themselves living in your home. Clear out excess furniture, tidy away personal items, and create a sense of space. A clean, neutral environment photographs better and shows better in person."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Attend to the little things" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Fix dripping taps, replace blown lightbulbs, touch up scuffed paintwork. These small repairs signal that the property has been well maintained. Buyers and their surveyors notice, and it builds confidence in your home."
+								}
+							]
+						}
+					]
+				},
+				"bylines": [{ "byline": "byline-agent" }],
+				"taxonomies": {
+					"category": ["selling-tips"],
+					"tag": ["property-tips"]
 				}
 			},
 			{
 				"id": "post-3",
-				"slug": "learning-in-public",
+				"slug": "understanding-the-property-market",
 				"status": "published",
 				"data": {
-					"title": "Learning in Public",
-					"excerpt": "Writing about what you're learning is the fastest way to find out what you don't actually understand.",
+					"title": "Understanding the Local Property Market",
+					"excerpt": "Local market conditions drive the value of your home. Here's what to look for and how to make sense of the numbers.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?w=1200&h=800&fit=crop",
-							"alt": "Notebook and pen on a desk",
-							"filename": "learning-in-public.jpg"
+							"url": "https://images.unsplash.com/photo-1611095564985-9c3e43e07f4a?w=1200&h=800&fit=crop",
+							"alt": "Aerial view of a residential neighbourhood",
+							"filename": "property-market.jpg"
 						}
 					},
 					"content": [
@@ -486,24 +497,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "I started writing about things I was learning not because I had anything original to say, but because I kept forgetting what I'd figured out. The blog posts were notes to my future self, published publicly more out of laziness than courage."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "What I didn't expect was how much the writing itself would accelerate the learning. There's a particular kind of clarity that comes from trying to explain something to someone else. The gaps in your understanding, which you can happily ignore when the knowledge lives only in your head, become painfully obvious when you try to put it into sentences."
+									"text": "Property markets are local. National headlines about house prices rarely tell you what's happening on the street you want to live on. Understanding your local market gives you a crucial edge, whether you're buying, selling, or investing."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "The fear of being wrong" }]
+							"children": [{ "_type": "span", "text": "Supply and demand" }]
 						},
 						{
 							"_type": "block",
@@ -511,39 +512,44 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "The biggest barrier isn't time or writing skill. It's the fear of publishing something that turns out to be wrong. But here's the thing: being wrong publicly is one of the most efficient ways to learn. Someone will correct you, often kindly, and you'll remember that correction forever."
+									"text": "The fundamental driver of any property market is the balance between available stock and buyer demand. When more buyers are competing for fewer properties, prices rise. When supply outstrips demand, buyers have more negotiating power. Tracking how long properties are staying on the market is one of the clearest indicators."
 								}
 							]
 						},
 						{
 							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Ask your agent" }]
+						},
+						{
+							"_type": "block",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "The posts that helped me most weren't written by experts. They were written by people one step ahead of me on the same path, in language that hadn't yet been polished into abstraction. There's a place for that kind of writing, and it's more valuable than most people realize."
+									"text": "Your estate agent sees the market every day. They know which streets are most sought-after, which property types are flying and which are sitting, and what buyers are actually paying versus asking prices. That intelligence is invaluable — and it's what separates a good agent from a portal search."
 								}
 							]
 						}
 					]
 				},
 				"taxonomies": {
-					"category": ["notes"],
-					"tag": ["opinion"]
+					"category": ["market-news"],
+					"tag": ["investment", "property-tips"]
 				}
 			},
 			{
 				"id": "post-4",
-				"slug": "small-tools-big-impact",
+				"slug": "landlord-guide-to-letting",
 				"status": "published",
 				"data": {
-					"title": "Small Tools, Big Impact",
-					"excerpt": "The best developer tools do one thing well and get out of your way. A love letter to focused software.",
+					"title": "A Landlord's Guide to Letting Your Property",
+					"excerpt": "Whether you're a new landlord or an experienced investor, getting the basics right protects your investment and your tenants.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1575026615908-666710ae5e47?w=1200&h=800&fit=crop",
-							"alt": "Wrenches and hand tools hanging on a workshop wall",
-							"filename": "small-tools.jpg"
+							"url": "https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&h=800&fit=crop",
+							"alt": "Keys to a rental property",
+							"filename": "landlord-guide.jpg"
 						}
 					},
 					"content": [
@@ -553,24 +559,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "There's a class of software that doesn't get enough appreciation. Not the frameworks or the platforms or the IDEs, but the small, sharp tools that solve one problem so well you stop thinking about them. They become invisible, which is the highest compliment you can pay a tool."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "I'm talking about things like ripgrep, which searches code so fast it changed how I think about searching. Or jq, which makes JSON feel like a first-class data format in the terminal. Or curl, which has been quietly powering the internet's plumbing for decades."
+									"text": "Letting a property can generate a reliable income stream and build long-term wealth. But it comes with responsibilities. Understanding your obligations as a landlord — and getting the right support — makes all the difference."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "The Unix philosophy, revisited" }]
+							"children": [{ "_type": "span", "text": "Getting the right tenants" }]
 						},
 						{
 							"_type": "block",
@@ -578,39 +574,45 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Do one thing well. The advice is old enough to be a cliche, but the best modern tools still follow it. They don't try to be platforms. They don't have plugin ecosystems or configuration languages or startup wizards. They do their job and they compose with other tools that do theirs."
+									"text": "The quality of your tenants is more important than the speed of the letting. Thorough referencing — employment history, credit checks, previous landlord references — helps ensure you find tenants who will pay reliably and look after your property."
 								}
 							]
 						},
 						{
 							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Your legal obligations" }]
+						},
+						{
+							"_type": "block",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "The temptation is always to add more. One more feature, one more option, one more integration. But every addition is a decision someone has to make, a path through the code that has to be maintained, a thing that can break. The best tools resist this. They stay small, and in staying small, they stay reliable."
+									"text": "Landlord legislation has expanded significantly in recent years. Gas safety certificates, energy performance ratings, deposit protection schemes, and right-to-rent checks are just some of the requirements. A good letting agent keeps you on the right side of the law so you can focus on the return."
 								}
 							]
 						}
 					]
 				},
+				"bylines": [{ "byline": "byline-editorial" }],
 				"taxonomies": {
-					"category": ["development"],
-					"tag": ["tools"]
+					"category": ["renting"],
+					"tag": ["investment", "property-tips"]
 				}
 			},
 			{
 				"id": "post-5",
-				"slug": "designing-with-constraints",
+				"slug": "choosing-the-right-neighbourhood",
 				"status": "published",
 				"data": {
-					"title": "Designing with Constraints",
-					"excerpt": "Limitations aren't obstacles to creativity. They're the structure that makes creativity possible.",
+					"title": "How to Choose the Right Neighbourhood",
+					"excerpt": "The right home in the wrong location can be a costly mistake. Here's how to find both.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1200&h=800&fit=crop",
-							"alt": "Pencils and design tools on a desk",
-							"filename": "designing-with-constraints.jpg"
+							"url": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&h=800&fit=crop",
+							"alt": "A tree-lined residential street",
+							"filename": "neighbourhood.jpg"
 						}
 					},
 					"content": [
@@ -620,24 +622,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Give a designer a blank canvas and unlimited time, and they'll often produce something mediocre. Give them a tight brief, a small screen, and a deadline, and they'll surprise you. This isn't a paradox - it's how creativity actually works."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "Constraints force decisions. When you can't use more than two typefaces, you have to choose carefully. When the page has to load in under a second, every element earns its place. When the interface has to work on a 320px screen, you discover what's truly essential."
+									"text": "Estate agents have long said that property is all about location. That's because the building itself can be renovated, extended, or redecorated. The street it sits on cannot be changed. Getting the location right from the start is the most important decision you'll make."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "Embracing the box" }]
+							"children": [{ "_type": "span", "text": "What to look for" }]
 						},
 						{
 							"_type": "block",
@@ -645,39 +637,44 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "The web itself is a constraint. HTML flows in one direction. CSS has a box model. Browsers have viewport sizes and font rendering quirks. You can fight these constraints or you can work with them, and the results are dramatically different."
+									"text": "Consider your daily life: the commute to work, proximity to schools if you have children, local shops and restaurants. Look at transport links and think about where those links might improve — upcoming infrastructure investment often signals future price growth."
 								}
 							]
 						},
 						{
 							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Visit more than once" }]
+						},
+						{
+							"_type": "block",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "The designs I admire most don't look like they were forced through a framework. They look like they grew naturally from the medium, respecting its grain rather than working against it. That only happens when you treat constraints as creative partners rather than enemies."
+									"text": "A neighbourhood at 10am on a Tuesday looks very different from the same street on a Friday evening or a Sunday morning. Visit at multiple times before committing. Talk to people who live there. No amount of online research replaces time spent on the ground."
 								}
 							]
 						}
 					]
 				},
 				"taxonomies": {
-					"category": ["design"],
-					"tag": ["creativity"]
+					"category": ["buying-guides"],
+					"tag": ["local-area", "property-tips"]
 				}
 			},
 			{
 				"id": "post-6",
-				"slug": "a-weekend-with-a-side-project",
+				"slug": "what-to-expect-at-a-viewing",
 				"status": "published",
 				"data": {
-					"title": "A Weekend with a Side Project",
-					"excerpt": "No stakeholders, no deadlines, no Jira tickets. Just you and a dumb idea that might turn into something.",
+					"title": "What to Expect at a Property Viewing",
+					"excerpt": "Make the most of every viewing with the right questions and a clear checklist.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1200&h=800&fit=crop",
-							"alt": "Code on a screen with a dark theme",
-							"filename": "weekend-side-project.jpg"
+							"url": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop",
+							"alt": "Interior of a bright property",
+							"filename": "property-viewing.jpg"
 						}
 					},
 					"content": [
@@ -687,24 +684,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Saturday morning. Coffee's made, the house is quiet, and I've got an idea that's been nagging at me all week. Not a good idea, necessarily - just a persistent one. A small tool that does a thing I keep doing manually. How hard could it be?"
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "This is the best kind of programming. No requirements document, no sprint planning, no pull request reviews. Just a text editor and a problem. The freedom to make terrible architectural decisions, rewrite everything twice, and follow tangents that turn out to be dead ends."
+									"text": "A property viewing is your chance to go beyond the photographs and get a real feel for the home. Going in prepared means you'll ask the right questions and notice things that photos don't show."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "Why side projects matter" }]
+							"children": [{ "_type": "span", "text": "Questions to ask" }]
 						},
 						{
 							"_type": "block",
@@ -712,39 +699,45 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Side projects are where you learn things your day job would never teach you. Not because the problems are harder, but because you're free to take risks. Try a language you've never used. Build something without a framework. Deploy to a platform you've only read about. The stakes are zero, which makes the learning maximum."
+									"text": "How long has it been on the market? Why are the sellers moving? What's included in the sale? Has there been any structural work? These questions can reveal issues or opportunities that aren't obvious from a walk-around."
 								}
 							]
 						},
 						{
 							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Use your senses" }]
+						},
+						{
+							"_type": "block",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "By Sunday evening, the thing sort of works. It's rough, the error handling is nonexistent, and the README is a single sentence. But it solves the problem I set out to solve, and I learned three things I didn't know on Friday. Not a bad weekend."
+									"text": "Look beyond the staging. Check for damp patches, sticking doors, signs of recent repainting that might be covering something. A quick look in the loft and at the boiler can tell you a lot. A survey will do the thorough work, but your eyes are your first filter."
 								}
 							]
 						}
 					]
 				},
+				"bylines": [{ "byline": "byline-agent" }],
 				"taxonomies": {
-					"category": ["development"],
-					"tag": ["creativity"]
+					"category": ["buying-guides"],
+					"tag": ["property-tips", "first-time-buyer"]
 				}
 			},
 			{
 				"id": "post-7",
-				"slug": "notes-on-simplicity",
+				"slug": "making-an-offer",
 				"status": "published",
 				"data": {
-					"title": "Notes on Simplicity",
-					"excerpt": "Simplicity isn't the absence of complexity. It's the result of understanding a problem well enough to solve it cleanly.",
+					"title": "How to Make an Offer on a Property",
+					"excerpt": "Knowing when and how to make your offer can be the difference between securing your dream home and losing it.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1559051668-e1fa58f25786?w=1200&h=800&fit=crop",
-							"alt": "Geometric pattern carved into white paper",
-							"filename": "notes-on-simplicity.jpg"
+							"url": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=800&fit=crop",
+							"alt": "Signing property documents",
+							"filename": "making-an-offer.jpg"
 						}
 					},
 					"content": [
@@ -754,24 +747,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Every piece of software starts simple. A few files, a clear purpose, a small surface area. Then features get added, edge cases get handled, and before long you're looking at something that requires a diagram to understand. This isn't inevitable, but it takes discipline to prevent."
-								}
-							]
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "The hard part of simplicity isn't the initial design. It's the ongoing resistance to complication. Every feature request, every bug fix, every refactor is an opportunity to add complexity. Saying no is the most important design skill, and the least celebrated."
+									"text": "Making an offer is both an art and a science. Offer too low and you risk offending the seller or losing to another buyer. Offer too high and you overpay. The goal is to make a credible offer that gives you the best chance of success at the right price."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "Removing as a feature" }]
+							"children": [{ "_type": "span", "text": "Do your research first" }]
 						},
 						{
 							"_type": "block",
@@ -779,34 +762,39 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "The best version of a product often has fewer features than the previous one. Not because features were missing, but because someone had the courage to remove things that weren't earning their keep. Every feature has a cost - in maintenance, in cognitive load, in the weight of the interface."
+									"text": "Look at what comparable properties have sold for in the area. Is the asking price in line with the market? Is the property priced to sell quickly, or has it been sitting for a while? This context shapes your opening offer."
 								}
 							]
 						},
 						{
 							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Be a strong buyer" }]
+						},
+						{
+							"_type": "block",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "Simplicity is a practice, not a destination. You never arrive at simple. You just keep asking: is this necessary? Could this be clearer? Is there a way to solve this problem by removing something instead of adding something? The answer is yes more often than you'd expect."
+									"text": "The price isn't everything. Sellers also care about certainty. Being chain-free, having a mortgage in principle, and showing flexibility on completion dates can make your offer more attractive than a higher offer from a less prepared buyer. Your agent can advise on how to present yourself in the best light."
 								}
 							]
 						}
 					]
 				},
 				"taxonomies": {
-					"category": ["notes"],
-					"tag": ["opinion"]
+					"category": ["buying-guides"],
+					"tag": ["property-tips", "mortgage"]
 				}
 			},
 			{
 				"id": "post-draft",
-				"slug": "work-in-progress",
+				"slug": "property-investment-guide",
 				"status": "draft",
 				"data": {
-					"title": "Work in Progress",
-					"excerpt": "This post is still being written.",
+					"title": "A Guide to Property Investment",
+					"excerpt": "This guide is still being written.",
 					"content": [
 						{
 							"_type": "block",
@@ -814,7 +802,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "This is a draft post that won't appear in the public listing."
+									"text": "This guide to property investment is coming soon."
 								}
 							]
 						}
