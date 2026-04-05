@@ -1,0 +1,12 @@
+{
+  "name": "pwb-properties",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./sandbox": "./src/sandbox-entry.js"
+  },
+  "peerDependencies": {
+    "emdash": "*"
+  }
+}

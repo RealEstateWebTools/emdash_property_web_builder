@@ -32,6 +32,9 @@ importers:
       emdash:
         specifier: ^0.1.0
         version: 0.1.0(278cfc80116fa1acc56065c528ee6e70)
+      pwb-properties:
+        specifier: workspace:*
+        version: link:packages/plugins/pwb-properties
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -63,6 +66,12 @@ importers:
       wrangler:
         specifier: ^4.79.0
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
+
+  packages/plugins/pwb-properties:
+    dependencies:
+      emdash:
+        specifier: '*'
+        version: 0.1.0(278cfc80116fa1acc56065c528ee6e70)
 
 packages:
 

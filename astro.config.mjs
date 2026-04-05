@@ -6,6 +6,7 @@ import { webhookNotifierPlugin } from "@emdash-cms/plugin-webhook-notifier";
 import { defineConfig, sessionDrivers } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
+import { pwbPropertiesPlugin } from "pwb-properties";
 
 const isDev = process.env.NODE_ENV !== "production";
 const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
@@ -40,8 +41,10 @@ export default defineConfig({
 			storage: isDev
 				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
-			plugins: isDev ? [formsPlugin(), webhookNotifierPlugin()] : [formsPlugin()],
-			sandboxed: isDev ? [] : [webhookNotifierPlugin()],
+			plugins: isDev
+				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin()]
+				: [formsPlugin()],
+			sandboxed: isDev ? [] : [webhookNotifierPlugin(), pwbPropertiesPlugin()],
 			sandboxRunner: isDev ? undefined : sandbox(),
 			marketplace: isDev ? undefined : "https://marketplace.emdashcms.com",
 		}),
@@ -87,6 +90,7 @@ export default defineConfig({
 				"@emdash-cms/cloudflare/storage/r2",
 				"@emdash-cms/plugin-forms",
 				"@emdash-cms/plugin-webhook-notifier",
+				"pwb-properties",
 			],
 		},
 	},
