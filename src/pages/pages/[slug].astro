@@ -1,7 +1,8 @@
 ---
 import { getEmDashEntry } from "emdash";
 import { PortableText } from "emdash/ui";
-import Base from "../../layouts/Base.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { createPwbClient } from "../../lib/pwb/client";
 
 const { slug } = Astro.params;
 
@@ -9,7 +10,10 @@ if (!slug) {
 	return Astro.redirect("/404");
 }
 
-const { entry: page, cacheHint } = await getEmDashEntry("pages", slug);
+const [{ entry: page, cacheHint }, site] = await Promise.all([
+	getEmDashEntry("pages", slug),
+	createPwbClient().getSiteDetails(),
+]);
 
 if (!page) {
 	return Astro.redirect("/404");
@@ -18,9 +22,9 @@ if (!page) {
 Astro.cache.set(cacheHint);
 ---
 
-<Base
+<BaseLayout
+	site={site}
 	title={page.data.title}
-	content={{ collection: "pages", id: page.data.id, slug }}
 >
 	<article class="page-article">
 		<header class="page-header">
@@ -31,7 +35,7 @@ Astro.cache.set(cacheHint);
 			<PortableText value={page.data.content} />
 		</div>
 	</article>
-</Base>
+</BaseLayout>
 
 <style>
 	.page-article {

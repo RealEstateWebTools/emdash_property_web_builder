@@ -175,6 +175,21 @@ Then re-seed: `npx emdash seed seed/seed.json`
 
 ---
 
+## Layout conventions
+
+There are two layouts:
+
+| Layout | Used by | Header |
+|---|---|---|
+| `BaseLayout.astro` | Home, properties, and CMS pages | `SiteHeader.astro` — property-site style, logo + nav from PWB site data |
+| `Base.astro` | Posts and EmDash blog content | Blog-style nav with search, theme switcher, admin link |
+
+**CMS pages (`/pages/[slug]`) use `BaseLayout.astro`** so the header is consistent with the rest of the site. They still use EmDash's `getEmDashEntry` for content and support visual editing attributes — they just don't include the EmDash admin toolbar overlay.
+
+If you add a new page type that should match the property-site look, use `BaseLayout.astro` and fetch `site` via `createPwbClient().getSiteDetails()`.
+
+---
+
 ## Adding a new PWB API endpoint
 
 All PWB API calls go through `src/lib/pwb/client.ts`. Always follow the Red-Green TDD pattern:
