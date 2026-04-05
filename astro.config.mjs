@@ -59,6 +59,7 @@ export default defineConfig({
 				"react/jsx-dev-runtime",
 			],
 			exclude: [
+				"@emdash-cms/admin",
 				"emdash",
 				"emdash/astro",
 				...emdashLocalExcludes,
