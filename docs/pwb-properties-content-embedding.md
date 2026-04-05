@@ -13,6 +13,82 @@ This is the recommended approach if you want to:
 - create editorial content that references live inventory
 - keep listing data fresh without duplicating it into the CMS
 
+This document now covers both:
+
+- the recommended long-term architecture
+- the current implemented `v1` in this repository
+
+The two are not identical. The current implementation is deliberately narrower because
+of a real limitation in EmDash's current plugin-block editor roundtrip.
+
+---
+
+## Current Status
+
+Property embedding is now implemented in this repository as a native plugin:
+
+- package: `packages/plugins/pwb-property-embeds`
+- plugin id: `pwb-property-embeds`
+- block type: `propertyEmbed`
+- render entry: `pwb-property-embeds/astro`
+
+The plugin is registered in `astro.config.mjs` and is active in trusted mode.
+
+### What works today
+
+- editors can type `/` in Portable Text and choose `Property`
+- the insert modal accepts a PWB property slug
+- the editor inserts a `propertyEmbed` block
+- the block persists in the draft revision data for content with revisions
+- the site-side renderer fetches live property data from PWB at render time
+- embedded output links to the existing public route `/properties/[slug]`
+
+### Current persisted block shape
+
+The current working stored block contract is:
+
+```json
+{
+  "_type": "propertyEmbed",
+  "_key": "abc123",
+  "id": "beautiful-villa-marbella"
+}
+```
+
+In this implementation, `id` is intentionally the property slug.
+
+That is not ideal naming, but it is the safest contract with the current EmDash
+editor behavior.
+
+### Renderer compatibility behavior
+
+The renderer currently reads:
+
+- `node.id` first
+- `node.slug` second
+
+This allows compatibility with both:
+
+- the implemented `v1` block shape
+- older or aspirational examples that referred to `slug`
+
+### Current visual behavior
+
+The site renderer still supports:
+
+- `card`
+- `compact`
+- `inline`
+
+But only `card` is durable today, because the editor does not preserve arbitrary plugin
+block fields across save roundtrips.
+
+In other words:
+
+- the renderer can handle `variant` and `ctaLabel`
+- the current editor save pipeline does not reliably persist them
+- therefore the shipped editor UI only collects the property slug
+
 ---
 
 ## Core Recommendation
@@ -58,6 +134,20 @@ The best editor experience is:
 9. the public site renders live property data from PWB
 
 This is much better than a shortcode or free-text URL paste.
+
+### Important note about this repo
+
+The current implementation does **not** have the full picker yet.
+
+The implemented `v1` experience is:
+
+1. editor types `/`
+2. editor chooses `Property`
+3. modal asks for `Property Slug`
+4. block is inserted using that slug
+5. frontend resolves the property live from PWB
+
+This is a practical first step, not the final target UX.
 
 ---
 
@@ -163,7 +253,7 @@ Recommended Portable Text block type:
 
 - `_type: "propertyEmbed"`
 
-### Minimum stored shape
+### Long-term target stored shape
 
 ```json
 {
@@ -189,7 +279,45 @@ Recommended Portable Text block type:
 }
 ```
 
+### Implemented `v1` stored shape in this repo
+
+```json
+{
+  "_type": "propertyEmbed",
+  "_key": "abc123",
+  "id": "beautiful-villa-marbella"
+}
+```
+
+### Why `id` is used in `v1`
+
+This is not because a PWB numeric ID is preferred.
+
+It is because EmDash's current plugin-block ProseMirror roundtrip preserves:
+
+- `_type`
+- `_key`
+- `id`
+
+but does not currently preserve arbitrary custom attrs like:
+
+- `slug`
+- `variant`
+- `ctaLabel`
+
+when they pass through the editor's `pluginBlock` conversion layer.
+
+So the working `v1` encodes the slug into `id`.
+
 ### Required field
+
+For the implemented `v1`, the required field is:
+
+- `id`, containing the property slug
+
+For the long-term design, the required field should become:
+
+- `slug`
 
 - `slug`
 
@@ -211,6 +339,10 @@ If PWB eventually requires immutable internal IDs for reliability, store both:
 ```
 
 But keep `slug` as the primary render key unless there is a strong reason not to.
+
+For the current repository implementation, the practical rule is:
+
+- treat `id` as "slug stored in the only plugin-block attr EmDash currently roundtrips safely"
 
 ---
 
@@ -241,25 +373,13 @@ The only thing stored in EmDash should be:
 Recommended package structure:
 
 ```text
-packages/plugins/pwb-properties/
+packages/plugins/pwb-property-embeds/
 └── src/
     ├── index.js
-    ├── sandbox-entry.js
-    ├── admin.jsx
     ├── astro/
     │   ├── index.js
     │   ├── PropertyEmbed.astro
-    │   ├── PropertyEmbedCard.astro
-    │   ├── PropertyEmbedCompact.astro
-    │   └── PropertyEmbedInline.astro
-    ├── admin/
-    │   ├── PropertyPickerModal.jsx
-    │   ├── PropertySearchInput.jsx
-    │   └── PropertyEmbedPreview.jsx
-    └── api/
-        ├── client.js
-        ├── search.js
-        └── mappers.js
+    │   └── pwb.js
 ```
 
 ### What each part does
@@ -268,20 +388,30 @@ packages/plugins/pwb-properties/
 
 - plugin descriptor
 - `componentsEntry`
-- `adminEntry`
-
-#### `admin.jsx`
-
-- plugin admin exports
-- block editor support if needed by the native plugin model
+- Portable Text block registration
 
 #### `astro/`
 
 - site-side renderers for Portable Text blocks
+- PWB fetch helpers for live rendering
 
-#### `sandbox-entry.js` or route layer
+### Implemented structure in this repo
 
-- routes for property search / lookup for the picker UI
+The current implementation is intentionally smaller than the idealized structure:
+
+- no `adminEntry`
+- no custom React picker
+- no plugin search routes
+- no admin-side preview fetches
+
+That is because the current `v1` goal was:
+
+- prove native plugin registration
+- prove slash-menu insertion
+- prove save persistence for a plugin block
+- prove live frontend rendering from PWB
+
+Those goals are now met.
 
 ---
 
@@ -292,18 +422,13 @@ The descriptor must provide site-side block rendering.
 Conceptually:
 
 ```js
-export function pwbPropertiesPlugin() {
+export function pwbPropertyEmbedsPlugin() {
   return {
-    id: "pwb-properties",
-    version: "0.3.0",
-    entrypoint: "pwb-properties",
-    adminEntry: "pwb-properties/admin",
-    componentsEntry: "pwb-properties/astro",
-    capabilities: ["network:fetch:any"],
-    adminPages: [
-      { path: "/", label: "Properties", icon: "list" },
-      { path: "/settings", label: "Settings", icon: "settings" }
-    ]
+    id: "pwb-property-embeds",
+    version: "0.1.0",
+    format: "native",
+    entrypoint: "pwb-property-embeds",
+    componentsEntry: "pwb-property-embeds/astro"
   };
 }
 ```
@@ -313,13 +438,19 @@ requirements are:
 
 - trusted/native plugin format
 - `componentsEntry` for Portable Text rendering
-- `adminEntry` for selection UI
+
+### Actual descriptor in this repo
+
+The current plugin descriptor does **not** include `adminEntry`.
+
+That is intentional. The current block uses EmDash's native Portable Text block modal with
+Block Kit-style field configuration rather than a custom React admin surface.
 
 ---
 
 ## Portable Text Block Registration
 
-The plugin should register a block type something like:
+The long-term block registration could look like:
 
 ```js
 admin: {
@@ -352,6 +483,33 @@ This is the minimum shape. It will work, but it is not the ideal editor UX becau
 for a slug manually.
 
 For a better experience, use a picker.
+
+### Actual block registration in this repo
+
+The implemented block registration is narrower:
+
+```js
+admin: {
+  portableTextBlocks: [
+    {
+      type: "propertyEmbed",
+      label: "Property",
+      icon: "link-external",
+      description: "Embed a live property listing from PWB",
+      fields: [
+        {
+          type: "text_input",
+          action_id: "id",
+          label: "Property Slug"
+        }
+      ]
+    }
+  ]
+}
+```
+
+That is not just a temporary simplification. It is aligned with the current editor
+roundtrip behavior described below in the issues section.
 
 ---
 
@@ -390,11 +548,24 @@ Each result should show enough metadata to disambiguate:
 
 This avoids slug-guessing and makes the feature usable by non-technical editors.
 
+### Why the picker is not implemented yet
+
+The blocker is not fetching from PWB.
+
+The blocker is that EmDash's current editor persists plugin blocks through a simplified
+`pluginBlock` representation that only reliably roundtrips an `id` field.
+
+Until that is expanded, building a richer picker that writes `slug`, `variant`, `ctaLabel`,
+or other attrs would produce an editor experience that looks richer than the persisted data
+actually is.
+
+That would be misleading and fragile.
+
 ---
 
 ## Route Architecture for the Picker
 
-The plugin should expose at least these private routes:
+The long-term plugin should expose at least these private routes:
 
 | Route | Method | Purpose |
 |---|---|---|
@@ -471,6 +642,21 @@ Response:
 
 The picker or editor modal can use this to confirm the selected property and show a preview.
 
+### Current implementation
+
+The current `v1` does **not** expose plugin lookup/search routes.
+
+Instead, the frontend renderer fetches directly from PWB at render time using
+`import.meta.env.PWB_API_URL`.
+
+That is acceptable for the current scope because:
+
+- the insert UI is slug-only
+- the site already has a PWB base URL environment contract
+- the immediate goal was embed rendering, not picker search UX
+
+Search routes become relevant once a picker is added.
+
 ---
 
 ## Site-Side Rendering Strategy
@@ -507,6 +693,170 @@ Preferred options:
 2. add a plugin-local fetch helper that mirrors the existing `src/lib/pwb/client.ts` contract
 
 The important thing is consistency with the site’s existing PWB model.
+
+### Actual renderer behavior in this repo
+
+The current renderer:
+
+- accepts `node.id` as the primary property identifier
+- accepts `node.slug` as a compatibility fallback
+- fetches the live property from PWB
+- renders `card`, `compact`, or `inline`
+- defaults to `card`
+- falls back gracefully when the property is missing or the API URL is not set
+
+The implementation lives in:
+
+- `packages/plugins/pwb-property-embeds/src/astro/index.js`
+- `packages/plugins/pwb-property-embeds/src/astro/PropertyEmbed.astro`
+- `packages/plugins/pwb-property-embeds/src/astro/pwb.js`
+
+---
+
+## Issues Identified During Implementation
+
+These are the important issues uncovered while implementing and verifying the feature.
+
+### 1. EmDash plugin-block persistence is narrower than the insert UI suggests
+
+This was the main issue.
+
+Observed behavior:
+
+- the editor slash menu correctly registered `propertyEmbed`
+- the insert modal initially accepted multiple fields
+- the save request initially sent `{ slug, variant, ctaLabel, _type, _key }`
+- after editor roundtrips, EmDash converted plugin blocks through a simplified
+  `pluginBlock` representation
+- only `id` was preserved reliably
+
+Impact:
+
+- `slug`, `variant`, and `ctaLabel` are not safe persisted fields today
+- a richer-looking block config would give false confidence
+- the implemented `v1` had to be reduced to a single `id` field
+
+Evidence:
+
+- the live manifest now exposes only `action_id: "id"`
+- the working save request uses `{ "_type": "propertyEmbed", "id": "<slug>" }`
+- the persisted draft revision retains that block shape
+
+### 2. Draft-revision storage can make persistence look broken if you inspect the wrong table
+
+This repo's content collections support revisions.
+
+That means:
+
+- published/base data remains in `ec_posts` / `ec_pages`
+- draft edits are stored in `revisions.data`
+
+During verification, inspecting only `ec_posts.content` made it look like the embed was
+being stripped out, when in fact the real saved draft state was in the revision row.
+
+Impact:
+
+- debugging content persistence in EmDash requires checking revision rows for draft edits
+- documentation should not imply that `ec_*` content columns always reflect current editor state
+
+### 3. Dev-server restarts are mandatory when plugin descriptors change
+
+Changes to:
+
+- `astro.config.mjs`
+- native plugin registration
+- plugin descriptor metadata
+- Portable Text block definitions
+
+did not reliably appear in a running dev session until `npx emdash dev` was restarted.
+
+Impact:
+
+- stale admin manifests can make the implementation look broken when the code is actually correct
+- restart must be part of the verification procedure for plugin work
+
+### 4. The current doc originally described an ideal picker-driven architecture, not the shipped feature
+
+Before implementation, this document described:
+
+- stored `slug`
+- stored `variant`
+- stored `ctaLabel`
+- picker routes
+- richer admin flows
+
+Those are still reasonable long-term goals, but they were not what the code actually
+implemented after running into the editor persistence constraint.
+
+Impact:
+
+- this document must distinguish clearly between current state and future design
+
+### 5. Raw Node import of the Astro renderer is not a meaningful verification step
+
+The package entrypoint can be verified with plain Node ESM import.
+
+The Astro renderer entrypoint cannot, because `.astro` files require Astro/Vite handling.
+
+Impact:
+
+- verification of `componentsEntry` should happen through Astro/EmDash runtime, not plain Node import
+
+### 6. Current renderer supports more than the editor safely persists
+
+The renderer still supports:
+
+- `variant`
+- `ctaLabel`
+
+But the current editor `v1` no longer asks for those fields because they are not durable.
+
+Impact:
+
+- those renderer branches are compatibility scaffolding for future work
+- they should not be treated as part of the current editor feature contract
+
+---
+
+## Verification Notes
+
+The following checks were performed during implementation:
+
+- workspace package installed successfully with `pnpm install --no-frozen-lockfile`
+- native plugin descriptor imported successfully in Node
+- live EmDash manifest confirmed `pwb-property-embeds` registration
+- slash-menu item `Property` appeared in the Portable Text editor
+- insert modal opened from the slash menu
+- save requests included the expected plugin block payload
+- persisted draft revision data contained the `propertyEmbed` block
+- renderer contract remained aligned with the public property route `/properties/[slug]`
+
+### Important verification nuance
+
+When verifying persistence for content with revisions, inspect:
+
+- `ec_posts.draft_revision_id` or `ec_pages.draft_revision_id`
+- then the matching row in `revisions.data`
+
+Do not rely only on `ec_posts.content` / `ec_pages.content` for draft-state verification.
+
+---
+
+## Current Recommended Next Steps
+
+The implementation is good enough for a practical `v1`, but the next sensible work items are:
+
+1. patch EmDash so plugin blocks can persist arbitrary attrs, not just `id`
+2. re-enable `slug`, `variant`, and `ctaLabel` as real stored fields
+3. add a proper property picker backed by PWB search
+4. add an admin-side preview in the insert/edit modal
+5. document the upgraded block contract once the editor roundtrip is fixed
+
+Until that EmDash editor work happens, the correct product stance is:
+
+- ship slug-only insertion
+- keep the frontend renderer flexible
+- do not promise richer editor-configurable variants as persisted behavior
 
 ---
 
