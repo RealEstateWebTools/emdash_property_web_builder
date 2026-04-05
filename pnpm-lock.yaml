@@ -10,28 +10,28 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: ^13.1.6
-        version: 13.1.7(@types/node@25.5.2)(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260401.1)(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))(yaml@2.8.3)
+        version: 13.1.7(@types/node@25.5.2)(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(workerd@1.20260401.1)(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: ^5.0.0
         version: 5.0.2(@types/node@25.5.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
       '@emdash-cms/cloudflare':
         specifier: ^0.1.0
-        version: 0.1.0(f1205216ee3aed246d043d837baf8bec)
+        version: 0.1.0(7f0277e3d6e76e4035bb8e6feab1aea8)
       '@emdash-cms/plugin-forms':
         specifier: ^0.1.0
-        version: 0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))(emdash@0.1.0(19f868403ed19e6ee1345442523ee791))(react@19.2.4)
+        version: 0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(emdash@0.1.0(278cfc80116fa1acc56065c528ee6e70))(react@19.2.4)
       '@emdash-cms/plugin-webhook-notifier':
         specifier: ^0.1.0
-        version: 0.1.0(emdash@0.1.0(19f868403ed19e6ee1345442523ee791))
+        version: 0.1.0(emdash@0.1.0(278cfc80116fa1acc56065c528ee6e70))
       astro:
         specifier: ^6.1.2
-        version: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
+        version: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
       better-sqlite3:
         specifier: ^12.8.0
         version: 12.8.0
       emdash:
         specifier: ^0.1.0
-        version: 0.1.0(19f868403ed19e6ee1345442523ee791)
+        version: 0.1.0(278cfc80116fa1acc56065c528ee6e70)
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -41,7 +41,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.7
-        version: 0.9.8(prettier@3.8.1)(typescript@5.9.3)
+        version: 0.9.8(prettier@3.8.1)(typescript@6.0.2)
       '@cloudflare/workers-types':
         specifier: ^4.20260401.1
         version: 4.20260404.1
@@ -50,16 +50,16 @@ importers:
         version: 7.6.13
       '@vitest/coverage-v8':
         specifier: ^4.1.2
-        version: 4.1.2(vitest@4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3)))
+        version: 4.1.2(vitest@4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3)))
       happy-dom:
         specifier: ^20.8.9
         version: 20.8.9
       msw:
         specifier: ^2.12.14
-        version: 2.12.14(@types/node@25.5.2)(typescript@5.9.3)
+        version: 2.12.14(@types/node@25.5.2)(typescript@6.0.2)
       vitest:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))
+        version: 4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))
       wrangler:
         specifier: ^4.79.0
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
@@ -3459,8 +3459,8 @@ packages:
   typescript-auto-import-cache@0.3.6:
     resolution: {integrity: sha512-RpuHXrknHdVdK7wv/8ug3Fr0WNsNi5l5aB8MYYuXhq2UH5lnEB1htJ1smhtD5VeCsGr2p8mUDtd83LCQDFVgjQ==}
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+  typescript@6.0.2:
+    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -3955,23 +3955,23 @@ packages:
 
 snapshots:
 
-  '@astrojs/check@0.9.8(prettier@3.8.1)(typescript@5.9.3)':
+  '@astrojs/check@0.9.8(prettier@3.8.1)(typescript@6.0.2)':
     dependencies:
-      '@astrojs/language-server': 2.16.6(prettier@3.8.1)(typescript@5.9.3)
+      '@astrojs/language-server': 2.16.6(prettier@3.8.1)(typescript@6.0.2)
       chokidar: 4.0.3
       kleur: 4.1.5
-      typescript: 5.9.3
+      typescript: 6.0.2
       yargs: 17.7.2
     transitivePeerDependencies:
       - prettier
       - prettier-plugin-astro
 
-  '@astrojs/cloudflare@13.1.7(@types/node@25.5.2)(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))(workerd@1.20260401.1)(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))(yaml@2.8.3)':
+  '@astrojs/cloudflare@13.1.7(@types/node@25.5.2)(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(workerd@1.20260401.1)(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))(yaml@2.8.3)':
     dependencies:
       '@astrojs/internal-helpers': 0.8.0
       '@astrojs/underscore-redirects': 1.0.3
       '@cloudflare/vite-plugin': 1.31.0(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))(workerd@1.20260401.1)(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))
-      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
+      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
       piccolore: 0.1.3
       tinyglobby: 0.2.15
       vite: 7.3.1(@types/node@25.5.2)(yaml@2.8.3)
@@ -4000,12 +4000,12 @@ snapshots:
     dependencies:
       picomatch: 4.0.4
 
-  '@astrojs/language-server@2.16.6(prettier@3.8.1)(typescript@5.9.3)':
+  '@astrojs/language-server@2.16.6(prettier@3.8.1)(typescript@6.0.2)':
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/yaml2ts': 0.2.3
       '@jridgewell/sourcemap-codec': 1.5.5
-      '@volar/kit': 2.4.28(typescript@5.9.3)
+      '@volar/kit': 2.4.28(typescript@6.0.2)
       '@volar/language-core': 2.4.28
       '@volar/language-server': 2.4.28
       '@volar/language-service': 2.4.28
@@ -4388,12 +4388,12 @@ snapshots:
       - echarts
       - zod
 
-  '@emdash-cms/auth@0.1.0(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))(kysely@0.27.6)':
+  '@emdash-cms/auth@0.1.0(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(kysely@0.27.6)':
     dependencies:
       '@oslojs/crypto': 1.0.1
       '@oslojs/encoding': 1.1.0
       '@oslojs/webauthn': 1.0.0
-      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
+      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
       ulidx: 2.4.1
       zod: 4.3.6
     optionalDependencies:
@@ -4413,11 +4413,11 @@ snapshots:
       - '@types/react'
       - zod
 
-  '@emdash-cms/cloudflare@0.1.0(f1205216ee3aed246d043d837baf8bec)':
+  '@emdash-cms/cloudflare@0.1.0(7f0277e3d6e76e4035bb8e6feab1aea8)':
     dependencies:
       '@cloudflare/workers-types': 4.20260404.1
-      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
-      emdash: 0.1.0(19f868403ed19e6ee1345442523ee791)
+      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
+      emdash: 0.1.0(278cfc80116fa1acc56065c528ee6e70)
       jose: 6.2.2
       kysely: 0.27.6
       kysely-d1: 0.4.0(kysely@0.27.6)
@@ -4448,18 +4448,18 @@ snapshots:
       '@wordpress/block-serialization-default-parser': 5.43.0
       parse5: 7.3.0
 
-  '@emdash-cms/plugin-forms@0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))(emdash@0.1.0(19f868403ed19e6ee1345442523ee791))(react@19.2.4)':
+  '@emdash-cms/plugin-forms@0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(emdash@0.1.0(278cfc80116fa1acc56065c528ee6e70))(react@19.2.4)':
     dependencies:
       '@cloudflare/kumo': 1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6)
       '@phosphor-icons/react': 2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
-      emdash: 0.1.0(19f868403ed19e6ee1345442523ee791)
+      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
+      emdash: 0.1.0(278cfc80116fa1acc56065c528ee6e70)
       react: 19.2.4
       ulidx: 2.4.1
 
-  '@emdash-cms/plugin-webhook-notifier@0.1.0(emdash@0.1.0(19f868403ed19e6ee1345442523ee791))':
+  '@emdash-cms/plugin-webhook-notifier@0.1.0(emdash@0.1.0(278cfc80116fa1acc56065c528ee6e70))':
     dependencies:
-      emdash: 0.1.0(19f868403ed19e6ee1345442523ee791)
+      emdash: 0.1.0(278cfc80116fa1acc56065c528ee6e70)
 
   '@emmetio/abbreviation@2.3.3':
     dependencies:
@@ -5526,7 +5526,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@4.1.2(vitest@4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3)))':
+  '@vitest/coverage-v8@4.1.2(vitest@4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3)))':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.1.2
@@ -5538,7 +5538,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))
+      vitest: 4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))
 
   '@vitest/expect@4.1.2':
     dependencies:
@@ -5549,13 +5549,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.2(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))':
+  '@vitest/mocker@4.1.2(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))':
     dependencies:
       '@vitest/spy': 4.1.2
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      msw: 2.12.14(@types/node@25.5.2)(typescript@5.9.3)
+      msw: 2.12.14(@types/node@25.5.2)(typescript@6.0.2)
       vite: 7.3.1(@types/node@25.5.2)(yaml@2.8.3)
 
   '@vitest/pretty-format@4.1.2':
@@ -5582,12 +5582,12 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@volar/kit@2.4.28(typescript@5.9.3)':
+  '@volar/kit@2.4.28(typescript@6.0.2)':
     dependencies:
       '@volar/language-service': 2.4.28
       '@volar/typescript': 2.4.28
       typesafe-path: 0.2.2
-      typescript: 5.9.3
+      typescript: 6.0.2
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
@@ -5685,13 +5685,13 @@ snapshots:
       estree-walker: 3.0.3
       js-tokens: 10.0.0
 
-  astro-portabletext@0.11.4(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)):
+  astro-portabletext@0.11.4(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)):
     dependencies:
       '@portabletext/toolkit': 3.0.3
       '@portabletext/types': 2.0.15
-      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
+      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
 
-  astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3):
+  astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3):
     dependencies:
       '@astrojs/compiler': 3.0.1
       '@astrojs/internal-helpers': 0.8.0
@@ -5737,7 +5737,7 @@ snapshots:
       tinyclip: 0.1.12
       tinyexec: 1.0.4
       tinyglobby: 0.2.15
-      tsconfck: 3.1.6(typescript@5.9.3)
+      tsconfck: 3.1.6(typescript@6.0.2)
       ultrahtml: 1.6.0
       unifont: 0.7.4
       unist-util-visit: 5.1.0
@@ -6060,11 +6060,11 @@ snapshots:
 
   electron-to-chromium@1.5.331: {}
 
-  emdash@0.1.0(19f868403ed19e6ee1345442523ee791):
+  emdash@0.1.0(278cfc80116fa1acc56065c528ee6e70):
     dependencies:
       '@astrojs/react': 5.0.2(@types/node@25.5.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
       '@emdash-cms/admin': 0.1.0(@floating-ui/dom@1.7.6)(@tiptap/extension-collaboration@3.22.2(@tiptap/core@3.22.2(@tiptap/pm@3.22.2))(@tiptap/pm@3.22.2)(@tiptap/y-tiptap@3.0.2(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(yjs@13.6.30))(@tiptap/extensions@3.22.2(@tiptap/core@3.22.2(@tiptap/pm@3.22.2))(@tiptap/pm@3.22.2))(@tiptap/y-tiptap@3.0.2(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6)
-      '@emdash-cms/auth': 0.1.0(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))(kysely@0.27.6)
+      '@emdash-cms/auth': 0.1.0(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(kysely@0.27.6)
       '@emdash-cms/gutenberg-to-portable-text': 0.1.0
       '@floating-ui/react': 0.27.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@modelcontextprotocol/sdk': 1.29.0(zod@4.3.6)
@@ -6084,8 +6084,8 @@ snapshots:
       '@tiptap/suggestion': 3.22.2(@tiptap/core@3.22.2(@tiptap/pm@3.22.2))(@tiptap/pm@3.22.2)
       '@unpic/placeholder': 0.1.2
       arctic: 3.7.0
-      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3)
-      astro-portabletext: 0.11.4(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@5.9.3)(yaml@2.8.3))
+      astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
+      astro-portabletext: 0.11.4(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))
       better-sqlite3: 11.10.0
       blurhash: 2.0.5
       citty: 0.1.6
@@ -7053,7 +7053,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3):
+  msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2):
     dependencies:
       '@inquirer/confirm': 5.1.21(@types/node@25.5.2)
       '@mswjs/interceptors': 0.41.3
@@ -7074,7 +7074,7 @@ snapshots:
       until-async: 3.0.2
       yargs: 17.7.2
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.2
     transitivePeerDependencies:
       - '@types/node'
 
@@ -7871,9 +7871,9 @@ snapshots:
 
   trough@2.2.0: {}
 
-  tsconfck@3.1.6(typescript@5.9.3):
+  tsconfck@3.1.6(typescript@6.0.2):
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.2
 
   tslib@2.3.0: {}
 
@@ -7899,7 +7899,7 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  typescript@5.9.3: {}
+  typescript@6.0.2: {}
 
   uc.micro@2.1.0: {}
 
@@ -8044,10 +8044,10 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@25.5.2)(yaml@2.8.3)
 
-  vitest@4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3)):
+  vitest@4.1.2(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.2
-      '@vitest/mocker': 4.1.2(msw@2.12.14(@types/node@25.5.2)(typescript@5.9.3))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))
+      '@vitest/mocker': 4.1.2(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@7.3.1(@types/node@25.5.2)(yaml@2.8.3))
       '@vitest/pretty-format': 4.1.2
       '@vitest/runner': 4.1.2
       '@vitest/snapshot': 4.1.2
