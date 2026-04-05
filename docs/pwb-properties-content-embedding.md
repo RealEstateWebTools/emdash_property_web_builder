@@ -18,8 +18,11 @@ This document now covers both:
 - the recommended long-term architecture
 - the current implemented `v1` in this repository
 
-The two are not identical. The current implementation is deliberately narrower because
-of a real limitation in EmDash's current plugin-block editor roundtrip.
+The two are not identical. The original `v1` implementation was deliberately narrower
+because of a real limitation in EmDash's plugin-block editor roundtrip.
+
+That limitation has now been patched locally in this repository's EmDash source, so the
+current implementation is richer than the first shipped workaround.
 
 ---
 
@@ -38,6 +41,7 @@ The plugin is registered in `astro.config.mjs` and is active in trusted mode.
 
 - editors can type `/` in Portable Text and choose `Property`
 - the insert modal accepts a PWB property slug
+- the insert modal also accepts `variant` and `ctaLabel`
 - the editor inserts a `propertyEmbed` block
 - the block persists in the draft revision data for content with revisions
 - the site-side renderer fetches live property data from PWB at render time
@@ -51,14 +55,29 @@ The current working stored block contract is:
 {
   "_type": "propertyEmbed",
   "_key": "abc123",
+  "slug": "beautiful-villa-marbella",
+  "variant": "compact",
+  "ctaLabel": "View Property"
+}
+```
+
+This is now the preferred stored shape in the local repository.
+
+### Historical note
+
+The first working workaround in this repo stored:
+
+```json
+{
+  "_type": "propertyEmbed",
+  "_key": "abc123",
   "id": "beautiful-villa-marbella"
 }
 ```
 
-In this implementation, `id` is intentionally the property slug.
-
-That is not ideal naming, but it is the safest contract with the current EmDash
-editor behavior.
+That was only necessary because EmDash previously preserved `id` but not arbitrary custom
+plugin block attrs. The local EmDash editor has now been patched to preserve arbitrary attrs,
+so that workaround is no longer the recommended contract.
 
 ### Renderer compatibility behavior
 
@@ -69,25 +88,19 @@ The renderer currently reads:
 
 This allows compatibility with both:
 
-- the implemented `v1` block shape
-- older or aspirational examples that referred to `slug`
+- the original `id`-based workaround
+- the current preferred `slug`-based shape
 
 ### Current visual behavior
 
-The site renderer still supports:
+The site renderer currently supports:
 
 - `card`
 - `compact`
 - `inline`
 
-But only `card` is durable today, because the editor does not preserve arbitrary plugin
-block fields across save roundtrips.
-
-In other words:
-
-- the renderer can handle `variant` and `ctaLabel`
-- the current editor save pipeline does not reliably persist them
-- therefore the shipped editor UI only collects the property slug
+All three variants are now durable in the local repository because the editor roundtrip
+has been patched to preserve arbitrary plugin-block attrs.
 
 ---
 
@@ -137,15 +150,16 @@ This is much better than a shortcode or free-text URL paste.
 
 ### Important note about this repo
 
-The current implementation does **not** have the full picker yet.
+The current implementation does **not** have the full search/browse picker yet.
 
 The implemented `v1` experience is:
 
 1. editor types `/`
 2. editor chooses `Property`
 3. modal asks for `Property Slug`
-4. block is inserted using that slug
-5. frontend resolves the property live from PWB
+4. editor can also choose `Display Variant` and set `CTA Label`
+5. block is inserted with those attrs
+6. frontend resolves the property live from PWB
 
 This is a practical first step, not the final target UX.
 
@@ -279,7 +293,7 @@ Recommended Portable Text block type:
 }
 ```
 
-### Implemented `v1` stored shape in this repo
+### Historical `v1` workaround in this repo
 
 ```json
 {
@@ -289,7 +303,7 @@ Recommended Portable Text block type:
 }
 ```
 
-### Why `id` is used in `v1`
+### Why `id` was used in the first workaround
 
 This is not because a PWB numeric ID is preferred.
 
@@ -307,17 +321,23 @@ but does not currently preserve arbitrary custom attrs like:
 
 when they pass through the editor's `pluginBlock` conversion layer.
 
-So the working `v1` encodes the slug into `id`.
+So the first working workaround encoded the slug into `id`.
+
+### Current preferred stored shape
+
+The local repository now supports the richer shape:
+
+```json
+{
+  "_type": "propertyEmbed",
+  "_key": "abc123",
+  "slug": "beautiful-villa-marbella",
+  "variant": "compact",
+  "ctaLabel": "View Property"
+}
+```
 
 ### Required field
-
-For the implemented `v1`, the required field is:
-
-- `id`, containing the property slug
-
-For the long-term design, the required field should become:
-
-- `slug`
 
 - `slug`
 
@@ -342,7 +362,8 @@ But keep `slug` as the primary render key unless there is a strong reason not to
 
 For the current repository implementation, the practical rule is:
 
-- treat `id` as "slug stored in the only plugin-block attr EmDash currently roundtrips safely"
+- use `slug` as the canonical property reference
+- keep renderer support for `id` only as backward compatibility for older draft content
 
 ---
 
@@ -486,7 +507,7 @@ For a better experience, use a picker.
 
 ### Actual block registration in this repo
 
-The implemented block registration is narrower:
+The local block registration is now:
 
 ```js
 admin: {
@@ -499,17 +520,24 @@ admin: {
       fields: [
         {
           type: "text_input",
-          action_id: "id",
+          action_id: "slug",
           label: "Property Slug"
+        },
+        {
+          type: "select",
+          action_id: "variant",
+          label: "Display Variant"
+        },
+        {
+          type: "text_input",
+          action_id: "ctaLabel",
+          label: "CTA Label"
         }
       ]
     }
   ]
 }
 ```
-
-That is not just a temporary simplification. It is aligned with the current editor
-roundtrip behavior described below in the issues section.
 
 ---
 
@@ -548,18 +576,14 @@ Each result should show enough metadata to disambiguate:
 
 This avoids slug-guessing and makes the feature usable by non-technical editors.
 
-### Why the picker is not implemented yet
+### Why the full picker is not implemented yet
 
 The blocker is not fetching from PWB.
 
-The blocker is that EmDash's current editor persists plugin blocks through a simplified
-`pluginBlock` representation that only reliably roundtrips an `id` field.
+The remaining blocker is search/browse UX work, not editor persistence.
 
-Until that is expanded, building a richer picker that writes `slug`, `variant`, `ctaLabel`,
-or other attrs would produce an editor experience that looks richer than the persisted data
-actually is.
-
-That would be misleading and fragile.
+The local EmDash editor has already been patched so plugin blocks can persist arbitrary attrs.
+That means a richer picker is now technically safe to build.
 
 ---
 
@@ -651,7 +675,7 @@ Instead, the frontend renderer fetches directly from PWB at render time using
 
 That is acceptable for the current scope because:
 
-- the insert UI is slug-only
+- the insert UI is still manual rather than search-driven
 - the site already has a PWB base URL environment contract
 - the immediate goal was embed rendering, not picker search UX
 
@@ -698,8 +722,8 @@ The important thing is consistency with the site’s existing PWB model.
 
 The current renderer:
 
-- accepts `node.id` as the primary property identifier
-- accepts `node.slug` as a compatibility fallback
+- accepts `node.slug` as the primary property identifier
+- accepts `node.id` as a compatibility fallback
 - fetches the live property from PWB
 - renders `card`, `compact`, or `inline`
 - defaults to `card`
@@ -717,9 +741,9 @@ The implementation lives in:
 
 These are the important issues uncovered while implementing and verifying the feature.
 
-### 1. EmDash plugin-block persistence is narrower than the insert UI suggests
+### 1. EmDash plugin-block persistence was narrower than the insert UI suggested
 
-This was the main issue.
+This was the main issue during the first implementation pass.
 
 Observed behavior:
 
@@ -732,15 +756,21 @@ Observed behavior:
 
 Impact:
 
-- `slug`, `variant`, and `ctaLabel` are not safe persisted fields today
-- a richer-looking block config would give false confidence
-- the implemented `v1` had to be reduced to a single `id` field
+- `slug`, `variant`, and `ctaLabel` were not safe persisted fields in the original editor code
+- a richer-looking block config would have given false confidence
+- the first implementation had to be reduced to a single `id` field
 
 Evidence:
 
-- the live manifest now exposes only `action_id: "id"`
-- the working save request uses `{ "_type": "propertyEmbed", "id": "<slug>" }`
-- the persisted draft revision retains that block shape
+- the old manifest exposed only `action_id: "id"`
+- the old save request used `{ "_type": "propertyEmbed", "id": "<slug>" }`
+- the old persisted draft revision retained that block shape
+
+Resolution in this repo:
+
+- local EmDash source was patched so plugin blocks preserve arbitrary attrs
+- the property embed plugin has now restored `slug`, `variant`, and `ctaLabel`
+- the renderer still accepts `id` for backward compatibility
 
 ### 2. Draft-revision storage can make persistence look broken if you inspect the wrong table
 
@@ -775,7 +805,7 @@ Impact:
 - stale admin manifests can make the implementation look broken when the code is actually correct
 - restart must be part of the verification procedure for plugin work
 
-### 4. The current doc originally described an ideal picker-driven architecture, not the shipped feature
+### 4. The original doc described an ideal picker-driven architecture, not the first shipped workaround
 
 Before implementation, this document described:
 
@@ -785,8 +815,8 @@ Before implementation, this document described:
 - picker routes
 - richer admin flows
 
-Those are still reasonable long-term goals, but they were not what the code actually
-implemented after running into the editor persistence constraint.
+Those are still reasonable goals, but they were not what the code actually implemented
+before the local editor patch.
 
 Impact:
 
@@ -802,19 +832,19 @@ Impact:
 
 - verification of `componentsEntry` should happen through Astro/EmDash runtime, not plain Node import
 
-### 6. Current renderer supports more than the editor safely persists
+### 6. The renderer temporarily supported more than the editor safely persisted
 
-The renderer still supports:
+The renderer supported:
 
 - `variant`
 - `ctaLabel`
 
-But the current editor `v1` no longer asks for those fields because they are not durable.
+But the original editor workaround no longer asked for those fields because they were not durable.
 
 Impact:
 
-- those renderer branches are compatibility scaffolding for future work
-- they should not be treated as part of the current editor feature contract
+- those renderer branches were compatibility scaffolding during the workaround phase
+- after the local editor patch, those fields are part of the local editor feature contract
 
 ---
 
@@ -829,6 +859,7 @@ The following checks were performed during implementation:
 - insert modal opened from the slash menu
 - save requests included the expected plugin block payload
 - persisted draft revision data contained the `propertyEmbed` block
+- rich plugin attrs were preserved through the local EmDash editor roundtrip
 - renderer contract remained aligned with the public property route `/properties/[slug]`
 
 ### Important verification nuance
@@ -844,19 +875,18 @@ Do not rely only on `ec_posts.content` / `ec_pages.content` for draft-state veri
 
 ## Current Recommended Next Steps
 
-The implementation is good enough for a practical `v1`, but the next sensible work items are:
+The implementation is now good enough for a practical local `v2`, but the next sensible work items are:
 
-1. patch EmDash so plugin blocks can persist arbitrary attrs, not just `id`
-2. re-enable `slug`, `variant`, and `ctaLabel` as real stored fields
-3. add a proper property picker backed by PWB search
-4. add an admin-side preview in the insert/edit modal
-5. document the upgraded block contract once the editor roundtrip is fixed
+1. move the local EmDash plugin-block attr patch upstream or into a maintained fork
+2. add a proper property picker backed by PWB search
+3. add an admin-side preview in the insert/edit modal
+4. decide whether `ctaLabel` should remain per-embed or become mostly theme-driven
+5. document the upgraded block contract anywhere else it is referenced
 
-Until that EmDash editor work happens, the correct product stance is:
+Until that editor patch is upstreamed, the correct product stance is:
 
-- ship slug-only insertion
-- keep the frontend renderer flexible
-- do not promise richer editor-configurable variants as persisted behavior
+- treat the richer attr persistence as a local repository capability
+- avoid assuming third-party/default EmDash installs will have the same behavior
 
 ---
 

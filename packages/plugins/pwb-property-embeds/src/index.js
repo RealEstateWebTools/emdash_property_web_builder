@@ -10,9 +10,25 @@ const PORTABLE_TEXT_BLOCKS = [
 		fields: [
 			{
 				type: "text_input",
-				action_id: "id",
+				action_id: "slug",
 				label: "Property Slug",
 				placeholder: "beautiful-villa-marbella",
+			},
+			{
+				type: "select",
+				action_id: "variant",
+				label: "Display Variant",
+				options: [
+					{ label: "Card", value: "card" },
+					{ label: "Compact", value: "compact" },
+					{ label: "Inline", value: "inline" },
+				],
+			},
+			{
+				type: "text_input",
+				action_id: "ctaLabel",
+				label: "CTA Label",
+				placeholder: "View Property",
 			},
 		],
 	},
