@@ -38,6 +38,12 @@ const menu = await getMenu('primary')
     </div>
     <div class="footer-bottom">
       <p class="footer-copyright">&copy; {new Date().getFullYear()} {siteTitle}</p>
+      <a
+        href="https://github.com/RealEstateWebTools/emdash_property_web_builder"
+        class="footer-github"
+        target="_blank"
+        rel="noopener noreferrer"
+      >View on GitHub</a>
     </div>
   </div>
 </footer>
@@ -102,12 +108,28 @@ const menu = await getMenu('primary')
   .footer-bottom {
     padding-top: 1.5rem;
     border-top: 1px solid var(--color-border, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .footer-copyright {
     font-size: 0.875rem;
     color: var(--color-text-muted, #6b7280);
     margin: 0;
+  }
+
+  .footer-github {
+    font-size: 0.875rem;
+    color: var(--color-text-muted, #6b7280);
+    text-decoration: none;
+    transition: color 120ms ease;
+  }
+
+  .footer-github:hover {
+    color: var(--color-primary, #1a4f8a);
   }
 
   @media (max-width: 900px) {
