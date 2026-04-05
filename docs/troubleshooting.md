@@ -71,6 +71,36 @@ Check: `document.querySelector('meta[name="pwb-api-url"]').content` in the brows
 
 ---
 
+## EmDash admin login succeeds but immediately redirects back to the login page
+
+**Symptom:** Passkey verification returns 200 but the next request gets a 401, and the server logs show:
+```
+[WARN] [session] context.session was used … but no storage configuration was provided
+```
+
+**Cause:** No session driver is configured. Without the Cloudflare adapter (which provides session storage in production), Astro can't persist the session between requests.
+
+**Fix:** `astro.config.mjs` must include a dev-only session driver:
+```js
+...(isDev ? { session: { driver: "fs-lite" } } : {}),
+```
+This is already set. If the warning reappears, check that `isDev` resolves to `true` (i.e. `NODE_ENV` is not `"production"`).
+
+---
+
+## EmDash admin shows "Invalid hook call" / blank white screen
+
+**Symptom:** Browser console shows:
+```
+Invalid hook call. Hooks can only be called inside of the body of a function component.
+```
+
+**Cause:** Two copies of React are loaded — one pre-bundled by Vite, one inlined inside the `@emdash-cms/admin` chunk.
+
+**Fix:** `@emdash-cms/admin` must be in `vite.optimizeDeps.exclude` in `astro.config.mjs` so Vite doesn't pre-bundle it (which would inline React). This is already set. If the error returns after a package update, check that the exclude entry is still present.
+
+---
+
 ## EmDash admin shows a blank page after login
 
 Usually a stale service worker. In Chrome DevTools → Application → Service Workers → click "Unregister", then hard-refresh.

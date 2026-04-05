@@ -17,7 +17,12 @@ const emdashLocalExcludes = [
 
 export default defineConfig({
 	output: "server",
+	// Cloudflare adapter is production-only. In dev, Astro runs as plain Node.
+	// The adapter provides session storage in production; for dev we supply our own.
 	adapter: isDev ? undefined : cloudflare(),
+	// fs-lite keeps sessions on disk between restarts. The Cloudflare adapter
+	// provides its own session storage in production so this block is dev-only.
+	...(isDev ? { session: { driver: "fs-lite" } } : {}),
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
@@ -42,9 +47,12 @@ export default defineConfig({
 	devToolbar: { enabled: false },
 	vite: {
 		resolve: {
+			// Ensure a single React instance across the page and the admin UI.
 			dedupe: ["react", "react-dom"],
 		},
 		ssr: {
+			// Prevent Vite from trying to bundle native Node modules or local-only
+			// emdash modules during SSR — they must stay as require() calls.
 			optimizeDeps: {
 				exclude: [...nativeSsrExcludes, ...emdashLocalExcludes],
 			},
@@ -59,6 +67,8 @@ export default defineConfig({
 				"react/jsx-dev-runtime",
 			],
 			exclude: [
+				// Must not be pre-bundled: pnpm has no direct symlink for it, and
+				// bundling it would inline a second copy of React → invalid hook errors.
 				"@emdash-cms/admin",
 				"emdash",
 				"emdash/astro",
