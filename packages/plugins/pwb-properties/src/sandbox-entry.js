@@ -7,12 +7,40 @@ const FILTER_SALE = "filter:sale";
 const FILTER_RENTAL = "filter:rental";
 const BACK_TO_LIST = "back_to_list";
 
+function logInfo(ctx, message, data) {
+	if (data === undefined) {
+		ctx.log.info(`pwb-properties: ${message}`);
+		return;
+	}
+	ctx.log.info(`pwb-properties: ${message}`, data);
+}
+
+function logWarn(ctx, message, data) {
+	if (data === undefined) {
+		ctx.log.warn(`pwb-properties: ${message}`);
+		return;
+	}
+	ctx.log.warn(`pwb-properties: ${message}`, data);
+}
+
+function logError(ctx, message, data) {
+	if (data === undefined) {
+		ctx.log.error(`pwb-properties: ${message}`);
+		return;
+	}
+	ctx.log.error(`pwb-properties: ${message}`, data);
+}
+
 function trimTrailingSlash(value) {
 	return value.replace(/\/+$/, "");
 }
 
 function safeString(value) {
 	return typeof value === "string" ? value : "";
+}
+
+function isRecord(value) {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function normalizeMode(value) {
@@ -265,7 +293,28 @@ function buildDetailBlocks(property, apiUrl, state) {
 
 async function getConfiguredApiUrl(ctx) {
 	const stored = await ctx.kv.get(SETTINGS_KEY);
-	return typeof stored === "string" ? trimTrailingSlash(stored.trim()) : "";
+	const value = typeof stored === "string" ? trimTrailingSlash(stored.trim()) : "";
+	logInfo(ctx, "loaded configured API URL", {
+		hasValue: Boolean(value),
+		value,
+	});
+	return value;
+}
+
+function getSettingValue(interaction, key) {
+	if (isRecord(interaction.values) && key in interaction.values) {
+		return interaction.values[key];
+	}
+	if (isRecord(interaction.value) && key in interaction.value) {
+		return interaction.value[key];
+	}
+	if (isRecord(interaction.form) && key in interaction.form) {
+		return interaction.form[key];
+	}
+	if (isRecord(interaction.data) && key in interaction.data) {
+		return interaction.data[key];
+	}
+	return undefined;
 }
 
 function validateApiUrl(input) {
@@ -290,15 +339,19 @@ function validateApiUrl(input) {
 
 async function fetchJson(ctx, url) {
 	if (!ctx.http) {
+		logError(ctx, "HTTP client unavailable");
 		throw new Error("Plugin HTTP client is not available.");
 	}
+	logInfo(ctx, "fetching PWB API", { url });
 	const res = await ctx.http.fetch(url, {
 		headers: { Accept: "application/json" },
 	});
+	logInfo(ctx, "received PWB API response", { url, status: res.status, ok: res.ok });
 	if (!res.ok) {
 		const body = await res.json().catch(() => ({}));
 		const message =
 			typeof body?.error === "string" ? body.error : `PWB API request failed with ${res.status}.`;
+		logError(ctx, "PWB API request failed", { url, status: res.status, message });
 		throw new Error(message);
 	}
 	return res.json();
@@ -347,14 +400,25 @@ function parseBackAction(actionId) {
 }
 
 async function renderList(ctx, state, error) {
+	logInfo(ctx, "rendering property list", {
+		page: state.page,
+		mode: state.mode ?? null,
+		hasInjectedError: Boolean(error),
+	});
 	const apiUrl = await getConfiguredApiUrl(ctx);
 	if (!apiUrl) {
+		logWarn(ctx, "cannot render property list because API URL is not configured", state);
 		return {
 			blocks: buildListBlocks(null, state, apiUrl),
 		};
 	}
 
 	if (error) {
+		logWarn(ctx, "rendering property list with injected error", {
+			page: state.page,
+			mode: state.mode ?? null,
+			error,
+		});
 		return {
 			blocks: buildListBlocks(null, state, apiUrl, error),
 		};
@@ -362,12 +426,23 @@ async function renderList(ctx, state, error) {
 
 	try {
 		const search = await searchProperties(ctx, apiUrl, state.page, state.mode);
+		logInfo(ctx, "property list loaded", {
+			page: search?.meta?.page,
+			totalPages: search?.meta?.total_pages,
+			total: search?.meta?.total,
+			count: Array.isArray(search?.data) ? search.data.length : null,
+			mode: state.mode ?? null,
+		});
 		return {
 			blocks: buildListBlocks(search, state, apiUrl),
 		};
 	} catch (err) {
 		const message = err instanceof Error ? err.message : "Failed to load properties.";
-		ctx.log.error(`pwb-properties: list fetch failed: ${message}`);
+		logError(ctx, "list fetch failed", {
+			page: state.page,
+			mode: state.mode ?? null,
+			message,
+		});
 		return {
 			blocks: buildListBlocks(null, state, apiUrl, message),
 		};
@@ -380,26 +455,43 @@ export default definePlugin({
 			handler: async (routeCtx, ctx) => {
 				const interaction = routeCtx.input ?? {};
 				const currentPage = safeString(interaction.page) || "/";
+				logInfo(ctx, "received admin interaction", {
+					type: safeString(interaction.type) || null,
+					page: currentPage,
+					actionId: safeString(interaction.action_id) || null,
+					blockId: safeString(interaction.block_id) || null,
+					valueKeys: isRecord(interaction.values) ? Object.keys(interaction.values) : [],
+				});
 
-				if (currentPage === "/settings") {
-					if (interaction.action_id === "save_settings") {
-						const validation = validateApiUrl(interaction.values?.pwbApiUrl);
-						if (!validation.ok) {
-							return {
-								blocks: buildSettingsBlocks(
-									safeString(interaction.values?.pwbApiUrl).trim(),
-									validation.error,
-								),
-								toast: { message: validation.error, type: "error" },
-							};
-						}
-						await ctx.kv.set(SETTINGS_KEY, validation.value);
+				if (interaction.action_id === "save_settings") {
+					const candidateUrl = getSettingValue(interaction, "pwbApiUrl");
+					logInfo(ctx, "processing settings save", {
+						rawValue: safeString(candidateUrl).trim(),
+					});
+					const validation = validateApiUrl(candidateUrl);
+					if (!validation.ok) {
+						logWarn(ctx, "settings save rejected", {
+							rawValue: safeString(candidateUrl).trim(),
+							error: validation.error,
+						});
 						return {
-							blocks: buildSettingsBlocks(validation.value),
-							toast: { message: "PWB API URL saved.", type: "success" },
+							blocks: buildSettingsBlocks(safeString(candidateUrl).trim(), validation.error),
+							toast: { message: validation.error, type: "error" },
 						};
 					}
+					await ctx.kv.set(SETTINGS_KEY, validation.value);
+					logInfo(ctx, "settings saved", {
+						key: SETTINGS_KEY,
+						value: validation.value,
+					});
+					return {
+						blocks: buildSettingsBlocks(validation.value),
+						toast: { message: "PWB API URL saved.", type: "success" },
+					};
+				}
 
+				if (currentPage === "/settings") {
+					logInfo(ctx, "rendering settings page");
 					return {
 						blocks: buildSettingsBlocks(await getConfiguredApiUrl(ctx)),
 					};
@@ -407,24 +499,39 @@ export default definePlugin({
 
 				const actionId = safeString(interaction.action_id);
 				if (actionId === FILTER_ALL) {
+					logInfo(ctx, "filter selected", { mode: null });
 					return renderList(ctx, { page: 1 });
 				}
 				if (actionId === FILTER_SALE) {
+					logInfo(ctx, "filter selected", { mode: "sale" });
 					return renderList(ctx, { page: 1, mode: "sale" });
 				}
 				if (actionId === FILTER_RENTAL) {
+					logInfo(ctx, "filter selected", { mode: "rental" });
 					return renderList(ctx, { page: 1, mode: "rental" });
 				}
 				if (actionId.startsWith("page:")) {
-					return renderList(ctx, parsePageAction(actionId));
+					const state = parsePageAction(actionId);
+					logInfo(ctx, "pagination requested", state);
+					return renderList(ctx, state);
 				}
 				if (actionId.startsWith("back_to_list:") || actionId === BACK_TO_LIST) {
-					return renderList(ctx, parseBackAction(actionId));
+					const state = parseBackAction(actionId);
+					logInfo(ctx, "returning to list", state);
+					return renderList(ctx, state);
 				}
 				if (actionId.startsWith("view_property:")) {
 					const { slug, state } = parseViewAction(actionId);
+					logInfo(ctx, "property detail requested", {
+						slug,
+						page: state.page,
+						mode: state.mode ?? null,
+					});
 					const apiUrl = await getConfiguredApiUrl(ctx);
 					if (!apiUrl) {
+						logWarn(ctx, "cannot load property detail because API URL is not configured", {
+							slug,
+						});
 						return {
 							blocks: buildListBlocks(
 								null,
@@ -435,20 +542,26 @@ export default definePlugin({
 						};
 					}
 					if (!slug) {
+						logWarn(ctx, "property detail request missing slug");
 						return renderList(ctx, state, "Property slug is missing.");
 					}
 					try {
 						const property = await getProperty(ctx, apiUrl, slug);
+						logInfo(ctx, "property detail loaded", {
+							slug: property.slug,
+							title: property.title,
+						});
 						return {
 							blocks: buildDetailBlocks(property, apiUrl, state),
 						};
 					} catch (err) {
 						const message = err instanceof Error ? err.message : "Failed to load property.";
-						ctx.log.error(`pwb-properties: detail fetch failed for ${slug}: ${message}`);
+						logError(ctx, "detail fetch failed", { slug, message });
 						return renderList(ctx, state, message);
 					}
 				}
 
+				logInfo(ctx, "defaulting to initial property list view");
 				return renderList(ctx, { page: 1 });
 			},
 		},

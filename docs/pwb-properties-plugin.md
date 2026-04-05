@@ -125,6 +125,11 @@ Then run:
 pnpm install
 ```
 
+When developing a local workspace plugin, restart `npx emdash dev` after changing plugin
+entrypoints or runtime route code. In practice, edits under `packages/plugins/...` may not
+always be picked up cleanly by the running admin/plugin host, and stale code can make a
+settings save or route fix appear broken when the new handler is not actually loaded yet.
+
 ---
 
 ## Plugin Package
@@ -431,6 +436,7 @@ The guide should be considered implemented only when all of the following are tr
 | Pagination uses API metadata, not `items.length === 20` heuristics | Yes |
 | Detail view loads a property by slug | Yes |
 | API failures show an error state distinct from empty results | Yes |
+| After changing plugin runtime code locally, the dev server is restarted before retesting | Yes |
 | Production config registers plugin only in `sandboxed` | Yes |
 
 ---
@@ -445,6 +451,7 @@ The guide should be considered implemented only when all of the following are tr
 6. Overwriting `pnpm-workspace.yaml` instead of merging the workspace config.
 7. Using undocumented env access in plugin runtime code without verifying it.
 8. Using Block Kit field names that differ from the documented local reference.
+9. Retesting a plugin fix without restarting `npx emdash dev`, causing stale plugin code to remain active.
 
 ---
 
