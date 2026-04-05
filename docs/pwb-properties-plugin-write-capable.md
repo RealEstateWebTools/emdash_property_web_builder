@@ -4,6 +4,9 @@ This document defines the next iteration of the `pwb-properties` plugin: a write
 admin integration that allows editors to create and update property listings in PWB from
 inside EmDash.
 
+For embedding PWB properties inside EmDash posts/pages via Portable Text blocks, see
+[`docs/pwb-properties-content-embedding.md`](./pwb-properties-content-embedding.md).
+
 This is not a loose concept note. It is intended to be concrete enough to implement.
 
 ---
