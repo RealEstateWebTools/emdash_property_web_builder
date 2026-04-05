@@ -1,5 +1,5 @@
 ---
-import { getMenu, getEmDashCollection } from 'emdash'
+import { getMenu } from 'emdash'
 import { WidgetArea } from 'emdash/ui'
 
 interface Props {
@@ -7,10 +7,7 @@ interface Props {
 }
 
 const { siteTitle } = Astro.props
-const [menu, { entries: pages }] = await Promise.all([
-  getMenu('primary'),
-  getEmDashCollection('pages'),
-])
+const menu = await getMenu('primary')
 ---
 
 <footer class="site-footer">
@@ -21,19 +18,6 @@ const [menu, { entries: pages }] = await Promise.all([
       </div>
       <div class="footer-nav">
         <h4 class="footer-heading">Navigate</h4>
-        <ul class="footer-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/properties">Properties for Sale</a></li>
-          <li><a href="/properties?mode=rental">Properties for Rent</a></li>
-          {pages.slice(0, 3).map(page => (
-            <li>
-              <a href={`/pages/${page.data.slug || page.id}`}>{page.data.title}</a>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="footer-nav">
-        <h4 class="footer-heading">Connect</h4>
         <ul class="footer-links">
           {menu?.items.map(item => (
             <li>
@@ -73,7 +57,7 @@ const [menu, { entries: pages }] = await Promise.all([
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     gap: 3rem;
     margin-bottom: 3rem;
   }
