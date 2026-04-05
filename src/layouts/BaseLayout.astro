@@ -1,6 +1,7 @@
 ---
 import { buildPageMeta } from '../lib/pwb/site-config'
 import SiteHeader from '../components/SiteHeader.astro'
+import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
 
 interface Props {
@@ -62,19 +63,6 @@ const meta = buildPageMeta(site, { title, description, canonical })
     <main>
       <slot />
     </main>
-    <footer class="site-footer">
-      <p>&copy; {new Date().getFullYear()} {site.company_display_name ?? site.title}</p>
-    </footer>
+    <SiteFooter siteTitle={site.company_display_name ?? site.title} />
   </body>
 </html>
-
-<style>
-  .site-footer {
-    border-top: 1px solid var(--color-border);
-    padding: 2rem var(--spacing-page);
-    text-align: center;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-    margin-top: 4rem;
-  }
-</style>

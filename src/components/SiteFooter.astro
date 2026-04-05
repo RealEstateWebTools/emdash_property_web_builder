@@ -1,0 +1,147 @@
+---
+import { getMenu, getEmDashCollection } from 'emdash'
+import { WidgetArea } from 'emdash/ui'
+
+interface Props {
+  siteTitle: string
+}
+
+const { siteTitle } = Astro.props
+const [menu, { entries: pages }] = await Promise.all([
+  getMenu('primary'),
+  getEmDashCollection('pages'),
+])
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo">{siteTitle}</a>
+      </div>
+      <div class="footer-nav">
+        <h4 class="footer-heading">Navigate</h4>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/properties">Properties for Sale</a></li>
+          <li><a href="/properties?mode=rental">Properties for Rent</a></li>
+          {pages.slice(0, 3).map(page => (
+            <li>
+              <a href={`/pages/${page.data.slug || page.id}`}>{page.data.title}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="footer-nav">
+        <h4 class="footer-heading">Connect</h4>
+        <ul class="footer-links">
+          {menu?.items.map(item => (
+            <li>
+              <a
+                href={item.url}
+                target={item.target}
+                rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="footer-widgets-section">
+        <WidgetArea name="footer" />
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copyright">&copy; {new Date().getFullYear()} {siteTitle}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-bg-soft, #f8f9fa);
+    border-top: 1px solid var(--color-border, #e5e7eb);
+    margin-top: 4rem;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 2rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-logo {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text, #1a1a2e);
+    text-decoration: none;
+  }
+
+  .footer-heading {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #6b7280);
+    margin-bottom: 1rem;
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-links li {
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-links a {
+    color: var(--color-text-muted, #6b7280);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 120ms ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-primary, #1a4f8a);
+  }
+
+  .footer-bottom {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .footer-copyright {
+    font-size: 0.875rem;
+    color: var(--color-text-muted, #6b7280);
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .footer-brand {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+    .footer-brand {
+      grid-column: span 1;
+    }
+  }
+</style>

@@ -39,60 +39,62 @@ Astro.cache.set(cacheHint);
 
 <style>
 	.page-article {
-		max-width: var(--max-width);
+		max-width: 800px;
 		margin: 0 auto;
-		padding: var(--spacing-16) var(--spacing-6) var(--spacing-16);
+		padding: 4rem 1.5rem;
 	}
 
 	.page-header {
-		margin-bottom: var(--spacing-8);
+		margin-bottom: 2rem;
 	}
 
 	.page-title {
-		font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
+		font-size: clamp(1.5rem, 4vw, 2.5rem);
 		font-weight: 700;
-		line-height: var(--leading-tight);
+		line-height: 1.15;
+		color: var(--color-text);
 	}
 
 	.page-content :global(p) {
 		margin-bottom: 1.5em;
+		line-height: 1.7;
 	}
 
 	.page-content :global(h2) {
-		font-size: var(--font-size-2xl);
+		font-size: 1.5rem;
 		margin-top: 2em;
 		margin-bottom: 0.75em;
 	}
 
 	.page-content :global(h3) {
-		font-size: var(--font-size-xl);
+		font-size: 1.25rem;
 		margin-top: 1.75em;
 		margin-bottom: 0.5em;
 	}
 
 	.page-content :global(blockquote) {
 		margin: 1.5em 0;
-		padding-left: var(--spacing-6);
+		padding-left: 1.5rem;
 		border-left: 3px solid var(--color-border);
-		color: var(--color-muted);
+		color: var(--color-text-muted);
 	}
 
 	.page-content :global(pre) {
 		margin: 1.5em 0;
-		padding: var(--spacing-4);
-		background: var(--color-surface);
-		border-radius: var(--radius);
+		padding: 1rem;
+		background: var(--color-bg-soft);
+		border-radius: 4px;
 		overflow-x: auto;
-		font-family: var(--font-mono);
-		font-size: var(--font-size-sm);
+		font-family: ui-monospace, monospace;
+		font-size: 0.875rem;
 	}
 
 	.page-content :global(code) {
-		font-family: var(--font-mono);
+		font-family: ui-monospace, monospace;
 		font-size: 0.9em;
-		background: var(--color-surface);
+		background: var(--color-bg-soft);
 		padding: 0.15em 0.3em;
-		border-radius: var(--radius);
+		border-radius: 4px;
 	}
 
 	.page-content :global(pre code) {
@@ -103,7 +105,7 @@ Astro.cache.set(cacheHint);
 	.page-content :global(ul),
 	.page-content :global(ol) {
 		margin-bottom: 1.5em;
-		padding-left: var(--spacing-5);
+		padding-left: 1.25rem;
 	}
 
 	.page-content :global(li) {
