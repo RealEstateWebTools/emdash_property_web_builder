@@ -1,33 +1,41 @@
 ---
-import Base from "../layouts/Base.astro";
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { createPwbClient } from '../lib/pwb/client'
+
+const site = await createPwbClient().getSiteDetails()
 ---
 
-<Base title="Page not found">
-	<div class="not-found">
-		<h1>404</h1>
-		<p>The page you're looking for doesn't exist.</p>
-		<a href="/">Go back home</a>
-	</div>
-</Base>
+<BaseLayout site={site} title="Page not found">
+  <div class="not-found">
+    <h1>404</h1>
+    <p>The page you&rsquo;re looking for doesn&rsquo;t exist.</p>
+    <a href="/">Go back home</a>
+  </div>
+</BaseLayout>
 
 <style>
-	.not-found {
-		text-align: center;
-		padding: var(--spacing-24) var(--spacing-6);
-	}
-
-	.not-found h1 {
-		font-size: var(--font-size-5xl);
-		margin-bottom: var(--spacing-2);
-		color: var(--color-border);
-	}
-
-	.not-found p {
-		color: var(--color-muted);
-		margin-bottom: var(--spacing-6);
-	}
-
-	.not-found a {
-		color: var(--color-text);
-	}
+  .not-found {
+    text-align: center;
+    padding: 6rem var(--spacing-page, 1.5rem);
+  }
+  .not-found h1 {
+    font-size: clamp(4rem, 12vw, 8rem);
+    font-weight: 700;
+    color: var(--color-border, #e5e7eb);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .not-found p {
+    color: var(--color-text-muted, #6b7280);
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+  .not-found a {
+    color: var(--color-primary, #1a4f8a);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  .not-found a:hover {
+    text-decoration: underline;
+  }
 </style>

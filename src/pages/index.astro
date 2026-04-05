@@ -36,7 +36,9 @@ const cards = results.data.map(formatPropertyCard)
 
   {cards.length > 0 && (
     <section class="featured-section">
-      <h2>Featured Properties</h2>
+      <h2 {...homepage?.edit.featured_section_heading}>
+        {homepage?.data.featured_section_heading ?? 'Featured Properties'}
+      </h2>
       <PropertyGrid cards={cards} />
       <div class="featured-section__cta">
         <a href="/properties" class="btn btn-primary">View All Properties</a>
