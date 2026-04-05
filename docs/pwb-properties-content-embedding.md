@@ -24,6 +24,9 @@ because of a real limitation in EmDash's plugin-block editor roundtrip.
 That limitation has now been patched locally in this repository's EmDash source, so the
 current implementation is richer than the first shipped workaround.
 
+For the dedicated patch mechanics and maintenance workflow, see
+[docs/emdash-plugin-block-attr-patch.md](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/docs/emdash-plugin-block-attr-patch.md).
+
 ---
 
 ## Current Status

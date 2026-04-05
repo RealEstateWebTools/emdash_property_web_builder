@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 import {
 	pluginBlockAttrsToPortableTextBlock,
@@ -50,6 +52,24 @@ describe("EmDash plugin block attr roundtrip", () => {
 			variant: "inline",
 		});
 	});
+
+	it("preserves legacy id-based blocks for backward compatibility", () => {
+		const block = {
+			_type: "propertyEmbed",
+			_key: "legacy123",
+			id: "beautiful-villa-marbella",
+		};
+
+		const attrs = portableTextPluginBlockToAttrs(block);
+
+		expect(attrs).toEqual({
+			blockType: "propertyEmbed",
+			blockKey: "legacy123",
+			id: "beautiful-villa-marbella",
+		});
+
+		expect(pluginBlockAttrsToPortableTextBlock(attrs, () => "generated-key")).toEqual(block);
+	});
 });
 
 describe("PWB property embed plugin config", () => {
@@ -82,5 +102,26 @@ describe("PWB property embed plugin config", () => {
 				placeholder: "View Property",
 			},
 		]);
+	});
+});
+
+describe("EmDash patch workflow", () => {
+	it("wires the local emdash patch through pnpm patchedDependencies", () => {
+		const packageJsonPath = resolve(process.cwd(), "package.json");
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+
+		expect(packageJson.pnpm?.patchedDependencies).toEqual({
+			"emdash@0.1.0": "patches/emdash@0.1.0.patch",
+		});
+	});
+
+	it("tracks the editor fix in the patch file", () => {
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.1.0.patch");
+		const patch = readFileSync(patchPath, "utf8");
+
+		expect(patch).toContain("src/components/InlinePortableTextEditor.tsx");
+		expect(patch).toContain("src/components/plugin-block-attrs.ts");
+		expect(patch).toContain("portableTextPluginBlockToAttrs");
+		expect(patch).toContain("pluginBlockAttrsToPortableTextBlock");
 	});
 });
