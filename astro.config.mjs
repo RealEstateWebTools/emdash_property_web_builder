@@ -42,6 +42,7 @@ export default defineConfig({
 			storage: isDev
 				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
+			mcp: true,
 			plugins: isDev
 				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbPropertyEmbedsPlugin()]
 				: [formsPlugin(), pwbPropertyEmbedsPlugin()],
