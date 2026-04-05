@@ -22,8 +22,8 @@
 		"astro": "^6.1.2",
 		"better-sqlite3": "^12.8.0",
 		"emdash": "^0.1.0",
-		"pwb-property-embeds": "workspace:*",
 		"pwb-properties": "workspace:*",
+		"pwb-property-embeds": "workspace:*",
 		"react": "^19.2.4",
 		"react-dom": "^19.2.4"
 	},
@@ -41,6 +41,9 @@
 		"onlyBuiltDependencies": [
 			"msw",
 			"better-sqlite3"
-		]
+		],
+		"patchedDependencies": {
+			"emdash@0.1.0": "patches/emdash@0.1.0.patch"
+		}
 	}
 }

@@ -1,0 +1,102 @@
+diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
+index 412a26c2311c4465fbe27548afd6fc02b89b5caa..d2eda142ea4238237dfedc328cb3ff95dc265e2b 100644
+--- a/src/components/InlinePortableTextEditor.tsx
++++ b/src/components/InlinePortableTextEditor.tsx
+@@ -25,6 +25,11 @@ import Suggestion from "@tiptap/suggestion";
+ import * as React from "react";
+ import { createPortal } from "react-dom";
+ 
++import {
++	pluginBlockAttrsToPortableTextBlock,
++	portableTextPluginBlockToAttrs,
++} from "./plugin-block-attrs.js";
++
+ // ── Portable Text types ────────────────────────────────────────────
+ 
+ interface PTSpan {
+@@ -201,11 +206,7 @@ function convertPMNode(node: PMNode): PTBlock | PTBlock[] | null {
+ 		case "horizontalRule":
+ 			return { _type: "break", _key: k(), style: "lineBreak" };
+ 		case "pluginBlock":
+-			return {
+-				_type: attrStr(node.attrs, "blockType") || "embed",
+-				_key: k(),
+-				id: attrStr(node.attrs, "id"),
+-			};
++			return pluginBlockAttrsToPortableTextBlock(node.attrs, k);
+ 		default:
+ 			return null;
+ 	}
+@@ -410,13 +411,10 @@ function convertPTBlock(block: PTBlock): JSONContent | null {
+ 	}
+ 	// Unknown block types — treat as plugin blocks if they have an id
+ 	const embedBlock = block as { _type: string; url?: string; id?: string };
+-	if (embedBlock.id || embedBlock.url) {
++	if (embedBlock.id || embedBlock.url || block._type !== "block") {
+ 		return {
+ 			type: "pluginBlock",
+-			attrs: {
+-				blockType: block._type,
+-				id: embedBlock.id || embedBlock.url || "",
+-			},
++			attrs: portableTextPluginBlockToAttrs(block),
+ 		};
+ 	}
+ 	// Truly unknown — render as code-marked text
+diff --git a/src/components/plugin-block-attrs.ts b/src/components/plugin-block-attrs.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..11f14026e8dd9a23de888ccba0cf81f1ede444e2
+--- /dev/null
++++ b/src/components/plugin-block-attrs.ts
+@@ -0,0 +1,51 @@
++export interface PortableTextPluginBlock {
++	_type: string;
++	_key: string;
++	[key: string]: unknown;
++}
++
++export interface PluginBlockAttrs extends Record<string, unknown> {
++	blockType: string;
++	blockKey?: string;
++}
++
++function isPlainObject(value: unknown): value is Record<string, unknown> {
++	return typeof value === "object" && value !== null && !Array.isArray(value);
++}
++
++export function portableTextPluginBlockToAttrs(block: PortableTextPluginBlock): PluginBlockAttrs {
++	const { _type, _key, ...rest } = block;
++	return {
++		blockType: _type,
++		blockKey: _key,
++		...rest,
++	};
++}
++
++export function pluginBlockAttrsToPortableTextBlock(
++	attrs: Record<string, unknown> | undefined,
++	generateKey: () => string,
++): PortableTextPluginBlock {
++	const input = isPlainObject(attrs) ? attrs : {};
++	const {
++		blockType,
++		blockKey,
++		type,
++		...rest
++	} = input;
++
++	const resolvedType =
++		typeof blockType === "string" && blockType
++			? blockType
++			: typeof type === "string" && type
++				? type
++				: "embed";
++
++	const resolvedKey = typeof blockKey === "string" && blockKey ? blockKey : generateKey();
++
++	return {
++		_type: resolvedType,
++		_key: resolvedKey,
++		...rest,
++	};
++}
