@@ -8,10 +8,16 @@ import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 
 const isDev = process.env.NODE_ENV !== "production";
+const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
+const emdashLocalExcludes = [
+	"emdash/db/sqlite",
+	"emdash/storage/local",
+	"emdash/media/local-runtime",
+];
 
 export default defineConfig({
 	output: "server",
-	adapter: cloudflare(),
+	adapter: isDev ? undefined : cloudflare(),
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
@@ -27,18 +33,36 @@ export default defineConfig({
 			storage: isDev
 				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
-			plugins: [formsPlugin()],
-			sandboxed: [webhookNotifierPlugin()],
-			sandboxRunner: sandbox(),
-			marketplace: "https://marketplace.emdashcms.com",
+			plugins: isDev ? [formsPlugin(), webhookNotifierPlugin()] : [formsPlugin()],
+			sandboxed: isDev ? [] : [webhookNotifierPlugin()],
+			sandboxRunner: isDev ? undefined : sandbox(),
+			marketplace: isDev ? undefined : "https://marketplace.emdashcms.com",
 		}),
 	],
 	devToolbar: { enabled: false },
 	vite: {
+		resolve: {
+			dedupe: ["react", "react-dom"],
+		},
+		ssr: {
+			optimizeDeps: {
+				exclude: [...nativeSsrExcludes, ...emdashLocalExcludes],
+			},
+		},
 		optimizeDeps: {
+			include: [
+				"@astrojs/react/client.js",
+				"react",
+				"react-dom",
+				"react-dom/client",
+				"react/jsx-runtime",
+				"react/jsx-dev-runtime",
+			],
 			exclude: [
 				"emdash",
 				"emdash/astro",
+				...emdashLocalExcludes,
+				...nativeSsrExcludes,
 				"emdash/middleware",
 				"emdash/middleware/redirect",
 				"emdash/middleware/setup",
