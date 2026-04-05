@@ -20,6 +20,7 @@
 		"@emdash-cms/plugin-forms": "^0.1.0",
 		"@emdash-cms/plugin-webhook-notifier": "^0.1.0",
 		"astro": "^6.1.2",
+		"better-sqlite3": "^12.8.0",
 		"emdash": "^0.1.0",
 		"react": "^19.2.4",
 		"react-dom": "^19.2.4"
@@ -27,6 +28,7 @@
 	"devDependencies": {
 		"@astrojs/check": "^0.9.7",
 		"@cloudflare/workers-types": "^4.20260401.1",
+		"@types/better-sqlite3": "^7.6.13",
 		"@vitest/coverage-v8": "^4.1.2",
 		"happy-dom": "^20.8.9",
 		"msw": "^2.12.14",
@@ -35,7 +37,8 @@
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
-			"msw"
+			"msw",
+			"better-sqlite3"
 		]
 	}
 }
