@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { formsPlugin } from "@emdash-cms/plugin-forms";
 import { webhookNotifierPlugin } from "@emdash-cms/plugin-webhook-notifier";
-import { defineConfig } from "astro/config";
+import { defineConfig, sessionDrivers } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 
@@ -22,7 +22,9 @@ export default defineConfig({
 	adapter: isDev ? undefined : cloudflare(),
 	// fs-lite keeps sessions on disk between restarts. The Cloudflare adapter
 	// provides its own session storage in production so this block is dev-only.
-	...(isDev ? { session: { driver: "fs-lite" } } : {}),
+	// In-memory sessions for dev (lost on server restart, but no external deps needed).
+	// The Cloudflare adapter provides persistent session storage in production.
+	...(isDev ? { session: { driver: sessionDrivers.memory() } } : {}),
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
