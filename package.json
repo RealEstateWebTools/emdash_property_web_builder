@@ -5,6 +5,9 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
+		"seed": "node scripts/seed.mjs",
+		"seed:minimal": "node scripts/seed.mjs minimal",
+		"seed:pre-launch": "node scripts/seed.mjs pre-launch",
 		"build": "astro build",
 		"preview": "astro preview",
 		"deploy": "wrangler deploy --provision",

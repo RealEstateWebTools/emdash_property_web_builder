@@ -1,0 +1,249 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "Property Web Builder – Pre-launch",
+		"description": "Minimal live presence while the full site is being prepared. Valuation form and contact page only — no property guides or blog.",
+		"author": "EmDash"
+	},
+
+	"settings": {
+		"title": "Your Agency Name",
+		"tagline": "Expert local knowledge, exceptional service"
+	},
+
+	"collections": [
+		{
+			"slug": "posts",
+			"label": "Posts",
+			"labelSingular": "Post",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"commentsEnabled": true,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "Featured Image",
+					"type": "image"
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "excerpt",
+					"label": "Excerpt",
+					"type": "text"
+				}
+			]
+		},
+		{
+			"slug": "pages",
+			"label": "Pages",
+			"labelSingular": "Page",
+			"supports": ["drafts", "revisions", "search"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "featured_section_heading",
+					"label": "Featured Section Heading",
+					"type": "string"
+				}
+			]
+		}
+	],
+
+	"taxonomies": [
+		{
+			"name": "category",
+			"label": "Categories",
+			"labelSingular": "Category",
+			"hierarchical": true,
+			"collections": ["posts"],
+			"terms": [
+				{ "slug": "market-news", "label": "Market News" },
+				{ "slug": "buying-guides", "label": "Buying Guides" },
+				{ "slug": "selling-tips", "label": "Selling Tips" },
+				{ "slug": "renting", "label": "Renting" },
+				{ "slug": "lifestyle", "label": "Lifestyle" }
+			]
+		},
+		{
+			"name": "tag",
+			"label": "Tags",
+			"labelSingular": "Tag",
+			"hierarchical": false,
+			"collections": ["posts"],
+			"terms": [
+				{ "slug": "first-time-buyer", "label": "First Time Buyer" },
+				{ "slug": "investment", "label": "Investment" },
+				{ "slug": "mortgage", "label": "Mortgage" },
+				{ "slug": "property-tips", "label": "Property Tips" },
+				{ "slug": "local-area", "label": "Local Area" }
+			]
+		}
+	],
+
+	"bylines": [
+		{
+			"id": "byline-editorial",
+			"slug": "editorial",
+			"displayName": "Editorial Team"
+		}
+	],
+
+	"menus": [
+		{
+			"name": "primary",
+			"label": "Primary Navigation",
+			"items": [
+				{ "type": "custom", "label": "Home", "url": "/" },
+				{ "type": "custom", "label": "Properties", "url": "/properties" },
+				{ "type": "custom", "label": "Free Valuation", "url": "/valuation" },
+				{ "type": "custom", "label": "Contact", "url": "/pages/contact" }
+			]
+		}
+	],
+
+	"widgetAreas": [
+		{
+			"name": "sidebar",
+			"label": "Sidebar",
+			"description": "Widget area displayed on article pages",
+			"widgets": [
+				{
+					"type": "content",
+					"title": "Free Valuation",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Thinking of selling? Get a free, no-obligation valuation from our team."
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "footer",
+			"label": "Footer",
+			"description": "Widget area displayed in the site footer",
+			"widgets": [
+				{
+					"type": "content",
+					"title": "About Us",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Add your agency description here."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"sections": [
+		{
+			"slug": "free-valuation",
+			"title": "Free Valuation",
+			"description": "Call-to-action for booking a free property valuation",
+			"keywords": ["valuation", "sell", "estimate", "cta"],
+			"source": "theme",
+			"content": [
+				{
+					"_type": "block",
+					"style": "h3",
+					"children": [{ "_type": "span", "text": "How much is your property worth?" }]
+				},
+				{
+					"_type": "block",
+					"style": "normal",
+					"children": [
+						{
+							"_type": "span",
+							"text": "Get a free, no-obligation valuation from our local property experts. We'll give you an honest assessment of your home's market value."
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"content": {
+		"pages": [
+			{
+				"id": "homepage",
+				"slug": "homepage",
+				"status": "published",
+				"data": {
+					"title": "Welcome — We're Almost Ready",
+					"featured_section_heading": "Latest Listings",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Our new website is launching soon. In the meantime, browse our current listings or request a free valuation below."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contact Us",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Get in touch with our team. We'd love to hear from you."
+								}
+							]
+						}
+					]
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,298 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "Property Web Builder – Minimal",
+		"description": "Schema only — no demo content. Start here for a real agency deployment.",
+		"author": "EmDash"
+	},
+
+	"settings": {
+		"title": "Your Agency Name",
+		"tagline": "Expert local knowledge, exceptional service"
+	},
+
+	"collections": [
+		{
+			"slug": "posts",
+			"label": "Posts",
+			"labelSingular": "Post",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"commentsEnabled": true,
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "Featured Image",
+					"type": "image"
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "excerpt",
+					"label": "Excerpt",
+					"type": "text"
+				}
+			]
+		},
+		{
+			"slug": "pages",
+			"label": "Pages",
+			"labelSingular": "Page",
+			"supports": ["drafts", "revisions", "search"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "featured_section_heading",
+					"label": "Featured Section Heading",
+					"type": "string"
+				}
+			]
+		}
+	],
+
+	"taxonomies": [
+		{
+			"name": "category",
+			"label": "Categories",
+			"labelSingular": "Category",
+			"hierarchical": true,
+			"collections": ["posts"],
+			"terms": [
+				{ "slug": "market-news", "label": "Market News" },
+				{ "slug": "buying-guides", "label": "Buying Guides" },
+				{ "slug": "selling-tips", "label": "Selling Tips" },
+				{ "slug": "renting", "label": "Renting" },
+				{ "slug": "lifestyle", "label": "Lifestyle" }
+			]
+		},
+		{
+			"name": "tag",
+			"label": "Tags",
+			"labelSingular": "Tag",
+			"hierarchical": false,
+			"collections": ["posts"],
+			"terms": [
+				{ "slug": "first-time-buyer", "label": "First Time Buyer" },
+				{ "slug": "investment", "label": "Investment" },
+				{ "slug": "mortgage", "label": "Mortgage" },
+				{ "slug": "property-tips", "label": "Property Tips" },
+				{ "slug": "local-area", "label": "Local Area" }
+			]
+		}
+	],
+
+	"bylines": [
+		{
+			"id": "byline-editorial",
+			"slug": "editorial",
+			"displayName": "Editorial Team"
+		}
+	],
+
+	"menus": [
+		{
+			"name": "primary",
+			"label": "Primary Navigation",
+			"items": [
+				{ "type": "custom", "label": "Home", "url": "/" },
+				{ "type": "custom", "label": "Properties for Sale", "url": "/properties" },
+				{ "type": "custom", "label": "Properties for Rent", "url": "/properties?mode=rental" },
+				{ "type": "custom", "label": "Valuation", "url": "/valuation" },
+				{ "type": "custom", "label": "About", "url": "/pages/about" },
+				{ "type": "custom", "label": "Contact", "url": "/pages/contact" }
+			]
+		}
+	],
+
+	"widgetAreas": [
+		{
+			"name": "sidebar",
+			"label": "Sidebar",
+			"description": "Widget area displayed on article pages",
+			"widgets": [
+				{
+					"type": "component",
+					"componentId": "core:search",
+					"title": "Search"
+				},
+				{
+					"type": "component",
+					"componentId": "core:categories",
+					"title": "Property Guides"
+				},
+				{
+					"type": "component",
+					"componentId": "core:recent-posts",
+					"title": "Latest Articles",
+					"settings": {
+						"count": 5,
+						"showDate": true
+					}
+				}
+			]
+		},
+		{
+			"name": "footer",
+			"label": "Footer",
+			"description": "Widget area displayed in the site footer",
+			"widgets": [
+				{
+					"type": "content",
+					"title": "About Us",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Add your agency description here."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"sections": [
+		{
+			"slug": "property-alerts",
+			"title": "Property Alerts",
+			"description": "A call-to-action block for property alert sign-ups",
+			"keywords": ["alerts", "subscribe", "email", "cta", "notifications"],
+			"source": "theme",
+			"content": [
+				{
+					"_type": "block",
+					"style": "h3",
+					"children": [{ "_type": "span", "text": "Never miss a property" }]
+				},
+				{
+					"_type": "block",
+					"style": "normal",
+					"children": [
+						{
+							"_type": "span",
+							"text": "Register for property alerts and be the first to hear about new listings that match your requirements."
+						}
+					]
+				}
+			]
+		},
+		{
+			"slug": "free-valuation",
+			"title": "Free Valuation",
+			"description": "Call-to-action for booking a free property valuation",
+			"keywords": ["valuation", "sell", "estimate", "cta"],
+			"source": "theme",
+			"content": [
+				{
+					"_type": "block",
+					"style": "h3",
+					"children": [{ "_type": "span", "text": "How much is your property worth?" }]
+				},
+				{
+					"_type": "block",
+					"style": "normal",
+					"children": [
+						{
+							"_type": "span",
+							"text": "Get a free, no-obligation valuation from our local property experts."
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"content": {
+		"pages": [
+			{
+				"id": "homepage",
+				"slug": "homepage",
+				"status": "published",
+				"data": {
+					"title": "Find Your Dream Property",
+					"featured_section_heading": "Featured Properties",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Browse our selection of properties for sale and rent. Replace this text with your agency's value proposition."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "about",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "About Us",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Tell your agency's story here. Replace this placeholder with your actual about page content."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contact Us",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Get in touch with our team."
+								}
+							]
+						}
+					]
+				}
+			}
+		]
+	}
+}
