@@ -1,7 +1,7 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
-import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
+import { d1, r2 } from "@emdash-cms/cloudflare";
 import { formsPlugin } from "@emdash-cms/plugin-forms";
 import { webhookNotifierPlugin } from "@emdash-cms/plugin-webhook-notifier";
 import { defineConfig, sessionDrivers } from "astro/config";
@@ -19,6 +19,8 @@ const emdashLocalExcludes = [
 	"emdash/storage/local",
 	"emdash/media/local-runtime",
 ];
+const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin()];
+const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()];
 
 export default defineConfig({
 	output: "server",
@@ -50,12 +52,10 @@ export default defineConfig({
 				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
 			mcp: true,
-			plugins: isDev
-				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()]
-				: [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()],
-			sandboxed: isDev ? [] : [webhookNotifierPlugin(), pwbPropertiesPlugin()],
-			sandboxRunner: isDev ? undefined : sandbox(),
-			marketplace: isDev ? undefined : "https://marketplace.emdashcms.com",
+			plugins: isDev ? [...bundledPlugins, ...trustedPlugins] : [...bundledPlugins, ...trustedPlugins],
+			sandboxed: [],
+			sandboxRunner: undefined,
+			marketplace: undefined,
 		}),
 	],
 	devToolbar: { enabled: false },
