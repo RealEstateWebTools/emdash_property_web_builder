@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-emdash-site",
+	"name": "emdash-property-web-builder",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-03-29",
 	"compatibility_flags": [
@@ -9,16 +9,21 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "my-emdash-site",
-			// Run `wrangler d1 create my-emdash-site` and paste the ID here
+			"database_name": "emdash-property-web-builder",
+			"database_id": "00000000-0000-0000-0000-000000000000",
 		},
 	],
 	"r2_buckets": [
 		{
 			"binding": "MEDIA",
-			"bucket_name": "my-emdash-media",
+			"bucket_name": "emdash-property-web-builder-media",
 		},
 	],
+	"vars": {
+		// Set your PWB Rails backend URL after deploying:
+		// wrangler pages secret put PWB_API_URL
+		"PWB_API_URL": "",
+	},
 	"observability": {
 		"enabled": true,
 	},

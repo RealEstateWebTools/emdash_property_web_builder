@@ -7,7 +7,7 @@
 		"dev": "node scripts/dev.mjs",
 		"build": "astro build",
 		"preview": "astro preview",
-		"deploy": "wrangler deploy",
+		"deploy": "wrangler deploy --provision",
 		"typecheck": "astro check",
 		"test": "vitest",
 		"test:run": "vitest run",

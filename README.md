@@ -1,67 +1,99 @@
-# EmDash Blog Template (Cloudflare)
+# EmDash Property Web Builder
 
-A clean, minimal blog built with [EmDash](https://github.com/emdash-cms/emdash) and deployed on Cloudflare Workers with D1 and R2.
+An estate agency website built with [EmDash](https://github.com/emdash-cms/emdash) and [Property Web Builder](https://github.com/property-web-builder/property_web_builder), deployed on Cloudflare Workers.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/emdash-cms/templates/tree/main/blog-cloudflare)
+Property listings, search, and enquiries are powered by the PWB Rails backend. Site content, pages, articles, and the admin UI are powered by EmDash.
 
-![Blog template homepage](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-light-desktop.jpg)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/RealEstateWebTools/emdash_property_web_builder)
 
 ## What's Included
 
-- Featured post hero on the homepage
-- Post archive with reading time estimates
-- Category and tag archives
+- Property listings with search, filters, and map view
+- Property detail pages with photo gallery and enquiry form
+- Featured properties on homepage
+- CMS-managed pages (About, Contact, etc.)
+- Blog/articles with categories and tags
 - Full-text search
-- RSS feed
-- SEO metadata and JSON-LD
-- Dark/light mode
-- Forms plugin and webhook notifier
+- EmDash admin UI at `/_emdash/admin`
+- MCP server at `/_emdash/api/mcp` for AI tool integration
 
 ## Pages
 
 | Page | Route |
 |---|---|
 | Homepage | `/` |
-| All posts | `/posts` |
+| Property search | `/properties` |
+| Property detail | `/properties/:slug` |
+| Blog archive | `/posts` |
 | Single post | `/posts/:slug` |
 | Category archive | `/category/:slug` |
 | Tag archive | `/tag/:slug` |
+| CMS pages | `/pages/:slug` |
 | Search | `/search` |
-| Static pages | `/pages/:slug` |
 | 404 | fallback |
-
-## Screenshots
-
-| | Desktop | Mobile |
-|---|---|---|
-| Light | ![homepage light desktop](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-light-desktop.jpg) | ![homepage light mobile](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-light-mobile.jpg) |
-| Dark | ![homepage dark desktop](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-dark-desktop.jpg) | ![homepage dark mobile](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-dark-mobile.jpg) |
 
 ## Infrastructure
 
 - **Runtime:** Cloudflare Workers
-- **Database:** D1
-- **Storage:** R2
+- **Database:** D1 (CMS content and admin)
+- **Storage:** R2 (media uploads)
 - **Framework:** Astro with `@astrojs/cloudflare`
+- **Listings backend:** Property Web Builder (Rails API)
+
+## Prerequisites
+
+You need a running [Property Web Builder](https://github.com/property-web-builder/property_web_builder) instance. This provides the property listings API. Set its URL as `PWB_API_URL` after deploying.
 
 ## Local Development
 
 ```bash
+# Install dependencies
 pnpm install
-pnpm bootstrap
+
+# Copy and fill in environment variables
+cp .env.example .env
+# Edit .env: set PWB_API_URL=http://localhost:3000
+
+# Seed the local database
+npx emdash seed seed/seed.json
+
+# Start the dev server (opens admin automatically)
 pnpm dev
+# → http://localhost:4444
+# → http://localhost:4444/_emdash/admin
 ```
 
 ## Deploying
 
+### One-click via the button above
+
+The deploy button will:
+1. Fork this repo to your GitHub account
+2. Connect it to Cloudflare Workers
+3. Create the D1 database and R2 bucket automatically (`--provision`)
+
+After deploying, set your PWB backend URL:
+
 ```bash
-pnpm deploy
+wrangler pages secret put PWB_API_URL
+# paste your production PWB URL when prompted
 ```
 
-Or click the deploy button above to set up the project in your Cloudflare account.
+Then seed the production database:
+
+```bash
+wrangler d1 execute emdash-property-web-builder --file=<(sqlite3 data.db .dump)
+```
+
+### Manual deploy
+
+```bash
+pnpm build
+pnpm deploy  # runs wrangler deploy --provision
+wrangler pages secret put PWB_API_URL
+```
 
 ## See Also
 
-- [Node.js variant](../blog) -- same template using SQLite and local file storage
-- [All templates](../)
 - [EmDash documentation](https://github.com/emdash-cms/emdash/tree/main/docs)
+- [Property Web Builder](https://github.com/property-web-builder/property_web_builder)
