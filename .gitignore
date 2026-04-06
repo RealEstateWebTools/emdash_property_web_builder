@@ -11,3 +11,5 @@ data.db
 data.db-shm
 data.db-wal
 .wrangler
+docs/emdash-lms-patterns.md
+emdash-lms
