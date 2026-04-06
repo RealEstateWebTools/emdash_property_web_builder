@@ -43,6 +43,9 @@ importers:
       pwb-property-embeds:
         specifier: workspace:*
         version: link:packages/plugins/pwb-property-embeds
+      pwb-valuation:
+        specifier: workspace:*
+        version: link:packages/plugins/pwb-valuation
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -82,6 +85,12 @@ importers:
         version: 0.1.0(patch_hash=8f7a90f771f359f3d16f99c7459751e8939a8ebca86dfbbe13d71944621d30b9)(278cfc80116fa1acc56065c528ee6e70)
 
   packages/plugins/pwb-property-embeds:
+    dependencies:
+      emdash:
+        specifier: '*'
+        version: 0.1.0(patch_hash=8f7a90f771f359f3d16f99c7459751e8939a8ebca86dfbbe13d71944621d30b9)(278cfc80116fa1acc56065c528ee6e70)
+
+  packages/plugins/pwb-valuation:
     dependencies:
       emdash:
         specifier: '*'

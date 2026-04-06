@@ -24,6 +24,7 @@
 		"emdash": "^0.1.0",
 		"pwb-properties": "workspace:*",
 		"pwb-property-embeds": "workspace:*",
+		"pwb-valuation": "workspace:*",
 		"react": "^19.2.4",
 		"react-dom": "^19.2.4"
 	},

@@ -1,0 +1,14 @@
+{
+  "name": "pwb-valuation",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./sandbox": "./src/sandbox-entry.js",
+    "./integration": "./src/integration.js",
+    "./pages/valuation": "./src/pages/valuation.astro"
+  },
+  "peerDependencies": {
+    "emdash": "*"
+  }
+}

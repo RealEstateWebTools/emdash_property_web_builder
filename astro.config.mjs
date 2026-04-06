@@ -9,6 +9,8 @@ import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 import { pwbPropertyEmbedsPlugin } from "pwb-property-embeds";
 import { pwbPropertiesPlugin } from "pwb-properties";
+import { pwbValuationPlugin } from "pwb-valuation";
+import { pwbValuationIntegration } from "pwb-valuation/integration";
 
 const isDev = process.env.NODE_ENV !== "production";
 const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
@@ -34,6 +36,10 @@ export default defineConfig({
 	},
 	integrations: [
 		react(),
+		pwbValuationIntegration({
+			layout: "./src/layouts/BaseLayout.astro",
+			pwbClientModule: "./src/lib/pwb/client.js",
+		}),
 		emdash({
 			// Local dev: SQLite (seeded with `npx emdash seed`)
 			// Production: Cloudflare D1 + R2
@@ -45,8 +51,8 @@ export default defineConfig({
 				: r2({ binding: "MEDIA" }),
 			mcp: true,
 			plugins: isDev
-				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbPropertyEmbedsPlugin()]
-				: [formsPlugin(), pwbPropertyEmbedsPlugin()],
+				? [formsPlugin(), webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()]
+				: [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()],
 			sandboxed: isDev ? [] : [webhookNotifierPlugin(), pwbPropertiesPlugin()],
 			sandboxRunner: isDev ? undefined : sandbox(),
 			marketplace: isDev ? undefined : "https://marketplace.emdashcms.com",
@@ -104,6 +110,8 @@ export default defineConfig({
 				"@emdash-cms/plugin-webhook-notifier",
 				"pwb-property-embeds",
 				"pwb-properties",
+				"pwb-valuation",
+				"pwb-valuation/integration",
 			],
 		},
 	},
