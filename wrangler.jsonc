@@ -23,6 +23,9 @@
 		// Set your PWB Rails backend URL after deploying:
 		// wrangler secret put PWB_API_URL
 		"PWB_API_URL": "",
+		// Active colour palette. One of: default | gold | luxury | mediterranean | coastal | countryside | urban | nordic
+		// Change this and redeploy to switch the site theme. No code changes needed.
+		"PUBLIC_PALETTE": "default",
 	},
 	// kv_namespaces: wrangler will auto-provision SESSION on first deploy.
 	// After provisioning, wrangler writes the ID to dist/server/wrangler.json (not committed).

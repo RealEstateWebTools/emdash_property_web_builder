@@ -1,0 +1,35 @@
+/* Mediterranean — Spanish, Italian, Greek coastal property markets
+   Warm terracotta accents, aged-paper backgrounds, sun-bleached tones */
+:root {
+  --color-primary:       #b84a2a;
+  --color-primary-light: #d4613e;
+  --color-primary-dark:  #8f3820;
+  --color-accent:        #e07840;
+  --color-text:          #2c1f0e;
+  --color-text-muted:    #7a6552;
+  --color-bg:            #fdf8f2;
+  --color-bg-soft:       #f5ece0;
+  --color-border:        #e0cdb6;
+  --color-success:       #4a7c59;
+  --color-error:         #c0392b;
+
+  --font-sans:  'Lora', Georgia, 'Times New Roman', serif;
+  --font-serif: 'Lora', Georgia, serif;
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+
+  --shadow-card:  0 2px 8px rgba(100,60,20,0.1);
+  --shadow-hover: 0 8px 28px rgba(100,60,20,0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text:      #f0e8dc;
+    --color-text-muted:#a09080;
+    --color-bg:        #1c1410;
+    --color-bg-soft:   #251c15;
+    --color-border:    #3d2e20;
+  }
+}

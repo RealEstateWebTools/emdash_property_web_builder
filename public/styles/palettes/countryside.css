@@ -1,0 +1,35 @@
+/* Countryside — rural estates, farmhouses, equestrian property
+   Sage green, warm stone, earthy tones */
+:root {
+  --color-primary:       #3d6b4a;
+  --color-primary-light: #538060;
+  --color-primary-dark:  #2c5036;
+  --color-accent:        #7a9e60;
+  --color-text:          #1e2a1e;
+  --color-text-muted:    #6b7a60;
+  --color-bg:            #f8f6f0;
+  --color-bg-soft:       #eeece4;
+  --color-border:        #d4d0c0;
+  --color-success:       #3d7a4a;
+  --color-error:         #c04040;
+
+  --font-sans:  'Source Serif 4', 'Lora', Georgia, serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-card:  0 2px 8px rgba(30,42,30,0.08);
+  --shadow-hover: 0 8px 24px rgba(30,42,30,0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text:      #d8e8d0;
+    --color-text-muted:#8aaa80;
+    --color-bg:        #111a0f;
+    --color-bg-soft:   #182416;
+    --color-border:    #2a3c28;
+  }
+}

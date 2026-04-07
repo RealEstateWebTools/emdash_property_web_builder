@@ -1,0 +1,47 @@
+/* Luxury Dark — high-end residential, villas, penthouses
+   Deep charcoal backgrounds, warm gold accents, serif typography */
+:root {
+  --color-primary:       #c9a84c;
+  --color-primary-light: #dfc06e;
+  --color-primary-dark:  #a8883a;
+  --color-accent:        #c9a84c;
+  --color-text:          #f0ebe2;
+  --color-text-muted:    #9e9689;
+  --color-bg:            #0f0e0c;
+  --color-bg-soft:       #1a1916;
+  --color-border:        #2c2a26;
+  --color-success:       #4caf82;
+  --color-error:         #e05252;
+
+  --font-sans:  'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+
+  --radius-sm: 0px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+
+  --shadow-card:  0 2px 12px rgba(0,0,0,0.4);
+  --shadow-hover: 0 12px 40px rgba(0,0,0,0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text:      #f0ebe2;
+    --color-text-muted:#9e9689;
+    --color-bg:        #0f0e0c;
+    --color-bg-soft:   #1a1916;
+    --color-border:    #2c2a26;
+  }
+}
+
+/* Gold price treatment */
+.property-card__price {
+  color: var(--color-primary);
+  letter-spacing: 0.02em;
+}
+
+/* Subtle lift on hover — restrained for luxury feel */
+.property-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}

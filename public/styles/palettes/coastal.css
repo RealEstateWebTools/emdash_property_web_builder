@@ -1,0 +1,35 @@
+/* Coastal — beach houses, seafront apartments, holiday lets
+   Ocean blues, fresh whites, natural textures */
+:root {
+  --color-primary:       #1a6b8a;
+  --color-primary-light: #2488ad;
+  --color-primary-dark:  #115270;
+  --color-accent:        #28b5c8;
+  --color-text:          #0e2a38;
+  --color-text-muted:    #5a8090;
+  --color-bg:            #f5fafc;
+  --color-bg-soft:       #e8f4f8;
+  --color-border:        #c0dce8;
+  --color-success:       #1a8c5a;
+  --color-error:         #d63c3c;
+
+  --font-sans:  'DM Sans', 'Nunito', system-ui, sans-serif;
+  --font-serif: 'Merriweather', Georgia, serif;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-card:  0 2px 10px rgba(26,107,138,0.08);
+  --shadow-hover: 0 10px 32px rgba(26,107,138,0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text:      #d8eff6;
+    --color-text-muted:#6aacbe;
+    --color-bg:        #071c26;
+    --color-bg-soft:   #0d2a38;
+    --color-border:    #1a4560;
+  }
+}
