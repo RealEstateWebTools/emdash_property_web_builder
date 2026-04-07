@@ -10,7 +10,7 @@
 		{
 			"binding": "DB",
 			"database_name": "emdash-property-web-builder",
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "00000000-0000-0000-0000-000000000000", // replace with your own: wrangler d1 create emdash-property-web-builder
 		},
 	],
 	"r2_buckets": [
@@ -24,6 +24,8 @@
 		// wrangler secret put PWB_API_URL
 		"PWB_API_URL": "",
 	},
+	// kv_namespaces: wrangler will auto-provision SESSION on first deploy.
+	// After provisioning, wrangler writes the ID to dist/server/wrangler.json (not committed).
 	"observability": {
 		"enabled": true,
 	},
