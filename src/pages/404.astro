@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import { createPwbClient } from '../lib/pwb/client'
 import type { SiteDetails } from '../lib/pwb/types'
 
-const fallbackSite: SiteDetails = {
+// Do not call the PWB backend on the 404 page — the backend may be
+// unreachable and any error would appear in Worker logs on every 404 hit.
+const site: SiteDetails = {
   id: 0,
   title: 'Property Search',
   meta_description: null,
@@ -17,13 +18,6 @@ const fallbackSite: SiteDetails = {
   twitter: {},
   json_ld: {},
   analytics: null,
-}
-
-let site: SiteDetails
-try {
-  site = await createPwbClient().getSiteDetails()
-} catch {
-  site = fallbackSite
 }
 ---
 
