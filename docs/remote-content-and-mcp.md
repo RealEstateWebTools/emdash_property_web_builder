@@ -374,6 +374,68 @@ If you want EmDash to own more of the editorial surface area, the next code deci
 
 Until that is decided, remote content work should avoid assuming all CMS-like pages are writable through EmDash.
 
+## Production Content State (as of 2026-04-07)
+
+The following content has been created and published on the live deployment via the admin API:
+
+| Item | Slug | Status |
+|---|---|---|
+| Homepage page | `homepage` | Published |
+| Post: Local Property Market Outlook | `local-property-market-outlook-2026` | Published |
+| Post: Renting vs Buying | `renting-vs-buying-2026-real-monthly-cost` | Published |
+| Post: Seven Fixes Before You Sell | `seven-fixes-that-add-value-before-you-sell` | Published |
+| Post: How to Read a Listing | `how-to-read-a-property-listing-like-a-pro` | Published |
+| Post: Neighbourhood Desirability | `what-makes-a-neighbourhood-desirable-beyond-the-postcode` | Published |
+| Post: Preparing for a Valuation | `preparing-for-a-valuation-what-agents-look-for` | Published |
+
+All 5 category terms, 5 tag terms, and 2 bylines (`byline-editorial`, `byline-agent`) are created. **These are not auto-seeded from `seed/seed.json` on the production deployment** — they were created via the API and exist only in the live database.
+
+## Direct Admin API Reference
+
+When an MCP client is not available, use `mcp__claude-in-chrome__javascript_tool` on any admin page to call the API directly from within the authenticated browser session.
+
+### CSRF header (required on all mutations)
+
+```
+X-EmDash-Request: 1
+```
+
+Without this header, all POST/PUT/PATCH/DELETE requests return `403 CSRF_REJECTED`.
+
+### Verified endpoints
+
+| Action | Method | Path |
+|---|---|---|
+| Create post | POST | `/_emdash/api/content/posts` |
+| Update post + set bylines | PUT | `/_emdash/api/content/posts/:id` |
+| Publish post | POST | `/_emdash/api/content/posts/:id/publish` |
+| Trash post | POST | `/_emdash/api/content/posts/:id/trash` |
+| List posts | GET | `/_emdash/api/content/posts?limit=50` |
+| Create category term | POST | `/_emdash/api/taxonomies/category/terms` |
+| Create tag term | POST | `/_emdash/api/taxonomies/tag/terms` |
+| Assign category | POST | `/_emdash/api/content/posts/:id/terms/category` |
+| Assign tag | POST | `/_emdash/api/content/posts/:id/terms/tag` |
+| List bylines | GET | `/_emdash/api/admin/bylines?limit=100` |
+
+### Response shape notes
+
+- Create post → `data.item.id` (not `data.post.id`)
+- List posts → `data.items[]`
+- Taxonomy term list → `data.terms[]`
+- Bylines list → `data.items[]`
+- Taxonomy term create body uses `label` (not `name`): `{ label: "Market News", slug: "market-news" }`
+- Bylines set via PUT body `bylines: [{ bylineId }]` — there is no separate POST byline assignment endpoint
+
+## Authentication: What Works and What Doesn't
+
+| Method | Works? | Notes |
+|---|---|---|
+| Passkey (real Chrome) | ✅ | Use `mcp__claude-in-chrome` — connects to user's actual browser |
+| Passkey (dev-browser) | ❌ | Playwright uses an isolated profile with no system passkeys |
+| Email link | ❌ | Email provider not configured on this deployment |
+| GitHub / Google OAuth | ✅ | Requires being logged in to those services in the browser |
+| CLI device-code | ❌ | Prints `undefined` and times out |
+
 ## Known Gaps
 
 - The remote EmDash CLI login flow did not produce a usable device code during verification.

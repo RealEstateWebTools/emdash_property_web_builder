@@ -33,11 +33,84 @@ The MCP endpoint is an OAuth-protected resource.
 
 - **Browser login works.** Use a browser-capable MCP client that supports authorization code + PKCE (`S256`).
 - **CLI device-code login is broken.** `npx emdash login --url ...` connects but prints `undefined` for the verification URL and times out. Do not rely on it.
+- **Email link login is not available** — email provider is not configured on this deployment.
+- **Passkey login requires the user's own Chrome browser.** The dev-browser skill (Playwright) runs an isolated profile and cannot access system passkeys. Use `mcp__claude-in-chrome` tools which connect to the user's real Chrome instance where passkeys are registered.
 - The admin UI at `/_emdash/admin/login` is healthy (Passkey, GitHub, Google, email-link).
 
 OAuth metadata endpoints for reference:
 - Protected resource: `/.well-known/oauth-protected-resource`
 - Authorization server: `/_emdash/.well-known/oauth-authorization-server`
+
+## Direct Admin API (Verified Working)
+
+When an MCP client is not available, you can operate the admin directly via its REST API from inside the authenticated browser session (e.g. using `mcp__claude-in-chrome__javascript_tool` on the admin pages).
+
+### CSRF header
+
+All mutating requests (POST, PUT, DELETE, PATCH) must include:
+
+```
+X-EmDash-Request: 1
+```
+
+This is the EmDash `csrfInterceptor` requirement. Without it all mutations return `403 CSRF_REJECTED`.
+
+### Key endpoints
+
+| Action | Method | Endpoint |
+|---|---|---|
+| Create post | POST | `/_emdash/api/content/posts` |
+| Update post (incl. bylines) | PUT | `/_emdash/api/content/posts/:id` |
+| Publish post | POST | `/_emdash/api/content/posts/:id/publish` |
+| Trash post | POST | `/_emdash/api/content/posts/:id/trash` |
+| List posts | GET | `/_emdash/api/content/posts?limit=50` |
+| Create category term | POST | `/_emdash/api/taxonomies/category/terms` |
+| Create tag term | POST | `/_emdash/api/taxonomies/tag/terms` |
+| Assign category to post | POST | `/_emdash/api/content/posts/:id/terms/category` |
+| Assign tag to post | POST | `/_emdash/api/content/posts/:id/terms/tag` |
+| List bylines | GET | `/_emdash/api/admin/bylines?limit=100` |
+| Create page | POST (via admin UI) | `/_emdash/admin/content/pages/new` |
+| Publish page | button click | `/_emdash/admin/content/pages/:id` |
+
+### Request body shapes
+
+**Create post:**
+```json
+{ "data": { "title": "...", "excerpt": "...", "content": "markdown..." }, "slug": "my-slug", "bylines": [] }
+```
+
+**Update post with byline:**
+```json
+{ "data": { "title": "...", "excerpt": "...", "content": "..." }, "slug": "my-slug", "bylines": [{ "bylineId": "<id>" }] }
+```
+
+**Create taxonomy term:**
+```json
+{ "label": "Market News", "slug": "market-news" }
+```
+
+**Assign term to post:**
+```json
+{ "termId": "<term-id>" }
+```
+
+### Response shapes
+
+- Create post returns `data.item.id` (not `data.post.id`)
+- List posts returns `data.items[]`
+- Taxonomy terms list returns `data.terms[]`
+- Bylines list returns `data.items[]`
+
+### Production state (as of 2026-04-07)
+
+The following content has been created and published on the live deployment:
+
+- **Homepage page** (`slug: homepage`) — "Find Your Next Move" with hero copy
+- **6 blog posts** — all published with bylines and taxonomy assignments
+- **Taxonomy terms** — all 5 categories and 5 tags created
+- **Bylines** — `byline-editorial` (Editorial Team) and `byline-agent` (Agent)
+
+**If re-seeding or resetting:** taxonomy terms and bylines are NOT auto-created from the seed on production. They must be created via the API before assigning them to posts.
 
 ## Workflow
 
@@ -171,8 +244,11 @@ Avoid: generic lifestyle content unrelated to property, national macroeconomic c
 | Issue | Status |
 |---|---|
 | `npx emdash login --url ...` device-code flow broken (prints `undefined`, times out) | Use browser-authenticated MCP client instead |
+| Email link login not available | Email provider not configured on this deployment |
+| dev-browser (Playwright) cannot access system passkeys | Use `mcp__claude-in-chrome` which connects to the user's real Chrome |
 | Generic CMS pages (About, Contact) not routed through EmDash | By design — `[...slug].astro` uses PWB backend |
-| CLI path for taxonomy/byline metadata requires separate commands after content create | Known limitation — use MCP client where possible |
+| Taxonomy terms and bylines not auto-seeded in production | Must be created via API before assigning to posts |
+| Bylines set via PUT on the post (not a separate `/bylines` endpoint) | Include `bylines: [{ bylineId }]` in the PUT body |
 
 ## Related Files
 

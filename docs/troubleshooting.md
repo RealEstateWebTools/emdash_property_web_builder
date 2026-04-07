@@ -122,6 +122,44 @@ Usually a stale service worker. In Chrome DevTools → Application → Service W
 
 ---
 
+## Passkey login fails in dev-browser / Playwright sessions
+
+**Symptom:** The admin login page loads correctly but clicking "Sign in with Passkey" does nothing or fails to authenticate.
+
+**Cause:** The dev-browser skill (and any Playwright-managed browser) runs an isolated browser profile that has no access to the user's system passkeys or saved credentials.
+
+**Fix:** Use `mcp__claude-in-chrome` tools instead. These connect to the user's real Chrome instance where passkeys are registered. Navigate to `/_emdash/admin/login` in the real browser and complete the passkey prompt there.
+
+---
+
+## Email link login returns "Email is not configured"
+
+**Symptom:** Clicking "Sign in with email link" and submitting an email address shows: `Email is not configured. Magic link authentication requires an email provider.`
+
+**Cause:** The production deployment does not have an email provider configured, so magic link auth is unavailable.
+
+**Fix:** Use Passkey, GitHub, or Google login instead. For automated sessions, use `mcp__claude-in-chrome` to authenticate via passkey in the user's real Chrome browser.
+
+---
+
+## Admin API mutations return 403 CSRF_REJECTED
+
+**Symptom:** Direct `fetch()` calls to `/_emdash/api/content/*` with POST/PUT/PATCH return `{"error":{"code":"CSRF_REJECTED","message":"Missing required header"}}`.
+
+**Cause:** The EmDash `csrfInterceptor` requires the custom header `X-EmDash-Request: 1` on all mutating requests. The admin UI's bundled fetch client adds this automatically; direct fetch calls do not.
+
+**Fix:** Add `'X-EmDash-Request': '1'` to the headers of every POST, PUT, PATCH, or DELETE request:
+
+```js
+fetch('/_emdash/api/content/posts', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-EmDash-Request': '1' },
+  body: JSON.stringify({ ... })
+})
+```
+
+---
+
 ## `better-sqlite3` fails to install
 
 If `pnpm install` fails on `better-sqlite3`, the native bindings need to be compiled:
