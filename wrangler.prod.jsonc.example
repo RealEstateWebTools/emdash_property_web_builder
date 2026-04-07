@@ -1,16 +1,25 @@
 // Copy this file to wrangler.prod.jsonc and fill in your account-specific values.
 // wrangler.prod.jsonc is gitignored — never commit the real IDs.
 //
+// This config points at the pre-built dist/server/entry.mjs so wrangler does
+// not attempt to re-bundle the source (which would fail on Astro virtual modules).
+// The deploy:prod script runs `astro build` automatically before deploying.
+//
 // To find your database_id:  wrangler d1 list
 // To create a new database:  wrangler d1 create emdash-property-web-builder
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "emdash-property-web-builder",
-	"main": "./src/worker.ts",
+	"main": "./dist/server/entry.mjs",
+	"no_bundle": true,
 	"compatibility_date": "2026-03-29",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist/client",
+	},
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -22,6 +31,11 @@
 		{
 			"binding": "MEDIA",
 			"bucket_name": "emdash-property-web-builder-media",
+		},
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SESSION",
 		},
 	],
 	"vars": {

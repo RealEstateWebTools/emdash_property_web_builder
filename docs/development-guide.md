@@ -286,7 +286,11 @@ This project deploys as a **Cloudflare Worker** (not Pages). Use `pnpm run deplo
 
 `wrangler.jsonc` is committed to git as a **public template** with placeholder IDs. It must not contain real Cloudflare resource IDs (D1 database UUID, R2 bucket, etc.) because the repo is public.
 
-`wrangler.prod.jsonc` is **gitignored** and holds your real IDs. The `deploy:prod` script points wrangler at this file.
+`wrangler.prod.jsonc` is **gitignored** and holds your real IDs. It also differs from `wrangler.jsonc` in two important ways:
+- `main` points to `./dist/server/entry.mjs` (the compiled build output) instead of `./src/worker.ts`
+- `no_bundle: true` tells wrangler to upload the pre-built file as-is
+
+This matters because `./src/worker.ts` imports Astro virtual modules that only exist inside the Astro/Vite build pipeline. Running `wrangler deploy` on the source directly would fail with unresolved virtual module errors. The `deploy:prod` script runs `astro build` first to produce the compiled entry point.
 
 ### First-time setup
 
