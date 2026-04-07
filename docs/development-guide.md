@@ -268,23 +268,25 @@ The PWB Rails app (`config/initializers/cors.rb`) is already configured to allow
 
 ## Deployment to Cloudflare
 
+This project deploys as a **Cloudflare Worker** (not Pages). Always use `pnpm deploy`, which runs `wrangler deploy --provision` as defined in `package.json`.
+
 ```bash
 # One-time: create the D1 database
-wrangler d1 create pwb-emfront-db
+wrangler d1 create emdash-property-web-builder
 # Paste the database_id into wrangler.jsonc
 
 # One-time: create the R2 bucket
-wrangler r2 bucket create pwb-emfront-media
+wrangler r2 bucket create emdash-property-web-builder-media
 
 # One-time: login
 wrangler login
 
 # Build and deploy
 pnpm build
-wrangler pages deploy dist/
+pnpm deploy
 
 # Set production environment variable
-wrangler pages secret put PWB_API_URL
+wrangler secret put PWB_API_URL
 # (paste the production PWB URL when prompted)
 ```
 
@@ -292,7 +294,7 @@ After the first deployment, run the seed against the D1 database:
 
 ```bash
 # Export from local SQLite and import to D1
-wrangler d1 execute pwb-emfront-db --file=<(sqlite3 data.db .dump)
+wrangler d1 execute emdash-property-web-builder --file=<(sqlite3 data.db .dump)
 ```
 
 Or re-seed manually via the Cloudflare admin panel once the site is live.
