@@ -160,9 +160,9 @@ fetch('/_emdash/api/content/posts', {
 
 ---
 
-## 404 page throws HTTP 521 when PWB backend is unreachable
+## Not-found routes loop on `/404` or log HTTP 521 when the PWB backend is unreachable
 
-**Symptom:** Cloudflare Worker logs show a repeating unhandled error on every `GET /404` request:
+**Symptom:** The custom domain can get stuck redirecting to `/404`, and Worker logs may show repeated backend errors such as:
 
 ```
 Error: HTTP 521 https://demo.propertywebbuilder.com/api_public/v1/en/site_details
@@ -172,9 +172,9 @@ Error: HTTP 521 https://demo.propertywebbuilder.com/api_public/v1/en/site_detail
 
 HTTP 521 means Cloudflare cannot reach the origin server (PWB backend is down or refusing connections).
 
-**Cause:** `src/pages/404.astro` called `createPwbClient().getSiteDetails()` without error handling. When the PWB backend is unreachable the call throws, and the Worker has no unhandled-rejection boundary — so every 404 response fails.
+**Cause:** The main problem was redirect-based not-found handling. Several routes used `Astro.redirect('/404')` when content was missing. On the custom domain, that can create a `/404` redirect loop instead of terminating in a real 404 response. Some of those routes also fetched PWB site data before deciding whether to render a not-found page, which added noisy `site_details` errors whenever the backend was unavailable.
 
-**Fix:** Wrapped the `getSiteDetails()` call in a try/catch with a minimal `fallbackSite` object that satisfies the `SiteDetails` type. The 404 page now renders correctly regardless of PWB backend availability.
+**Fix:** Return a direct 404 response from the failing route instead of redirecting to `/404`. For property-layout pages, use a minimal fallback `SiteDetails` object so the page can still render when the PWB backend is down. The dedicated `src/pages/404.astro` page should also avoid calling the PWB backend.
 
 ---
 

@@ -3,39 +3,56 @@ import { getEmDashEntry } from "emdash";
 import { PortableText } from "emdash/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { createPwbClient } from "../../lib/pwb/client";
+import { fallbackSite } from "../../lib/pwb/fallback-site";
 
 const { slug } = Astro.params;
+const safeSlug = slug ?? null;
+const { entry: page, cacheHint } = safeSlug
+	? await getEmDashEntry("pages", safeSlug)
+	: { entry: null, cacheHint: undefined };
 
-if (!slug) {
-	return Astro.redirect("/404");
+let site = fallbackSite;
+if (page) {
+	try {
+		site = await createPwbClient().getSiteDetails();
+	} catch {
+		site = fallbackSite;
+	}
+	Astro.cache.set(cacheHint);
+} else {
+	Astro.response.status = 404;
 }
-
-const [{ entry: page, cacheHint }, site] = await Promise.all([
-	getEmDashEntry("pages", slug),
-	createPwbClient().getSiteDetails(),
-]);
-
-if (!page) {
-	return Astro.redirect("/404");
-}
-
-Astro.cache.set(cacheHint);
 ---
 
-<BaseLayout
-	site={site}
-	title={page.data.title}
->
-	<article class="page-article">
-		<header class="page-header">
-			<h1 class="page-title" {...page.edit.title}>{page.data.title}</h1>
-		</header>
+{page ? (
+	<BaseLayout
+		site={site}
+		title={page.data.title}
+	>
+		<article class="page-article">
+			<header class="page-header">
+				<h1 class="page-title" {...page.edit.title}>{page.data.title}</h1>
+			</header>
 
-		<div class="page-content">
-			<PortableText value={page.data.content} />
-		</div>
-	</article>
-</BaseLayout>
+			<div class="page-content">
+				<PortableText value={page.data.content} />
+			</div>
+		</article>
+	</BaseLayout>
+) : (
+	<BaseLayout site={site} title="Page not found">
+		<article class="page-article">
+			<header class="page-header">
+				<h1 class="page-title">404</h1>
+			</header>
+
+			<div class="page-content">
+				<p>The page you&apos;re looking for doesn&apos;t exist.</p>
+				<p><a href="/">Go back home</a></p>
+			</div>
+		</article>
+	</BaseLayout>
+)}
 
 <style>
 	.page-article {
