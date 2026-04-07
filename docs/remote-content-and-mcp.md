@@ -215,6 +215,101 @@ Tasks:
 5. When finished, list the created or updated content and the public routes to verify.
 ```
 
+### 5. Use prepared payloads for the first post batch
+
+The six proposed posts have been drafted as machine-readable payloads in `docs/mcp-post-payloads.json`.
+
+Each payload includes:
+
+- `collection`
+- `slug`
+- `status`
+- `data.title`
+- `data.excerpt`
+- `data.content` as markdown for the Portable Text field
+- `bylines`
+- `taxonomies`
+
+The `content` field is intentionally markdown because EmDash tooling converts markdown strings to Portable Text when the target field is a `portableText` field.
+
+If your MCP client supports content creation with structured JSON input, feed each post object directly into the create tool. If you are using the CLI instead, extract the `data` object and pass it to `npx emdash content create posts --slug <slug> --data '<json>'`, then apply any taxonomy or byline metadata through the tools that support them.
+
+## Editor Playbook
+
+This section gives short, exact prompt patterns for an editor or agent using the deployed MCP server.
+
+### Inspection prompt
+
+Use this first to establish the live state before changing anything:
+
+```text
+Inspect the remote EmDash site at https://emdash-property-web-builder.etewiah.workers.dev/_emdash/api/mcp and do not write anything yet.
+
+1. List the available tools.
+2. List the collections, fields, taxonomies, menus, widget areas, and site settings.
+3. Count current entries in `pages` and `posts`.
+4. Show whether a `homepage` entry exists in `pages`.
+5. Show whether any published posts exist.
+6. Summarize what is safe to edit remotely.
+```
+
+### Homepage update prompt
+
+Use this after inspection if the remote state matches the current codebase assumptions:
+
+```text
+Update the EmDash `pages` entry with slug `homepage`.
+
+Set these fields:
+- title: Find Your Next Move
+- featured_section_heading: Featured Properties
+- content: Use a concise paragraph explaining that the site helps visitors browse homes for sale and rent, understand local market conditions, and make better property decisions.
+
+Publish the result and then summarize the updated fields.
+```
+
+### Batch post creation prompt
+
+Use this to create the first six posts from the prepared JSON payload file:
+
+```text
+Create the six published posts defined in docs/mcp-post-payloads.json.
+
+Requirements:
+1. Use each object in the `posts` array as the source payload.
+2. Create entries in the `posts` collection with the provided slug, data, bylines, and taxonomies.
+3. Publish each item.
+4. If featured media upload is not supported by the available tools, continue without adding images.
+5. Return a table of created slugs, titles, and final status.
+```
+
+### Single-post creation prompt
+
+Use this when testing with one post before importing the full batch:
+
+```text
+Create one published post in the `posts` collection using the payload in docs/mcp-post-payloads.json whose slug is `local-property-market-outlook-2026`.
+
+After creation:
+1. Confirm the stored title, slug, and publication status.
+2. Confirm the assigned categories and tags.
+3. Tell me which public URL to verify.
+```
+
+### Verification prompt
+
+Use this after writes complete:
+
+```text
+Verify the remote content changes.
+
+1. Count published posts in the `posts` collection.
+2. Fetch the `homepage` entry and summarize its current title and hero copy.
+3. List the six newly created post slugs.
+4. Confirm which taxonomy terms are now in use by those posts.
+5. Suggest the public routes I should open to verify the result.
+```
+
 ## Editorial Proposals
 
 These are the most relevant first additions for the current deployment.
@@ -289,6 +384,7 @@ Until that is decided, remote content work should avoid assuming all CMS-like pa
 
 - `README.md`
 - `astro.config.mjs`
+- `docs/mcp-post-payloads.json`
 - `src/pages/index.astro`
 - `src/pages/posts/index.astro`
 - `src/pages/[...slug].astro`
