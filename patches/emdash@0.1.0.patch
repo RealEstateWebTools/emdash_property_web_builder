@@ -1,8 +1,15 @@
 diff --git a/dist/cli/index.mjs b/dist/cli/index.mjs
-index d73acce5fc244968bf0e3ddb01117afddcec17f4..19fe3775b391ccc563cc62420d9cbdc8664f12ed 100755
+index d73acce5fc244968bf0e3ddb01117afddcec17f4..b4d4c66dfa640851d75944620d5b2ce64b96c9fa 100755
 --- a/dist/cli/index.mjs
 +++ b/dist/cli/index.mjs
-@@ -1683,7 +1683,7 @@ const loginCommand = defineCommand({
+@@ -1677,13 +1677,13 @@ const loginCommand = defineCommand({
+ 					"Content-Type": "application/json",
+ 					"X-EmDash-Request": "1"
+ 				},
+-				body: JSON.stringify({ client_id: "emdash-cli" })
++				body: JSON.stringify({ client_id: "emdash-cli", scope: "admin" })
+ 			});
+ 			if (!codeRes.ok) {
  				consola$1.error(`Failed to request device code: ${codeRes.status}`);
  				process.exit(2);
  			}

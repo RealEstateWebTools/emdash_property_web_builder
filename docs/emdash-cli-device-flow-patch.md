@@ -49,16 +49,25 @@ no code was displayed, and the polling loop timed out immediately.
 
 ## The Fix
 
-Unwrap the `data` envelope before accessing device flow fields, with a fallback for
-any future server version that returns a flat response:
+Two changes in `dist/cli/index.mjs` at the `loginCommand` handler:
+
+**1. Unwrap the `data` envelope** before accessing device flow fields, with a fallback
+for any future server version that returns a flat response:
 
 ```js
 const _deviceCodeRaw = await codeRes.json();
 const deviceCode = _deviceCodeRaw.data || _deviceCodeRaw;
 ```
 
-This change is in `dist/cli/index.mjs` at the `loginCommand` handler (around line 1686
-in emdash@0.1.0).
+**2. Add `scope: "admin"`** to the device code request body. Without it the server
+issues a token with no scopes, causing all subsequent CLI commands to fail with
+permission errors:
+
+```js
+body: JSON.stringify({ client_id: "emdash-cli", scope: "admin" })
+```
+
+Both issues are tracked in upstream PR emdash-cms/emdash#72.
 
 ## What The Patch Changes
 
