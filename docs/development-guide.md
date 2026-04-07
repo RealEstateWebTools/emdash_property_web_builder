@@ -268,7 +268,7 @@ The PWB Rails app (`config/initializers/cors.rb`) is already configured to allow
 
 ## Deployment to Cloudflare
 
-This project deploys as a **Cloudflare Worker** (not Pages). Always use `pnpm deploy`, which runs `wrangler deploy --provision` as defined in `package.json`.
+This project deploys as a **Cloudflare Worker** (not Pages). Always use `pnpm run deploy`, which runs `wrangler deploy --provision` as defined in `package.json`.
 
 ```bash
 # One-time: create the D1 database
@@ -283,7 +283,7 @@ wrangler login
 
 # Build and deploy
 pnpm build
-pnpm deploy
+pnpm run deploy
 
 # Set production environment variable
 wrangler secret put PWB_API_URL

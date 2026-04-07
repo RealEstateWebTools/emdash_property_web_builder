@@ -15,12 +15,17 @@ import { describe, it, expect } from 'vitest'
 const ROOT = resolve(__dirname, '../')
 const DOCS_DIR = join(ROOT, 'docs')
 
-// pnpm built-in subcommands that are not package.json scripts
+// pnpm built-in subcommands that are not package.json scripts.
+// NOTE: in a pnpm workspace, `pnpm deploy` is a reserved built-in (deploys a
+// package to a directory) — it does NOT run the "deploy" script. Always use
+// `pnpm run deploy` to invoke the script.
 const PNPM_BUILTINS = new Set([
   'install', 'i', 'add', 'remove', 'uninstall', 'update', 'upgrade',
   'run', 'exec', 'dlx', 'create', 'init', 'publish', 'pack',
   'audit', 'list', 'ls', 'outdated', 'link', 'unlink', 'store',
   'prune', 'fetch', 'patch', 'patch-commit', 'patch-remove',
+  // workspace built-ins that shadow script names:
+  'deploy',
 ])
 
 function readPackageJson(): Record<string, string> {
@@ -127,7 +132,7 @@ describe('docs validation', () => {
       }
     }
 
-    expect(hits, `\nDocs contain "wrangler pages" commands, but this project deploys as a Worker (wrangler deploy):\n${hits.join('\n')}\n\nFix: use "pnpm deploy" (which runs wrangler deploy --provision).`).toHaveLength(0)
+    expect(hits, `\nDocs contain "wrangler pages" commands, but this project deploys as a Worker (wrangler deploy):\n${hits.join('\n')}\n\nFix: use "pnpm run deploy" (which runs wrangler deploy --provision).`).toHaveLength(0)
   })
 
   it('deploy script in docs matches package.json deploy script', () => {
@@ -135,7 +140,8 @@ describe('docs validation', () => {
     expect(deployScript, 'package.json must have a "deploy" script').toBeDefined()
 
     const guideContent = readFileSync(join(DOCS_DIR, 'development-guide.md'), 'utf-8')
-    // The guide should reference pnpm deploy, not a raw wrangler command in the deploy step
-    expect(guideContent).toMatch(/pnpm deploy/)
+    // The guide must use `pnpm run deploy` (not bare `pnpm deploy`, which is a
+    // pnpm workspace built-in unrelated to the deploy script).
+    expect(guideContent).toMatch(/pnpm run deploy/)
   })
 })
