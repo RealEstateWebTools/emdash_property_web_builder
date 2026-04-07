@@ -1,5 +1,5 @@
-/* Coastal — beach houses, seafront apartments, holiday lets
-   Ocean blues, fresh whites, natural textures */
+/* ── Coastal ────────────────────────────────────────────────────── */
+/* Ocean blues, generous rounding, airy 3-col grid, soft shadows    */
 :root {
   --color-primary:       #1a6b8a;
   --color-primary-light: #2488ad;
@@ -16,12 +16,34 @@
   --font-sans:  'DM Sans', 'Nunito', system-ui, sans-serif;
   --font-serif: 'Merriweather', Georgia, serif;
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 
-  --shadow-card:  0 2px 10px rgba(26,107,138,0.08);
-  --shadow-hover: 0 10px 32px rgba(26,107,138,0.14);
+  --shadow-card:  0 4px 16px rgba(26,107,138,0.1);
+  --shadow-hover: 0 12px 40px rgba(26,107,138,0.18);
+
+  /* Card: standard 3/2 landscape, very rounded */
+  --card-direction:    column;
+  --card-image-ratio:  3/2;
+  --card-image-width:  100%;
+  --card-body-padding: 1.25rem;
+  --card-hover-lift:   -6px;
+  --card-border-width: 0px;
+  --card-price-size:   var(--text-xl);
+  --card-title-size:   var(--text-base);
+  --card-meta-gap:     1rem;
+
+  /* Grid: 3-column, airy */
+  --grid-columns: repeat(3, 1fr);
+  --grid-gap:     1.75rem;
+  --grid-padding: var(--spacing-page);
+
+  /* Detail: standard 3-col gallery */
+  --detail-gallery-cols:    2fr 1fr 1fr;
+  --detail-gallery-gap:     0.75rem;
+  --detail-main-photo-rows: span 2;
+  --detail-price-size:      var(--text-2xl);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,4 +54,61 @@
     --color-bg-soft:   #0d2a38;
     --color-border:    #1a4560;
   }
+}
+
+/* ── Structural overrides ────────────────────────────────────────── */
+
+/* Cyan accent strip at bottom of each card */
+html.theme-coastal .property-card {
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+html.theme-coastal .property-card:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+/* Price in ocean blue */
+html.theme-coastal .property-card__price {
+  color: var(--color-primary);
+}
+
+/* Rounded badge */
+html.theme-coastal .property-card__badge {
+  background: var(--color-accent);
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+/* Header: light, airy, coastal blue logo */
+html.theme-coastal .site-header {
+  background: var(--color-bg);
+  border-bottom: none;
+  box-shadow: 0 1px 0 var(--color-border);
+}
+html.theme-coastal .site-header__title {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Search: rounded inputs */
+html.theme-coastal .search-bar {
+  background: var(--color-bg-soft);
+  border-bottom: none;
+  padding: 1.25rem var(--spacing-page);
+}
+html.theme-coastal .search-bar select,
+html.theme-coastal .search-bar input {
+  border-radius: var(--radius-sm);
+}
+
+/* Pagination: pill-shaped */
+html.theme-coastal .pagination a {
+  border-radius: 999px;
+}
+
+@media (max-width: 900px) {
+  :root { --grid-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  :root { --grid-columns: 1fr; }
 }

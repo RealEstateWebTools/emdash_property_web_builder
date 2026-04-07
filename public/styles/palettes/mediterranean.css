@@ -1,5 +1,5 @@
-/* Mediterranean — Spanish, Italian, Greek coastal property markets
-   Warm terracotta accents, aged-paper backgrounds, sun-bleached tones */
+/* ── Mediterranean ──────────────────────────────────────────────── */
+/* Warm terracotta, aged paper, 2-col grid, image overlay on hover  */
 :root {
   --color-primary:       #b84a2a;
   --color-primary-light: #d4613e;
@@ -17,11 +17,34 @@
   --font-serif: 'Lora', Georgia, serif;
 
   --radius-sm: 3px;
-  --radius-md: 6px;
-  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
 
   --shadow-card:  0 2px 8px rgba(100,60,20,0.1);
-  --shadow-hover: 0 8px 28px rgba(100,60,20,0.16);
+  --shadow-hover: 0 12px 32px rgba(100,60,20,0.2);
+
+  /* Card: taller portrait ratio, 2-col */
+  --card-direction:    column;
+  --card-image-ratio:  3/4;
+  --card-image-width:  100%;
+  --card-body-padding: 1.25rem;
+  --card-hover-lift:   -4px;
+  --card-border-width: 0px;
+  --card-price-size:   var(--text-lg);
+  --card-title-size:   var(--text-lg);
+  --card-meta-gap:     1rem;
+
+  /* Grid: 2-column */
+  --grid-columns: repeat(2, 1fr);
+  --grid-gap:     2rem;
+  --grid-padding: var(--spacing-page);
+
+  /* Detail: 2-col masonry-like */
+  --detail-gallery-cols:    1fr 1fr;
+  --detail-gallery-gap:     0.75rem;
+  --detail-main-photo-rows: span 1;
+  --detail-price-size:      var(--text-3xl);
+  --detail-specs-direction: row;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,4 +55,68 @@
     --color-bg-soft:   #251c15;
     --color-border:    #3d2e20;
   }
+}
+
+/* ── Structural overrides ────────────────────────────────────────── */
+
+/* Card: image fills, warm shadow */
+html.theme-mediterranean .property-card {
+  overflow: hidden;
+  position: relative;
+}
+
+/* Image has a warm overlay on hover */
+html.theme-mediterranean .property-card__link {
+  position: relative;
+  overflow: hidden;
+}
+html.theme-mediterranean .property-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(44,31,14,0.6) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+html.theme-mediterranean .property-card:hover .property-card__link::after {
+  opacity: 1;
+}
+
+/* Image zoom on hover */
+html.theme-mediterranean .property-card__image {
+  transition: transform 0.4s ease;
+}
+html.theme-mediterranean .property-card:hover .property-card__image {
+  transform: scale(1.04);
+}
+
+/* Terracotta price */
+html.theme-mediterranean .property-card__price {
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+/* Warm badge */
+html.theme-mediterranean .property-card__badge {
+  background: var(--color-accent);
+}
+
+/* Header: warm, serif */
+html.theme-mediterranean .site-header {
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-border);
+}
+html.theme-mediterranean .site-header__title {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+/* Divider under search bar */
+html.theme-mediterranean .search-bar {
+  border-bottom: 2px solid var(--color-border);
+}
+
+@media (max-width: 640px) {
+  :root { --grid-columns: 1fr; }
 }

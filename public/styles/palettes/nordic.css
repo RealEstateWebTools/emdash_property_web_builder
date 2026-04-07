@@ -1,5 +1,5 @@
-/* Nordic — Scandinavian-influenced, ultra-minimal, cool whites
-   Near-white backgrounds, cool greys, sparse type, functional feel */
+/* ── Nordic ─────────────────────────────────────────────────────── */
+/* Ultra-minimal, cool whites, 4-col grid, no shadow, square images */
 :root {
   --color-primary:       #2d4a6b;
   --color-primary-light: #3d6090;
@@ -14,14 +14,37 @@
   --color-error:         #c0392b;
 
   --font-sans:  'Inter', 'Helvetica Neue', Arial, sans-serif;
-  --font-serif: 'Inter', Arial, sans-serif;
 
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
 
-  --shadow-card:  0 1px 3px rgba(26,32,48,0.06);
-  --shadow-hover: 0 4px 16px rgba(26,32,48,0.10);
+  --shadow-card:  none;
+  --shadow-hover: none;
+
+  /* Card: square image, no border, flat */
+  --card-direction:    column;
+  --card-image-ratio:  1/1;
+  --card-image-width:  100%;
+  --card-body-padding: 0.75rem 0;
+  --card-hover-lift:   0px;
+  --card-border-width: 0px;
+  --card-price-size:   var(--text-base);
+  --card-title-size:   var(--text-sm);
+  --card-meta-gap:     0.5rem;
+
+  /* Grid: 4-column, tight, no padding */
+  --grid-columns: repeat(4, 1fr);
+  --grid-gap:     1px;
+  --grid-padding: 0;
+
+  /* Detail: single full-width image, then thumbnails below */
+  --detail-gallery-cols:    1fr 1fr 1fr 1fr 1fr;
+  --detail-gallery-gap:     2px;
+  --detail-main-photo-rows: span 1;
+  --detail-price-size:      var(--text-xl);
+  --detail-specs-direction: row;
+  --detail-specs-gap:       2.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,8 +58,84 @@
   }
 }
 
-/* No hover lift — flat, functional */
-.property-card:hover {
-  transform: none;
-  box-shadow: var(--shadow-hover);
+/* ── Structural overrides ────────────────────────────────────────── */
+
+/* No card chrome — grid of images like a magazine */
+html.theme-nordic .property-card {
+  background: transparent;
+}
+html.theme-nordic .property-card:hover {
+  background: transparent;
+}
+
+/* Thin bottom border separates cards */
+html.theme-nordic .property-grid {
+  border: 1px solid var(--color-border);
+}
+html.theme-nordic .property-card {
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Price: plain, small, muted weight */
+html.theme-nordic .property-card__price {
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+/* Title: smaller, light weight */
+html.theme-nordic .property-card__title {
+  font-weight: 400;
+  font-size: 0.8125rem;
+}
+html.theme-nordic .property-card__meta {
+  font-size: 0.75rem;
+}
+
+/* No badge */
+html.theme-nordic .property-card__badge {
+  display: none;
+}
+
+/* Header: dead simple */
+html.theme-nordic .site-header {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+}
+html.theme-nordic .site-header__title {
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+html.theme-nordic .site-header__nav a {
+  font-size: 0.8125rem;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+html.theme-nordic .site-header__nav a:hover {
+  color: var(--color-text);
+}
+
+/* Search: minimal */
+html.theme-nordic .search-bar {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Result count: small */
+html.theme-nordic .result-count {
+  font-size: 0.8125rem;
+  padding: 0.75rem var(--spacing-page);
+}
+
+@media (max-width: 900px) {
+  :root { --grid-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  :root { --grid-columns: repeat(2, 1fr); }
 }

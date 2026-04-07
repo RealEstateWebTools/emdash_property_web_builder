@@ -52,28 +52,3 @@ const { detail } = Astro.props
     )}
   </div>
 </article>
-
-<style>
-  .property-detail__gallery {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-  }
-  .property-detail__photo--main { grid-row: span 2; width: 100%; aspect-ratio: 4/3; object-fit: cover; }
-  .property-detail__photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
-  .property-detail__title { font-size: var(--text-3xl); margin: 0.5rem 0; }
-  .property-detail__price { font-size: var(--text-2xl); color: var(--color-primary); font-weight: 700; }
-  .property-detail__address { color: var(--color-text-muted); }
-  .property-detail__specs {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    padding: 1.5rem 0;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-    margin: 1.5rem 0;
-  }
-  .property-detail__description { line-height: 1.8; }
-</style>

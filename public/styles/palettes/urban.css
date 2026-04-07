@@ -1,5 +1,5 @@
-/* Urban — city apartments, new builds, commercial-to-residential
-   Cool slate, contemporary, sharp geometry, high contrast */
+/* ── Urban ──────────────────────────────────────────────────────── */
+/* Cool slate, sharp geometry, indigo accent, dense 2-col grid      */
 :root {
   --color-primary:       #1e293b;
   --color-primary-light: #334155;
@@ -21,7 +21,31 @@
   --radius-lg: 8px;
 
   --shadow-card:  0 1px 4px rgba(15,23,42,0.08), 0 0 0 1px rgba(15,23,42,0.04);
-  --shadow-hover: 0 8px 24px rgba(15,23,42,0.12), 0 0 0 1px rgba(15,23,42,0.06);
+  --shadow-hover: 0 8px 24px rgba(15,23,42,0.12), 0 0 0 1px rgba(99,102,241,0.3);
+
+  /* Card: compact vertical, square image ratio */
+  --card-direction:    column;
+  --card-image-ratio:  4/3;
+  --card-image-width:  100%;
+  --card-body-padding: 0.875rem;
+  --card-hover-lift:   -3px;
+  --card-border-width: 0px;
+  --card-price-size:   var(--text-lg);
+  --card-title-size:   var(--text-sm);
+  --card-meta-gap:     0.75rem;
+
+  /* Grid: fixed 2-column, tight */
+  --grid-columns: repeat(2, 1fr);
+  --grid-gap:     1rem;
+  --grid-padding: var(--spacing-page);
+
+  /* Detail: side-by-side two-column gallery */
+  --detail-gallery-cols:    1fr 1fr;
+  --detail-gallery-gap:     4px;
+  --detail-main-photo-rows: span 1;
+  --detail-price-size:      var(--text-2xl);
+  --detail-specs-direction: row;
+  --detail-specs-gap:       2rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,7 +59,58 @@
   }
 }
 
-/* Accent bar on card top — modern property portal feel */
-.property-card {
+/* ── Structural overrides ────────────────────────────────────────── */
+
+/* Accent top-border on every card */
+html.theme-urban .property-card {
   border-top: 3px solid var(--color-accent);
+}
+
+/* Price: smaller, dark, not the accent color */
+html.theme-urban .property-card__price {
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Title: tight, heavier */
+html.theme-urban .property-card__title {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Badge: solid indigo */
+html.theme-urban .property-card__badge {
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+/* Header: white, thin border, compact */
+html.theme-urban .site-header {
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none;
+}
+html.theme-urban .site-header__title {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+/* Search: flat inputs */
+html.theme-urban .search-bar {
+  border-bottom: 2px solid var(--color-accent);
+}
+
+/* Pagination: indigo active */
+html.theme-urban .pagination a.active,
+html.theme-urban .pagination a[aria-current] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --grid-columns: 1fr;
+  }
 }

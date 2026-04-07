@@ -1,5 +1,5 @@
-/* Countryside — rural estates, farmhouses, equestrian property
-   Sage green, warm stone, earthy tones */
+/* ── Countryside ─────────────────────────────────────────────── */
+/* Sage green, warm stone, wide 2-col cards, generous imagery    */
 :root {
   --color-primary:       #3d6b4a;
   --color-primary-light: #538060;
@@ -22,6 +22,30 @@
 
   --shadow-card:  0 2px 8px rgba(30,42,30,0.08);
   --shadow-hover: 0 8px 24px rgba(30,42,30,0.14);
+
+  /* Card: wide landscape image, 2-col */
+  --card-direction:    column;
+  --card-image-ratio:  16/9;
+  --card-image-width:  100%;
+  --card-body-padding: 1.25rem 1rem;
+  --card-hover-lift:   -4px;
+  --card-border-width: 0px;
+  --card-price-size:   var(--text-xl);
+  --card-title-size:   var(--text-base);
+  --card-meta-gap:     1.25rem;
+
+  /* Grid: 2-column, comfortable gap */
+  --grid-columns: repeat(2, 1fr);
+  --grid-gap:     2rem;
+  --grid-padding: var(--spacing-page);
+
+  /* Detail: classic 3-col with large main photo */
+  --detail-gallery-cols:    2fr 1fr 1fr;
+  --detail-gallery-gap:     0.5rem;
+  --detail-main-photo-rows: span 2;
+  --detail-price-size:      var(--text-2xl);
+  --detail-specs-direction: row;
+  --detail-specs-gap:       2rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,4 +56,84 @@
     --color-bg-soft:   #182416;
     --color-border:    #2a3c28;
   }
+}
+
+/* ── Structural overrides ────────────────────────────────────────── */
+
+/* Card: warm stone border, earthy feel */
+html.theme-countryside .property-card {
+  border: 1px solid var(--color-border);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+html.theme-countryside .property-card:hover {
+  border-color: var(--color-accent);
+}
+
+/* Sage green accent top-bar on hover */
+html.theme-countryside .property-card::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+html.theme-countryside .property-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Price: sage green, serif */
+html.theme-countryside .property-card__price {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Badge: earthy green pill */
+html.theme-countryside .property-card__badge {
+  background: var(--color-accent);
+  border-radius: 3px;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+/* Header: stone white, subtle border, serif title */
+html.theme-countryside .site-header {
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-border);
+  box-shadow: none;
+}
+html.theme-countryside .site-header__title {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Search: earthy background, natural feel */
+html.theme-countryside .search-bar {
+  background: var(--color-bg-soft);
+  border-bottom: 1px solid var(--color-border);
+  padding: 1.25rem var(--spacing-page);
+}
+html.theme-countryside .search-bar select,
+html.theme-countryside .search-bar input {
+  border-radius: var(--radius-sm);
+  border-color: var(--color-border);
+}
+
+/* Pagination: understated */
+html.theme-countryside .pagination a {
+  border-radius: var(--radius-sm);
+}
+html.theme-countryside .pagination a.active,
+html.theme-countryside .pagination a[aria-current] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+  :root { --grid-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  :root { --grid-columns: 1fr; }
 }

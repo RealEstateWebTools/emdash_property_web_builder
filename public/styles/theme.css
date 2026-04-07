@@ -15,22 +15,56 @@
   /* ── Typography ─────────────────────────────────────────────────── */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
-  --text-sm:  0.875rem;
+  --text-sm:   0.875rem;
   --text-base: 1rem;
-  --text-lg:  1.125rem;
-  --text-xl:  1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
 
   /* ── Spacing & Radius ───────────────────────────────────────────── */
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-lg:  16px;
+  --radius-sm:    4px;
+  --radius-md:    8px;
+  --radius-lg:    16px;
   --spacing-page: 1.5rem;
 
   /* ── Shadows ────────────────────────────────────────────────────── */
-  --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-card:  0 2px 8px rgba(0,0,0,0.08);
   --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+
+  /* ── Card layout ────────────────────────────────────────────────── */
+  /* Controls the structural layout of PropertyCard */
+  --card-direction:      column;          /* column = vertical card, row = horizontal */
+  --card-image-ratio:    16/9;            /* image aspect ratio */
+  --card-image-width:    100%;            /* image width (set to fixed px for row layout) */
+  --card-image-shrink:   0;              /* flex-shrink for image in row layout */
+  --card-body-padding:   1rem;
+  --card-hover-lift:     -2px;            /* translateY on hover — set 0 to disable */
+  --card-border-width:   1px;
+  --card-border-style:   solid;
+  --card-price-size:     var(--text-xl);
+  --card-title-size:     var(--text-base);
+  --card-meta-gap:       1rem;
+
+  /* ── Grid layout ────────────────────────────────────────────────── */
+  --grid-columns:  repeat(auto-fill, minmax(280px, 1fr));
+  --grid-gap:      1.5rem;
+  --grid-padding:  var(--spacing-page);
+
+  /* ── Detail page ────────────────────────────────────────────────── */
+  --detail-gallery-cols:     2fr 1fr 1fr;
+  --detail-gallery-gap:      0.5rem;
+  --detail-main-photo-rows:  span 2;
+  --detail-specs-direction:  row;
+  --detail-specs-gap:        1.5rem;
+  --detail-price-size:       var(--text-2xl);
+
+  /* ── Header ─────────────────────────────────────────────────────── */
+  --header-bg:          var(--color-bg);
+  --header-border:      1px solid var(--color-border);
+  --header-position:    sticky;
+  --header-padding-y:   0.75rem;
+  --header-logo-size:   var(--text-xl);
 }
 
 /* ── Dark mode (optional) ──────────────────────────────────────── */
@@ -52,26 +86,99 @@ a { color: var(--color-primary); }
 
 /* ── Property Card ──────────────────────────────────────────────── */
 .property-card {
+  display: flex;
+  flex-direction: var(--card-direction);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+  border: var(--card-border-width) var(--card-border-style) var(--color-border);
   overflow: hidden;
   background: var(--color-bg);
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
-.property-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
-.property-card__image { aspect-ratio: 16/9; object-fit: cover; width: 100%; }
-.property-card__body  { padding: 1rem; }
-.property-card__price { font-size: var(--text-xl); font-weight: 700; color: var(--color-primary); }
-.property-card__title { font-size: var(--text-base); margin: 0.5rem 0; }
-.property-card__meta  { display: flex; gap: 1rem; color: var(--color-text-muted); font-size: var(--text-sm); }
+.property-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(var(--card-hover-lift));
+}
+.property-card__link {
+  display: block;
+  flex-shrink: var(--card-image-shrink);
+  width: var(--card-image-width);
+}
+.property-card__image {
+  aspect-ratio: var(--card-image-ratio);
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+.property-card__image--placeholder {
+  aspect-ratio: var(--card-image-ratio);
+  background: var(--color-bg-soft);
+  width: 100%;
+}
+.property-card__body  { padding: var(--card-body-padding); flex: 1; min-width: 0; }
+.property-card__price { font-size: var(--card-price-size); font-weight: 700; color: var(--color-primary); }
+.property-card__title { font-size: var(--card-title-size); margin: 0.5rem 0; }
+.property-card__title a { text-decoration: none; color: var(--color-text); }
+.property-card__title a:hover { color: var(--color-primary); }
+.property-card__meta  { display: flex; gap: var(--card-meta-gap); color: var(--color-text-muted); font-size: var(--text-sm); flex-wrap: wrap; margin-top: 0.5rem; }
+.property-card__badge {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  margin: 0.5rem var(--card-body-padding);
+  align-self: flex-start;
+}
 
+/* ── Property Grid ──────────────────────────────────────────────── */
 .property-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: var(--spacing-page);
+  grid-template-columns: var(--grid-columns);
+  gap: var(--grid-gap);
+  padding: var(--grid-padding);
 }
+.property-grid__empty {
+  padding: var(--spacing-page);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ── Property Detail ────────────────────────────────────────────── */
+.property-detail__gallery {
+  display: grid;
+  grid-template-columns: var(--detail-gallery-cols);
+  gap: var(--detail-gallery-gap);
+  margin-bottom: 2rem;
+}
+.property-detail__photo--main {
+  grid-row: var(--detail-main-photo-rows);
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+.property-detail__photo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+.property-detail__title   { font-size: var(--text-3xl); margin: 0.5rem 0; }
+.property-detail__price   { font-size: var(--detail-price-size); color: var(--color-primary); font-weight: 700; }
+.property-detail__address { color: var(--color-text-muted); }
+.property-detail__specs {
+  list-style: none;
+  display: flex;
+  flex-direction: var(--detail-specs-direction);
+  flex-wrap: wrap;
+  gap: var(--detail-specs-gap);
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  margin: 1.5rem 0;
+}
+.property-detail__description { line-height: 1.8; }
 
 /* ── Search Bar ─────────────────────────────────────────────────── */
 .search-bar { background: var(--color-bg-soft); border-bottom: 1px solid var(--color-border); padding: 1rem var(--spacing-page); }

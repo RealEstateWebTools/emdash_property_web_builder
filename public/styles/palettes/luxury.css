@@ -1,5 +1,5 @@
-/* Luxury Dark — high-end residential, villas, penthouses
-   Deep charcoal backgrounds, warm gold accents, serif typography */
+/* ── Luxury ─────────────────────────────────────────────────────── */
+/* Dark charcoal, warm gold, serif type, horizontal card list       */
 :root {
   --color-primary:       #c9a84c;
   --color-primary-light: #dfc06e;
@@ -17,11 +17,34 @@
   --font-serif: 'Cormorant Garamond', Georgia, serif;
 
   --radius-sm: 0px;
-  --radius-md: 2px;
-  --radius-lg: 4px;
+  --radius-md: 0px;
+  --radius-lg: 2px;
 
-  --shadow-card:  0 2px 12px rgba(0,0,0,0.4);
-  --shadow-hover: 0 12px 40px rgba(0,0,0,0.5);
+  --shadow-card:  0 2px 16px rgba(0,0,0,0.5);
+  --shadow-hover: 0 8px 40px rgba(0,0,0,0.65);
+
+  /* Card: horizontal, large image on the left */
+  --card-direction:    row;
+  --card-image-ratio:  3/2;
+  --card-image-width:  320px;
+  --card-image-shrink: 0;
+  --card-body-padding: 2rem;
+  --card-hover-lift:   0px;
+  --card-border-width: 0px;
+  --card-price-size:   var(--text-2xl);
+  --card-title-size:   var(--text-xl);
+  --card-meta-gap:     2rem;
+
+  /* Grid: single-column list */
+  --grid-columns: 1fr;
+  --grid-gap:     0px;
+  --grid-padding: var(--spacing-page);
+
+  /* Detail: full-width strip gallery */
+  --detail-gallery-cols:    1fr 1fr 1fr 1fr;
+  --detail-gallery-gap:     4px;
+  --detail-main-photo-rows: span 1;
+  --detail-price-size:      var(--text-3xl);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,14 +57,87 @@
   }
 }
 
-/* Gold price treatment */
-.property-card__price {
-  color: var(--color-primary);
-  letter-spacing: 0.02em;
+/* ── Structural overrides ────────────────────────────────────────── */
+
+/* Cards separated by a subtle rule, not boxed */
+html.theme-luxury .property-card {
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none;
+}
+html.theme-luxury .property-card:last-child {
+  border-bottom: none;
+}
+html.theme-luxury .property-card:hover {
+  background: var(--color-bg-soft);
+  box-shadow: none;
 }
 
-/* Subtle lift on hover — restrained for luxury feel */
-.property-card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+/* Gold left-bar on hover */
+html.theme-luxury .property-card:hover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+}
+html.theme-luxury .property-card {
+  position: relative;
+}
+
+/* Price in gold, large serif */
+html.theme-luxury .property-card__price {
+  color: var(--color-primary);
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+/* Featured badge — restrained */
+html.theme-luxury .property-card__badge {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 400;
+}
+
+/* Header: dark, borderless, gold logo */
+html.theme-luxury .site-header {
+  background: var(--color-bg);
+  border-bottom: none;
+  border-bottom: 1px solid var(--color-border);
+}
+html.theme-luxury .site-header__title {
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+html.theme-luxury .site-header__nav a {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+/* Search bar: dark, minimal */
+html.theme-luxury .search-bar {
+  background: var(--color-bg-soft);
+  border-bottom-color: var(--color-border);
+}
+html.theme-luxury .search-bar select,
+html.theme-luxury .search-bar input {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-direction:   column;
+    --card-image-width: 100%;
+  }
 }

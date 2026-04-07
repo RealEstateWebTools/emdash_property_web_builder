@@ -18,10 +18,11 @@ const VALID_PALETTES = ['default', 'gold', 'luxury', 'mediterranean', 'coastal',
 const rawPalette = import.meta.env.PUBLIC_PALETTE ?? 'default'
 const palette = VALID_PALETTES.includes(rawPalette as typeof VALID_PALETTES[number]) ? rawPalette : 'default'
 const paletteHref = palette !== 'default' ? `/styles/palettes/${palette}.css` : null
+const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class={themeClass}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
