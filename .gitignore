@@ -13,3 +13,4 @@ data.db-wal
 .wrangler
 docs/emdash-lms-patterns.md
 emdash-lms
+wrangler.prod.jsonc

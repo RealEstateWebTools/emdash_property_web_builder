@@ -11,6 +11,7 @@
 		"build": "astro build",
 		"preview": "astro preview",
 		"deploy": "wrangler deploy",
+		"deploy:prod": "wrangler deploy --config wrangler.prod.jsonc",
 		"typecheck": "astro check",
 		"test": "vitest",
 		"test:run": "vitest run",
