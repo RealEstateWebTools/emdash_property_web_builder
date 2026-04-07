@@ -239,6 +239,25 @@ Good post topics:
 
 Avoid: generic lifestyle content unrelated to property, national macroeconomic commentary without local grounding, AI-sounding filler.
 
+## Efficient Alternatives to Browser Automation
+
+The browser automation path (logging in via Chrome, making JS fetch calls) works but is token-expensive. For future content operations, prefer one of these:
+
+**Option 1 — Local populate script (best for bulk)**
+Write `scripts/populate.ts` using the verified API endpoints and `X-EmDash-Request: 1` header. Authenticate by copying the session cookie from Chrome DevTools after a normal passkey login. Pass it as `EMDASH_SESSION_COOKIE` env var. Zero AI tokens, runs in seconds, fully reproducible.
+
+**Option 2 — Claude Code MCP config**
+Add the MCP server to `~/.claude/settings.json`:
+```json
+{ "mcpServers": { "pwb-emdash": { "type": "sse", "url": "https://emdash-property-web-builder.etewiah.workers.dev/_emdash/api/mcp" } } }
+```
+Gives direct content tools in Claude Code. Blocked today by the broken CLI device-code OAuth flow — once that is fixed, this is the lowest-overhead path.
+
+**Option 3 — Fix the EmDash CLI device-code login**
+If `npx emdash login --url ...` worked, content operations become simple CLI commands with no browser and no AI involvement. The `undefined` device-code output is a bug worth filing against EmDash.
+
+See `docs/remote-content-and-mcp.md` → "Efficient Content Operations — Options Compared" for a full breakdown with a comparison table.
+
 ## Known Issues
 
 | Issue | Status |

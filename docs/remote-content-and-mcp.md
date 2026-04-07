@@ -436,6 +436,78 @@ Without this header, all POST/PUT/PATCH/DELETE requests return `403 CSRF_REJECTE
 | GitHub / Google OAuth | ✅ | Requires being logged in to those services in the browser |
 | CLI device-code | ❌ | Prints `undefined` and times out |
 
+## Efficient Content Operations — Options Compared
+
+The first time content was added to this deployment (2026-04-07), the process involved significant AI-assisted discovery work: auth probing, API reverse-engineering via fetch interception, and browser automation round-trips. That overhead is a one-time cost — the API is now documented — but future sessions can be structured more efficiently.
+
+### Option 1: Local populate script (recommended for bulk operations)
+
+Write a `scripts/populate.ts` that calls the verified API directly. This requires no browser automation, no AI token overhead, and runs in seconds.
+
+```ts
+// scripts/populate.ts
+// Usage: bun run scripts/populate.ts
+// Requires: EMDASH_SESSION_COOKIE env var (copy from browser DevTools after login)
+
+const BASE = 'https://emdash-property-web-builder.etewiah.workers.dev';
+const COOKIE = process.env.EMDASH_SESSION_COOKIE!;
+const h = {
+  'Content-Type': 'application/json',
+  'X-EmDash-Request': '1',
+  Cookie: COOKIE,
+};
+// Then: create terms → bylines → posts → publish → assign
+```
+
+Advantages:
+- Zero AI tokens for subsequent content additions
+- Reproducible — can be re-run after a reset or on a new deployment
+- Version-controlled — the script documents exactly what was created
+
+The session cookie can be extracted from Chrome DevTools (Application → Cookies) after a normal passkey login. It is not a secret that needs to be committed; pass it via env var or `.env.local`.
+
+### Option 2: Configure the EmDash MCP server in Claude Code
+
+Add the deployed MCP server to Claude Code's MCP configuration. Once authenticated, Claude Code gets direct content tools (`list_collections`, `create_entry`, `publish_entry`, etc.) and can operate the site without browser automation.
+
+Add to `~/.claude/settings.json` (or the project's `.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "pwb-emdash": {
+      "type": "sse",
+      "url": "https://emdash-property-web-builder.etewiah.workers.dev/_emdash/api/mcp"
+    }
+  }
+}
+```
+
+**Blocker:** The CLI device-code OAuth flow is currently broken for this deployment (see Known Gaps). First-time authentication would still require the browser. Once that is resolved, this becomes the most natural path — direct MCP tool calls with no browser automation at all.
+
+### Option 3: Fix the CLI device-code login
+
+If `npx emdash login --url ...` worked correctly, the entire content workflow becomes CLI-driven:
+
+```bash
+npx emdash login --url https://emdash-property-web-builder.etewiah.workers.dev
+npx emdash content create posts --slug my-post --data '{"title":"..."}'
+npx emdash content publish posts my-post
+```
+
+This is the lowest-friction path and the one EmDash is designed for. The device-code flow printing `undefined` is a bug in either the CLI or the deployment's OAuth server metadata. Worth investigating before the next bulk content operation.
+
+### Comparison
+
+| Approach | Setup effort | Per-run cost | Requires browser | Works today |
+|---|---|---|---|---|
+| Local populate script | Medium (write once) | Zero | No (after initial cookie) | ✅ |
+| Claude Code MCP config | Low | Low (direct tool calls) | No (after auth fixed) | ⚠️ (blocked on CLI OAuth) |
+| EmDash CLI | Zero | Zero | No | ❌ (device-code broken) |
+| Browser automation (current) | Zero | High (AI tokens) | Yes | ✅ |
+
+The browser automation approach used in the initial session should be treated as a fallback, not a primary workflow.
+
 ## Known Gaps
 
 - The remote EmDash CLI login flow did not produce a usable device code during verification.
