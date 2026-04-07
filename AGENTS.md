@@ -37,6 +37,26 @@ Agent skills are in `.agents/skills/`. Load them when working on specific tasks:
 - Always call `Astro.cache.set(cacheHint)` on pages that query content.
 - Taxonomy names in queries must match the seed's `"name"` field exactly (e.g., `"category"` not `"categories"`).
 
+## Non-Negotiable Safety Rules
+
+These rules exist because mistakes here cause real damage — exposed secrets, broken deployments, wasted time on a critical project.
+
+### Never Guess Configuration
+
+**If you do not know the exact name of an environment variable, CLI flag, or config key — stop. Look it up first.**
+
+- Read the source: check `npx <tool> --help`, fetch the upstream skill/docs, or grep the codebase.
+- If you cannot find it, say "I don't know — here is how to find it" and provide the lookup path.
+- Do not guess and qualify it with "I think" or "probably". A wrong guess is worse than no answer.
+
+### Never Generate or Display Secrets
+
+**Never run commands that produce secrets, tokens, passwords, or private keys via your tools.** The output appears in the conversation log, which may be stored, synced, or seen by others.
+
+- If a secret needs to be generated, instruct the user to run the command themselves in their own terminal.
+- Never suggest copy-pasting a secret value you have seen or generated.
+- If you accidentally expose a secret, immediately tell the user it is compromised and must be regenerated.
+
 ## Documentation Rules
 
 **Always derive docs from the code, never from memory or templates.**
