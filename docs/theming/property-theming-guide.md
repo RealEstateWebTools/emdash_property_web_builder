@@ -494,6 +494,74 @@ price and CTA):
 
 ---
 
+---
+
+## Switching Palettes
+
+Palette switching is implemented via the `PUBLIC_PALETTE` environment variable. The
+valid values are:
+
+| Value | File | Character |
+|---|---|---|
+| `default` | *(base theme.css only)* | Blue accent, clean, system font |
+| `gold` | `palettes/gold.css` | Gold primary, warm accents |
+| `luxury` | `palettes/luxury.css` | Dark charcoal, gold, Cormorant Garamond serif |
+| `mediterranean` | `palettes/mediterranean.css` | Terracotta, aged-paper, Lora serif |
+| `coastal` | `palettes/coastal.css` | Ocean blue, rounded, DM Sans |
+| `countryside` | `palettes/countryside.css` | Sage green, earthy, Source Serif 4 |
+| `urban` | `palettes/urban.css` | Cool slate, sharp edges, indigo accent |
+| `nordic` | `palettes/nordic.css` | Near-white, ultra-minimal, Inter |
+
+### In development
+
+Add to `.env` and restart the dev server:
+
+```
+PUBLIC_PALETTE=luxury
+```
+
+### In production (Cloudflare Worker)
+
+Change `PUBLIC_PALETTE` in `wrangler.jsonc` and redeploy:
+
+```jsonc
+"vars": {
+  "PUBLIC_PALETTE": "luxury"
+}
+```
+
+Then:
+
+```bash
+pnpm run deploy
+```
+
+No code changes are needed. The palette CSS loads after `theme.css` and overrides only
+the variables it declares.
+
+### How the switching works
+
+`BaseLayout.astro` reads `import.meta.env.PUBLIC_PALETTE` at render time and injects
+a second `<link>` tag after `theme.css`:
+
+```html
+<link rel="stylesheet" href="/styles/theme.css" />
+<link rel="stylesheet" href="/styles/palettes/luxury.css" />
+```
+
+The palette file overrides `:root` custom properties. Because it loads second, its
+values win over `theme.css` defaults. If `PUBLIC_PALETTE` is absent or unrecognised,
+no second stylesheet is added and `theme.css` defaults apply.
+
+### Adding a new palette
+
+1. Create `public/styles/palettes/<name>.css` overriding any `:root` variables.
+2. Add `'<name>'` to the `VALID_PALETTES` array in `src/layouts/BaseLayout.astro`.
+3. Run `pnpm run test:run -- src/docs-validation.test.ts` — the test will catch any
+   mismatch between the array and files on disk.
+
+---
+
 ## Recommended Progression
 
 ### Phase 1 — Immediate (CSS variables)

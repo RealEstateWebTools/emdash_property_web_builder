@@ -8,7 +8,7 @@
  * If a test here fails, update the docs to match the code — not the other way around.
  */
 
-import { readFileSync, readdirSync, statSync } from 'fs'
+import { readFileSync, readdirSync, statSync, existsSync } from 'fs'
 import { join, resolve } from 'path'
 import { describe, it, expect } from 'vitest'
 
@@ -133,6 +133,57 @@ describe('docs validation', () => {
     }
 
     expect(hits, `\nDocs contain "wrangler pages" commands, but this project deploys as a Worker (wrangler deploy):\n${hits.join('\n')}\n\nFix: use "pnpm run deploy" (which runs wrangler deploy --provision).`).toHaveLength(0)
+  })
+
+  it('all palette names referenced in docs have a corresponding CSS file', () => {
+    const VALID_PALETTES = ['default', 'gold', 'luxury', 'mediterranean', 'coastal', 'countryside', 'urban', 'nordic']
+    const PALETTES_DIR = join(ROOT, 'public/styles/palettes')
+    const missing: string[] = []
+
+    for (const file of mdFiles) {
+      const content = readFileSync(file, 'utf-8')
+      // Match palette names in backtick spans or after PUBLIC_PALETTE=
+      const matches = content.matchAll(/`([a-z]+)`|PUBLIC_PALETTE[=: ]+([a-z]+)/g)
+      for (const m of matches) {
+        const name = m[1] ?? m[2]
+        if (!name || !VALID_PALETTES.includes(name)) continue
+        if (name === 'default') continue // default.css is intentionally a no-op placeholder
+        const cssFile = join(PALETTES_DIR, `${name}.css`)
+        if (!existsSync(cssFile)) {
+          missing.push(`  "${name}" referenced in ${file.replace(ROOT + '/', '')} but public/styles/palettes/${name}.css does not exist`)
+        }
+      }
+    }
+
+    expect(missing, `\nDocs reference palette names without a matching CSS file:\n${missing.join('\n')}`).toHaveLength(0)
+  })
+
+  it('VALID_PALETTES in BaseLayout.astro matches palette CSS files on disk', () => {
+    const PALETTES_DIR = join(ROOT, 'public/styles/palettes')
+    const layoutPath = join(ROOT, 'src/layouts/BaseLayout.astro')
+    const layout = readFileSync(layoutPath, 'utf-8')
+
+    // Extract the VALID_PALETTES array from the layout
+    const match = layout.match(/VALID_PALETTES\s*=\s*\[([^\]]+)\]/)
+    expect(match, 'VALID_PALETTES array not found in BaseLayout.astro').toBeTruthy()
+
+    const declared = (match![1].match(/'([a-z]+)'/g) ?? []).map(s => s.replace(/'/g, ''))
+
+    // Every declared palette (except 'default') must have a CSS file
+    for (const name of declared) {
+      if (name === 'default') continue
+      const cssFile = join(PALETTES_DIR, `${name}.css`)
+      expect(existsSync(cssFile), `VALID_PALETTES includes "${name}" but public/styles/palettes/${name}.css does not exist`).toBe(true)
+    }
+
+    // Every CSS file in palettes/ (except default.css) must be in VALID_PALETTES
+    const onDisk = readdirSync(PALETTES_DIR)
+      .filter(f => f.endsWith('.css') && f !== 'default.css')
+      .map(f => f.replace('.css', ''))
+
+    for (const name of onDisk) {
+      expect(declared, `public/styles/palettes/${name}.css exists but "${name}" is not in VALID_PALETTES in BaseLayout.astro`).toContain(name)
+    }
   })
 
   it('deploy script in docs matches package.json deploy script', () => {
