@@ -280,29 +280,42 @@ The PWB Rails app (`config/initializers/cors.rb`) is already configured to allow
 
 ## Deployment to Cloudflare
 
-This project deploys as a **Cloudflare Worker** (not Pages). Always use `pnpm run deploy`, which runs `wrangler deploy --provision` as defined in `package.json`.
+This project deploys as a **Cloudflare Worker** (not Pages). Use `pnpm run deploy:prod` for production deployments — this uses `wrangler.prod.jsonc` which contains your real account-specific resource IDs.
+
+### Why two wrangler config files?
+
+`wrangler.jsonc` is committed to git as a **public template** with placeholder IDs. It must not contain real Cloudflare resource IDs (D1 database UUID, R2 bucket, etc.) because the repo is public.
+
+`wrangler.prod.jsonc` is **gitignored** and holds your real IDs. The `deploy:prod` script points wrangler at this file.
+
+### First-time setup
 
 ```bash
-# One-time: create the D1 database
-wrangler d1 create emdash-property-web-builder
-# Paste the database_id into wrangler.jsonc
+# 1. Create the production config from the example
+cp wrangler.prod.jsonc.example wrangler.prod.jsonc
 
-# One-time: create the R2 bucket
+# 2. Create the D1 database (if it doesn't exist yet)
+wrangler d1 create emdash-property-web-builder
+# Copy the printed database_id into wrangler.prod.jsonc
+
+# 3. Create the R2 bucket (if it doesn't exist yet)
 wrangler r2 bucket create emdash-property-web-builder-media
 
-# One-time: login
+# 4. Login
 wrangler login
 
-# Build and deploy
-pnpm build
-pnpm run deploy
-
-# Set production environment variable
+# 5. Set the production PWB backend URL
 wrangler secret put PWB_API_URL
 # (paste the production PWB URL when prompted)
 ```
 
-After the first deployment, run the seed against the D1 database:
+### Deploying
+
+```bash
+pnpm run deploy:prod
+```
+
+After the first deployment, seed the D1 database:
 
 ```bash
 # Export from local SQLite and import to D1
