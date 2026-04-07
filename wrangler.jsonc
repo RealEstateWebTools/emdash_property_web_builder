@@ -21,15 +21,10 @@
 	],
 	"vars": {
 		// Set your PWB Rails backend URL after deploying:
-		// wrangler pages secret put PWB_API_URL
+		// wrangler secret put PWB_API_URL
 		"PWB_API_URL": "",
 	},
 	"observability": {
 		"enabled": true,
 	},
-	"worker_loaders": [
-		{
-			"binding": "LOADER",
-		},
-	],
 }
