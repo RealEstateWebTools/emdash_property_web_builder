@@ -111,4 +111,15 @@ describe('PwbClient error handling', () => {
   it('throws a descriptive error message on 404', async () => {
     await expect(client.getProperty('unknown-slug')).rejects.toThrow('Property not found')
   })
+
+  it('getSiteDetails throws when the PWB backend returns a non-2xx status', async () => {
+    const { server } = await import('../../test/mocks/pwb-server')
+    const { http, HttpResponse } = await import('msw')
+    server.use(
+      http.get('http://localhost:3001/api_public/v1/en/site_details', () =>
+        new HttpResponse(null, { status: 521 })
+      )
+    )
+    await expect(client.getSiteDetails()).rejects.toThrow('HTTP 521')
+  })
 })

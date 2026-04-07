@@ -160,6 +160,24 @@ fetch('/_emdash/api/content/posts', {
 
 ---
 
+## 404 page throws HTTP 521 when PWB backend is unreachable
+
+**Symptom:** Cloudflare Worker logs show a repeating unhandled error on every `GET /404` request:
+
+```
+Error: HTTP 521 https://demo.propertywebbuilder.com/api_public/v1/en/site_details
+  at PwbClient.get (chunks/client_BNBH10g4.mjs:80:13)
+  at async chunks/404_D01OZCcY.mjs:8:16
+```
+
+HTTP 521 means Cloudflare cannot reach the origin server (PWB backend is down or refusing connections).
+
+**Cause:** `src/pages/404.astro` called `createPwbClient().getSiteDetails()` without error handling. When the PWB backend is unreachable the call throws, and the Worker has no unhandled-rejection boundary — so every 404 response fails.
+
+**Fix:** Wrapped the `getSiteDetails()` call in a try/catch with a minimal `fallbackSite` object that satisfies the `SiteDetails` type. The 404 page now renders correctly regardless of PWB backend availability.
+
+---
+
 ## `better-sqlite3` fails to install
 
 If `pnpm install` fails on `better-sqlite3`, the native bindings need to be compiled:
