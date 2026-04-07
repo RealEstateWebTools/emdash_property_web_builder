@@ -1,3 +1,16 @@
+diff --git a/dist/cli/index.mjs b/dist/cli/index.mjs
+index d73acce5fc244968bf0e3ddb01117afddcec17f4..19fe3775b391ccc563cc62420d9cbdc8664f12ed 100755
+--- a/dist/cli/index.mjs
++++ b/dist/cli/index.mjs
+@@ -1683,7 +1683,7 @@ const loginCommand = defineCommand({
+ 				consola$1.error(`Failed to request device code: ${codeRes.status}`);
+ 				process.exit(2);
+ 			}
+-			const deviceCode = await codeRes.json();
++			const _deviceCodeRaw = await codeRes.json(); const deviceCode = _deviceCodeRaw.data || _deviceCodeRaw;
+ 			console.log();
+ 			consola$1.info(`Open your browser to:`);
+ 			console.log(`  ${pc.cyan(pc.bold(deviceCode.verification_uri))}`);
 diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
 index 412a26c2311c4465fbe27548afd6fc02b89b5caa..d2eda142ea4238237dfedc328cb3ff95dc265e2b 100644
 --- a/src/components/InlinePortableTextEditor.tsx
