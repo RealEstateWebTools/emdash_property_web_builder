@@ -107,6 +107,21 @@ Usually a stale service worker. In Chrome DevTools → Application → Service W
 
 ---
 
+## `npx emdash login --url <workers.dev>` prints `undefined` and times out
+
+**Symptom:** Remote login reports a successful connection, then shows `undefined` for the browser URL and device code, and exits with `Device code expired (timeout)`.
+
+**What this means:** The deployed site can still be healthy. During verification, the browser admin login page loaded correctly and offered Passkey, GitHub, Google, and email-link sign-in. The failure appears to be in the CLI device-code path for this deployment, not in the deployed admin itself.
+
+**Workaround:**
+1. Use the browser login at `/_emdash/admin/login` to confirm the site auth flow is healthy.
+2. Prefer an MCP client that supports browser OAuth when connecting to `/_emdash/api/mcp`.
+3. If you need remote writes immediately, use the admin UI or a browser-authenticated MCP client rather than blocking on the CLI device flow.
+
+**Context:** The deployed MCP endpoint is OAuth-protected and advertises a standard authorization server, so this symptom should not be interpreted as "MCP is not deployed" or "admin auth is broken".
+
+---
+
 ## `better-sqlite3` fails to install
 
 If `pnpm install` fails on `better-sqlite3`, the native bindings need to be compiled:

@@ -298,3 +298,37 @@ wrangler d1 execute emdash-property-web-builder --file=<(sqlite3 data.db .dump)
 ```
 
 Or re-seed manually via the Cloudflare admin panel once the site is live.
+
+---
+
+## Remote content editing via MCP
+
+The deployed Worker exposes an EmDash MCP server at `/_emdash/api/mcp`.
+
+Use this when you want an MCP-capable client or coding agent to inspect and update remote EmDash content without manually working through the admin UI.
+
+### What is safe to edit remotely
+
+Remote EmDash editing currently has the highest impact on:
+
+- site settings
+- the homepage hero entry in the EmDash `pages` collection
+- blog posts in the EmDash `posts` collection
+
+Do not assume that every CMS-like page is backed by EmDash. The catch-all route in `src/pages/[...slug].astro` currently loads page content from the PWB backend, so generic pages such as About or Contact may not be controlled by EmDash on the live deployment.
+
+### Authentication
+
+The remote MCP endpoint is OAuth-protected. Prefer a browser-capable MCP client that can complete the authorization flow interactively.
+
+During verification, browser login worked, but the current `npx emdash login --url ...` device-code flow did not return a usable verification URL or code for this deployment.
+
+### Suggested workflow
+
+1. Connect your MCP client to `https://emdash-property-web-builder.etewiah.workers.dev/_emdash/api/mcp`.
+2. Inspect schema, content counts, taxonomies, menus, and site settings before writing.
+3. Update site branding and homepage copy.
+4. Create and publish a first batch of high-signal real-estate posts.
+5. Verify the public routes `/`, `/posts`, `/search`, and any created `/posts/:slug` pages.
+
+For the detailed findings, the verified auth behavior, and example prompts, see `docs/remote-content-and-mcp.md`.

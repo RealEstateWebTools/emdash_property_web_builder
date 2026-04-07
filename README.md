@@ -17,6 +17,8 @@ Property listings, search, and enquiries are powered by the PWB Rails backend. S
 - EmDash admin UI at `/_emdash/admin`
 - MCP server at `/_emdash/api/mcp` for AI tool integration
 
+For the verified remote-content workflow, deployed MCP auth behavior, and recommended first content batch, see `docs/remote-content-and-mcp.md`.
+
 ## Pages
 
 | Page | Route |
@@ -75,7 +77,7 @@ The deploy button will:
 After deploying, set your PWB backend URL:
 
 ```bash
-wrangler pages secret put PWB_API_URL
+wrangler secret put PWB_API_URL
 # paste your production PWB URL when prompted
 ```
 
@@ -89,8 +91,8 @@ wrangler d1 execute emdash-property-web-builder --file=<(sqlite3 data.db .dump)
 
 ```bash
 pnpm build
-pnpm deploy  # runs wrangler deploy --provision
-wrangler pages secret put PWB_API_URL
+pnpm run deploy  # runs wrangler deploy --provision
+wrangler secret put PWB_API_URL
 ```
 
 ## See Also
