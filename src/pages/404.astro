@@ -1,24 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import type { SiteDetails } from '../lib/pwb/types'
+import { fallbackSite } from '../lib/pwb/fallback-site'
 
 // Do not call the PWB backend on the 404 page — the backend may be
 // unreachable and any error would appear in Worker logs on every 404 hit.
-const site: SiteDetails = {
-  id: 0,
-  title: 'Property Search',
-  meta_description: null,
-  company_display_name: null,
-  logo_url: null,
-  default_currency: null,
-  default_area_unit: null,
-  ga4_measurement_id: null,
-  gtm_container_id: null,
-  og: {},
-  twitter: {},
-  json_ld: {},
-  analytics: null,
-}
+const site = fallbackSite
 ---
 
 <BaseLayout site={site} title="Page not found">

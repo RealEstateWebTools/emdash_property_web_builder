@@ -188,6 +188,18 @@ There are two layouts:
 
 If you add a new page type that should match the property-site look, use `BaseLayout.astro` and fetch `site` via `createPwbClient().getSiteDetails()`.
 
+### Not-found route convention
+
+For dynamic routes, do not use `Astro.redirect('/404')` as the missing-content path.
+
+Instead:
+
+1. set `Astro.response.status = 404`
+2. render a direct not-found response from the route itself
+3. for routes that depend on `BaseLayout.astro`, use the shared fallback site object in `src/lib/pwb/fallback-site.ts` if the PWB backend is unavailable
+
+Why this matters: redirecting missing routes to `/404` can create redirect loops on some deployments and can also trigger unnecessary `site_details` calls to the PWB backend, which adds noisy Worker errors when that backend is down.
+
 ---
 
 ## Adding a new PWB API endpoint
