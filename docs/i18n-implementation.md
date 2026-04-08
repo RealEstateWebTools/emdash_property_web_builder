@@ -1,9 +1,30 @@
-# Multi-Language (i18n) Implementation Plan
+# Multi-Language (i18n) Implementation
 
-This document is an implementation plan for adding multi-language support to this
-EmDash property site. It is grounded in the current repo structure, but a few parts remain
-design decisions rather than confirmed final code. Treat it as a repo-specific guide, not a
-drop-in patch set.
+This document started as an implementation plan and now serves as the implementation record
+for the locale-aware routing and rendering that ships in this repo today. It still includes
+the design rationale behind the approach, but the high-level architecture below reflects the
+code that is currently in the tree.
+
+## Current State
+
+The repo now has working locale-aware routing for English, Spanish, and French across both
+EmDash content and PWB-backed property pages.
+
+- English remains unprefixed because `prefixDefaultLocale` is `false`.
+- Non-default locales use Astro route wrappers under `src/pages/[lang]/**`.
+- Shared page implementations live in `src/components/pages/**` so default and localized
+  routes render through the same code paths.
+- Shared locale helpers live in `src/lib/locale.ts` and currently provide `validateLocale()`,
+  `localePath()`, `entrySlug()`, `translateLabel()`, and `translateBrand()`.
+- Minimal translated content is seeded in `seed/seed.json` via `locale` and `translationOf`.
+- RSS feeds are now available per locale at `/rss.xml`, `/es/rss.xml`, and `/fr/rss.xml`.
+
+Two implementation details differ from the original plan:
+
+- Locale switching is handled directly in shared header and layout components. There is no
+  standalone `LanguageSwitcher.astro` or `LocaleLink.astro` component.
+- Brand localization is handled centrally via `translateBrand()` rather than by duplicating
+  per-locale brand strings in individual templates.
 
 ---
 
@@ -54,46 +75,47 @@ URL structure with English as default and Spanish + French added:
 
 ---
 
-## Complete File Inventory
+## Implementation Inventory
 
-Every file that requires a change, grouped by phase.
+These are the main files that now define the shipped i18n behavior.
 
-### Phase 1 — Astro config (1 file)
+### Config and helpers
 - `astro.config.mjs`
+- `src/lib/locale.ts`
 
-### Phase 2 — Page restructure (9 files created, 6 files modified)
-- `src/pages/index.astro` ← modify (add locale to queries)
-- `src/pages/posts/index.astro` ← modify
-- `src/pages/posts/[slug].astro` ← modify
-- `src/pages/pages/[slug].astro` ← modify
-- `src/pages/category/[slug].astro` ← modify
-- `src/pages/tag/[slug].astro` ← modify
-- `src/pages/search.astro` ← modify
-- `src/pages/[lang]/index.astro` ← create (non-default locale home)
-- `src/pages/[lang]/posts/index.astro` ← create
-- `src/pages/[lang]/posts/[slug].astro` ← create
-- `src/pages/[lang]/pages/[slug].astro` ← create
-- `src/pages/[lang]/category/[slug].astro` ← create
-- `src/pages/[lang]/tag/[slug].astro` ← create
-- `src/pages/[lang]/search.astro` ← create
-- `src/pages/rss.xml.ts` ← modify (default locale only; add locale-specific feeds optionally)
+### Shared page implementations
+- `src/components/pages/IndexPage.astro`
+- `src/components/pages/PostsIndexPage.astro`
+- `src/components/pages/PostPage.astro`
+- `src/components/pages/CmsPage.astro`
+- `src/components/pages/CategoryPage.astro`
+- `src/components/pages/TagPage.astro`
+- `src/components/pages/SearchPage.astro`
+- `src/components/pages/PwbPage.astro`
+- `src/components/pages/PropertyIndexPage.astro`
+- `src/components/pages/PropertyDetailPage.astro`
 
-### Phase 3 — Shared locale logic (1 file created)
-- `src/lib/locale.ts` ← create (locale validation helper used by `[lang]` pages)
+### Route wrappers
+- Default-locale routes under `src/pages/**`
+- Non-default locale wrappers under `src/pages/[lang]/**`
 
-### Phase 4 — Components and layouts (2 files created, 3 files modified)
-- `src/components/LanguageSwitcher.astro` ← create
-- `src/components/LocaleLink.astro` ← create (locale-aware `<a>` wrapper)
-- `src/components/SiteHeader.astro` ← modify (add language switcher)
-- `src/layouts/Base.astro` ← modify (blog and CMS pages use this today)
-- `src/layouts/BaseLayout.astro` ← modify only if property-site pages also need shared locale SEO tags
+### Shared shell and navigation
+- `src/layouts/Base.astro`
+- `src/layouts/BaseLayout.astro`
+- `src/components/SiteHeader.astro`
+- `src/components/SiteFooter.astro`
+- `src/components/SearchBar.astro`
+- `src/components/PropertyCard.astro`
+- `src/components/PropertyGrid.astro`
+- `src/components/SimilarProperties.astro`
 
-### Phase 5 — Seed file (1 file)
-- `seed/seed.json` ← modify (add `locale` to content entries, add translated entries)
-
-### Phase 6 — Tests and docs (2 files)
-- `src/docs-validation.test.ts` ← modify (add i18n config validation tests)
-- `docs/i18n-implementation.md` ← this file
+### Content and validation
+- `seed/seed.json`
+- `src/docs-validation.test.ts`
+- `src/not-found-routes.test.ts`
+- `src/lib/locale.test.ts`
+- `src/localized-route-conventions.test.ts`
+- `src/lib/pwb/site-config.test.ts`
 
 ---
 
@@ -408,108 +430,21 @@ export function localePath(locale: string, path: string): string {
 
 ## Phase 4: Components
 
-### `src/components/LanguageSwitcher.astro`
-
-Shows links to all available translations of the current entry. Uses EmDash's
-translation lookup to discover which locales have content, and a route-aware path builder to
-avoid assuming every translated entry lives at `/${slug}`.
-
-```astro
----
-import { getTranslations } from 'emdash'
-import { localePath, ALL_LOCALES } from '../lib/locale'
-
-interface Props {
-  collection: string
-  entryId: string   // entry.data.id (the ULID, not the slug)
-  buildPath: (slug: string) => string
-}
-
-const { collection, entryId, buildPath } = Astro.props
-const { translations } = await getTranslations(collection, entryId)
-
-// Index translations by locale for fast lookup
-const byLocale = Object.fromEntries(translations.map(t => [t.locale, t]))
-
-const LOCALE_LABELS: Record<string, string> = {
-  en: 'EN',
-  es: 'ES',
-  fr: 'FR',
-}
----
-
-<nav class="language-switcher" aria-label="Language">
-  {ALL_LOCALES.map(locale => {
-    const t = byLocale[locale]
-    if (!t) {
-      // No translation for this locale — render as disabled
-      return (
-        <span class="language-switcher__item language-switcher__item--missing"
-          title={`Not yet translated`}>
-          {LOCALE_LABELS[locale] ?? locale.toUpperCase()}
-        </span>
-      )
-    }
-    const href = localePath(locale, buildPath(t.slug))
-    const isCurrent = locale === Astro.currentLocale
-    return (
-      <a
-        href={href}
-        class="language-switcher__item"
-        class:list={[{ 'language-switcher__item--active': isCurrent }]}
-        aria-current={isCurrent ? 'page' : undefined}
-      >
-        {LOCALE_LABELS[locale] ?? locale.toUpperCase()}
-      </a>
-    )
-  })}
-</nav>
-
-<style>
-  .language-switcher {
-    display: flex;
-    gap: 0.5rem;
-    font-size: var(--font-size-sm);
-  }
-  .language-switcher__item {
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius);
-    text-decoration: none;
-    color: var(--color-text-secondary);
-    border: 1px solid var(--color-border);
-  }
-  .language-switcher__item--active {
-    background: var(--color-accent);
-    color: var(--color-on-accent);
-    border-color: var(--color-accent);
-  }
-  .language-switcher__item--missing {
-    opacity: 0.4;
-    cursor: default;
-  }
-</style>
-```
-
-Usage on a post detail page:
-```astro
-<LanguageSwitcher
-  collection="posts"
-  entryId={post.data.id}
-  buildPath={(slug) => `/posts/${slug}`}
-/>
-```
+The original plan proposed a standalone per-entry `LanguageSwitcher.astro`, but the final
+implementation does not use one. Locale switching is handled directly in shared header and
+layout components, while content routes rely on locale-aware wrappers plus shared page
+implementations.
 
 ### `src/components/SiteHeader.astro`
 
-Add a locale switcher to the header nav. For the header, a simple list of locale links
-(without entry-specific translation lookup) is enough — users can switch locale from
-any page.
+The PWB shell header now includes a simple locale switcher that links to each locale home and
+uses shared helpers for menu labels and localized brand copy.
 
 ```astro
 ---
 import { getMenu } from 'emdash'
 import type { SiteDetails } from '../lib/pwb/types'
-import { localePath, ALL_LOCALES } from '../lib/locale'
+import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath, translateBrand, translateLabel } from '../lib/locale'
 
 interface Props {
   site: SiteDetails
@@ -517,27 +452,25 @@ interface Props {
 
 const { site } = Astro.props
 const primaryMenu = await getMenu('primary')
-const currentLocale = Astro.currentLocale ?? 'en'
-
-const LOCALE_LABELS: Record<string, string> = { en: 'EN', es: 'ES', fr: 'FR' }
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const localizedBrand = translateBrand(currentLocale, site.company_display_name ?? site.title)
 ---
 
 <header class="site-header">
   <div class="site-header__inner">
     <a href={localePath(currentLocale, '/')} class="site-header__logo">
       {site.logo_url
-        ? <img src={site.logo_url} alt={site.company_display_name ?? site.title} height="40" />
-        : <span class="site-header__title">{site.company_display_name ?? site.title}</span>
+        ? <img src={site.logo_url} alt={localizedBrand} height="40" />
+        : <span class="site-header__title">{localizedBrand}</span>
       }
     </a>
 
     <nav class="site-header__nav" aria-label="Main navigation">
       {primaryMenu?.items.map(item => (
-        <a href={localePath(currentLocale, item.url)} target={item.target}>{item.label}</a>
+        <a href={localePath(currentLocale, item.url)} target={item.target}>{translateLabel(currentLocale, item.label)}</a>
       ))}
     </nav>
 
-    <!-- Locale switcher -->
     <div class="site-header__locales">
       {ALL_LOCALES.map(locale => (
         <a
@@ -545,7 +478,7 @@ const LOCALE_LABELS: Record<string, string> = { en: 'EN', es: 'ES', fr: 'FR' }
           class:list={['site-header__locale', { 'site-header__locale--active': locale === currentLocale }]}
           aria-current={locale === currentLocale ? 'page' : undefined}
         >
-          {LOCALE_LABELS[locale] ?? locale.toUpperCase()}
+          {localeLabel(locale)}
         </a>
       ))}
     </div>
@@ -553,9 +486,8 @@ const LOCALE_LABELS: Record<string, string> = { en: 'EN', es: 'ES', fr: 'FR' }
 </header>
 ```
 
-**Note**: The header locale switcher always links to each locale's homepage (`/`, `/es/`, `/fr/`).
-The per-entry `LanguageSwitcher` component on content pages is the right place to link to
-the actual translated version of the current page.
+The header locale switcher intentionally links to each locale homepage (`/`, `/es/`, `/fr/`).
+The repo does not currently implement per-entry translation navigation for posts or pages.
 
 ### `src/layouts/Base.astro` and `src/layouts/BaseLayout.astro`
 
@@ -699,20 +631,16 @@ or a product SKU. All fields default to `translatable: true`.
 
 ## Phase 6: RSS Feed
 
-### `src/pages/rss.xml.ts`
+### `src/pages/rss.xml.ts` and `src/pages/[lang]/rss.xml.ts`
 
-The current RSS feed doesn't filter by locale. After adding i18n, it will mix content from
-all locales in one feed. Options:
+RSS feeds now exist per locale.
 
-**Option A (simplest)**: Filter to default locale only.
-```typescript
-const posts = await getEmDashCollection("posts", { locale: 'en', status: 'published' })
-```
+- `/rss.xml` returns the English feed.
+- `/es/rss.xml` returns the Spanish feed.
+- `/fr/rss.xml` returns the French feed.
 
-**Option B (comprehensive)**: One feed per locale at `/rss.xml` (en), `/es/rss.xml`, `/fr/rss.xml`.
-Create `src/pages/[lang]/rss.xml.ts` alongside the default feed.
-
-**Recommendation**: Start with Option A. Add locale-specific feeds if users request them.
+The feed routes share XML generation through `src/lib/rss.ts`, which keeps feed metadata,
+locale-specific URLs, and post slug normalization consistent.
 
 ---
 
@@ -770,37 +698,47 @@ This means the search page at `/search?q=foo` searches English content, and
 
 ## Implementation Order
 
-Work in this exact order to keep the site functional throughout:
+Most of the original rollout plan has now been completed.
 
-1. **`src/lib/locale.ts`** — No side effects, needed by everything else.
-2. **`astro.config.mjs`** — Add i18n block. Site still works; `Astro.currentLocale` is now set.
-3. **Modify default-locale pages** — Add `locale` to all `getEmDashEntry` / `getEmDashCollection` calls. Verify site still works (`en` content loads correctly).
-4. **`seed/seed.json`** — Add `"locale": "en"` to all existing entries. Re-seed dev DB: `npx emdash seed seed/seed.json`. Verify site still works.
-5. **`src/components/LanguageSwitcher.astro`** — Build and test in isolation.
-6. **`src/components/SiteHeader.astro`** — Add locale links. Verify header renders correctly.
-7. **`src/layouts/Base.astro`** — Add `hreflang` support for blog/CMS pages.
-8. **`src/layouts/BaseLayout.astro`** — Only if property pages need the same locale SEO treatment.
-9. **Create `[lang]` pages** — Start with `[lang]/index.astro`, verify `/es/` loads. Then add the rest.
-10. **Add translated seed content** — Add Spanish/French entries to `seed/seed.json`. Re-seed.
-11. **RSS feed** — Filter to default locale.
-12. **Test end-to-end** — `/`, `/es/`, `/posts/welcome`, `/es/posts/bienvenido`.
+Completed:
+
+1. `src/lib/locale.ts` now defines locale validation, URL prefixing, locale-prefixed ID
+  normalization, shared UI label translation, and shared brand translation.
+2. `astro.config.mjs` enables Astro i18n with English as the unprefixed default locale.
+3. Default-locale routes and non-default locale wrappers both render through shared page
+  implementations in `src/components/pages/**`.
+4. `seed/seed.json` includes translated sample entries using `locale` and `translationOf`.
+5. Shared shells and property search UI localize the visible shared chrome and metadata.
+6. RSS feeds now exist for the default locale and each non-default locale.
+
+Still intentionally incomplete:
+
+1. Backend-driven content like widget copy, property titles, and some editorial text still
+  depends on translated content data rather than shared UI helpers.
 
 ---
 
-## Testing Checklist
+## Testing Coverage
 
-After each phase, verify:
+Current automated coverage includes:
 
-- [ ] Default locale (`/`) loads and shows correct content
-- [ ] Non-default locale (`/es/`) loads and shows correct content (or 404 if no content seeded)
-- [ ] `Astro.currentLocale` is correct on each page type (log it during dev)
-- [ ] PWB properties pages use the right locale in API calls (check network tab)
-- [ ] Language switcher links are correct on content pages
-- [ ] Header locale links navigate correctly
-- [ ] Search only returns results for the current locale
-- [ ] RSS feed only includes default-locale content
-- [ ] `hreflang` tags appear in `<head>` on content pages (check page source)
-- [ ] Missing translations behave intentionally: either direct 404 or explicit app-level fallback, depending on the chosen product rule
+- `src/docs-validation.test.ts` verifies locale helper parity with `astro.config.mjs`.
+- `src/not-found-routes.test.ts` verifies direct 404 handling for dynamic routes.
+- `src/lib/locale.test.ts` verifies helper behavior for route validation, path generation,
+  slug normalization, UI label translation, and brand translation.
+- `src/localized-route-conventions.test.ts` verifies localized route wrappers use
+  `validateLocale()`, return direct 404s for invalid locale segments, keep brand translation in
+  shared shells, and keep both default and localized RSS routes in place.
+- `src/lib/rss.test.ts` verifies localized feed metadata and locale-aware post/feed URLs.
+- `src/lib/pwb/site-config.test.ts` verifies localized brand names flow into page metadata.
+
+Recommended manual verification after any future i18n changes:
+
+- `/`, `/es/`, and `/fr/` load correctly.
+- `/es/search` and `/fr/search` show localized shared labels.
+- `/es/properties` and `/fr/properties` show localized shared property UI.
+- `/es/posts/...` and `/fr/posts/...` build locale-correct public URLs.
+- Missing localized content returns a direct 404 rather than redirecting to `/404`.
 
 ### Validation test to add to `src/docs-validation.test.ts`
 

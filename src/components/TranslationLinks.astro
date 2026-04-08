@@ -1,0 +1,76 @@
+---
+import { DEFAULT_LOCALE, localeLabel, translateLabel } from '../lib/locale'
+
+interface TranslationLink {
+  locale: string
+  href: string
+}
+
+interface Props {
+  links: TranslationLink[]
+}
+
+const { links } = Astro.props
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const dedupedLinks = Array.from(new Map(links.map((link) => [link.locale, link])).values())
+---
+
+{dedupedLinks.length > 1 && (
+  <nav class="translation-links" aria-label={translateLabel(currentLocale, 'Available in')}>
+    <span class="translation-links__label">{translateLabel(currentLocale, 'Available in')}</span>
+    <div class="translation-links__items">
+      {dedupedLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={['translation-links__item', { 'translation-links__item--active': link.locale === currentLocale }]}
+          aria-current={link.locale === currentLocale ? 'page' : undefined}
+        >
+          {localeLabel(link.locale)}
+        </a>
+      ))}
+    </div>
+  </nav>
+)}
+
+<style>
+  .translation-links {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .translation-links__label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+
+  .translation-links__items {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .translation-links__item {
+    text-decoration: none;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+  }
+
+  .translation-links__item:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .translation-links__item--active {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+</style>

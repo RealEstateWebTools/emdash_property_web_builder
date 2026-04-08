@@ -11,9 +11,10 @@ interface Props {
   title?: string
   description?: string
   canonical?: string
+  alternateLinks?: Array<{ locale: string; href: string }>
 }
 
-const { site, title, description, canonical } = Astro.props
+const { site, title, description, canonical, alternateLinks = [] } = Astro.props
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const localizedSiteTitle = translateBrand(currentLocale, site.company_display_name ?? site.title)
 const meta = buildPageMeta(site, { locale: currentLocale, title, description, canonical })
@@ -58,6 +59,10 @@ const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
     <title>{meta.title}</title>
     {meta.description && <meta name="description" content={meta.description} />}
     {meta.canonical && <link rel="canonical" href={meta.canonical} />}
+    {alternateLinks.map(({ locale, href }) => (
+      <link rel="alternate" hreflang={locale} href={href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.url.origin).href} />
 
     <!-- PWB API URL for client-side fetch (contact form) -->
     <meta name="pwb-api-url" content={import.meta.env.PWB_API_URL} />

@@ -1,7 +1,8 @@
 ---
-import { getEmDashEntry } from "emdash";
+import { getEmDashEntry, getTranslations } from "emdash";
 import { PortableText } from "emdash/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import TranslationLinks from "../TranslationLinks.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { localePath, translateLabel } from "../../lib/locale";
@@ -28,16 +29,34 @@ if (page) {
 } else {
 	Astro.response.status = 404;
 }
+
+const pagePath = localePath(locale, `/pages/${slug}`)
+const currentPageHref = new URL(pagePath, Astro.url.origin).href
+const alternateLinks = page
+	? Array.from(
+			new Map(
+				[
+					{ locale, href: currentPageHref },
+					...(await getTranslations('pages', page.data.id)).translations.map((translation) => ({
+						locale: translation.locale,
+						href: new URL(localePath(translation.locale, `/pages/${translation.slug}`), Astro.url.origin).href,
+					})),
+				].map((link) => [link.locale, link])
+			).values()
+		)
+	: []
 ---
 
 {page ? (
 	<BaseLayout
 		site={site}
 		title={page.data.title}
+		alternateLinks={alternateLinks}
 	>
 		<article class="page-article">
 			<header class="page-header">
 				<h1 class="page-title" {...page.edit.title}>{page.data.title}</h1>
+				<TranslationLinks links={alternateLinks} />
 			</header>
 
 			<div class="page-content">

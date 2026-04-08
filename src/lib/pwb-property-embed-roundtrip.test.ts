@@ -124,4 +124,13 @@ describe("EmDash patch workflow", () => {
 		expect(patch).toContain("portableTextPluginBlockToAttrs");
 		expect(patch).toContain("pluginBlockAttrsToPortableTextBlock");
 	});
+
+	it("tracks the locale-aware RecentPosts widget fix in the patch file", () => {
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.1.0.patch");
+		const patch = readFileSync(patchPath, "utf8");
+
+		expect(patch).toContain("src/components/widgets/RecentPosts.astro");
+		expect(patch).toContain('locale: currentLocale');
+		expect(patch).toContain('getPostHref(post.id)');
+	});
 });

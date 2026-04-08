@@ -193,7 +193,7 @@ const isLoggedIn = !!Astro.locals.user;
 									</li>
 								))
 							}
-							<li><a href="/rss.xml">{currentLocale === 'es' ? 'Canal RSS' : currentLocale === 'fr' ? 'Flux RSS' : 'RSS Feed'}</a></li>
+							<li><a href={localePath(currentLocale, '/rss.xml')}>{currentLocale === 'es' ? 'Canal RSS' : currentLocale === 'fr' ? 'Flux RSS' : 'RSS Feed'}</a></li>
 						</ul>
 					</div>
 					<div class="footer-widgets-section">

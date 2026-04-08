@@ -92,6 +92,44 @@ index 0000000000000000000000000000000000000000..11f14026e8dd9a23de888ccba0cf81f1
 +		...rest,
 +	};
 +}
+diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro
+index 7765ab67b2cdcb03b5a03884ce05dd3f615f73ca..2e1fc8d59828c4eafed8cbbe491e244f94dda6b7 100644
+--- a/src/components/widgets/RecentPosts.astro
++++ b/src/components/widgets/RecentPosts.astro
+@@ -7,9 +7,11 @@ interface Props {
+ }
+ 
+ const { count = 5, showThumbnails = false, showDate = true } = Astro.props;
++const currentLocale = Astro.currentLocale ?? "en";
+ 
+ const { entries: posts } = await getEmDashCollection("posts", {
++	locale: currentLocale,
+ 	limit: count,
+ 	orderBy: { published_at: "desc" },
+ });
+@@ -19,6 +21,12 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
+ 	const val = data[key];
+ 	return typeof val === "string" ? val : undefined;
+ }
++
++function getPostHref(postId: string): string {
++	const normalized = postId.replace(/^(?:en|es|fr)\//, "");
++	return currentLocale === "en"
++		? `/posts/${normalized}`
++		: `/${currentLocale}/posts/${normalized}`;
++}
+ ---
+ 
+ <ul class="widget-recent-posts">
+@@ -36,7 +44,7 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
+ 							class="widget-recent-posts__thumbnail"
+ 						/>
+ 					)}
+-					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
++					<a href={getPostHref(post.id)} class="widget-recent-posts__link">
+ 						{title}
+ 					</a>
+ 					{showDate && publishedAt && (
 +
 +export function pluginBlockAttrsToPortableTextBlock(
 +	attrs: Record<string, unknown> | undefined,

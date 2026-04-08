@@ -15,8 +15,9 @@ import {
 } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../PostCard.astro";
+import TranslationLinks from "../TranslationLinks.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { entrySlug, localePath, translateLabel } from "../../lib/locale";
+import { entrySlug, localePath, translateBrand, translateLabel } from "../../lib/locale";
 
 interface Props {
 	locale: string;
@@ -58,7 +59,7 @@ const postPath = localePath(locale, `/posts/${safeSlug}`);
 
 const seo = post
 	? getSeoMeta(post, {
-			siteTitle: "My Blog",
+			siteTitle: translateBrand(locale, "My Blog"),
 			siteUrl: Astro.url.origin,
 			path: postPath,
 			defaultOgImage: featuredImageUrl,
@@ -84,11 +85,19 @@ const otherPostsWithTags = await Promise.all(
 	})
 );
 
+const currentPostHref = new URL(postPath, Astro.url.origin).href;
 const alternateLinks = post
-	? (await getTranslations("posts", post.data.id)).translations.map((translation) => ({
-			locale: translation.locale,
-			href: new URL(localePath(translation.locale, `/posts/${translation.slug}`), Astro.url.origin).href,
-		}))
+	? Array.from(
+			new Map(
+				[
+					{ locale, href: currentPostHref },
+					...(await getTranslations("posts", post.data.id)).translations.map((translation) => ({
+						locale: translation.locale,
+						href: new URL(localePath(translation.locale, `/posts/${translation.slug}`), Astro.url.origin).href,
+					})),
+				].map((link) => [link.locale, link])
+			).values()
+		)
 	: [];
 
 const publishDate =
@@ -217,6 +226,7 @@ const publishDate =
 							<p class="article-excerpt">{post.data.excerpt}</p>
 						)
 					}
+					<TranslationLinks links={alternateLinks} />
 				</header>
 
 				<div class="article-content">
