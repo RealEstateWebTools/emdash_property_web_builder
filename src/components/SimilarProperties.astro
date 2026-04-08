@@ -2,6 +2,7 @@
 import PropertyCard from './PropertyCard.astro'
 import { formatPropertyCard } from '../lib/pwb/formatters'
 import type { PropertySummary } from '../lib/pwb/types'
+import { DEFAULT_LOCALE, translateLabel } from '../lib/locale'
 
 interface Props {
   properties: PropertySummary[]
@@ -9,10 +10,11 @@ interface Props {
 
 const { properties } = Astro.props
 const cards = properties.map(formatPropertyCard)
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 ---
 
 <section class="similar-properties">
-  <h2 class="similar-properties__heading">Similar Properties</h2>
+  <h2 class="similar-properties__heading">{translateLabel(currentLocale, 'Similar Properties')}</h2>
   <div class="property-grid">
     {cards.map((card) => (
       <PropertyCard card={card} />

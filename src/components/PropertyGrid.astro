@@ -1,16 +1,18 @@
 ---
 import PropertyCard from './PropertyCard.astro'
 import type { PropertyCardData } from '../lib/pwb/formatters'
+import { DEFAULT_LOCALE, translateLabel } from '../lib/locale'
 
 interface Props {
   cards: PropertyCardData[]
 }
 
 const { cards } = Astro.props
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 ---
 
 {cards.length === 0
-  ? <p class="property-grid__empty">No properties found matching your search.</p>
+  ? <p class="property-grid__empty">{translateLabel(currentLocale, 'No properties found matching your search.')}</p>
   : (
     <div class="property-grid">
       {cards.map((card) => (

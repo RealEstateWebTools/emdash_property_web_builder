@@ -3,7 +3,7 @@ import { getTerm, getEmDashCollection, getEntryTerms } from "emdash";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../PostCard.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { entrySlug, localePath } from "../../lib/locale";
+import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
   locale: string
@@ -70,11 +70,11 @@ const filteredPosts = await Promise.all(
 		</section>
 	</Base>
 ) : (
-	<Base title="Page not found" description="The tag you requested could not be found.">
+	<Base title={translateLabel(locale, 'Page not found')} description={translateLabel(locale, "The tag you're looking for doesn't exist.")}>
 		<section class="archive-section">
 			<header class="archive-header">
 				<h1 class="archive-title">404</h1>
-				<p class="archive-count">The tag you&apos;re looking for doesn&apos;t exist.</p>
+				<p class="archive-count">{translateLabel(locale, "The tag you're looking for doesn't exist.")}</p>
 			</header>
 		</section>
 	</Base>

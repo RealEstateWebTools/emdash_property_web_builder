@@ -16,7 +16,7 @@ import {
 import Base from "../../layouts/Base.astro";
 import PostCard from "../PostCard.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { entrySlug, localePath } from "../../lib/locale";
+import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
 	locale: string;
@@ -327,11 +327,11 @@ const publishDate =
 	</script>
 	</Base>
 ) : (
-	<Base title="Page not found" description="The post you requested could not be found.">
+	<Base title={translateLabel(locale, 'Page not found')} description={translateLabel(locale, "The post you're looking for doesn't exist.")}>
 		<div class="article" style="padding: 4rem 1.5rem; max-width: 900px; margin: 0 auto;">
 			<h1>404</h1>
-			<p>The post you&apos;re looking for doesn&apos;t exist.</p>
-			<p><a href={localePath(locale, "/posts")}>Browse all posts</a></p>
+			<p>{translateLabel(locale, "The post you're looking for doesn't exist.")}</p>
+			<p><a href={localePath(locale, "/posts")}>{translateLabel(locale, 'Browse all posts')}</a></p>
 		</div>
 	</Base>
 )}

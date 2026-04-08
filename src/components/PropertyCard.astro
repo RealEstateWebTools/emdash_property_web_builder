@@ -1,6 +1,6 @@
 ---
 import type { PropertyCardData } from '../lib/pwb/formatters'
-import { DEFAULT_LOCALE, localePath } from '../lib/locale'
+import { DEFAULT_LOCALE, localePath, translateLabel } from '../lib/locale'
 
 interface Props {
   card: PropertyCardData
@@ -20,7 +20,7 @@ const href = localePath(currentLocale, card.href)
   </a>
 
   {card.featured && (
-    <span class="property-card__badge">Featured</span>
+    <span class="property-card__badge">{translateLabel(currentLocale, 'Featured')}</span>
   )}
 
   <div class="property-card__body">
@@ -29,8 +29,8 @@ const href = localePath(currentLocale, card.href)
       <a href={href}>{card.title}</a>
     </h2>
     <ul class="property-card__meta">
-      {card.bedrooms != null && <li>{card.bedrooms} bed</li>}
-      {card.bathrooms != null && <li>{card.bathrooms} bath</li>}
+      {card.bedrooms != null && <li>{card.bedrooms} {translateLabel(currentLocale, 'bed')}</li>}
+      {card.bathrooms != null && <li>{card.bathrooms} {translateLabel(currentLocale, 'bath')}</li>}
       {card.area && <li>{card.area}</li>}
     </ul>
   </div>

@@ -6,7 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyDetail from '../PropertyDetail.astro'
 import ContactForm from '../ContactForm.astro'
 import SimilarProperties from '../SimilarProperties.astro'
-import { localePath } from '../../lib/locale'
+import { localePath, translateLabel } from '../../lib/locale'
 
 interface Props {
   locale: string
@@ -58,11 +58,11 @@ const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
     </div>
   </BaseLayout>
 ) : (
-  <BaseLayout site={site} title="Page not found">
+  <BaseLayout site={site} title={translateLabel(locale, 'Page not found')}>
     <div class="property-detail-page">
       <h1>404</h1>
-      <p>The property you&apos;re looking for doesn&apos;t exist.</p>
-      <p><a href={localePath(locale, '/properties')}>Browse all properties</a></p>
+      <p>{translateLabel(locale, "The property you're looking for doesn't exist.")}</p>
+      <p><a href={localePath(locale, '/properties')}>{translateLabel(locale, 'Browse all properties')}</a></p>
     </div>
   </BaseLayout>
 )}

@@ -3,7 +3,7 @@ import { getEmDashCollection } from "emdash";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../PostCard.astro";
 import { getReadingTime, extractText } from "../../utils/reading-time";
-import { entrySlug, localePath } from "../../lib/locale";
+import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
   locale: string
@@ -31,33 +31,48 @@ function matchesQuery(post: (typeof allPosts)[0], q: string): boolean {
 const results = query ? allPosts.filter((p) => matchesQuery(p, query)) : [];
 
 const searchAction = localePath(locale, '/search')
+const searchLabel = translateLabel(locale, 'Search')
+const searchDescription = translateLabel(locale, 'Search blog posts')
+const searchPlaceholder = translateLabel(locale, 'Search posts...')
+const searchHint = translateLabel(locale, 'Enter a search term to find posts.')
+const searchSummary = query
+	? locale === 'es'
+		? results.length === 0
+			? `No hay resultados para "${query}"`
+			: `${results.length} resultado${results.length === 1 ? '' : 's'} para "${query}"`
+		: locale === 'fr'
+			? results.length === 0
+				? `Aucun resultat pour "${query}"`
+				: `${results.length} resultat${results.length === 1 ? '' : 's'} pour "${query}"`
+			: results.length === 0
+				? `No results for "${query}"`
+				: `${results.length} result${results.length === 1 ? '' : 's'} for "${query}"`
+	: null
 ---
 
 <Base
-	title={query ? `Search: ${query}` : "Search"}
-	description="Search blog posts"
+	title={query ? `${searchLabel}: ${query}` : searchLabel}
+	description={searchDescription}
 >
 	<section class="search-page">
-		<h1 class="search-title">Search</h1>
+		<h1 class="search-title">{searchLabel}</h1>
 
 		<form method="get" action={searchAction} class="search-form">
 			<input
 				type="search"
 				name="q"
 				value={query}
-				placeholder="Search posts..."
+				placeholder={searchPlaceholder}
 				class="search-input"
 				autofocus
 			/>
-			<button type="submit" class="search-button">Search</button>
+			<button type="submit" class="search-button">{searchLabel}</button>
 		</form>
 
 		{
-			query && (
+			searchSummary && (
 				<p class="search-summary">
-					{results.length === 0
-						? `No results for "${query}"`
-						: `${results.length} result${results.length === 1 ? "" : "s"} for "${query}"`}
+					{searchSummary}
 				</p>
 			)
 		}
@@ -79,7 +94,7 @@ const searchAction = localePath(locale, '/search')
 			)
 		}
 
-		{!query && <p class="search-hint">Enter a search term to find posts.</p>}
+		{!query && <p class="search-hint">{searchHint}</p>}
 	</section>
 </Base>
 

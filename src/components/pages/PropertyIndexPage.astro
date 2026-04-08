@@ -6,7 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import SearchBar from '../SearchBar.astro'
 import PropertyGrid from '../PropertyGrid.astro'
 import MapView from '../MapView.astro'
-import { localePath } from '../../lib/locale'
+import { localePath, translateLabel } from '../../lib/locale'
 
 interface Props {
   locale: string
@@ -39,7 +39,7 @@ function buildPageHref(page: number): string {
 
 <BaseLayout
   site={site}
-  title={mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale'}
+  title={translateLabel(locale, mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale')}
 >
   <div class="search-page">
     <SearchBar
@@ -50,11 +50,11 @@ function buildPageHref(page: number): string {
     />
 
     <div class="search-results">
-      <p class="result-count">{results.meta.total} properties found</p>
+      <p class="result-count">{results.meta.total} {translateLabel(locale, 'properties found')}</p>
       <PropertyGrid cards={cards} />
 
       {results.meta.total_pages > 1 && (
-        <nav class="pagination" aria-label="Search results pages">
+        <nav class="pagination" aria-label={translateLabel(locale, 'Search results pages')}>
           {Array.from({ length: results.meta.total_pages }, (_, i) => i + 1).map((page) => (
             <a
               href={buildPageHref(page)}
