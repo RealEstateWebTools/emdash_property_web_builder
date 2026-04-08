@@ -3,6 +3,7 @@ import { buildPageMeta } from '../lib/pwb/site-config'
 import SiteHeader from '../components/SiteHeader.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
+import { VALID_PALETTES, PALETTE_KV_KEY, type Palette } from '../plugins/pwb-theme.js'
 
 interface Props {
   site: SiteDetails
@@ -14,9 +15,32 @@ interface Props {
 const { site, title, description, canonical } = Astro.props
 const meta = buildPageMeta(site, { title, description, canonical })
 
-const VALID_PALETTES = ['default', 'gold', 'luxury', 'mediterranean', 'coastal', 'countryside', 'urban', 'nordic'] as const
-const rawPalette = import.meta.env.PUBLIC_PALETTE ?? 'default'
-const palette = VALID_PALETTES.includes(rawPalette as typeof VALID_PALETTES[number]) ? rawPalette : 'default'
+// Palette resolution: admin panel setting > PUBLIC_PALETTE env var > 'default'
+// The plugin stores its KV under key `plugin:pwb-theme:<key>` in the options table.
+let palette: Palette = 'default'
+const db = Astro.locals.emdash?.db
+if (db) {
+  try {
+    const row = await (db as any)
+      .selectFrom('options')
+      .select('value')
+      .where('name', '=', `plugin:pwb-theme:${PALETTE_KV_KEY}`)
+      .executeTakeFirst()
+    const raw: unknown = row?.value
+    if (typeof raw === 'string' && (VALID_PALETTES as readonly string[]).includes(raw)) {
+      palette = raw as Palette
+    }
+  } catch {
+    // Plugin not yet installed or DB unavailable — fall through to env var
+  }
+}
+if (palette === 'default') {
+  const envPalette = import.meta.env.PUBLIC_PALETTE ?? 'default'
+  if ((VALID_PALETTES as readonly string[]).includes(envPalette)) {
+    palette = envPalette as Palette
+  }
+}
+
 const paletteHref = palette !== 'default' ? `/styles/palettes/${palette}.css` : null
 const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
 ---
