@@ -10,6 +10,7 @@ import {
 	chunkSqlStatements,
 	getBackupTableNamesFromSqliteDatabase,
 	getD1DatabaseNameFromConfig,
+	getResetPlanFromSqliteDatabase,
 	isDuplicateConstraintError,
 	keepInsertStatementsOnly,
 	parseWranglerConfig,
@@ -72,6 +73,8 @@ describe("keepInsertStatementsOnly", () => {
 			"INSERT INTO test VALUES(1);",
 			"INSERT INTO _emdash_migrations VALUES('001_initial','2026-04-05T08:30:03.925Z');",
 			"INSERT INTO _emdash_migrations_lock VALUES('migration_lock',0);",
+			"INSERT INTO users VALUES('user-1','user@example.com',NULL,NULL,10,1,NULL,'now','now',0);",
+			"INSERT INTO credentials VALUES('cred-1','user-1',X'01',0,'singleDevice',0,NULL,NULL,'now','now');",
 			"CREATE INDEX idx_test_id ON test(id);",
 			"INSERT INTO test VALUES(2);",
 		].join("\n");
@@ -124,6 +127,32 @@ describe("buildResetSqlFromSchema", () => {
 		expect(buildResetSqlFromSchema(tables, dependencyMap)).toBe(
 			['DELETE FROM "grandchild";', 'DELETE FROM "child";', 'DELETE FROM "parent";'].join("\n"),
 		);
+	});
+
+	it("excludes preserved auth/passkey tables from reset plans", () => {
+		const tempDir = mkdtempSync(join(tmpdir(), "d1-reset-plan-"));
+		const dbPath = join(tempDir, "reset.db");
+		const db = new Database(dbPath);
+
+		try {
+			db.exec(`
+				CREATE TABLE users (id TEXT PRIMARY KEY);
+				CREATE TABLE credentials (id TEXT PRIMARY KEY, user_id TEXT REFERENCES users(id));
+				CREATE TABLE posts (id TEXT PRIMARY KEY);
+				CREATE TABLE comments (id TEXT PRIMARY KEY, post_id TEXT REFERENCES posts(id));
+			`);
+
+			const plan = getResetPlanFromSqliteDatabase(dbPath);
+
+			expect(plan.tables).toEqual(["comments", "posts"]);
+			expect(plan.sql).toContain('DELETE FROM "comments";');
+			expect(plan.sql).toContain('DELETE FROM "posts";');
+			expect(plan.sql).not.toContain('DELETE FROM "users";');
+			expect(plan.sql).not.toContain('DELETE FROM "credentials";');
+		} finally {
+			db.close();
+			rmSync(tempDir, { recursive: true, force: true });
+		}
 	});
 });
 

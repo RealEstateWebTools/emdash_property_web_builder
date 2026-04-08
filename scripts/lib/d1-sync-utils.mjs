@@ -11,6 +11,19 @@ const SQLITE_DUMP_LINE_PATTERNS = [
 	/^VACUUM;$/,
 ];
 
+export const PRESERVED_REMOTE_TABLES = new Set([
+	"_emdash_api_tokens",
+	"_emdash_authorization_codes",
+	"_emdash_device_codes",
+	"_emdash_oauth_clients",
+	"_emdash_oauth_tokens",
+	"auth_challenges",
+	"auth_tokens",
+	"credentials",
+	"oauth_accounts",
+	"users",
+]);
+
 export function sanitizeSqliteDump(sql) {
 	const lines = sql.split(/\r?\n/);
 	const kept = [];
@@ -55,7 +68,11 @@ export function sanitizeSqliteDump(sql) {
 }
 
 export function keepInsertStatementsOnly(sql) {
-	const excludedTables = new Set(["_emdash_migrations", "_emdash_migrations_lock"]);
+	const excludedTables = new Set([
+		"_emdash_migrations",
+		"_emdash_migrations_lock",
+		...PRESERVED_REMOTE_TABLES,
+	]);
 	return sql
 		.split(/\r?\n/)
 		.filter((line) => {
@@ -440,7 +457,11 @@ export function buildResetSqlFromSchema(tables, dependencyMap) {
 export function getResetPlanFromSqliteDatabase(databasePath) {
 	const db = new Database(databasePath, { readonly: true });
 	try {
-		const excludedTables = new Set(["_emdash_migrations", "_emdash_migrations_lock"]);
+		const excludedTables = new Set([
+			"_emdash_migrations",
+			"_emdash_migrations_lock",
+			...PRESERVED_REMOTE_TABLES,
+		]);
 		const tables = getUserTableRows(db)
 			.map((row) => row.name)
 			.filter((name) => !excludedTables.has(name));
