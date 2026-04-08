@@ -16,7 +16,7 @@ import {
 import Base from "../../layouts/Base.astro";
 import PostCard from "../PostCard.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { localePath } from "../../lib/locale";
+import { entrySlug, localePath } from "../../lib/locale";
 
 interface Props {
 	locale: string;
@@ -255,7 +255,7 @@ const publishDate =
 									title={relatedPost.data.title}
 									excerpt={relatedPost.data.excerpt}
 									featuredImage={relatedPost.data.featured_image}
-									href={localePath(locale, `/posts/${relatedPost.id}`)}
+									href={localePath(locale, `/posts/${entrySlug(relatedPost.id)}`)}
 									date={relatedPost.data.publishedAt ?? undefined}
 									readingTime={getReadingTime(relatedPost.data.content)}
 									tags={postTags.map((t) => ({ slug: t.slug, label: t.label }))}

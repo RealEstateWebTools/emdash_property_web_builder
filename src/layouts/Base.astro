@@ -8,7 +8,7 @@ import {
 } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
 import LiveSearch from "emdash/ui/search";
-import { DEFAULT_LOCALE, ALL_LOCALES, localeLabel, localePath } from "../lib/locale";
+import { DEFAULT_LOCALE, ALL_LOCALES, entrySlug, localeLabel, localePath, translateLabel } from "../lib/locale";
 import "../styles/theme.css";
 
 interface Props {
@@ -119,7 +119,7 @@ const isLoggedIn = !!Astro.locals.user;
 						{
 							menu?.items.map((item) => (
 								<a href={localePath(currentLocale, item.url)} target={item.target}>
-									{item.label}
+									{translateLabel(currentLocale, item.label)}
 								</a>
 							))
 						}
@@ -154,18 +154,18 @@ const isLoggedIn = !!Astro.locals.user;
 			<div class="footer-inner">
 				<div class="footer-grid">
 					<div class="footer-brand">
-						<a href={localePath(currentLocale, '/')} class="footer-logo">{siteTitle}</a>
+						<a href={localePath(currentLocale, '/')} class="footer-logo">{translateLabel(currentLocale, siteTitle)}</a>
 						<p class="footer-tagline">Thoughts, stories, and ideas.</p>
 					</div>
 					<div class="footer-nav">
-						<h4 class="footer-heading">Navigate</h4>
+						<h4 class="footer-heading">{translateLabel(currentLocale, 'Navigate')}</h4>
 						<ul class="footer-links">
-							<li><a href={localePath(currentLocale, '/')}>Home</a></li>
-							<li><a href={localePath(currentLocale, '/posts')}>All Posts</a></li>
+							<li><a href={localePath(currentLocale, '/')}>{translateLabel(currentLocale, 'Home')}</a></li>
+							<li><a href={localePath(currentLocale, '/posts')}>{translateLabel(currentLocale, 'All Posts')}</a></li>
 							{
 								pages.slice(0, 3).map((page) => (
 									<li>
-										<a href={localePath(currentLocale, `/pages/${page.data.slug || page.id}`)}>
+										<a href={localePath(currentLocale, `/pages/${page.data.slug || entrySlug(page.id)}`)}>
 											{page.data.title}
 										</a>
 									</li>
@@ -174,7 +174,7 @@ const isLoggedIn = !!Astro.locals.user;
 						</ul>
 					</div>
 					<div class="footer-nav">
-						<h4 class="footer-heading">Connect</h4>
+						<h4 class="footer-heading">{translateLabel(currentLocale, 'Connect')}</h4>
 						<ul class="footer-links">
 							{
 								menu?.items.map((item) => (
@@ -188,7 +188,7 @@ const isLoggedIn = !!Astro.locals.user;
 													: undefined
 											}
 										>
-											{item.label}
+											{translateLabel(currentLocale, item.label)}
 										</a>
 									</li>
 								))

@@ -5,7 +5,7 @@ import { createPwbClient } from '../../lib/pwb/client'
 import { formatPropertyCard } from '../../lib/pwb/formatters'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyGrid from '../PropertyGrid.astro'
-import { localePath } from '../../lib/locale'
+import { localePath, translateLabel } from '../../lib/locale'
 
 interface Props {
   locale: string
@@ -34,8 +34,8 @@ const cards = results.data.map(formatPropertyCard)
       </div>
     )}
     <div class="hero__actions">
-      <a href={localePath(locale, '/properties')} class="btn btn-primary">Properties for Sale</a>
-      <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-primary">Properties for Rent</a>
+      <a href={localePath(locale, '/properties')} class="btn btn-primary">{translateLabel(locale, 'Properties for Sale')}</a>
+      <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-primary">{translateLabel(locale, 'Properties for Rent')}</a>
     </div>
   </section>
 
@@ -46,7 +46,7 @@ const cards = results.data.map(formatPropertyCard)
       </h2>
       <PropertyGrid cards={cards} />
       <div class="featured-section__cta">
-        <a href={localePath(locale, '/properties')} class="btn btn-primary">View All Properties</a>
+        <a href={localePath(locale, '/properties')} class="btn btn-primary">{translateLabel(locale, 'View All Properties')}</a>
       </div>
     </section>
   )}

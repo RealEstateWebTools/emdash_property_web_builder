@@ -2,7 +2,7 @@
 import { getEmDashCollection, getEntryTerms } from "emdash";
 import Base from "../../layouts/Base.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { localePath } from "../../lib/locale";
+import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
   locale: string
@@ -35,12 +35,15 @@ const formatDate = (date: Date) =>
 		month: "long",
 		day: "numeric",
 	});
+
+const allPostsLabel = translateLabel(locale, "All Posts");
+const noPostsLabel = translateLabel(locale, "No posts yet.");
 ---
 
-<Base title="All Posts" description="Browse all blog posts">
+<Base title={allPostsLabel} description="Browse all blog posts">
 	<div class="posts-page">
 		<header class="page-header">
-			<h1 class="page-title">All Posts</h1>
+			<h1 class="page-title">{allPostsLabel}</h1>
 			<p class="page-description">
 				{posts.length}
 				{posts.length === 1 ? "article" : "articles"}
@@ -49,12 +52,12 @@ const formatDate = (date: Date) =>
 
 		{
 			sortedPosts.length === 0 ? (
-				<p class="empty">No posts yet.</p>
+				<p class="empty">{noPostsLabel}</p>
 			) : (
 				<div class="posts-list">
 					{postsWithTags.map(({ post, tags, bylines }) => (
 						<article class="post-item">
-							<a href={localePath(locale, `/posts/${post.id}`)} class="post-link">
+							<a href={localePath(locale, `/posts/${entrySlug(post.id)}`)} class="post-link">
 								<div class="post-meta">
 									{bylines.length > 0 && (
 										<>

@@ -1,7 +1,7 @@
 ---
 import { getMenu } from 'emdash'
 import { WidgetArea } from 'emdash/ui'
-import { DEFAULT_LOCALE, localePath } from '../lib/locale'
+import { DEFAULT_LOCALE, localePath, translateLabel } from '../lib/locale'
 
 interface Props {
   siteTitle: string
@@ -16,10 +16,10 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
-  		<a href={localePath(currentLocale, '/')} class="footer-logo">{siteTitle}</a>
+        <a href={localePath(currentLocale, '/')} class="footer-logo">{translateLabel(currentLocale, siteTitle)}</a>
       </div>
       <div class="footer-nav">
-        <h4 class="footer-heading">Navigate</h4>
+        <h4 class="footer-heading">{translateLabel(currentLocale, 'Navigate')}</h4>
         <ul class="footer-links">
           {menu?.items.map(item => (
             <li>
@@ -28,7 +28,7 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
                 target={item.target}
                 rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               >
-                {item.label}
+				{translateLabel(currentLocale, item.label)}
               </a>
             </li>
           ))}

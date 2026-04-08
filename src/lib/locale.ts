@@ -48,3 +48,51 @@ export function localePath(locale: string, path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
   return `/${locale}${normalized}`
 }
+
+/**
+ * Astro collection IDs for non-default locales can be prefixed with the locale,
+ * for example `es/mi-articulo`. Strip that prefix before building public URLs.
+ */
+export function entrySlug(entryId: string): string {
+  const normalized = entryId.startsWith('/') ? entryId.slice(1) : entryId
+
+  for (const locale of ALL_LOCALES) {
+    const prefix = `${locale}/`
+    if (normalized.startsWith(prefix)) {
+      return normalized.slice(prefix.length)
+    }
+  }
+
+  return normalized
+}
+
+const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
+  es: {
+    'Home': 'Inicio',
+    'Properties for Sale': 'Propiedades en venta',
+    'Properties for Rent': 'Propiedades en alquiler',
+    'About': 'Sobre nosotros',
+    'Contact': 'Contactanos',
+    'Navigate': 'Navegar',
+    'Connect': 'Conectar',
+    'All Posts': 'Todos los articulos',
+    'No posts yet.': 'Todavia no hay articulos.',
+    'View All Properties': 'Ver todas las propiedades',
+  },
+  fr: {
+    'Home': 'Accueil',
+    'Properties for Sale': 'Biens a vendre',
+    'Properties for Rent': 'Biens a louer',
+    'About': 'A propos',
+    'Contact': 'Contact',
+    'Navigate': 'Navigation',
+    'Connect': 'Liens utiles',
+    'All Posts': 'Tous les articles',
+    'No posts yet.': 'Aucun article pour le moment.',
+    'View All Properties': 'Voir tous les biens',
+  },
+}
+
+export function translateLabel(locale: string, text: string): string {
+  return UI_TRANSLATIONS[locale]?.[text] ?? text
+}

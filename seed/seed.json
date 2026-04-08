@@ -340,6 +340,170 @@
 						}
 					]
 				}
+			},
+			{
+				"id": "homepage-es",
+				"slug": "homepage",
+				"locale": "es",
+				"translationOf": "homepage",
+				"status": "published",
+				"data": {
+					"title": "Encuentra la propiedad de tus suenos",
+					"featured_section_heading": "Propiedades destacadas",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Explora nuestra seleccion exclusiva de propiedades en venta y alquiler. Conocimiento local experto y un servicio excepcional."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "homepage-fr",
+				"slug": "homepage",
+				"locale": "fr",
+				"translationOf": "homepage",
+				"status": "published",
+				"data": {
+					"title": "Trouvez la propriete ideale",
+					"featured_section_heading": "Biens en vedette",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Parcourez notre selection exclusive de biens a vendre et a louer. Une expertise locale solide et un service attentif."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "about-es",
+				"slug": "about",
+				"locale": "es",
+				"translationOf": "about",
+				"status": "published",
+				"data": {
+					"title": "Sobre nosotros",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Somos una agencia inmobiliaria independiente con profundas raices en la comunidad local. Nuestro equipo ayuda a compradores, vendedores y arrendadores a avanzar con seguridad."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Por que elegirnos" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Combinamos conocimiento local, asesoramiento honesto y una estrategia orientada a resultados para lograr el mejor resultado posible."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "about-fr",
+				"slug": "about",
+				"locale": "fr",
+				"translationOf": "about",
+				"status": "published",
+				"data": {
+					"title": "A propos",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Nous sommes une agence immobiliere independante solidement implantee localement. Notre equipe accompagne acheteurs, vendeurs et bailleurs avec clarte et rigueur."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Pourquoi nous choisir" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Nous associons expertise du marche local, conseil franc et execution soignee pour obtenir le meilleur resultat possible."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact-es",
+				"slug": "contact",
+				"locale": "es",
+				"translationOf": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contactanos",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Ponte en contacto con nuestro equipo. Estaremos encantados de ayudarte."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact-fr",
+				"slug": "contact",
+				"locale": "fr",
+				"translationOf": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contact",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Contactez notre equipe. Nous serons ravis de vous accompagner dans votre projet immobilier."
+								}
+							]
+						}
+					]
+				}
 			}
 		],
 		"posts": [
@@ -796,6 +960,136 @@
 				"taxonomies": {
 					"category": ["buying-guides"],
 					"tag": ["property-tips", "mortgage"]
+				}
+			},
+			{
+				"id": "post-1-es",
+				"slug": "guia-primer-comprador",
+				"locale": "es",
+				"translationOf": "post-1",
+				"status": "published",
+				"data": {
+					"title": "Guia para comprar tu primera vivienda",
+					"excerpt": "Comprar tu primera vivienda puede parecer abrumador. Esta guia resume los pasos clave para avanzar con confianza.",
+					"featured_image": {
+						"$media": {
+							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
+							"alt": "Puerta de entrada de una vivienda",
+							"filename": "first-time-buyer-es.jpg"
+						}
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Dar el paso hacia tu primera compra es una de las decisiones financieras mas importantes que tomaras. Con una buena preparacion, el proceso resulta mucho mas claro de lo que parece al principio."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Empieza por tus finanzas" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Antes de visitar propiedades, define tu presupuesto, revisa tu deposito y habla con un asesor hipotecario. Tener una preaprobacion te dara claridad y credibilidad frente a los vendedores."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Investiga la zona" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "No solo importa la vivienda. Transporte, colegios, comercios y ritmo del barrio influyen en tu dia a dia y en el valor futuro de la inversion. Visita la zona varias veces y habla con agentes que conozcan bien el mercado local."
+								}
+							]
+						}
+					]
+				},
+				"bylines": [{ "byline": "byline-editorial" }],
+				"taxonomies": {
+					"category": ["buying-guides"],
+					"tag": ["first-time-buyer", "mortgage"]
+				}
+			},
+			{
+				"id": "post-1-fr",
+				"slug": "guide-premier-achat",
+				"locale": "fr",
+				"translationOf": "post-1",
+				"status": "published",
+				"data": {
+					"title": "Guide du premier achat immobilier",
+					"excerpt": "Acheter son premier logement peut sembler complexe. Voici les etapes essentielles pour avancer avec confiance.",
+					"featured_image": {
+						"$media": {
+							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
+							"alt": "Entree d'une maison",
+							"filename": "first-time-buyer-fr.jpg"
+						}
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Le premier achat immobilier est une etape importante. Avec une preparation serieuse, le parcours devient beaucoup plus lisible et plus serein."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Commencez par le budget" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Avant les visites, clarifiez votre apport, vos mensualites cibles et votre capacite d'emprunt. Un accord de principe renforce votre dossier et vous aide a cibler les bons biens."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"children": [{ "_type": "span", "text": "Etudiez le quartier" }]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Transports, ecoles, commerces et qualite de vie comptent autant que le logement lui-meme. Visitez le secteur a differentes heures et appuyez-vous sur des professionnels qui connaissent reellement le marche local."
+								}
+							]
+						}
+					]
+				},
+				"bylines": [{ "byline": "byline-editorial" }],
+				"taxonomies": {
+					"category": ["buying-guides"],
+					"tag": ["first-time-buyer", "mortgage"]
 				}
 			},
 			{

@@ -1,7 +1,7 @@
 ---
 import { getMenu } from 'emdash'
 import type { SiteDetails } from '../lib/pwb/types'
-import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath } from '../lib/locale'
+import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath, translateLabel } from '../lib/locale'
 
 interface Props {
   site: SiteDetails
@@ -23,7 +23,7 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 
     <nav class="site-header__nav" aria-label="Main navigation">
       {primaryMenu?.items.map(item => (
-    <a href={localePath(currentLocale, item.url)} target={item.target}>{item.label}</a>
+        <a href={localePath(currentLocale, item.url)} target={item.target}>{translateLabel(currentLocale, item.label)}</a>
       ))}
     </nav>
 

@@ -3,7 +3,7 @@ import { getEmDashCollection } from "emdash";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../PostCard.astro";
 import { getReadingTime, extractText } from "../../utils/reading-time";
-import { localePath } from "../../lib/locale";
+import { entrySlug, localePath } from "../../lib/locale";
 
 interface Props {
   locale: string
@@ -70,7 +70,7 @@ const searchAction = localePath(locale, '/search')
 							title={post.data.title}
 							excerpt={post.data.excerpt}
 							featuredImage={post.data.featured_image}
-							href={localePath(locale, `/posts/${post.id}`)}
+							href={localePath(locale, `/posts/${entrySlug(post.id)}`)}
 							date={post.data.publishedAt ?? undefined}
 							readingTime={getReadingTime(post.data.content)}
 						/>
