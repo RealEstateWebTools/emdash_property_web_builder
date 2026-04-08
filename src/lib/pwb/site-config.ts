@@ -1,4 +1,5 @@
 import type { SiteDetails } from './types'
+import { translateBrand } from '../locale'
 
 export interface PageMeta {
   title: string
@@ -12,12 +13,13 @@ export interface PageMeta {
 export function buildPageMeta(
   site: SiteDetails,
   overrides: {
+    locale?: string
     title?: string
     description?: string
     canonical?: string
   } = {}
 ): PageMeta {
-  const siteName = site.company_display_name ?? site.title
+  const siteName = translateBrand(overrides.locale ?? 'en', site.company_display_name ?? site.title)
   const title = overrides.title ? `${overrides.title} | ${siteName}` : siteName
   const description = overrides.description ?? site.meta_description ?? ''
 

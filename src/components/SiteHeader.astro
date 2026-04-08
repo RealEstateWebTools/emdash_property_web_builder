@@ -1,7 +1,7 @@
 ---
 import { getMenu } from 'emdash'
 import type { SiteDetails } from '../lib/pwb/types'
-import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath, translateLabel } from '../lib/locale'
+import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath, translateBrand, translateLabel } from '../lib/locale'
 
 interface Props {
   site: SiteDetails
@@ -10,14 +10,15 @@ interface Props {
 const { site } = Astro.props
 const primaryMenu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const localizedBrand = translateBrand(currentLocale, site.company_display_name ?? site.title)
 ---
 
 <header class="site-header">
   <div class="site-header__inner">
     <a href={localePath(currentLocale, '/')} class="site-header__logo">
       {site.logo_url
-        ? <img src={site.logo_url} alt={translateLabel(currentLocale, site.company_display_name ?? site.title)} height="40" />
-        : <span class="site-header__title">{translateLabel(currentLocale, site.company_display_name ?? site.title)}</span>
+        ? <img src={site.logo_url} alt={localizedBrand} height="40" />
+        : <span class="site-header__title">{localizedBrand}</span>
       }
     </a>
 

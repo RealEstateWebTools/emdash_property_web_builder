@@ -8,7 +8,7 @@ import {
 } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
 import LiveSearch from "emdash/ui/search";
-import { DEFAULT_LOCALE, ALL_LOCALES, entrySlug, localeLabel, localePath, translateLabel } from "../lib/locale";
+import { DEFAULT_LOCALE, ALL_LOCALES, entrySlug, localeLabel, localePath, translateBrand, translateLabel } from "../lib/locale";
 import "../styles/theme.css";
 
 interface Props {
@@ -39,8 +39,8 @@ const {
 	content,
 	alternateLinks = [],
 } = Astro.props;
-const siteTitle = "My Blog";
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE;
+const siteTitle = translateBrand(currentLocale, "My Blog");
 // If title already includes site title (from getSeoMeta), use as-is
 const fullTitle = title.includes(siteTitle) ? title : `${title} — ${siteTitle}`;
 

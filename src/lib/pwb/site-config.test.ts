@@ -5,6 +5,11 @@ import type { SiteDetails } from './types'
 
 describe('buildPageMeta', () => {
   const site = siteDetails as SiteDetails
+  const propertySearchSite: SiteDetails = {
+    ...site,
+    title: 'Property Search',
+    company_display_name: null,
+  }
 
   it('uses the site title when no page title given', () => {
     const meta = buildPageMeta(site)
@@ -35,5 +40,11 @@ describe('buildPageMeta', () => {
     const meta = buildPageMeta(site, { title: 'Villas' })
     expect(meta.og['og:title']).toBe('Villas | Sunshine Realty')
     expect(meta.og['og:type']).toBe('website')
+  })
+
+  it('localizes the site brand in page metadata for non-default locales', () => {
+    const meta = buildPageMeta(propertySearchSite, { locale: 'es', title: 'Propiedades en venta' })
+    expect(meta.title).toBe('Propiedades en venta | Buscador de Propiedades')
+    expect(meta.og['og:title']).toBe('Propiedades en venta | Buscador de Propiedades')
   })
 })

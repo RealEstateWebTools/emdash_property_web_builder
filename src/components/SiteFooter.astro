@@ -1,7 +1,7 @@
 ---
 import { getMenu } from 'emdash'
 import { WidgetArea } from 'emdash/ui'
-import { DEFAULT_LOCALE, localePath, translateLabel } from '../lib/locale'
+import { DEFAULT_LOCALE, localePath, translateBrand, translateLabel } from '../lib/locale'
 
 interface Props {
   siteTitle: string
@@ -10,13 +10,14 @@ interface Props {
 const { siteTitle } = Astro.props
 const menu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const localizedSiteTitle = translateBrand(currentLocale, siteTitle)
 ---
 
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href={localePath(currentLocale, '/')} class="footer-logo">{translateLabel(currentLocale, siteTitle)}</a>
+        <a href={localePath(currentLocale, '/')} class="footer-logo">{localizedSiteTitle}</a>
       </div>
       <div class="footer-nav">
         <h4 class="footer-heading">{translateLabel(currentLocale, 'Navigate')}</h4>
@@ -39,7 +40,7 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
       </div>
     </div>
     <div class="footer-bottom">
-      <p class="footer-copyright">&copy; {new Date().getFullYear()} {siteTitle}</p>
+      <p class="footer-copyright">&copy; {new Date().getFullYear()} {localizedSiteTitle}</p>
       <a
         href="https://github.com/RealEstateWebTools/emdash_property_web_builder"
         class="footer-github"

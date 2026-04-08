@@ -155,6 +155,21 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 }
 
+const BRAND_TRANSLATIONS: Record<string, Record<string, string>> = {
+  es: {
+    'Property Search': 'Buscador de Propiedades',
+    'My Blog': 'Mi Blog',
+  },
+  fr: {
+    'Property Search': 'Recherche Immobiliere',
+    'My Blog': 'Mon Blog',
+  },
+}
+
 export function translateLabel(locale: string, text: string): string {
   return UI_TRANSLATIONS[locale]?.[text] ?? text
+}
+
+export function translateBrand(locale: string, text: string): string {
+  return BRAND_TRANSLATIONS[locale]?.[text] ?? text
 }
