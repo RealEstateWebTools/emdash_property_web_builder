@@ -11,6 +11,7 @@ export interface Page {
   status: string;
   title: string;
   content?: PortableTextBlock[];
+  featured_section_heading?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;
