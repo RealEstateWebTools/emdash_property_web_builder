@@ -116,6 +116,7 @@ npx emdash seed seed/seed.json
 npx emdash types
 pnpm export:d1-sql
 pnpm sync:prod-db
+pnpm reset:admin-access
 pnpm test
 pnpm test:run
 pnpm build
@@ -194,6 +195,18 @@ That will:
 - clear remote table data
 - import local data into the existing remote schema
 
+If production admin access is lost because passkey state no longer matches the deployed DB, use:
+
+```bash
+pnpm reset:admin-access
+```
+
+That backs up the remote auth/setup tables, clears admin login state, and reopens the setup flow at:
+
+- all rows in the affected auth tables are deleted, including all rows in `users`
+
+- [https://emdash-property-web-builder.etewiah.workers.dev/_emdash/admin/setup](https://emdash-property-web-builder.etewiah.workers.dev/_emdash/admin/setup)
+
 For production deploys, also review:
 
 - `DB` D1 binding
@@ -206,6 +219,7 @@ For production deploys, also review:
 - [docs/development-guide.md](docs/development-guide.md)
 - [docs/architecture.md](docs/architecture.md)
 - [docs/troubleshooting.md](docs/troubleshooting.md)
+- [docs/admin-access-recovery.md](docs/admin-access-recovery.md)
 - [docs/remote-content-and-mcp.md](docs/remote-content-and-mcp.md)
 - [docs/product-roadmap.md](docs/product-roadmap.md)
 

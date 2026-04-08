@@ -5,7 +5,9 @@ import Database from "better-sqlite3";
 import { describe, expect, it } from "vitest";
 
 import {
+	buildAdminAccessResetSql,
 	getAdditiveSchemaSyncPlan,
+	getAdminAccessResetPlanFromSqliteDatabase,
 	buildResetSqlFromSchema,
 	chunkSqlStatements,
 	getBackupTableNamesFromSqliteDatabase,
@@ -156,6 +158,20 @@ describe("buildResetSqlFromSchema", () => {
 	});
 });
 
+describe("buildAdminAccessResetSql", () => {
+	it("clears auth tables and reopens the EmDash setup flow", () => {
+		const sql = buildAdminAccessResetSql(["credentials", "users", "auth_tokens"]);
+
+		expect(sql).toContain('DELETE FROM "credentials";');
+		expect(sql).toContain('DELETE FROM "auth_tokens";');
+		expect(sql).toContain('DELETE FROM "users";');
+		expect(sql).toContain(`DELETE FROM "options" WHERE "name" = 'emdash:setup_state';`);
+		expect(sql).toContain(
+			`INSERT INTO "options" ("name", "value") VALUES ('emdash:setup_complete', 'false') ON CONFLICT("name") DO UPDATE SET "value" = excluded."value";`,
+		);
+	});
+});
+
 describe("getBackupTableNamesFromSqliteDatabase", () => {
 	it("excludes FTS virtual and shadow tables from backup exports", () => {
 		const tempDir = mkdtempSync(join(tmpdir(), "d1-sync-utils-"));
@@ -202,6 +218,37 @@ describe("getAdditiveSchemaSyncPlan", () => {
 			expect(plan.statements).toEqual([
 				'ALTER TABLE "ec_pages" ADD COLUMN featured_section_heading TEXT;',
 			]);
+		} finally {
+			db.close();
+			rmSync(tempDir, { recursive: true, force: true });
+		}
+	});
+});
+
+describe("getAdminAccessResetPlanFromSqliteDatabase", () => {
+	it("includes only auth-related tables and leaves content tables alone", () => {
+		const tempDir = mkdtempSync(join(tmpdir(), "d1-admin-reset-"));
+		const dbPath = join(tempDir, "admin-reset.db");
+		const db = new Database(dbPath);
+
+		try {
+			db.exec(`
+				CREATE TABLE options (name TEXT PRIMARY KEY, value TEXT NOT NULL);
+				CREATE TABLE users (id TEXT PRIMARY KEY);
+				CREATE TABLE credentials (id TEXT PRIMARY KEY, user_id TEXT REFERENCES users(id));
+				CREATE TABLE auth_tokens (token TEXT PRIMARY KEY, user_id TEXT REFERENCES users(id));
+				CREATE TABLE ec_pages (id TEXT PRIMARY KEY, title TEXT);
+			`);
+
+			const plan = getAdminAccessResetPlanFromSqliteDatabase(dbPath);
+
+			expect(plan.tables).toEqual(["credentials", "auth_tokens", "users"]);
+			expect(plan.optionNames).toEqual(["emdash:setup_state"]);
+			expect(plan.sql).toContain('DELETE FROM "credentials";');
+			expect(plan.sql).toContain('DELETE FROM "auth_tokens";');
+			expect(plan.sql).toContain('DELETE FROM "users";');
+			expect(plan.sql).not.toContain('DELETE FROM "ec_pages";');
+			expect(plan.sql).toContain(`DELETE FROM "options" WHERE "name" = 'emdash:setup_state';`);
 		} finally {
 			db.close();
 			rmSync(tempDir, { recursive: true, force: true });

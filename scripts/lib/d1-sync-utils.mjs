@@ -24,6 +24,21 @@ export const PRESERVED_REMOTE_TABLES = new Set([
 	"users",
 ]);
 
+export const ADMIN_ACCESS_RESET_TABLES = [
+	"credentials",
+	"auth_tokens",
+	"auth_challenges",
+	"oauth_accounts",
+	"_emdash_api_tokens",
+	"_emdash_authorization_codes",
+	"_emdash_device_codes",
+	"_emdash_oauth_tokens",
+	"_emdash_oauth_clients",
+	"users",
+];
+
+export const ADMIN_ACCESS_RESET_OPTION_NAMES = ["emdash:setup_state"];
+
 export function sanitizeSqliteDump(sql) {
 	const lines = sql.split(/\r?\n/);
 	const kept = [];
@@ -491,6 +506,39 @@ export function getBackupTableNamesFromSqliteDatabase(databasePath) {
 	const db = new Database(databasePath, { readonly: true });
 	try {
 		return getUserTableRows(db).map((row) => row.name);
+	} finally {
+		db.close();
+	}
+}
+
+export function buildAdminAccessResetSql(existingTables = ADMIN_ACCESS_RESET_TABLES) {
+	const existingTableSet = new Set(existingTables);
+	const statements = ADMIN_ACCESS_RESET_TABLES.filter((table) => existingTableSet.has(table)).map(
+		(table) => `DELETE FROM "${table}";`,
+	);
+
+	for (const optionName of ADMIN_ACCESS_RESET_OPTION_NAMES) {
+		statements.push(`DELETE FROM "options" WHERE "name" = '${optionName}';`);
+	}
+
+	statements.push(
+		`INSERT INTO "options" ("name", "value") VALUES ('emdash:setup_complete', 'false') ON CONFLICT("name") DO UPDATE SET "value" = excluded."value";`,
+	);
+
+	return statements.join("\n");
+}
+
+export function getAdminAccessResetPlanFromSqliteDatabase(databasePath) {
+	const db = new Database(databasePath, { readonly: true });
+	try {
+		const existingTables = new Set(getUserTableRows(db).map((row) => row.name));
+		const tables = ADMIN_ACCESS_RESET_TABLES.filter((table) => existingTables.has(table));
+
+		return {
+			tables,
+			optionNames: [...ADMIN_ACCESS_RESET_OPTION_NAMES],
+			sql: buildAdminAccessResetSql(tables),
+		};
 	} finally {
 		db.close();
 	}

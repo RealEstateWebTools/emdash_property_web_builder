@@ -141,6 +141,41 @@ That gives you:
 - a clean remote data reset
 - a data-only import into the existing deployed schema
 
+### Recovering admin access
+
+If the deployed admin gets stuck in passkey failures such as `Credential not found`, use the dedicated recovery command:
+
+```bash
+pnpm reset:admin-access
+```
+
+This workflow:
+
+- backs up the remote auth/setup tables into `.tmp/`
+- clears auth/passkey rows from remote D1, including deleting all rows from `users`
+- resets `emdash:setup_complete` to `false`
+- preserves site content
+
+Then open:
+
+- [https://emdash-property-web-builder.etewiah.workers.dev/_emdash/admin/setup](https://emdash-property-web-builder.etewiah.workers.dev/_emdash/admin/setup)
+
+and register a new admin passkey.
+
+This is safe for content, but not for existing accounts: all users in the target D1 database are removed during recovery.
+
+Useful variants:
+
+```bash
+pnpm reset:admin-access --dry-run
+pnpm reset:admin-access --yes
+pnpm reset:admin-access --no-backup
+```
+
+Full details are in:
+
+- [docs/admin-access-recovery.md](docs/admin-access-recovery.md)
+
 ---
 
 ## Adding editable content to a page

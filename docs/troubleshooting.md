@@ -142,6 +142,51 @@ Usually a stale service worker. In Chrome DevTools → Application → Service W
 
 ---
 
+## Production passkey login fails with `Credential not found`
+
+**Symptom:** Worker logs show:
+
+```text
+[PASSKEY_VERIFY_ERROR] Error: Credential not found
+```
+
+and there is no alternate sign-in path available.
+
+**Cause:** The deployed database no longer has a passkey row that matches the browser credential being presented. In passkey mode, EmDash can also get stuck with `emdash:setup_complete = true`, which prevents the first-admin setup flow from reopening automatically.
+
+**Fix:** Use the repo recovery command:
+
+```bash
+pnpm reset:admin-access
+```
+
+That will:
+
+- back up the remote auth/setup tables
+- clear remote auth and passkey rows, including deleting all rows from `users`
+- reset `emdash:setup_complete` to `false`
+- preserve content
+
+Then reopen setup:
+
+- [https://emdash-property-web-builder.etewiah.workers.dev/_emdash/admin/setup](https://emdash-property-web-builder.etewiah.workers.dev/_emdash/admin/setup)
+
+and register a new admin passkey.
+
+This recovery flow preserves CMS content, but it does remove all existing user accounts from the target D1 database.
+
+If you want to inspect the plan first:
+
+```bash
+pnpm reset:admin-access --dry-run
+```
+
+For the full scripted workflow and exact table list, see:
+
+- [docs/admin-access-recovery.md](docs/admin-access-recovery.md)
+
+---
+
 ## Admin API mutations return 403 CSRF_REJECTED
 
 **Symptom:** Direct `fetch()` calls to `/_emdash/api/content/*` with POST/PUT/PATCH return `{"error":{"code":"CSRF_REJECTED","message":"Missing required header"}}`.
