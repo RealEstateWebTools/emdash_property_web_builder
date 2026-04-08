@@ -25,7 +25,7 @@ That limitation has now been patched locally in this repository's EmDash source,
 current implementation is richer than the first shipped workaround.
 
 For the dedicated patch mechanics and maintenance workflow, see
-[docs/emdash-plugin-block-attr-patch.md](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/docs/emdash-plugin-block-attr-patch.md).
+[docs/emdash-plugin-block-attr-patch.md](emdash-plugin-block-attr-patch.md).
 
 ---
 

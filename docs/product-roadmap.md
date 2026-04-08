@@ -179,7 +179,7 @@ Theme:
 #### 1. Write-capable PWB properties plugin
 
 Build the next iteration described in
-[docs/pwb-properties-plugin-write-capable.md](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/docs/pwb-properties-plugin-write-capable.md).
+[docs/pwb-properties-plugin-write-capable.md](pwb-properties-plugin-write-capable.md).
 
 Minimum scope:
 

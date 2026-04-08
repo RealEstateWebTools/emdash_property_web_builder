@@ -68,9 +68,9 @@ This repository does **not** rely on hand-edited `node_modules` as the source of
 
 The patch is tracked using pnpm's patched dependency workflow:
 
-- patch file: [patches/emdash@0.1.0.patch](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/patches/emdash@0.1.0.patch)
-- package wiring: [package.json](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/package.json)
-- lockfile wiring: [pnpm-lock.yaml](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/pnpm-lock.yaml)
+- patch file: [patches/emdash@0.1.0.patch](../patches/emdash@0.1.0.patch)
+- package wiring: [package.json](../package.json)
+- lockfile wiring: [pnpm-lock.yaml](../pnpm-lock.yaml)
 
 `package.json` contains:
 
@@ -111,9 +111,9 @@ If you need to change the EmDash editor behavior again:
 3. Run tests in this repository before committing
 4. Run `pnpm patch-commit /tmp/emdash-patch --patches-dir patches`
 5. Review changes in:
-   - [patches/emdash@0.1.0.patch](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/patches/emdash@0.1.0.patch)
-   - [package.json](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/package.json)
-   - [pnpm-lock.yaml](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/pnpm-lock.yaml)
+   - [patches/emdash@0.1.0.patch](../patches/emdash@0.1.0.patch)
+   - [package.json](../package.json)
+   - [pnpm-lock.yaml](../pnpm-lock.yaml)
 
 ## Verification
 
@@ -148,5 +148,5 @@ For manual verification:
 
 ## Related Docs
 
-- [docs/pwb-properties-content-embedding.md](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/docs/pwb-properties-content-embedding.md)
-- [patches/emdash@0.1.0.patch](/Users/etewiah/dev/sites-older/property_web_builder/emdash_property_web_builder/patches/emdash@0.1.0.patch)
+- [docs/pwb-properties-content-embedding.md](pwb-properties-content-embedding.md)
+- [patches/emdash@0.1.0.patch](../patches/emdash@0.1.0.patch)

@@ -14,3 +14,4 @@ data.db-wal
 docs/emdash-lms-patterns.md
 emdash-lms
 wrangler.prod.jsonc
+.claude/settings.local.json
