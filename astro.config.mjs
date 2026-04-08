@@ -11,6 +11,7 @@ import { pwbPropertyEmbedsPlugin } from "pwb-property-embeds";
 import { pwbPropertiesPlugin } from "pwb-properties";
 import { pwbValuationPlugin } from "pwb-valuation";
 import { pwbValuationIntegration } from "pwb-valuation/integration";
+import { pwbThemePlugin } from "./src/plugins/pwb-theme.js";
 
 const isDev = process.env.NODE_ENV !== "production";
 const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
@@ -19,7 +20,7 @@ const emdashLocalExcludes = [
 	"emdash/storage/local",
 	"emdash/media/local-runtime",
 ];
-const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin()];
+const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbThemePlugin()];
 const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()];
 
 export default defineConfig({
@@ -112,6 +113,7 @@ export default defineConfig({
 				"pwb-properties",
 				"pwb-valuation",
 				"pwb-valuation/integration",
+				"./src/plugins/pwb-theme.js",
 			],
 		},
 	},
