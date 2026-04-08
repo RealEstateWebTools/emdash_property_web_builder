@@ -136,7 +136,7 @@ describe('docs validation', () => {
   })
 
   it('all palette names referenced in docs have a corresponding CSS file', () => {
-    const VALID_PALETTES = ['default', 'gold', 'luxury', 'mediterranean', 'coastal', 'countryside', 'urban', 'nordic']
+    const VALID_PALETTES = ['default', 'luxury', 'mediterranean', 'coastal', 'countryside', 'urban', 'nordic']
     const PALETTES_DIR = join(ROOT, 'public/styles/palettes')
     const missing: string[] = []
 
@@ -158,14 +158,14 @@ describe('docs validation', () => {
     expect(missing, `\nDocs reference palette names without a matching CSS file:\n${missing.join('\n')}`).toHaveLength(0)
   })
 
-  it('VALID_PALETTES in BaseLayout.astro matches palette CSS files on disk', () => {
+  it('VALID_PALETTES in pwb-theme plugin matches palette CSS files on disk', () => {
     const PALETTES_DIR = join(ROOT, 'public/styles/palettes')
-    const layoutPath = join(ROOT, 'src/layouts/BaseLayout.astro')
-    const layout = readFileSync(layoutPath, 'utf-8')
+    const pluginPath = join(ROOT, 'src/plugins/pwb-theme.ts')
+    const plugin = readFileSync(pluginPath, 'utf-8')
 
-    // Extract the VALID_PALETTES array from the layout
-    const match = layout.match(/VALID_PALETTES\s*=\s*\[([^\]]+)\]/)
-    expect(match, 'VALID_PALETTES array not found in BaseLayout.astro').toBeTruthy()
+    // Extract the VALID_PALETTES array from the plugin file
+    const match = plugin.match(/VALID_PALETTES\s*=\s*\[([^\]]+)\]/s)
+    expect(match, 'VALID_PALETTES array not found in src/plugins/pwb-theme.ts').toBeTruthy()
 
     const declared = (match![1].match(/'([a-z]+)'/g) ?? []).map(s => s.replace(/'/g, ''))
 
@@ -182,7 +182,7 @@ describe('docs validation', () => {
       .map(f => f.replace('.css', ''))
 
     for (const name of onDisk) {
-      expect(declared, `public/styles/palettes/${name}.css exists but "${name}" is not in VALID_PALETTES in BaseLayout.astro`).toContain(name)
+      expect(declared, `public/styles/palettes/${name}.css exists but "${name}" is not in VALID_PALETTES in src/plugins/pwb-theme.ts`).toContain(name)
     }
   })
 
