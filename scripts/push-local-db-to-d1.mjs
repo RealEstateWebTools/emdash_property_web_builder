@@ -9,7 +9,9 @@ import { stdin as input, stdout as output } from "node:process";
 import { fileURLToPath } from "node:url";
 import { exportSqliteForD1 } from "./export-sqlite-for-d1.mjs";
 import {
+	getAdditiveSchemaSyncPlan,
 	chunkSqlStatements,
+	getBackupTableNamesFromSqliteDatabase,
 	getD1DatabaseNameFromConfigFile,
 	getResetPlanFromSqliteDatabase,
 	isDuplicateConstraintError,
@@ -160,7 +162,9 @@ async function main() {
 		const outputPath = resolve(tempDir, `d1-import-${Date.now()}.sql`);
 		const backupPath = resolve(tempDir, `d1-backup-${Date.now()}.sql`);
 		const resetPath = resolve(tempDir, `d1-reset-${Date.now()}.sql`);
+		const schemaSyncPath = resolve(tempDir, `d1-schema-sync-${Date.now()}.sql`);
 		const exportMode = forceReset ? "data-only" : "full";
+		const backupTables = shouldBackup ? getBackupTableNamesFromSqliteDatabase(localDbPath) : [];
 
 		const result = await exportSqliteForD1({
 			sourcePath: localDbPath,
@@ -175,6 +179,8 @@ async function main() {
 			await writeFile(resetPath, resetPlan.sql, "utf8");
 		}
 
+		let schemaSyncPlan = { statements: [], sql: "" };
+
 		const summary = [
 			"",
 			"Local SQLite database export prepared for remote D1 import.",
@@ -184,7 +190,10 @@ async function main() {
 			`Sanitized SQL file: ${outputPath}`,
 			`Export mode: ${exportMode}`,
 			`Removed SQLite-only lines: ${result.removedLineCount}`,
-			shouldBackup ? `Remote backup file: ${backupPath}` : "Remote backup: skipped",
+			shouldBackup
+				? `Remote backup file: ${backupPath} (${backupTables.length} tables, excluding FTS virtual tables)`
+				: "Remote backup: skipped",
+			shouldBackup ? `Schema sync file: ${schemaSyncPath}` : "Schema sync: unavailable without backup",
 			forceReset
 				? `Remote reset file: ${resetPath} (${resetPlan.tables.length} tables)`
 				: "Remote reset: skipped",
@@ -205,11 +214,20 @@ async function main() {
 		await confirmOrExit(summary, yes);
 
 		if (shouldBackup) {
+			const tableArgs = backupTables.flatMap((table) => ["--table", table]);
 			await runCommand(
 				"npx",
-				["wrangler", "d1", "export", dbName, "--remote", "--output", backupPath, "--config", configPath],
+				["wrangler", "d1", "export", dbName, "--remote", "--output", backupPath, "--config", configPath, ...tableArgs],
 				{ cwd: projectRoot, stdio: "inherit" },
 			);
+
+			const remoteBackupSql = await readFile(backupPath, "utf8");
+			schemaSyncPlan = getAdditiveSchemaSyncPlan(localDbPath, remoteBackupSql);
+			await writeFile(schemaSyncPath, schemaSyncPlan.sql, "utf8");
+		}
+
+		if (schemaSyncPlan.statements.length > 0) {
+			await executeRemoteSqlWithFallback(dbName, schemaSyncPath, configPath, "schema sync");
 		}
 
 		if (forceReset) {

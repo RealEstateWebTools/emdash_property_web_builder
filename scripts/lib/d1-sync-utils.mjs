@@ -55,9 +55,15 @@ export function sanitizeSqliteDump(sql) {
 }
 
 export function keepInsertStatementsOnly(sql) {
+	const excludedTables = new Set(["_emdash_migrations", "_emdash_migrations_lock"]);
 	return sql
 		.split(/\r?\n/)
-		.filter((line) => /^INSERT INTO\b/.test(line) || line.trim() === "")
+		.filter((line) => {
+			if (line.trim() === "") return true;
+			const match = line.match(/^INSERT INTO\s+("?)([A-Za-z0-9_]+)\1\b/);
+			if (!match) return false;
+			return !excludedTables.has(match[2]);
+		})
 		.join("\n");
 }
 
@@ -161,6 +167,146 @@ export function isDuplicateConstraintError(errorLike) {
 	);
 }
 
+function splitTopLevelCommaSeparated(input) {
+	const parts = [];
+	let current = "";
+	let depth = 0;
+	let inSingleQuote = false;
+	let inDoubleQuote = false;
+
+	for (let i = 0; i < input.length; i += 1) {
+		const char = input[i];
+		const next = input[i + 1];
+
+		current += char;
+
+		if (inSingleQuote) {
+			if (char === "'" && next === "'") {
+				current += next;
+				i += 1;
+				continue;
+			}
+			if (char === "'") inSingleQuote = false;
+			continue;
+		}
+
+		if (inDoubleQuote) {
+			if (char === "\"") inDoubleQuote = false;
+			continue;
+		}
+
+		if (char === "'") {
+			inSingleQuote = true;
+			continue;
+		}
+
+		if (char === "\"") {
+			inDoubleQuote = true;
+			continue;
+		}
+
+		if (char === "(") {
+			depth += 1;
+			continue;
+		}
+
+		if (char === ")") {
+			depth -= 1;
+			continue;
+		}
+
+		if (char === "," && depth === 0) {
+			parts.push(current.slice(0, -1).trim());
+			current = "";
+		}
+	}
+
+	if (current.trim()) {
+		parts.push(current.trim());
+	}
+
+	return parts;
+}
+
+function isColumnDefinition(part) {
+	return /^"[^"]+"\s+/u.test(part) || /^[A-Za-z_][A-Za-z0-9_]*\s+/u.test(part);
+}
+
+function getColumnNameFromDefinition(part) {
+	const quoted = part.match(/^"([^"]+)"/u);
+	if (quoted) return quoted[1];
+	const bare = part.match(/^([A-Za-z_][A-Za-z0-9_]*)/u);
+	return bare ? bare[1] : null;
+}
+
+function parseCreateTableSql(createSql) {
+	const match = createSql.match(/CREATE TABLE(?: IF NOT EXISTS)?\s+"?([^"( ]+)"?\s*\(([\s\S]+)\)$/u);
+	if (!match) return null;
+	const [, tableName, body] = match;
+	const parts = splitTopLevelCommaSeparated(body);
+	const columnDefinitions = parts.filter(isColumnDefinition);
+	const columns = new Map();
+
+	for (const definition of columnDefinitions) {
+		const name = getColumnNameFromDefinition(definition);
+		if (name) columns.set(name, definition);
+	}
+
+	return {
+		tableName,
+		createSql: `${createSql};`,
+		columns,
+	};
+}
+
+export function getAdditiveSchemaSyncPlan(localDbPath, remoteBackupSql) {
+	const localDb = new Database(localDbPath, { readonly: true });
+	try {
+		const localRows = getUserTableRows(localDb);
+		const localTables = new Map();
+
+		for (const row of localRows) {
+			const parsed = parseCreateTableSql(row.sql);
+			if (parsed) {
+				localTables.set(parsed.tableName, parsed);
+			}
+		}
+
+		const remoteTables = new Map();
+		for (const statement of splitSqlStatements(remoteBackupSql)) {
+			if (!statement.startsWith("CREATE TABLE IF NOT EXISTS")) continue;
+			const parsed = parseCreateTableSql(statement.replace(/;$/, ""));
+			if (parsed) {
+				remoteTables.set(parsed.tableName, parsed);
+			}
+		}
+
+		const statements = [];
+
+		for (const [tableName, localTable] of localTables) {
+			const remoteTable = remoteTables.get(tableName);
+
+			if (!remoteTable) {
+				statements.push(localTable.createSql);
+				continue;
+			}
+
+			for (const [columnName, definition] of localTable.columns) {
+				if (!remoteTable.columns.has(columnName)) {
+					statements.push(`ALTER TABLE "${tableName}" ADD COLUMN ${definition};`);
+				}
+			}
+		}
+
+		return {
+			statements,
+			sql: statements.join("\n"),
+		};
+	} finally {
+		localDb.close();
+	}
+}
+
 export function stripJsonComments(jsonc) {
 	let result = "";
 	let inString = false;
@@ -241,6 +387,23 @@ export async function getD1DatabaseNameFromConfigFile(configPath) {
 	return getD1DatabaseNameFromConfig(parseWranglerConfig(configText));
 }
 
+function getUserTableRows(database) {
+	return database
+		.prepare(
+			`
+				SELECT name, sql
+				FROM sqlite_master
+				WHERE type = 'table'
+				ORDER BY name
+			`,
+		)
+		.all()
+		.filter((row) => typeof row.name === "string")
+		.filter((row) => !row.name.startsWith("sqlite_"))
+		.filter((row) => !row.name.startsWith("_emdash_fts_"))
+		.filter((row) => !(typeof row.sql === "string" && row.sql.startsWith("CREATE VIRTUAL TABLE")));
+}
+
 function topologicallySortTables(tables, dependencyMap) {
 	const sorted = [];
 	const visited = new Set();
@@ -277,27 +440,10 @@ export function buildResetSqlFromSchema(tables, dependencyMap) {
 export function getResetPlanFromSqliteDatabase(databasePath) {
 	const db = new Database(databasePath, { readonly: true });
 	try {
-		const excludedPrefixes = ["sqlite_", "_emdash_fts_"];
 		const excludedTables = new Set(["_emdash_migrations", "_emdash_migrations_lock"]);
-
-		const tableRows = db
-			.prepare(
-				`
-					SELECT name
-					FROM sqlite_master
-					WHERE type = 'table'
-					ORDER BY name
-				`,
-			)
-			.all();
-
-		const tables = tableRows
+		const tables = getUserTableRows(db)
 			.map((row) => row.name)
-			.filter(
-				(name) =>
-					!excludedTables.has(name) &&
-					!excludedPrefixes.some((prefix) => name.startsWith(prefix)),
-			);
+			.filter((name) => !excludedTables.has(name));
 
 		const dependencyMap = new Map();
 		for (const table of tables) {
@@ -315,6 +461,15 @@ export function getResetPlanFromSqliteDatabase(databasePath) {
 			dependencyMap,
 			sql: buildResetSqlFromSchema(tables, dependencyMap),
 		};
+	} finally {
+		db.close();
+	}
+}
+
+export function getBackupTableNamesFromSqliteDatabase(databasePath) {
+	const db = new Database(databasePath, { readonly: true });
+	try {
+		return getUserTableRows(db).map((row) => row.name);
 	} finally {
 		db.close();
 	}
