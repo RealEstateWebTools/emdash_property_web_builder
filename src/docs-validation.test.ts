@@ -186,6 +186,38 @@ describe('docs validation', () => {
     }
   })
 
+  it('pwb-theme sandbox entry exists alongside the descriptor', () => {
+    const sandboxPath = join(ROOT, 'src/plugins/pwb-theme.sandbox.ts')
+    expect(existsSync(sandboxPath), 'src/plugins/pwb-theme.sandbox.ts must exist').toBe(true)
+  })
+
+  it('VALID_PALETTES in sandbox entry matches descriptor', () => {
+    const descriptorPath = join(ROOT, 'src/plugins/pwb-theme.ts')
+    const sandboxPath = join(ROOT, 'src/plugins/pwb-theme.sandbox.ts')
+
+    const descriptor = readFileSync(descriptorPath, 'utf-8')
+    const sandbox = readFileSync(sandboxPath, 'utf-8')
+
+    const extract = (src: string) => {
+      const match = src.match(/VALID_PALETTES\s*=\s*\[([^\]]+)\]/s)
+      if (!match) return []
+      return (match[1].match(/'([a-z]+)'/g) ?? []).map(s => s.replace(/'/g, ''))
+    }
+
+    const inDescriptor = extract(descriptor)
+    const inSandbox = extract(sandbox)
+
+    expect(inDescriptor.length, 'VALID_PALETTES not found in pwb-theme.ts').toBeGreaterThan(0)
+    expect(inSandbox.length, 'VALID_PALETTES not found in pwb-theme.sandbox.ts').toBeGreaterThan(0)
+    expect(inDescriptor.sort()).toEqual(inSandbox.sort())
+  })
+
+  it('pwb-theme descriptor declares adminPages', () => {
+    const descriptorPath = join(ROOT, 'src/plugins/pwb-theme.ts')
+    const descriptor = readFileSync(descriptorPath, 'utf-8')
+    expect(descriptor).toMatch(/adminPages/)
+  })
+
   it('deploy script in docs matches package.json deploy script', () => {
     const deployScript = scripts['deploy']
     expect(deployScript, 'package.json must have a "deploy" script').toBeDefined()
