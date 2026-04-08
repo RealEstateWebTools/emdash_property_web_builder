@@ -93,6 +93,54 @@ npx emdash types
 
 Or just restart the dev server — it regenerates types automatically on startup.
 
+### Pushing the local DB to remote D1
+
+For non-technical users, the supported workflow is:
+
+```bash
+pnpm sync:prod-db
+```
+
+This script:
+
+- exports the local SQLite database
+- removes SQLite dump statements that remote D1 rejects
+- writes a D1-safe SQL file into `.tmp/`
+- shows a confirmation prompt
+- runs `wrangler d1 execute ... --remote` using `wrangler.prod.jsonc`
+
+Useful variants:
+
+```bash
+pnpm sync:prod-db --dry-run
+pnpm sync:prod-db --yes
+pnpm sync:prod-db --backup
+pnpm sync:prod-db --backup --force-reset
+pnpm sync:prod-db --config wrangler.prod.jsonc --local-db data.db
+```
+
+Important constraints:
+
+- `wrangler.prod.jsonc` must exist and contain the target D1 database name
+- the script does not ask users to edit SQL manually
+- if the remote D1 database already contains conflicting rows, the import may fail
+- `--backup` exports the current remote D1 database to `.tmp/` before any write
+- `--force-reset` clears remote table data first and then imports local data only
+- the script intentionally removes raw SQLite transaction and `writable_schema` sections
+  because remote D1 rejects them
+
+Recommended production-sync flow:
+
+```bash
+pnpm sync:prod-db --backup --force-reset
+```
+
+That gives you:
+
+- a remote backup first
+- a clean remote data reset
+- a data-only import into the existing deployed schema
+
 ---
 
 ## Adding editable content to a page

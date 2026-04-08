@@ -114,6 +114,8 @@ pnpm dev                  # wrapper around emdash dev on port 4444
 npx emdash dev            # direct EmDash dev server
 npx emdash seed seed/seed.json
 npx emdash types
+pnpm export:d1-sql
+pnpm sync:prod-db
 pnpm test
 pnpm test:run
 pnpm build
@@ -167,6 +169,30 @@ You will also need to configure your real D1 and R2 resources in
 pnpm build
 pnpm deploy
 ```
+
+If you need to push the local SQLite CMS database into remote D1, use the repo script:
+
+```bash
+pnpm sync:prod-db
+```
+
+For a preview without making changes:
+
+```bash
+pnpm sync:prod-db --dry-run
+```
+
+Recommended "replace remote content with local content" flow:
+
+```bash
+pnpm sync:prod-db --backup --force-reset
+```
+
+That will:
+
+- back up the current remote D1 database first
+- clear remote table data
+- import local data into the existing remote schema
 
 For production deploys, also review:
 
