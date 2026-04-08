@@ -38,12 +38,24 @@ export class PwbClient {
         }
       })
     }
-    const res = await fetch(url.toString(), {
-      headers: { Accept: 'application/json' },
-    })
+    const urlStr = url.toString()
+    console.info(`[pwb] GET ${urlStr}`)
+    let res: Response
+    try {
+      res = await fetch(urlStr, {
+        headers: { Accept: 'application/json' },
+      })
+    } catch (err) {
+      console.error(`[pwb] fetch failed for ${urlStr}: ${err instanceof Error ? err.message : String(err)}`)
+      throw err
+    }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      throw new Error((body as { error?: string }).error ?? `HTTP ${res.status} ${url.toString()}`)
+      const cfRay = res.headers.get('cf-ray') ?? 'none'
+      const server = res.headers.get('server') ?? 'unknown'
+      const msg = (body as { error?: string }).error ?? `HTTP ${res.status} ${urlStr}`
+      console.error(`[pwb] ${msg} | cf-ray: ${cfRay} | server: ${server}`)
+      throw new Error(msg)
     }
     return res.json() as Promise<T>
   }
