@@ -4,10 +4,9 @@ This document covers all options for creating different visual presentations of 
 property site — from simple colour changes to fully separate market-specific themes.
 
 The EmDash themes overview describes themes as **complete Astro projects**. That is the
-ceiling of the theming model: there is no runtime theme-switching mechanism and no
-admin UI for selecting a theme after initial setup. Theming is a code-level concern.
-Within that model, there are six distinct options, ranging from one-file CSS changes
-to separate deployable sites.
+ceiling of the theming model. Within that model, there are six distinct options, ranging
+from one-file CSS changes to separate deployable sites. The `pwb-theme` plugin adds
+runtime palette switching via the admin panel for the CSS-variable layer (Option 1).
 
 ---
 
@@ -498,13 +497,14 @@ price and CTA):
 
 ## Switching Palettes
 
-Palette switching is implemented via the `PUBLIC_PALETTE` environment variable. The
-valid values are:
+Palettes can be switched in two ways: via the admin panel (no redeploy needed) or via
+the `PUBLIC_PALETTE` environment variable (deploy-time fallback).
+
+The valid values are:
 
 | Value | File | Character |
 |---|---|---|
 | `default` | *(base theme.css only)* | Blue accent, clean, system font |
-| `gold` | `palettes/gold.css` | Gold primary, warm accents |
 | `luxury` | `palettes/luxury.css` | Dark charcoal, gold, Cormorant Garamond serif |
 | `mediterranean` | `palettes/mediterranean.css` | Terracotta, aged-paper, Lora serif |
 | `coastal` | `palettes/coastal.css` | Ocean blue, rounded, DM Sans |
@@ -512,17 +512,26 @@ valid values are:
 | `urban` | `palettes/urban.css` | Cool slate, sharp edges, indigo accent |
 | `nordic` | `palettes/nordic.css` | Near-white, ultra-minimal, Inter |
 
-### In development
+### Via the admin panel (recommended)
 
-Add to `.env` and restart the dev server:
+The `pwb-theme` plugin adds a **Theme** settings page to the admin panel at
+`/_emdash/admin/plugins/pwb-theme/settings`. Select a palette from the dropdown and
+click Save. The change takes effect immediately on the next request — no redeploy needed.
+
+The admin setting takes precedence over the `PUBLIC_PALETTE` env var.
+
+### Via environment variable (fallback)
+
+If no palette has been set in the admin, `BaseLayout.astro` falls back to
+`PUBLIC_PALETTE`.
+
+In development, add to `.env` and restart the dev server:
 
 ```
 PUBLIC_PALETTE=luxury
 ```
 
-### In production (Cloudflare Worker)
-
-Change `PUBLIC_PALETTE` in `wrangler.jsonc` and redeploy:
+In production (Cloudflare Worker), set it in `wrangler.jsonc`:
 
 ```jsonc
 "vars": {
@@ -530,19 +539,21 @@ Change `PUBLIC_PALETTE` in `wrangler.jsonc` and redeploy:
 }
 ```
 
-Then:
+Then redeploy:
 
 ```bash
 pnpm run deploy
 ```
 
-No code changes are needed. The palette CSS loads after `theme.css` and overrides only
-the variables it declares.
-
 ### How the switching works
 
-`BaseLayout.astro` reads `import.meta.env.PUBLIC_PALETTE` at render time and injects
-a second `<link>` tag after `theme.css`:
+`BaseLayout.astro` resolves the active palette at render time using this priority order:
+
+1. The value stored in the admin panel (read from the `options` DB table via the `pwb-theme` plugin KV)
+2. `PUBLIC_PALETTE` environment variable
+3. `default` (no extra stylesheet)
+
+When a non-default palette is active, a second `<link>` tag is injected after `theme.css`:
 
 ```html
 <link rel="stylesheet" href="/styles/theme.css" />
@@ -550,15 +561,14 @@ a second `<link>` tag after `theme.css`:
 ```
 
 The palette file overrides `:root` custom properties. Because it loads second, its
-values win over `theme.css` defaults. If `PUBLIC_PALETTE` is absent or unrecognised,
-no second stylesheet is added and `theme.css` defaults apply.
+values win over `theme.css` defaults.
 
 ### Adding a new palette
 
 1. Create `public/styles/palettes/<name>.css` overriding any `:root` variables.
-2. Add `'<name>'` to the `VALID_PALETTES` array in `src/layouts/BaseLayout.astro`.
+2. Add `'<name>'` to the `VALID_PALETTES` array in `src/plugins/pwb-theme.ts` (the descriptor) and `src/plugins/pwb-theme.sandbox.ts` (the admin Block Kit handler).
 3. Run `pnpm run test:run -- src/docs-validation.test.ts` — the test will catch any
-   mismatch between the array and files on disk.
+   mismatch between the arrays and files on disk.
 
 ---
 
@@ -597,14 +607,15 @@ package and create separate EmDash projects per segment.
 
 ## What Theming Cannot Do
 
-- **Runtime theme switching**: there is no admin UI for picking a theme. It is a
-  code-level, deploy-time decision.
 - **Per-property visual overrides**: all properties on a given site use the same
   component and variable set. A "featured" badge is the only built-in visual
   differentiation today.
-- **Marketplace theme installation**: unlike WordPress, installing a new theme after
-  site creation requires deploying new code, not selecting from a UI. This is a
-  fundamental constraint of the EmDash model as documented.
+- **Structural changes via palette**: palette switching only changes CSS custom
+  properties (colours, fonts, spacing). It cannot change layout structure, column
+  counts, field ordering, or markup — use Options 2 or 3 for those.
+- **Marketplace theme installation**: installing a completely new theme after site
+  creation still requires deploying new code. Palette switching via the admin panel
+  is scoped to the set of palettes shipped with the deployment.
 
 ---
 
