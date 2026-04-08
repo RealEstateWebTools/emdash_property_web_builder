@@ -218,6 +218,29 @@ describe('docs validation', () => {
     expect(descriptor).toMatch(/adminPages/)
   })
 
+  it('resend-email sandbox entry exists alongside the descriptor', () => {
+    const sandboxPath = join(ROOT, 'src/plugins/resend-email.sandbox.ts')
+    expect(existsSync(sandboxPath), 'src/plugins/resend-email.sandbox.ts must exist').toBe(true)
+  })
+
+  it('resend-email descriptor declares email:provide capability', () => {
+    const descriptorPath = join(ROOT, 'src/plugins/resend-email.ts')
+    const descriptor = readFileSync(descriptorPath, 'utf-8')
+    expect(descriptor).toMatch(/email:provide/)
+  })
+
+  it('resend-email descriptor declares network:fetch capability', () => {
+    const descriptorPath = join(ROOT, 'src/plugins/resend-email.ts')
+    const descriptor = readFileSync(descriptorPath, 'utf-8')
+    expect(descriptor).toMatch(/network:fetch/)
+  })
+
+  it('resend-email descriptor restricts allowedHosts to api.resend.com', () => {
+    const descriptorPath = join(ROOT, 'src/plugins/resend-email.ts')
+    const descriptor = readFileSync(descriptorPath, 'utf-8')
+    expect(descriptor).toMatch(/api\.resend\.com/)
+  })
+
   it('deploy script in docs matches package.json deploy script', () => {
     const deployScript = scripts['deploy']
     expect(deployScript, 'package.json must have a "deploy" script').toBeDefined()
