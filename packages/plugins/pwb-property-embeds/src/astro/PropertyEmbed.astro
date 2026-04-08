@@ -1,5 +1,13 @@
 ---
-import { getPropertiesPath, getPropertyBySlug, getPropertyUrl, normalizeLocale, translateEmbedLabel } from "./pwb.js";
+import {
+	getPropertiesPath,
+	getPropertyBySlug,
+	getPropertySlugValidationError,
+	getPropertyUrl,
+	normalizeLocale,
+	normalizePropertySlug,
+	translateEmbedLabel,
+} from "./pwb.js";
 
 const { node } = Astro.props;
 const slugSource =
@@ -7,14 +15,17 @@ const slugSource =
 		? node.id
 		: typeof node?.slug === "string"
 			? node.slug
+			: typeof node?.suggestedSlug === "string"
+				? node.suggestedSlug
 			: "";
-const slug = slugSource.trim();
 const locale = normalizeLocale(Astro.currentLocale);
+const slug = normalizePropertySlug(slugSource);
 const variant = typeof node?.variant === "string" ? node.variant : "card";
 const ctaLabel =
 	typeof node?.ctaLabel === "string" && node.ctaLabel.trim()
 		? node.ctaLabel.trim()
 		: translateEmbedLabel(locale, "View Property");
+const slugError = getPropertySlugValidationError(slugSource, locale);
 
 function getRequestPropertyCache(locals) {
 	if (!locals || typeof locals !== "object") {
@@ -31,7 +42,7 @@ function getRequestPropertyCache(locals) {
 let property = null;
 let error = "";
 
-if (slug) {
+if (!slugError && slug) {
 	try {
 		const requestCache = getRequestPropertyCache(Astro.locals);
 		const cacheKey = `${locale}:${slug}`;
@@ -47,7 +58,7 @@ if (slug) {
 		error = err instanceof Error ? err.message : translateEmbedLabel(locale, "Property unavailable");
 	}
 } else {
-	error = translateEmbedLabel(locale, "Property slug is missing");
+	error = slugError;
 }
 
 const href = slug ? getPropertyUrl(slug, locale) : getPropertiesPath(locale);

@@ -82,8 +82,15 @@ describe("PWB property embed plugin config", () => {
 			{
 				type: "text_input",
 				action_id: "slug",
-				label: "Property Slug",
-				placeholder: "beautiful-villa-marbella",
+				label: "Property Slug or URL",
+				placeholder: "beautiful-villa-marbella or /properties/beautiful-villa-marbella",
+			},
+			{
+				type: "select",
+				action_id: "suggestedSlug",
+				label: "Quick Pick",
+				options: [],
+				optionsRoute: "properties/list",
 			},
 			{
 				type: "select",
@@ -94,14 +101,35 @@ describe("PWB property embed plugin config", () => {
 					{ label: "Compact", value: "compact" },
 					{ label: "Inline", value: "inline" },
 				],
+				initial_value: "card",
 			},
 			{
 				type: "text_input",
 				action_id: "ctaLabel",
 				label: "CTA Label",
-				placeholder: "View Property",
+				placeholder: "Optional override for the button text",
 			},
 		]);
+	});
+
+	it("registers a property shortlist route for admin quick-picks", async () => {
+		process.env.PWB_API_URL = "https://example.com";
+		const originalFetch = global.fetch;
+		global.fetch = async () =>
+			({
+				ok: true,
+				json: async () => ({
+					data: [{ slug: "villa-marbella", title: "Villa Marbella", formatted_price: null, reference: null }],
+				}),
+			}) as Response;
+
+		try {
+			const plugin = createPlugin();
+			const result = await plugin.routes?.["properties/list"]?.handler({});
+			expect(result).toEqual({ items: [{ id: "villa-marbella", name: "Villa Marbella" }] });
+		} finally {
+			global.fetch = originalFetch;
+		}
 	});
 });
 

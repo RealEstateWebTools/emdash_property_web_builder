@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+	fetchPropertyOptions,
 	fetchPropertyBySlug,
+	getPropertySlugValidationError,
 	getPropertiesPath,
 	getPropertyUrl,
 	normalizeLocale,
+	normalizePropertySlug,
 	translateEmbedLabel,
 } from "../../packages/plugins/pwb-property-embeds/src/astro/pwb.js";
 
@@ -23,6 +26,17 @@ describe("PWB property embed locale helpers", () => {
 		expect(getPropertiesPath("fr")).toBe("/fr/properties");
 		expect(getPropertyUrl("villa-marbella", "en")).toBe("/properties/villa-marbella");
 		expect(getPropertyUrl("villa-marbella", "es")).toBe("/es/properties/villa-marbella");
+		expect(getPropertyUrl("https://example.com/es/properties/villa-marbella", "fr")).toBe(
+			"/fr/properties/villa-marbella",
+		);
+	});
+
+	it("normalizes pasted property URLs and paths back to a canonical slug", () => {
+		expect(normalizePropertySlug(" beautiful-villa-marbella ")).toBe("beautiful-villa-marbella");
+		expect(normalizePropertySlug("/properties/beautiful-villa-marbella/")).toBe("beautiful-villa-marbella");
+		expect(normalizePropertySlug("https://example.com/es/properties/beautiful-villa-marbella?ref=editor")).toBe(
+			"beautiful-villa-marbella",
+		);
 	});
 
 	it("translates embed chrome labels for supported locales", () => {
@@ -30,6 +44,14 @@ describe("PWB property embed locale helpers", () => {
 		expect(translateEmbedLabel("fr", "Featured Property")).toBe("Bien en vedette");
 		expect(translateEmbedLabel("en", "View Property")).toBe("View Property");
 		expect(translateEmbedLabel("es", "Unmapped label")).toBe("Unmapped label");
+		expect(translateEmbedLabel("fr", "Property slug is invalid")).toBe("Slug du bien invalide");
+	});
+
+	it("flags malformed property slugs before fetch", () => {
+		expect(getPropertySlugValidationError("", "en")).toBe("Property slug is missing");
+		expect(getPropertySlugValidationError("villa marbella", "en")).toBe("Property slug is invalid");
+		expect(getPropertySlugValidationError("villa-marbella", "en")).toBe("");
+		expect(getPropertySlugValidationError("https://example.com/properties/villa-marbella", "es")).toBe("");
 	});
 
 	it("falls back to the default locale when a localized property is missing", async () => {
@@ -65,5 +87,51 @@ describe("PWB property embed locale helpers", () => {
 			"Failed to load PWB property villa-marbella: 500",
 		);
 		expect(fetchImpl).toHaveBeenCalledTimes(1);
+	});
+
+	it("builds a featured property shortlist for editor quick-picks", async () => {
+		const fetchImpl = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({
+				data: [
+					{
+						slug: "villa-marbella",
+						title: "Villa Marbella",
+						formatted_price: "€2,450,000",
+						reference: "PWB-42",
+					},
+				],
+			}),
+		});
+
+		await expect(fetchPropertyOptions(fetchImpl, "https://example.com", "es")).resolves.toEqual([
+			{ id: "villa-marbella", name: "Villa Marbella (€2,450,000 • PWB-42)" },
+		]);
+		expect(fetchImpl).toHaveBeenCalledWith(
+			expect.stringContaining("https://example.com/api_public/v1/es/properties?featured=true&per_page=12"),
+			{ headers: { Accept: "application/json" } },
+		);
+	});
+
+	it("falls back to a general property list when no featured shortlist is available", async () => {
+		const fetchImpl = vi
+			.fn()
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ data: [] }) })
+			.mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					data: [{ slug: "casa-nueva", title: "Casa Nueva", formatted_price: null, reference: null }],
+				}),
+			});
+
+		await expect(fetchPropertyOptions(fetchImpl, "https://example.com", "fr")).resolves.toEqual([
+			{ id: "casa-nueva", name: "Casa Nueva" },
+		]);
+		expect(fetchImpl).toHaveBeenCalledTimes(2);
+		expect(fetchImpl).toHaveBeenNthCalledWith(
+			2,
+			expect.stringContaining("https://example.com/api_public/v1/fr/properties?per_page=12"),
+			{ headers: { Accept: "application/json" } },
+		);
 	});
 });

@@ -55,7 +55,7 @@ Current renderer entry:
 Current shipped behavior:
 
 - editors can type `/` in Portable Text and choose `Property`
-- the insert modal accepts `slug`, `variant`, and `ctaLabel`
+- the insert modal accepts a manual `slug` or property URL, an optional quick-pick shortlist, `variant`, and `ctaLabel`
 - the block is stored in Portable Text data and survives the local editor roundtrip
 - the site renderer fetches live property data from PWB at render time
 - the renderer supports `card`, `compact`, and `inline`
@@ -91,6 +91,7 @@ This is the preferred stored block shape in this repository:
 | Field | Required | Meaning |
 |---|---|---|
 | `slug` | Yes | Canonical property reference |
+| `suggestedSlug` | No | Transitional quick-pick value from the current low-risk admin flow |
 | `variant` | No | Render mode; defaults to `card` |
 | `ctaLabel` | No | CTA override; defaults to `View Property` |
 | `id` | No | Legacy compatibility only |
@@ -133,7 +134,7 @@ Those belong to the live PWB record.
 
 The renderer currently:
 
-- reads `node.id` first, then `node.slug`
+- reads `node.id` first, then `node.slug`, then `node.suggestedSlug`
 - fetches the live property from PWB
 - renders one of `card`, `compact`, or `inline`
 - defaults `variant` to `card`
@@ -182,14 +183,15 @@ What editors do today:
 
 1. type `/`
 2. choose `Property`
-3. enter a property slug manually
-4. optionally choose a variant
-5. optionally override CTA label
+3. optionally choose a property from the quick-pick shortlist
+4. or enter a property slug or full property URL manually
+5. optionally choose a variant
+6. optionally override CTA label
 6. insert the block
 
-This works, but manual slug entry is the main UX weakness.
+This works better than the original slug-only flow, but it is still not a true property picker.
 
-The document should treat slug entry as a temporary editor workflow, not the target product experience.
+The document should treat both manual slug entry and the current shortlist quick-pick as transitional editor workflows, not the target product experience.
 
 ---
 
