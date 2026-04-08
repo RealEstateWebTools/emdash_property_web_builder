@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
 	buildResetSqlFromSchema,
+	chunkSqlStatements,
 	getD1DatabaseNameFromConfig,
+	isDuplicateConstraintError,
 	keepInsertStatementsOnly,
 	parseWranglerConfig,
 	sanitizeSqliteDump,
+	splitSqlStatements,
 } from "../../scripts/lib/d1-sync-utils.mjs";
 
 describe("sanitizeSqliteDump", () => {
@@ -69,6 +72,38 @@ describe("keepInsertStatementsOnly", () => {
 	});
 });
 
+describe("splitSqlStatements", () => {
+	it("splits SQL safely without breaking on semicolons inside quoted strings", () => {
+		const sql = [
+			"INSERT INTO posts VALUES('hello;world');",
+			'INSERT INTO config VALUES("double;quoted");',
+			"DELETE FROM posts;",
+		].join("\n");
+
+		expect(splitSqlStatements(sql)).toEqual([
+			"INSERT INTO posts VALUES('hello;world');",
+			'INSERT INTO config VALUES("double;quoted");',
+			"DELETE FROM posts;",
+		]);
+	});
+});
+
+describe("chunkSqlStatements", () => {
+	it("groups statements into bounded command batches", () => {
+		const statements = [
+			"INSERT INTO a VALUES(1);",
+			"INSERT INTO a VALUES(2);",
+			"INSERT INTO a VALUES(3);",
+		];
+
+		expect(chunkSqlStatements(statements, 30, 2)).toEqual([
+			["INSERT INTO a VALUES(1);"].join("\n"),
+			["INSERT INTO a VALUES(2);"].join("\n"),
+			["INSERT INTO a VALUES(3);"].join("\n"),
+		]);
+	});
+});
+
 describe("buildResetSqlFromSchema", () => {
 	it("orders deletes from children to parents", () => {
 		const tables = ["parent", "child", "grandchild"];
@@ -81,5 +116,13 @@ describe("buildResetSqlFromSchema", () => {
 		expect(buildResetSqlFromSchema(tables, dependencyMap)).toBe(
 			['DELETE FROM "grandchild";', 'DELETE FROM "child";', 'DELETE FROM "parent";'].join("\n"),
 		);
+	});
+});
+
+describe("isDuplicateConstraintError", () => {
+	it("detects duplicate-key style D1 import failures", () => {
+		expect(isDuplicateConstraintError("UNIQUE constraint failed: _emdash_migrations.name")).toBe(true);
+		expect(isDuplicateConstraintError("SQLITE_CONSTRAINT_PRIMARYKEY")).toBe(true);
+		expect(isDuplicateConstraintError("some other failure")).toBe(false);
 	});
 });

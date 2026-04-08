@@ -61,6 +61,106 @@ export function keepInsertStatementsOnly(sql) {
 		.join("\n");
 }
 
+export function splitSqlStatements(sql) {
+	const statements = [];
+	let current = "";
+	let inSingleQuote = false;
+	let inDoubleQuote = false;
+
+	for (let i = 0; i < sql.length; i += 1) {
+		const char = sql[i];
+		const next = sql[i + 1];
+		current += char;
+
+		if (inSingleQuote) {
+			if (char === "'" && next === "'") {
+				current += next;
+				i += 1;
+				continue;
+			}
+			if (char === "'") {
+				inSingleQuote = false;
+			}
+			continue;
+		}
+
+		if (inDoubleQuote) {
+			if (char === "\"") {
+				inDoubleQuote = false;
+			}
+			continue;
+		}
+
+		if (char === "'") {
+			inSingleQuote = true;
+			continue;
+		}
+
+		if (char === "\"") {
+			inDoubleQuote = true;
+			continue;
+		}
+
+		if (char === ";") {
+			const trimmed = current.trim();
+			if (trimmed) {
+				statements.push(trimmed);
+			}
+			current = "";
+		}
+	}
+
+	const trailing = current.trim();
+	if (trailing) {
+		statements.push(trailing);
+	}
+
+	return statements;
+}
+
+export function chunkSqlStatements(statements, maxBatchChars = 4000, maxBatchStatements = 20) {
+	const batches = [];
+	let currentBatch = [];
+	let currentLength = 0;
+
+	for (const statement of statements) {
+		const normalized = statement.endsWith(";") ? statement : `${statement};`;
+		const nextLength = currentLength + normalized.length + (currentBatch.length > 0 ? 1 : 0);
+		const wouldOverflow =
+			currentBatch.length >= maxBatchStatements ||
+			(currentBatch.length > 0 && nextLength > maxBatchChars);
+
+		if (wouldOverflow) {
+			batches.push(currentBatch.join("\n"));
+			currentBatch = [normalized];
+			currentLength = normalized.length;
+			continue;
+		}
+
+		currentBatch.push(normalized);
+		currentLength = nextLength;
+	}
+
+	if (currentBatch.length > 0) {
+		batches.push(currentBatch.join("\n"));
+	}
+
+	return batches;
+}
+
+export function isDuplicateConstraintError(errorLike) {
+	const message =
+		errorLike instanceof Error
+			? `${errorLike.message}\n${errorLike.stderr ?? ""}\n${errorLike.stdout ?? ""}`
+			: String(errorLike);
+
+	return (
+		message.includes("UNIQUE constraint failed") ||
+		message.includes("SQLITE_CONSTRAINT_PRIMARYKEY") ||
+		message.includes("SQLITE_CONSTRAINT_UNIQUE")
+	);
+}
+
 export function stripJsonComments(jsonc) {
 	let result = "";
 	let inString = false;

@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
-import { access, mkdir } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
-import os from "node:os";
 import { dirname, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { fileURLToPath } from "node:url";
 import { exportSqliteForD1 } from "./export-sqlite-for-d1.mjs";
-import { getD1DatabaseNameFromConfigFile, getResetPlanFromSqliteDatabase } from "./lib/d1-sync-utils.mjs";
+import {
+	chunkSqlStatements,
+	getD1DatabaseNameFromConfigFile,
+	getResetPlanFromSqliteDatabase,
+	isDuplicateConstraintError,
+	splitSqlStatements,
+} from "./lib/d1-sync-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, "..");
@@ -36,9 +41,30 @@ function runCommand(command, args, options = {}) {
 	return new Promise((resolvePromise, rejectPromise) => {
 		const child = spawn(command, args, {
 			cwd: options.cwd,
-			stdio: options.stdio ?? "inherit",
+			stdio: options.stdio ?? ["ignore", "pipe", "pipe"],
 			shell: false,
 		});
+
+		let stdout = "";
+		let stderr = "";
+
+		if (child.stdout) {
+			child.stdout.on("data", (chunk) => {
+				stdout += chunk.toString();
+				if (options.stdio === "inherit") {
+					process.stdout.write(chunk);
+				}
+			});
+		}
+
+		if (child.stderr) {
+			child.stderr.on("data", (chunk) => {
+				stderr += chunk.toString();
+				if (options.stdio === "inherit") {
+					process.stderr.write(chunk);
+				}
+			});
+		}
 
 		child.on("error", (error) => {
 			rejectPromise(error);
@@ -46,12 +72,58 @@ function runCommand(command, args, options = {}) {
 
 		child.on("close", (code) => {
 			if (code !== 0) {
-				rejectPromise(new Error(`${command} exited with code ${code}`));
+				const error = new Error(stderr.trim() || stdout.trim() || `${command} exited with code ${code}`);
+				error.code = code;
+				error.stdout = stdout;
+				error.stderr = stderr;
+				rejectPromise(error);
 				return;
 			}
-			resolvePromise();
+			resolvePromise({ stdout, stderr });
 		});
 	});
+}
+
+function isImportAuthError(error) {
+	const message = error instanceof Error ? `${error.message}\n${error.stderr ?? ""}\n${error.stdout ?? ""}` : String(error);
+	return message.includes("/import") && message.includes("Authentication error");
+}
+
+async function executeRemoteSqlFile(dbName, filePath, configPath) {
+	return runCommand(
+		"npx",
+		["wrangler", "d1", "execute", dbName, "--file", filePath, "--remote", "--config", configPath, "--yes"],
+		{ cwd: projectRoot, stdio: "inherit" },
+	);
+}
+
+async function executeRemoteSqlInBatches(dbName, sql, configPath, label) {
+	const statements = splitSqlStatements(sql);
+	const batches = chunkSqlStatements(statements);
+
+	console.log(`Falling back to batched remote execution for ${label}: ${batches.length} batches.`);
+
+	for (let index = 0; index < batches.length; index += 1) {
+		console.log(`Executing batch ${index + 1}/${batches.length}...`);
+		await runCommand(
+			"npx",
+			["wrangler", "d1", "execute", dbName, "--command", batches[index], "--remote", "--config", configPath, "--yes"],
+			{ cwd: projectRoot, stdio: "inherit" },
+		);
+	}
+}
+
+async function executeRemoteSqlWithFallback(dbName, filePath, configPath, label) {
+	try {
+		await executeRemoteSqlFile(dbName, filePath, configPath);
+	} catch (error) {
+		if (!isImportAuthError(error)) {
+			throw error;
+		}
+
+		const sql = await readFile(filePath, "utf8");
+		await executeRemoteSqlInBatches(dbName, sql, configPath, label);
+	}
 }
 
 async function confirmOrExit(summary, skipPrompt) {
@@ -100,7 +172,6 @@ async function main() {
 		if (forceReset) {
 			resetPlan = getResetPlanFromSqliteDatabase(localDbPath);
 			await mkdir(tempDir, { recursive: true });
-			const { writeFile } = await import("node:fs/promises");
 			await writeFile(resetPath, resetPlan.sql, "utf8");
 		}
 
@@ -142,18 +213,10 @@ async function main() {
 		}
 
 		if (forceReset) {
-			await runCommand(
-				"npx",
-				["wrangler", "d1", "execute", dbName, "--file", resetPath, "--remote", "--config", configPath, "--yes"],
-				{ cwd: projectRoot, stdio: "inherit" },
-			);
+			await executeRemoteSqlWithFallback(dbName, resetPath, configPath, "remote reset");
 		}
 
-		await runCommand(
-			"npx",
-			["wrangler", "d1", "execute", dbName, "--file", outputPath, "--remote", "--config", configPath, "--yes"],
-			{ cwd: projectRoot, stdio: "inherit" },
-		);
+		await executeRemoteSqlWithFallback(dbName, outputPath, configPath, "remote import");
 
 		console.log("");
 		console.log("Remote D1 import completed successfully.");
@@ -162,6 +225,16 @@ async function main() {
 			console.log(`Remote backup kept at: ${backupPath}`);
 		}
 	} catch (error) {
+		if (!forceReset && isDuplicateConstraintError(error)) {
+			console.error("");
+			console.error("Remote import failed because the remote D1 database already contains conflicting rows.");
+			console.error("Recommended retry:");
+			console.error("  pnpm sync:prod-db --backup --force-reset");
+			console.error("");
+			console.error("That will back up the current remote DB, clear remote table data, and then import local data.");
+			process.exit(1);
+		}
+
 		console.error(error instanceof Error ? error.message : String(error));
 		process.exit(1);
 	}
