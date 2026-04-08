@@ -26,9 +26,11 @@ if (db) {
       .select('value')
       .where('name', '=', `plugin:pwb-theme:${PALETTE_KV_KEY}`)
       .executeTakeFirst()
+    // Values are stored as JSON by OptionsRepository, so parse before comparing.
     const raw: unknown = row?.value
-    if (typeof raw === 'string' && (VALID_PALETTES as readonly string[]).includes(raw)) {
-      palette = raw as Palette
+    const parsed: unknown = typeof raw === 'string' ? JSON.parse(raw) : null
+    if (typeof parsed === 'string' && (VALID_PALETTES as readonly string[]).includes(parsed)) {
+      palette = parsed as Palette
     }
   } catch {
     // Plugin not yet installed or DB unavailable — fall through to env var
