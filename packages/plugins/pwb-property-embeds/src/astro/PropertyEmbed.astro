@@ -1,5 +1,5 @@
 ---
-import { getPropertyBySlug, getPropertyUrl } from "./pwb.js";
+import { getPropertiesPath, getPropertyBySlug, getPropertyUrl, normalizeLocale, translateEmbedLabel } from "./pwb.js";
 
 const { node } = Astro.props;
 const slugSource =
@@ -9,29 +9,53 @@ const slugSource =
 			? node.slug
 			: "";
 const slug = slugSource.trim();
+const locale = normalizeLocale(Astro.currentLocale);
 const variant = typeof node?.variant === "string" ? node.variant : "card";
 const ctaLabel =
-	typeof node?.ctaLabel === "string" && node.ctaLabel.trim() ? node.ctaLabel.trim() : "View Property";
+	typeof node?.ctaLabel === "string" && node.ctaLabel.trim()
+		? node.ctaLabel.trim()
+		: translateEmbedLabel(locale, "View Property");
+
+function getRequestPropertyCache(locals) {
+	if (!locals || typeof locals !== "object") {
+		return new Map();
+	}
+
+	if (!(locals.__pwbPropertyEmbedCache instanceof Map)) {
+		locals.__pwbPropertyEmbedCache = new Map();
+	}
+
+	return locals.__pwbPropertyEmbedCache;
+}
 
 let property = null;
 let error = "";
 
 if (slug) {
 	try {
-		property = await getPropertyBySlug(slug);
+		const requestCache = getRequestPropertyCache(Astro.locals);
+		const cacheKey = `${locale}:${slug}`;
+		let propertyPromise = requestCache.get(cacheKey);
+
+		if (!propertyPromise) {
+			propertyPromise = getPropertyBySlug(slug, locale);
+			requestCache.set(cacheKey, propertyPromise);
+		}
+
+		property = await propertyPromise;
 	} catch (err) {
-		error = err instanceof Error ? err.message : "Property unavailable";
+		error = err instanceof Error ? err.message : translateEmbedLabel(locale, "Property unavailable");
 	}
 } else {
-	error = "Property slug is missing";
+	error = translateEmbedLabel(locale, "Property slug is missing");
 }
 
-const href = slug ? getPropertyUrl(slug) : "/properties";
-const title = property?.title ?? "Property unavailable";
+const href = slug ? getPropertyUrl(slug, locale) : getPropertiesPath(locale);
+const title = property?.title ?? translateEmbedLabel(locale, "Property unavailable");
 const price = property?.formatted_price ?? null;
 const location = [property?.city, property?.region, property?.country_code].filter(Boolean).join(", ");
-const beds = property?.count_bedrooms != null ? `${property.count_bedrooms} bd` : null;
-const baths = property?.count_bathrooms != null ? `${property.count_bathrooms} ba` : null;
+const beds = property?.count_bedrooms != null ? `${property.count_bedrooms} ${translateEmbedLabel(locale, "bed")}` : null;
+const baths = property?.count_bathrooms != null ? `${property.count_bathrooms} ${translateEmbedLabel(locale, "bath")}` : null;
 const image = property?.primary_image_url ?? property?.prop_photos?.[0]?.url ?? null;
 const meta = [price, beds, baths, location].filter(Boolean).join(" · ");
 ---
@@ -42,7 +66,7 @@ const meta = [price, beds, baths, location].filter(Boolean).join(" · ");
 	</span>
 ) : variant === "compact" ? (
 	<aside class={`property-embed property-embed--compact ${property ? "" : "property-embed--missing"}`}>
-		<p class="property-embed__eyebrow">Featured Property</p>
+		<p class="property-embed__eyebrow">{translateEmbedLabel(locale, "Featured Property")}</p>
 		<h3 class="property-embed__title"><a href={href}>{title}</a></h3>
 		{meta ? <p class="property-embed__meta">{meta}</p> : null}
 		<a class="property-embed__cta" href={href}>{ctaLabel}</a>
@@ -56,7 +80,7 @@ const meta = [price, beds, baths, location].filter(Boolean).join(" · ");
 			</a>
 		) : null}
 		<div class="property-embed__body">
-			<p class="property-embed__eyebrow">Featured Property</p>
+			<p class="property-embed__eyebrow">{translateEmbedLabel(locale, "Featured Property")}</p>
 			<h3 class="property-embed__title"><a href={href}>{title}</a></h3>
 			{meta ? <p class="property-embed__meta">{meta}</p> : null}
 			<a class="property-embed__cta" href={href}>{ctaLabel}</a>
