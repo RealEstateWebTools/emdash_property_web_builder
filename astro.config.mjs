@@ -114,6 +114,7 @@ export default defineConfig({
 				"pwb-valuation",
 				"pwb-valuation/integration",
 				"./src/plugins/pwb-theme.js",
+				"./src/plugins/pwb-theme.sandbox.js",
 			],
 		},
 	},
