@@ -1,0 +1,12 @@
+---
+import PropertyDetailPage from '../../../components/pages/PropertyDetailPage.astro'
+import { validateLocale } from '../../../lib/locale'
+
+const locale = validateLocale(Astro.params.lang)
+const { slug } = Astro.params
+if (!locale) {
+  Astro.response.status = 404
+}
+---
+
+{locale && slug ? <PropertyDetailPage locale={locale} slug={slug} /> : null}

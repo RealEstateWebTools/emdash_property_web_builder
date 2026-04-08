@@ -255,6 +255,7 @@
 			{
 				"id": "homepage",
 				"slug": "homepage",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "Find Your Dream Property",
@@ -276,6 +277,7 @@
 			{
 				"id": "about",
 				"slug": "about",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "About Us",
@@ -321,6 +323,7 @@
 			{
 				"id": "contact",
 				"slug": "contact",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "Contact Us",
@@ -343,6 +346,7 @@
 			{
 				"id": "post-1",
 				"slug": "first-time-buyer-guide",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "A First-Time Buyer's Guide to Getting on the Property Ladder",
@@ -416,6 +420,7 @@
 			{
 				"id": "post-2",
 				"slug": "how-to-prepare-your-home-for-sale",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "How to Prepare Your Home for Sale",
@@ -479,6 +484,7 @@
 			{
 				"id": "post-3",
 				"slug": "understanding-the-property-market",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "Understanding the Local Property Market",
@@ -541,6 +547,7 @@
 			{
 				"id": "post-4",
 				"slug": "landlord-guide-to-letting",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "A Landlord's Guide to Letting Your Property",
@@ -604,6 +611,7 @@
 			{
 				"id": "post-5",
 				"slug": "choosing-the-right-neighbourhood",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "How to Choose the Right Neighbourhood",
@@ -666,6 +674,7 @@
 			{
 				"id": "post-6",
 				"slug": "what-to-expect-at-a-viewing",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "What to Expect at a Property Viewing",
@@ -729,6 +738,7 @@
 			{
 				"id": "post-7",
 				"slug": "making-an-offer",
+				"locale": "en",
 				"status": "published",
 				"data": {
 					"title": "How to Make an Offer on a Property",
@@ -791,6 +801,7 @@
 			{
 				"id": "post-draft",
 				"slug": "property-investment-guide",
+				"locale": "en",
 				"status": "draft",
 				"data": {
 					"title": "A Guide to Property Investment",

@@ -1,0 +1,11 @@
+---
+import PostsIndexPage from '../../../components/pages/PostsIndexPage.astro'
+import { validateLocale } from '../../../lib/locale'
+
+const locale = validateLocale(Astro.params.lang)
+if (!locale) {
+  Astro.response.status = 404
+}
+---
+
+{locale ? <PostsIndexPage locale={locale} /> : null}

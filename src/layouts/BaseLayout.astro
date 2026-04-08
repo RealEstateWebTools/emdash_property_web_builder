@@ -4,6 +4,7 @@ import SiteHeader from '../components/SiteHeader.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
 import { VALID_PALETTES, PALETTE_KV_KEY, type Palette } from '../plugins/pwb-theme.js'
+import { DEFAULT_LOCALE } from '../lib/locale'
 
 interface Props {
   site: SiteDetails
@@ -14,6 +15,7 @@ interface Props {
 
 const { site, title, description, canonical } = Astro.props
 const meta = buildPageMeta(site, { title, description, canonical })
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 
 // Palette resolution: admin panel setting > PUBLIC_PALETTE env var > 'default'
 // The plugin stores its KV under key `plugin:pwb-theme:<key>` in the options table.
@@ -48,7 +50,7 @@ const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
 ---
 
 <!doctype html>
-<html lang="en" class={themeClass}>
+<html lang={currentLocale} class={themeClass}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

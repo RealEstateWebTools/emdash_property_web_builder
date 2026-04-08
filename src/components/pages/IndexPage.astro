@@ -1,0 +1,67 @@
+---
+import { getEmDashEntry } from 'emdash'
+import { PortableText } from 'emdash/ui'
+import { createPwbClient } from '../../lib/pwb/client'
+import { formatPropertyCard } from '../../lib/pwb/formatters'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import PropertyGrid from '../PropertyGrid.astro'
+import { localePath } from '../../lib/locale'
+
+interface Props {
+  locale: string
+}
+
+const { locale } = Astro.props
+
+const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage', { locale })
+Astro.cache.set(cacheHint)
+
+const client = createPwbClient(locale)
+const [site, results] = await Promise.all([
+  client.getSiteDetails(),
+  client.searchProperties({ featured: 'true', per_page: 6 }),
+])
+
+const cards = results.data.map(formatPropertyCard)
+---
+
+<BaseLayout site={site} title={homepage?.data.title}>
+  <section class="hero">
+    <h1 {...homepage?.edit.title}>{homepage?.data.title ?? 'Find Your Dream Property'}</h1>
+    {homepage?.data.content && (
+      <div class="hero__tagline" {...homepage.edit.content}>
+        <PortableText value={homepage.data.content} />
+      </div>
+    )}
+    <div class="hero__actions">
+      <a href={localePath(locale, '/properties')} class="btn btn-primary">Properties for Sale</a>
+      <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-primary">Properties for Rent</a>
+    </div>
+  </section>
+
+  {cards.length > 0 && (
+    <section class="featured-section">
+      <h2 {...homepage?.edit.featured_section_heading}>
+        {homepage?.data.featured_section_heading ?? 'Featured Properties'}
+      </h2>
+      <PropertyGrid cards={cards} />
+      <div class="featured-section__cta">
+        <a href={localePath(locale, '/properties')} class="btn btn-primary">View All Properties</a>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 4rem var(--spacing-page);
+    background: var(--color-bg-soft);
+  }
+  .hero h1 { font-size: var(--text-3xl); margin-bottom: 1rem; }
+  .hero__tagline { font-size: var(--text-lg); color: var(--color-text-muted); margin-bottom: 2rem; }
+  .hero__actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .featured-section { padding: 3rem var(--spacing-page); }
+  .featured-section h2 { font-size: var(--text-2xl); margin-bottom: 2rem; text-align: center; }
+  .featured-section__cta { text-align: center; margin-top: 2rem; }
+</style>

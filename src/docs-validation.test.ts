@@ -227,4 +227,26 @@ describe('docs validation', () => {
     // pnpm workspace built-in unrelated to the deploy script).
     expect(guideContent).toMatch(/pnpm run deploy/)
   })
+
+  it('locale helper SUPPORTED_LOCALES matches astro.config.mjs i18n.locales excluding the default locale', () => {
+    const config = readFileSync(join(ROOT, 'astro.config.mjs'), 'utf-8')
+    const localeHelper = readFileSync(join(ROOT, 'src/lib/locale.ts'), 'utf-8')
+
+    const defaultLocaleMatch = config.match(/defaultLocale:\s*'([a-z-]+)'/)
+    expect(defaultLocaleMatch, 'defaultLocale not found in astro.config.mjs').toBeTruthy()
+    const defaultLocale = defaultLocaleMatch![1]
+
+    const configMatch = config.match(/locales:\s*\[([^\]]+)\]/)
+    expect(configMatch, 'i18n.locales not found in astro.config.mjs').toBeTruthy()
+    const configLocales = (configMatch![1].match(/'([a-z-]+)'/g) ?? [])
+      .map((value) => value.replace(/'/g, ''))
+      .filter((locale) => locale !== defaultLocale)
+
+    const helperMatch = localeHelper.match(/SUPPORTED_LOCALES\s*=\s*\[([^\]]+)\]/)
+    expect(helperMatch, 'SUPPORTED_LOCALES not found in src/lib/locale.ts').toBeTruthy()
+    const helperLocales = (helperMatch![1].match(/'([a-z-]+)'/g) ?? [])
+      .map((value) => value.replace(/'/g, ''))
+
+    expect(helperLocales.sort()).toEqual(configLocales.sort())
+  })
 })

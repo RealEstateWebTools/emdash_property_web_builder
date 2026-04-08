@@ -1,0 +1,80 @@
+---
+import { createPwbClient } from '../../lib/pwb/client'
+import { buildSearchParams } from '../../lib/pwb/search-params'
+import { formatPropertyCard } from '../../lib/pwb/formatters'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import SearchBar from '../SearchBar.astro'
+import PropertyGrid from '../PropertyGrid.astro'
+import MapView from '../MapView.astro'
+import { localePath } from '../../lib/locale'
+
+interface Props {
+  locale: string
+}
+
+const { locale } = Astro.props
+
+const client = createPwbClient(locale)
+const [site, config] = await Promise.all([
+  client.getSiteDetails(),
+  client.getSearchConfig(),
+])
+
+const searchParams = buildSearchParams(Astro.url.searchParams)
+const mode = (Astro.url.searchParams.get('mode') ?? 'sale') as 'sale' | 'rental'
+
+const [results, facets] = await Promise.all([
+  client.searchProperties(searchParams),
+  client.getSearchFacets(mode),
+])
+
+const cards = results.data.map(formatPropertyCard)
+
+function buildPageHref(page: number): string {
+  const params = new URLSearchParams(Astro.url.searchParams)
+  params.set('page', String(page))
+  return `${localePath(locale, '/properties')}?${params.toString()}`
+}
+---
+
+<BaseLayout
+  site={site}
+  title={mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale'}
+>
+  <div class="search-page">
+    <SearchBar
+      config={config}
+      facets={facets}
+      currentParams={searchParams}
+      mode={mode}
+    />
+
+    <div class="search-results">
+      <p class="result-count">{results.meta.total} properties found</p>
+      <PropertyGrid cards={cards} />
+
+      {results.meta.total_pages > 1 && (
+        <nav class="pagination" aria-label="Search results pages">
+          {Array.from({ length: results.meta.total_pages }, (_, i) => i + 1).map((page) => (
+            <a
+              href={buildPageHref(page)}
+              class={page === results.meta.page ? 'active' : ''}
+              aria-current={page === results.meta.page ? 'page' : undefined}
+            >
+              {page}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+
+    {results.map_markers.length > 0 && (
+      <MapView markers={results.map_markers} />
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .search-page { max-width: 1200px; margin: 0 auto; }
+  .result-count { padding: 1rem var(--spacing-page); color: var(--color-text-muted); }
+</style>

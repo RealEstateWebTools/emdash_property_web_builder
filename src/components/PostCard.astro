@@ -1,6 +1,7 @@
 ---
 import type { MediaValue, ContentBylineCredit } from "emdash";
 import { Image } from "emdash/ui";
+import { DEFAULT_LOCALE, localePath } from "../lib/locale";
 
 interface Props {
 	title: string;
@@ -23,9 +24,10 @@ const {
 	tags,
 	bylines,
 } = Astro.props;
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE;
 
 const formattedDate = date
-	? date.toLocaleDateString("en-US", {
+	? date.toLocaleDateString(currentLocale, {
 			year: "numeric",
 			month: "short",
 			day: "numeric",
@@ -97,7 +99,7 @@ const formattedDate = date
 		tags && tags.length > 0 && (
 			<div class="card-tags">
 				{tags.slice(0, 2).map((tag) => (
-					<a href={`/tag/${tag.slug}`} class="card-tag">
+					<a href={localePath(currentLocale, `/tag/${tag.slug}`)} class="card-tag">
 						{tag.label}
 					</a>
 				))}

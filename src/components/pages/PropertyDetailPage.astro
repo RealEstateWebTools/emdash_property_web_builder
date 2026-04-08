@@ -1,0 +1,72 @@
+---
+import { createPwbClient } from '../../lib/pwb/client'
+import { formatPropertyDetail } from '../../lib/pwb/detail-formatter'
+import { fallbackSite } from '../../lib/pwb/fallback-site'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import PropertyDetail from '../PropertyDetail.astro'
+import ContactForm from '../ContactForm.astro'
+import SimilarProperties from '../SimilarProperties.astro'
+import { localePath } from '../../lib/locale'
+
+interface Props {
+  locale: string
+  slug: string
+}
+
+const { locale, slug } = Astro.props
+const safeSlug = slug ?? null
+
+const client = createPwbClient(locale)
+
+let property = null
+let site = fallbackSite
+
+if (safeSlug) {
+  try {
+    ;[property, site] = await Promise.all([
+      client.getProperty(safeSlug),
+      client.getSiteDetails(),
+    ])
+  } catch {
+    Astro.response.status = 404
+  }
+} else {
+  Astro.response.status = 404
+}
+
+const detail = property ? formatPropertyDetail(property) : null
+const similarListing = property?.page_contents.find(
+  (pc) => pc.page_part_key === 'summary_listings_part/similar_properties'
+)
+const similarProperties = similarListing?.summ_listings ?? []
+const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
+---
+
+{property && detail ? (
+  <BaseLayout
+    site={site}
+    title={detail.title}
+    description={property.description?.replace(/<[^>]*>/g, '').slice(0, 160)}
+    canonical={new URL(canonicalPath, Astro.url.origin).href}
+  >
+    <div class="property-detail-page">
+      <PropertyDetail detail={detail} />
+      <ContactForm propertyId={property.id} propertyTitle={property.title} />
+      {similarProperties.length > 0 && (
+        <SimilarProperties properties={similarProperties} />
+      )}
+    </div>
+  </BaseLayout>
+) : (
+  <BaseLayout site={site} title="Page not found">
+    <div class="property-detail-page">
+      <h1>404</h1>
+      <p>The property you&apos;re looking for doesn&apos;t exist.</p>
+      <p><a href={localePath(locale, '/properties')}>Browse all properties</a></p>
+    </div>
+  </BaseLayout>
+)}
+
+<style>
+  .property-detail-page { max-width: 1000px; margin: 0 auto; padding: 2rem var(--spacing-page); }
+</style>

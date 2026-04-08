@@ -1,64 +1,9 @@
 ---
-import { createPwbClient } from '../lib/pwb/client'
-import { fallbackSite } from '../lib/pwb/fallback-site'
-import BaseLayout from '../layouts/BaseLayout.astro'
+import PwbPage from '../components/pages/PwbPage.astro'
+import { DEFAULT_LOCALE } from '../lib/locale'
 
+const locale = Astro.currentLocale ?? DEFAULT_LOCALE
 const { slug } = Astro.params
-const pageSlug = Array.isArray(slug) ? slug.join('/') : (slug ?? 'home')
-
-const client = createPwbClient()
-
-let page = null
-let site = fallbackSite
-let notFound = false
-try {
-  ;[page, site] = await Promise.all([
-    client.getPageBySlug(pageSlug),
-    client.getSiteDetails(),
-  ])
-} catch {
-  notFound = true
-  Astro.response.status = 404
-}
 ---
 
-{notFound || !page ? (
-  <BaseLayout site={site} title="Page not found">
-    <article class="cms-page">
-      <h1>404</h1>
-      <section class="page-content-block">
-        <p>The page you&apos;re looking for doesn&apos;t exist.</p>
-        <p><a href="/">Go back home</a></p>
-      </section>
-    </article>
-  </BaseLayout>
-) : (
-  <BaseLayout
-    site={site}
-    title={page.title}
-    description={page.meta_description ?? undefined}
-  >
-    <article class="cms-page">
-      <h1>{page.title}</h1>
-      {page.page_contents
-        .filter((pc) => pc.visible && !pc.is_rails_part)
-        .sort((a, b) => a.sort_order - b.sort_order)
-        .map((pc) => (
-          pc.rendered_html && (
-            <section
-              class="page-content-block"
-              data-part-key={pc.page_part_key}
-              set:html={pc.rendered_html}
-            />
-          )
-        ))
-      }
-    </article>
-  </BaseLayout>
-)}
-
-<style>
-  .cms-page { max-width: 800px; margin: 0 auto; padding: 2rem var(--spacing-page); }
-  .cms-page h1 { font-size: var(--text-3xl); margin-bottom: 2rem; }
-  .page-content-block { margin-bottom: 2rem; }
-</style>
+<PwbPage locale={locale} slug={slug} />

@@ -8,6 +8,7 @@ export const GET: APIRoute = async ({ site, url }) => {
 	const siteUrl = site?.toString() || url.origin;
 
 	const { entries: posts } = await getEmDashCollection("posts", {
+		locale: "en",
 		orderBy: { published_at: "desc" },
 		limit: 20,
 	});

@@ -1,5 +1,6 @@
 ---
 import type { SearchConfig, SearchFacets, SearchParams } from '../lib/pwb/types'
+import { DEFAULT_LOCALE, localePath } from '../lib/locale'
 
 interface Props {
   config: SearchConfig
@@ -9,10 +10,12 @@ interface Props {
 }
 
 const { config, currentParams, mode } = Astro.props
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const action = localePath(currentLocale, '/properties')
 ---
 
 <section class="search-bar">
-  <form method="get" action="/properties">
+  <form method="get" action={action}>
     <input type="hidden" name="mode" value={mode} />
 
     <select name="type" aria-label="Property type">

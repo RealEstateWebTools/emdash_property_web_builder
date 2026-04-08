@@ -1,6 +1,7 @@
 ---
 import { getMenu } from 'emdash'
 import type { SiteDetails } from '../lib/pwb/types'
+import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath } from '../lib/locale'
 
 interface Props {
   site: SiteDetails
@@ -8,11 +9,12 @@ interface Props {
 
 const { site } = Astro.props
 const primaryMenu = await getMenu('primary')
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 ---
 
 <header class="site-header">
   <div class="site-header__inner">
-    <a href="/" class="site-header__logo">
+    <a href={localePath(currentLocale, '/')} class="site-header__logo">
       {site.logo_url
         ? <img src={site.logo_url} alt={site.company_display_name ?? site.title} height="40" />
         : <span class="site-header__title">{site.company_display_name ?? site.title}</span>
@@ -21,9 +23,21 @@ const primaryMenu = await getMenu('primary')
 
     <nav class="site-header__nav" aria-label="Main navigation">
       {primaryMenu?.items.map(item => (
-        <a href={item.url} target={item.target}>{item.label}</a>
+    <a href={localePath(currentLocale, item.url)} target={item.target}>{item.label}</a>
       ))}
     </nav>
+
+  <div class="site-header__locales" aria-label="Language switcher">
+    {ALL_LOCALES.map((locale) => (
+      <a
+        href={localePath(locale, '/')}
+        class:list={['site-header__locale', { 'site-header__locale--active': locale === currentLocale }]}
+        aria-current={locale === currentLocale ? 'page' : undefined}
+      >
+        {localeLabel(locale)}
+      </a>
+    ))}
+  </div>
   </div>
 </header>
 
@@ -49,4 +63,17 @@ const primaryMenu = await getMenu('primary')
   .site-header__nav { display: flex; gap: 1.5rem; }
   .site-header__nav a { text-decoration: none; color: var(--color-text); font-size: var(--text-sm); }
   .site-header__nav a:hover { color: var(--color-primary); }
+  .site-header__locales { display: flex; gap: 0.5rem; }
+  .site-header__locale {
+    text-decoration: none;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted, var(--color-text));
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+  }
+  .site-header__locale--active {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
 </style>

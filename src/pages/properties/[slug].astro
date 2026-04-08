@@ -1,67 +1,9 @@
 ---
-import { createPwbClient } from '../../lib/pwb/client'
-import { formatPropertyDetail } from '../../lib/pwb/detail-formatter'
-import { fallbackSite } from '../../lib/pwb/fallback-site'
-import BaseLayout from '../../layouts/BaseLayout.astro'
-import PropertyDetail from '../../components/PropertyDetail.astro'
-import ContactForm from '../../components/ContactForm.astro'
-import SimilarProperties from '../../components/SimilarProperties.astro'
+import PropertyDetailPage from '../../components/pages/PropertyDetailPage.astro'
+import { DEFAULT_LOCALE } from '../../lib/locale'
 
+const locale = Astro.currentLocale ?? DEFAULT_LOCALE
 const { slug } = Astro.params
-const safeSlug = slug ?? null
-
-const client = createPwbClient()
-
-let property = null
-let site = fallbackSite
-
-if (safeSlug) {
-  try {
-    ;[property, site] = await Promise.all([
-      client.getProperty(safeSlug),
-      client.getSiteDetails(),
-    ])
-  } catch {
-    Astro.response.status = 404
-  }
-} else {
-  Astro.response.status = 404
-}
-
-const detail = property ? formatPropertyDetail(property) : null
-
-// Pull similar properties from PWB's page_contents response
-const similarListing = property?.page_contents.find(
-  (pc) => pc.page_part_key === 'summary_listings_part/similar_properties'
-)
-const similarProperties = similarListing?.summ_listings ?? []
 ---
 
-{property && detail ? (
-  <BaseLayout
-    site={site}
-    title={detail.title}
-    description={property.description?.replace(/<[^>]*>/g, '').slice(0, 160)}
-    canonical={`${Astro.site}/properties/${safeSlug}`}
-  >
-    <div class="property-detail-page">
-      <PropertyDetail detail={detail} />
-      <ContactForm propertyId={property.id} propertyTitle={property.title} />
-      {similarProperties.length > 0 && (
-        <SimilarProperties properties={similarProperties} />
-      )}
-    </div>
-  </BaseLayout>
-) : (
-  <BaseLayout site={site} title="Page not found">
-    <div class="property-detail-page">
-      <h1>404</h1>
-      <p>The property you&apos;re looking for doesn&apos;t exist.</p>
-      <p><a href="/properties">Browse all properties</a></p>
-    </div>
-  </BaseLayout>
-)}
-
-<style>
-  .property-detail-page { max-width: 1000px; margin: 0 auto; padding: 2rem var(--spacing-page); }
-</style>
+{slug ? <PropertyDetailPage locale={locale} slug={slug} /> : null}
