@@ -18,6 +18,57 @@ index d73acce5fc244968bf0e3ddb01117afddcec17f4..b4d4c66dfa640851d75944620d5b2ce6
  			console.log();
  			consola$1.info(`Open your browser to:`);
  			console.log(`  ${pc.cyan(pc.bold(deviceCode.verification_uri))}`);
+diff --git a/src/astro/routes/api/auth/oauth/[provider]/callback.ts b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
+index 7c69cd61340b9ba0fe5d467dfe99fe7117b549d9..4900a8735dfa08ac1bf03433ce4567649f32bf50 100644
+--- a/src/astro/routes/api/auth/oauth/[provider]/callback.ts
++++ b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
+@@ -113,10 +113,16 @@ export const GET: APIRoute = async ({ params, request, locals, session, redirect
+ 
+ 	try {
+ 		// Get OAuth providers from environment
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
+-		const runtimeLocals = locals as unknown as { runtime?: { env?: Record<string, unknown> } };
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
+-		const env = runtimeLocals.runtime?.env ?? (import.meta.env as Record<string, unknown>);
++		// Astro v6 removed locals.runtime.env. Use cloudflare:workers in CF Workers, import.meta.env in dev.
++		let env: Record<string, unknown>;
++		try {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			const cf = await import("cloudflare:workers");
++			env = cf.env as Record<string, unknown>;
++		} catch {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			env = import.meta.env as Record<string, unknown>;
++		}
+ 		const providers = getOAuthConfig(env);
+ 
+ 		if (!providers[provider]) {
+diff --git a/src/astro/routes/api/auth/oauth/[provider].ts b/src/astro/routes/api/auth/oauth/[provider].ts
+index d8150d5c6d37f00dee3fc2fa17775ae41cbadc4d..0031e36794f754cc83bd6dec3a90130f837da4f2 100644
+--- a/src/astro/routes/api/auth/oauth/[provider].ts
++++ b/src/astro/routes/api/auth/oauth/[provider].ts
+@@ -87,11 +87,16 @@ export const GET: APIRoute = async ({ params, request, locals, redirect }) => {
+ 		const url = new URL(request.url);
+ 
+ 		// Get OAuth providers from environment
+-		// Access via locals.runtime for Cloudflare, or import.meta.env for Node
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
+-		const runtimeLocals = locals as unknown as { runtime?: { env?: Record<string, unknown> } };
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
+-		const env = runtimeLocals.runtime?.env ?? (import.meta.env as Record<string, unknown>);
++		// Astro v6 removed locals.runtime.env. Use cloudflare:workers in CF Workers, import.meta.env in dev.
++		let env: Record<string, unknown>;
++		try {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			const cf = await import("cloudflare:workers");
++			env = cf.env as Record<string, unknown>;
++		} catch {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			env = import.meta.env as Record<string, unknown>;
++		}
+ 		const providers = getOAuthConfig(env);
+ 
+ 		if (!providers[provider]) {
 diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
 index 412a26c2311c4465fbe27548afd6fc02b89b5caa..d2eda142ea4238237dfedc328cb3ff95dc265e2b 100644
 --- a/src/components/InlinePortableTextEditor.tsx
@@ -92,44 +143,6 @@ index 0000000000000000000000000000000000000000..11f14026e8dd9a23de888ccba0cf81f1
 +		...rest,
 +	};
 +}
-diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro
-index 7765ab67b2cdcb03b5a03884ce05dd3f615f73ca..2e1fc8d59828c4eafed8cbbe491e244f94dda6b7 100644
---- a/src/components/widgets/RecentPosts.astro
-+++ b/src/components/widgets/RecentPosts.astro
-@@ -7,9 +7,11 @@ interface Props {
- }
- 
- const { count = 5, showThumbnails = false, showDate = true } = Astro.props;
-+const currentLocale = Astro.currentLocale ?? "en";
- 
- const { entries: posts } = await getEmDashCollection("posts", {
-+	locale: currentLocale,
- 	limit: count,
- 	orderBy: { published_at: "desc" },
- });
-@@ -19,6 +21,12 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
- 	const val = data[key];
- 	return typeof val === "string" ? val : undefined;
- }
-+
-+function getPostHref(postId: string): string {
-+	const normalized = postId.replace(/^(?:en|es|fr)\//, "");
-+	return currentLocale === "en"
-+		? `/posts/${normalized}`
-+		: `/${currentLocale}/posts/${normalized}`;
-+}
- ---
- 
- <ul class="widget-recent-posts">
-@@ -36,7 +44,7 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
- 							class="widget-recent-posts__thumbnail"
- 						/>
- 					)}
--					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
-+					<a href={getPostHref(post.id)} class="widget-recent-posts__link">
- 						{title}
- 					</a>
- 					{showDate && publishedAt && (
 +
 +export function pluginBlockAttrsToPortableTextBlock(
 +	attrs: Record<string, unknown> | undefined,
@@ -158,3 +171,41 @@ index 7765ab67b2cdcb03b5a03884ce05dd3f615f73ca..2e1fc8d59828c4eafed8cbbe491e244f
 +		...rest,
 +	};
 +}
+diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro
+index cef0090a0aeaf52c8b0b74f6505fdb73b57aa94f..b4657d3ce271baa7cfad241f38b6a82d791fed9b 100644
+--- a/src/components/widgets/RecentPosts.astro
++++ b/src/components/widgets/RecentPosts.astro
+@@ -8,8 +8,10 @@ interface Props {
+ }
+ 
+ const { count = 5, showThumbnails = false, showDate = true } = Astro.props;
++const currentLocale = Astro.currentLocale ?? "en";
+ 
+ const { entries: posts } = await getEmDashCollection("posts", {
++	locale: currentLocale,
+ 	limit: count,
+ 	orderBy: { published_at: "desc" },
+ });
+@@ -19,6 +21,13 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
+ 	const val = data[key];
+ 	return typeof val === "string" ? val : undefined;
+ }
++
++function getPostHref(postId: string): string {
++	const normalized = postId.replace(/^(?:en|es|fr)\//, "");
++	return currentLocale === "en"
++		? `/posts/${normalized}`
++		: `/${currentLocale}/posts/${normalized}`;
++}
+ ---
+ 
+ <ul class="widget-recent-posts">
+@@ -36,7 +45,7 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
+ 							class="widget-recent-posts__thumbnail"
+ 						/>
+ 					)}
+-					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
++					<a href={getPostHref(post.id)} class="widget-recent-posts__link">
+ 						{title}
+ 					</a>
+ 					{showDate && publishedAt && (

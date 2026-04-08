@@ -178,6 +178,37 @@ HTTP 521 means Cloudflare cannot reach the origin server (PWB backend is down or
 
 ---
 
+## OAuth login fails with "Astro.locals.runtime.env has been removed in Astro v6"
+
+**Symptom:** Worker logs show:
+```
+OAuth initiation error: Error: Astro.locals.runtime.env has been removed in Astro v6. Use 'import { env } from "cloudflare:workers"' instead.
+```
+Clicking "Sign in with GitHub" or "Sign in with Google" redirects back to the login page with `?error=oauth_error`.
+
+**Cause:** The emdash OAuth routes used `locals.runtime?.env` to read Cloudflare environment bindings (OAuth client ID/secret). Astro v6 removed `locals.runtime` entirely — accessing it now throws instead of returning `undefined`.
+
+**Fix:** The emdash package is patched in `patches/emdash@0.1.0.patch` to use `import("cloudflare:workers")` in Cloudflare Workers, with a fallback to `import.meta.env` for local dev. Both `[provider].ts` and `[provider]/callback.ts` are patched.
+
+If this error reappears after upgrading emdash, re-apply the patch:
+1. Open a fresh patch edit dir: `pnpm patch emdash@<new-version>`
+2. In both `src/astro/routes/api/auth/oauth/[provider].ts` and `.../callback.ts`, replace the `runtimeLocals.runtime?.env` block with:
+   ```typescript
+   let env: Record<string, unknown>;
+   try {
+     const cf = await import("cloudflare:workers");
+     env = cf.env as Record<string, unknown>;
+   } catch {
+     env = import.meta.env as Record<string, unknown>;
+   }
+   ```
+3. Commit the patch: `pnpm patch-commit node_modules/.pnpm_patches/emdash@<new-version>`
+4. Redeploy: `pnpm run deploy:prod`
+
+Regression tests in `src/emdash-oauth-patch.test.ts` will catch if the fix is ever dropped.
+
+---
+
 ## `better-sqlite3` fails to install
 
 If `pnpm install` fails on `better-sqlite3`, the native bindings need to be compiled:
