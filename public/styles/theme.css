@@ -65,6 +65,67 @@
   --header-position:    sticky;
   --header-padding-y:   0.75rem;
   --header-logo-size:   var(--text-xl);
+
+  /* Backward-compatible aliases used by legacy CMS page components */
+  --font-size-xs:       0.75rem;
+  --font-size-sm:       var(--text-sm);
+  --font-size-base:     var(--text-base);
+  --font-size-lg:       var(--text-lg);
+  --font-size-xl:       var(--text-xl);
+  --font-size-2xl:      var(--text-2xl);
+  --font-size-3xl:      var(--text-3xl);
+  --font-size-4xl:      clamp(2rem, 4vw, 2.5rem);
+  --font-size-5xl:      clamp(2.4rem, 5vw, 3.25rem);
+
+  --leading-tight:      1.2;
+  --leading-snug:       1.35;
+  --leading-normal:     1.6;
+  --leading-relaxed:    1.75;
+
+  --tracking-tight:     -0.02em;
+  --tracking-snug:      -0.01em;
+  --tracking-wide:      0.08em;
+  --tracking-wider:     0.1em;
+
+  --spacing-1:          0.25rem;
+  --spacing-2:          0.5rem;
+  --spacing-3:          0.75rem;
+  --spacing-4:          1rem;
+  --spacing-5:          1.25rem;
+  --spacing-6:          1.5rem;
+  --spacing-8:          2rem;
+  --spacing-10:         2.5rem;
+  --spacing-12:         3rem;
+  --spacing-16:         4rem;
+  --spacing-20:         5rem;
+  --spacing-24:         6rem;
+
+  --color-bg-subtle:    var(--color-bg-soft);
+  --color-text-secondary: var(--color-text-muted);
+  --color-muted:        var(--color-text-muted);
+  --color-border-subtle: color-mix(in srgb, var(--color-border) 60%, transparent);
+  --color-surface:      var(--color-bg-soft);
+  --color-accent-hover: var(--color-primary-light);
+  --color-on-accent:    #fff;
+  --color-accent-ring:  color-mix(in srgb, var(--color-primary) 25%, transparent);
+
+  --radius:             var(--radius-sm);
+  --transition-fast:    120ms ease;
+  --transition-base:    180ms ease;
+  --shadow-dropdown:    var(--shadow-card);
+  --shadow-btn-active:  0 1px 2px rgba(0, 0, 0, 0.08);
+
+  --tag-padding-y:      0.15rem;
+  --avatar-size-xs:     18px;
+  --avatar-size-sm:     20px;
+  --avatar-size-md:     24px;
+  --avatar-size-lg:     32px;
+
+  --content-width:      680px;
+  --wide-width:         1200px;
+  --gutter-width:       220px;
+  --meta-col-width:     190px;
+  --nav-height:         64px;
 }
 
 /* ── Dark mode (optional) ──────────────────────────────────────── */

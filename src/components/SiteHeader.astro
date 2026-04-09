@@ -11,6 +11,25 @@ const { site } = Astro.props
 const primaryMenu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const localizedBrand = translateBrand(currentLocale, site.company_display_name ?? site.title)
+const menuItems = primaryMenu?.items ?? []
+
+const defaultNavItems = [
+  { url: '/', label: translateLabel(currentLocale, 'Home') },
+  { url: '/properties', label: translateLabel(currentLocale, 'Properties') },
+  { url: '/posts', label: translateLabel(currentLocale, 'Posts') },
+]
+
+const hasMenuUrl = (url: string) =>
+  menuItems.some((item) => item.url === url || item.url.startsWith(`${url}/`))
+
+const combinedNavItems = [
+  ...defaultNavItems.filter((item) => !hasMenuUrl(item.url)),
+  ...menuItems.map((item) => ({
+    url: item.url,
+    label: translateLabel(currentLocale, item.label),
+    target: item.target,
+  })),
+]
 ---
 
 <header class="site-header">
@@ -23,8 +42,8 @@ const localizedBrand = translateBrand(currentLocale, site.company_display_name ?
     </a>
 
     <nav class="site-header__nav" aria-label="Main navigation">
-      {primaryMenu?.items.map(item => (
-        <a href={localePath(currentLocale, item.url)} target={item.target}>{translateLabel(currentLocale, item.label)}</a>
+      {combinedNavItems.map(item => (
+        <a href={localePath(currentLocale, item.url)} target={item.target}>{item.label}</a>
       ))}
     </nav>
 

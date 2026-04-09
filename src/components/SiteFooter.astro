@@ -11,6 +11,25 @@ const { siteTitle } = Astro.props
 const menu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const localizedSiteTitle = translateBrand(currentLocale, siteTitle)
+const menuItems = menu?.items ?? []
+
+const defaultNavItems = [
+  { url: '/', label: translateLabel(currentLocale, 'Home') },
+  { url: '/properties', label: translateLabel(currentLocale, 'Properties') },
+  { url: '/posts', label: translateLabel(currentLocale, 'Posts') },
+]
+
+const hasMenuUrl = (url: string) =>
+  menuItems.some((item) => item.url === url || item.url.startsWith(`${url}/`))
+
+const combinedFooterItems = [
+  ...defaultNavItems.filter((item) => !hasMenuUrl(item.url)),
+  ...menuItems.map((item) => ({
+    url: item.url,
+    label: translateLabel(currentLocale, item.label),
+    target: item.target,
+  })),
+]
 ---
 
 <footer class="site-footer">
@@ -22,14 +41,14 @@ const localizedSiteTitle = translateBrand(currentLocale, siteTitle)
       <div class="footer-nav">
         <h4 class="footer-heading">{translateLabel(currentLocale, 'Navigate')}</h4>
         <ul class="footer-links">
-          {menu?.items.map(item => (
+          {combinedFooterItems.map(item => (
             <li>
               <a
 				href={localePath(currentLocale, item.url)}
                 target={item.target}
                 rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               >
-				{translateLabel(currentLocale, item.label)}
+				{item.label}
               </a>
             </li>
           ))}

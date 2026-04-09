@@ -1,6 +1,8 @@
 ---
 import { getEmDashCollection, getEntryTerms } from "emdash";
-import Base from "../../layouts/Base.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { createPwbClient } from "../../lib/pwb/client";
+import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { getReadingTime } from "../../utils/reading-time";
 import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
@@ -11,6 +13,13 @@ interface Props {
 const { locale } = Astro.props
 
 const { entries: posts, cacheHint } = await getEmDashCollection("posts", { locale });
+let site = fallbackSite;
+
+try {
+	site = await createPwbClient(locale).getSiteDetails();
+} catch {
+	site = fallbackSite;
+}
 
 Astro.cache.set(cacheHint);
 
@@ -40,13 +49,16 @@ const allPostsLabel = translateLabel(locale, "All Posts");
 const noPostsLabel = translateLabel(locale, "No posts yet.");
 ---
 
-<Base title={allPostsLabel} description="Browse all blog posts">
+<BaseLayout site={site} title={allPostsLabel} description="Browse all blog posts">
 	<div class="posts-page">
 		<header class="page-header">
 			<h1 class="page-title">{allPostsLabel}</h1>
 			<p class="page-description">
 				{posts.length}
 				{posts.length === 1 ? "article" : "articles"}
+			</p>
+			<p class="page-link-row">
+				<a href={localePath(locale, '/properties')}>{translateLabel(locale, 'Browse properties')}</a>
 			</p>
 		</header>
 
@@ -112,7 +124,7 @@ const noPostsLabel = translateLabel(locale, "No posts yet.");
 			)
 		}
 	</div>
-</Base>
+</BaseLayout>
 
 <style>
 	.posts-page {
@@ -135,6 +147,19 @@ const noPostsLabel = translateLabel(locale, "No posts yet.");
 	.page-description {
 		font-size: var(--font-size-lg);
 		color: var(--color-muted);
+	}
+
+	.page-link-row {
+		margin-top: var(--spacing-3);
+	}
+
+	.page-link-row a {
+		font-size: var(--font-size-sm);
+		text-decoration: none;
+	}
+
+	.page-link-row a:hover {
+		text-decoration: underline;
 	}
 
 	.empty {

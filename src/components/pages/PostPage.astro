@@ -3,7 +3,6 @@ import {
 	getEmDashEntry,
 	getEmDashCollection,
 	getEntryTerms,
-	getSeoMeta,
 	getTranslations,
 } from "emdash";
 import {
@@ -13,11 +12,13 @@ import {
 	CommentForm,
 	WidgetArea,
 } from "emdash/ui";
-import Base from "../../layouts/Base.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
 import TranslationLinks from "../TranslationLinks.astro";
+import { createPwbClient } from "../../lib/pwb/client";
+import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { getReadingTime } from "../../utils/reading-time";
-import { entrySlug, localePath, translateBrand, translateLabel } from "../../lib/locale";
+import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
 	locale: string;
@@ -30,41 +31,20 @@ const { entry: post, cacheHint } = safeSlug
 	? await getEmDashEntry("posts", safeSlug, { locale })
 	: { entry: null, cacheHint: undefined };
 
+let site = fallbackSite;
+try {
+	site = await createPwbClient(locale).getSiteDetails();
+} catch {
+	site = fallbackSite;
+}
+
 if (post) {
 	Astro.cache.set(cacheHint);
 } else {
 	Astro.response.status = 404;
 }
-
-function getImageUrl(img: unknown): string | undefined {
-	if (!img || typeof img !== "object") return undefined;
-	const image = img as Record<string, unknown>;
-	if (typeof image.src === "string" && image.src) {
-		return image.src.startsWith("http")
-			? image.src
-			: `${Astro.url.origin}${image.src}`;
-	}
-	const meta = image.meta as Record<string, unknown> | undefined;
-	const storageKey =
-		(typeof meta?.storageKey === "string" ? meta.storageKey : undefined) ||
-		(typeof image.id === "string" ? image.id : undefined);
-	if (storageKey) {
-		return `${Astro.url.origin}/_emdash/api/media/file/${storageKey}`;
-	}
-	return undefined;
-}
-
-const featuredImageUrl = post ? getImageUrl(post.data.featured_image) : undefined;
 const postPath = localePath(locale, `/posts/${safeSlug}`);
-
-const seo = post
-	? getSeoMeta(post, {
-			siteTitle: translateBrand(locale, "My Blog"),
-			siteUrl: Astro.url.origin,
-			path: postPath,
-			defaultOgImage: featuredImageUrl,
-		})
-	: null;
+const canonicalHref = post ? new URL(postPath, Astro.url.origin).href : null;
 
 const tags = post ? await getEntryTerms("posts", post.data.id, "tag") : [];
 const bylines = post?.data.bylines ?? [];
@@ -108,17 +88,12 @@ const publishDate =
 	}) ?? null;
 ---
 
-{post && seo ? (
-	<Base
-		title={seo.title}
-		description={seo.description}
-		image={seo.ogImage}
-		canonical={seo.canonical}
-		robots={seo.robots}
-		type="article"
-		publishedTime={post.data.publishedAt?.toISOString() ?? null}
-		modifiedTime={post.data.updatedAt.toISOString()}
-		content={{ collection: "posts", id: post.data.id, slug: safeSlug }}
+{post ? (
+	<BaseLayout
+		site={site}
+		title={post.data.title}
+		description={post.data.excerpt ?? undefined}
+		canonical={canonicalHref ?? undefined}
 		alternateLinks={alternateLinks}
 	>
 	<article class="article">
@@ -335,15 +310,16 @@ const publishDate =
 
 		buildToc();
 	</script>
-	</Base>
+	</BaseLayout>
 ) : (
-	<Base title={translateLabel(locale, 'Page not found')} description={translateLabel(locale, "The post you're looking for doesn't exist.")}>
+	<BaseLayout site={site} title={translateLabel(locale, 'Page not found')} description={translateLabel(locale, "The post you're looking for doesn't exist.")}>
 		<div class="article" style="padding: 4rem 1.5rem; max-width: 900px; margin: 0 auto;">
 			<h1>404</h1>
 			<p>{translateLabel(locale, "The post you're looking for doesn't exist.")}</p>
 			<p><a href={localePath(locale, "/posts")}>{translateLabel(locale, 'Browse all posts')}</a></p>
+			<p><a href={localePath(locale, "/properties")}>{translateLabel(locale, 'Browse properties')}</a></p>
 		</div>
-	</Base>
+	</BaseLayout>
 )}
 
 <style>
