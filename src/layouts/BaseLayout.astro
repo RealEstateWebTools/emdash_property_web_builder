@@ -3,7 +3,18 @@ import { buildPageMeta } from '../lib/pwb/site-config'
 import SiteHeader from '../components/SiteHeader.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
-import { VALID_PALETTES, PALETTE_KV_KEY, type Palette } from '../plugins/pwb-theme.js'
+import {
+  buildThemeStyleOverrides,
+  DEFAULT_THEME_SETTINGS,
+  PALETTE_KV_KEY,
+  THEME_DENSITY_KV_KEY,
+  THEME_HEADER_KV_KEY,
+  THEME_MOTION_KV_KEY,
+  THEME_SURFACE_KV_KEY,
+  VALID_PALETTES,
+  sanitizeThemeSettings,
+  type Palette,
+} from '../plugins/pwb-theme.js'
 import { DEFAULT_LOCALE, translateBrand } from '../lib/locale'
 
 interface Props {
@@ -21,34 +32,51 @@ const meta = buildPageMeta(site, { locale: currentLocale, title, description, ca
 
 // Palette resolution: admin panel setting > PUBLIC_PALETTE env var > 'default'
 // The plugin stores its KV under key `plugin:pwb-theme:<key>` in the options table.
-let palette: Palette = 'default'
+let themeSettings = DEFAULT_THEME_SETTINGS
 const db = Astro.locals.emdash?.db
 if (db) {
   try {
-    const row = await (db as any)
+    const rows = await (db as any)
       .selectFrom('options')
-      .select('value')
-      .where('name', '=', `plugin:pwb-theme:${PALETTE_KV_KEY}`)
-      .executeTakeFirst()
-    // Values are stored as JSON by OptionsRepository, so parse before comparing.
-    const raw: unknown = row?.value
-    const parsed: unknown = typeof raw === 'string' ? JSON.parse(raw) : null
-    if (typeof parsed === 'string' && (VALID_PALETTES as readonly string[]).includes(parsed)) {
-      palette = parsed as Palette
-    }
+      .select(['name', 'value'])
+      .where('name', 'in', [
+        `plugin:pwb-theme:${PALETTE_KV_KEY}`,
+        `plugin:pwb-theme:${THEME_DENSITY_KV_KEY}`,
+        `plugin:pwb-theme:${THEME_SURFACE_KV_KEY}`,
+        `plugin:pwb-theme:${THEME_MOTION_KV_KEY}`,
+        `plugin:pwb-theme:${THEME_HEADER_KV_KEY}`,
+      ])
+      .execute()
+
+    const rawSettings = Object.fromEntries(
+      rows.map((row: { name: string; value: unknown }) => {
+        const key = row.name.split(':').slice(-1)[0]
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : null
+        return [key, parsed]
+      }),
+    )
+    themeSettings = sanitizeThemeSettings({
+      palette: rawSettings.palette,
+      density: rawSettings.density,
+      surface: rawSettings.surface,
+      motion: rawSettings.motion,
+      header: rawSettings.header,
+    })
   } catch {
     // Plugin not yet installed or DB unavailable — fall through to env var
   }
 }
-if (palette === 'default') {
+if (themeSettings.palette === 'default') {
   const envPalette = import.meta.env.PUBLIC_PALETTE ?? 'default'
   if ((VALID_PALETTES as readonly string[]).includes(envPalette)) {
-    palette = envPalette as Palette
+    themeSettings = { ...themeSettings, palette: envPalette as Palette }
   }
 }
 
+const palette = themeSettings.palette
 const paletteHref = palette !== 'default' ? `/styles/palettes/${palette}.css` : null
 const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
+const themeOverrides = buildThemeStyleOverrides(themeSettings)
 ---
 
 <!doctype html>
@@ -98,6 +126,7 @@ const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
 
     <link rel="stylesheet" href="/styles/theme.css" />
     {paletteHref && <link rel="stylesheet" href={paletteHref} />}
+    {themeOverrides && <style is:inline>{themeOverrides}</style>}
   </head>
   <body>
     <SiteHeader site={site} />
