@@ -28,8 +28,8 @@ export default defineConfig({
 	output: "server",
 	i18n: {
 		defaultLocale: 'en',
-		locales: ['en', 'es', 'fr'],
-		fallback: { es: 'en', fr: 'en' },
+		locales: ['en', 'es'],
+		fallback: { es: 'en' },
 		routing: { prefixDefaultLocale: false },
 	},
 	// Cloudflare adapter is production-only. In dev, Astro runs as plain Node.
