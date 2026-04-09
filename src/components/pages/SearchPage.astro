@@ -1,7 +1,9 @@
 ---
 import { getEmDashCollection } from "emdash";
-import Base from "../../layouts/Base.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
+import { createPwbClient } from "../../lib/pwb/client";
+import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { getReadingTime, extractText } from "../../utils/reading-time";
 import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
@@ -14,6 +16,13 @@ const { locale } = Astro.props
 const query = Astro.url.searchParams.get("q")?.trim() || "";
 
 const { entries: allPosts } = await getEmDashCollection("posts", { locale });
+
+let site = fallbackSite;
+try {
+	site = await createPwbClient(locale).getSiteDetails();
+} catch {
+	site = fallbackSite;
+}
 
 // Simple search: match query against title, excerpt, and content
 function matchesQuery(post: (typeof allPosts)[0], q: string): boolean {
@@ -50,7 +59,8 @@ const searchSummary = query
 	: null
 ---
 
-<Base
+<BaseLayout
+	site={site}
 	title={query ? `${searchLabel}: ${query}` : searchLabel}
 	description={searchDescription}
 >
@@ -96,7 +106,7 @@ const searchSummary = query
 
 		{!query && <p class="search-hint">{searchHint}</p>}
 	</section>
-</Base>
+</BaseLayout>
 
 <style>
 	.search-page {
