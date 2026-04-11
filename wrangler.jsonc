@@ -1,4 +1,8 @@
 {
+	// ⚠️  PUBLIC TEMPLATE — this file is committed to a public GitHub repo.
+	// NEVER put real resource IDs, URLs, domain names, or secrets here.
+	// All real values belong in wrangler.prod.jsonc (gitignored).
+	// See docs/development-guide.md § "Why two wrangler config files?"
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "emdash-property-web-builder",
 	"main": "./src/worker.ts",

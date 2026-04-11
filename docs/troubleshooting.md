@@ -254,6 +254,47 @@ Regression tests in `src/emdash-oauth-patch.test.ts` will catch if the fix is ev
 
 ---
 
+## Custom domain on `propertywebbuilder.com` returns a blank white page (HTTP 200, empty body)
+
+**Symptom:** A custom domain or route on `propertywebbuilder.com` (e.g. `emdash2.propertywebbuilder.com`) returns HTTP 200 with an empty body. Worker observability logs show HTTP 521 errors for every call to `demo.propertywebbuilder.com`, even though `curl https://demo.propertywebbuilder.com/` works fine from outside Cloudflare. A custom domain on a different zone (e.g. `emdash.homestocompare.com`) works correctly with the same Worker and the same `PWB_API_URL`.
+
+**Cause — Cloudflare same-zone subrequest restriction.** When the Worker handles a request arriving via the `propertywebbuilder.com` zone, any outbound `fetch()` to another hostname that also lives in that zone (including grey-cloud / DNS-only records) is subject to Cloudflare's internal routing for that zone. Cloudflare cannot forward those subrequests to the origin and returns HTTP 521 ("Web Server Down"). When the same Worker handles a request arriving via a different zone (`homestocompare.com`), the subrequest to `demo.propertywebbuilder.com` crosses zone boundaries and reaches the origin normally.
+
+The same failure applies to both mechanisms Cloudflare uses for Worker binding on `propertywebbuilder.com`:
+- **Route** (`emdash.propertywebbuilder.com/*`) — all fetch calls to `demo.propertywebbuilder.com` return 521.
+- **Custom domain** (`emdash2.propertywebbuilder.com`) — same result.
+
+**Diagnosis:** In the Worker's Observability → Events view, filter by `emdash2` (or the failing domain). Every invocation will show:
+```
+[pwb] GET https://demo.propertywebbuilder.com/api_public/v1/en/site_details
+HTTP 521 https://demo.propertywebbuilder.com/api_public/v1/en/properties?...
+```
+The invocation itself is marked as an error even though the browser receives HTTP 200 with an empty body (the Worker catches the 521 and returns an empty response rather than crashing).
+
+**Fix options (choose one):**
+
+1. **Use a `PWB_API_URL` on a different zone.** Set `PWB_API_URL` to a hostname that is *not* in the `propertywebbuilder.com` Cloudflare zone — for example, the server's IP address, or an alias record managed under `homestocompare.com` or another zone you control.
+
+2. **Delete the `demo` DNS record from the Cloudflare zone.** If `demo.propertywebbuilder.com` has a DNS record in the `propertywebbuilder.com` Cloudflare zone (even grey-cloud / DNS-only), Cloudflare still routes Worker subrequests through the zone. Removing the record from Cloudflare and managing DNS for it elsewhere (or via the server's IP) allows subrequests to reach the origin directly.
+
+3. **Add the `cf-no-worker` header to API subrequests.** Passing `'cf-no-worker': '1'` on the outbound fetch instructs Cloudflare to skip Worker processing for that subrequest, which can also break the loopback. This requires modifying the `PwbClient` fetch calls.
+
+---
+
+## Deploy-to-Workers form shows two `PWB_API_URL` fields
+
+**Symptom:** When deploying via the Cloudflare "Deploy to Workers" button, the configuration form shows `PWB_API_URL` twice — one field pre-filled with dots (masked) and one empty field.
+
+**Cause:** `PWB_API_URL` has been set both as a **Worker secret** (via `wrangler secret put PWB_API_URL` at some point) and as a plain **var** in `wrangler.jsonc` (`"vars": { "PWB_API_URL": "" }`). The deploy form renders one field for each. Secrets take precedence over vars at runtime, so the Worker uses the secret value.
+
+**Fix:** Since `PWB_API_URL` is not sensitive and should be visible and easy to change, delete the secret version:
+```bash
+wrangler secret delete PWB_API_URL
+```
+After that the form shows only the single plain-text `vars` field from `wrangler.jsonc`.
+
+---
+
 ## `better-sqlite3` fails to install
 
 If `pnpm install` fails on `better-sqlite3`, the native bindings need to be compiled:
