@@ -27,24 +27,56 @@ const cards = results.data.map(formatPropertyCard)
 
 <BaseLayout site={site} title={homepage?.data.title}>
   <section class="hero">
-    <h1 {...homepage?.edit.title}>{homepage?.data.title ?? 'Find Your Dream Property'}</h1>
-    {homepage?.data.content && (
-      <div class="hero__tagline" {...homepage.edit.content}>
-        <PortableText value={homepage.data.content} />
+    <div class="hero__inner">
+      <h1 class="hero__heading" {...homepage?.edit.title}>
+        {homepage?.data.title ?? 'Find Your Dream Property'}
+      </h1>
+      {homepage?.data.content && (
+        <div class="hero__tagline" {...homepage.edit.content}>
+          <PortableText value={homepage.data.content} />
+        </div>
+      )}
+      <div class="hero__actions">
+        <a href={localePath(locale, '/properties')} class="btn btn-hero-primary">{translateLabel(locale, 'Properties for Sale')}</a>
+        <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-hero-secondary">{translateLabel(locale, 'Properties for Rent')}</a>
+        <a href={localePath(locale, '/posts')} class="btn btn-hero-ghost">{translateLabel(locale, 'Read Market Insights')}</a>
       </div>
-    )}
-    <div class="hero__actions">
-      <a href={localePath(locale, '/properties')} class="btn btn-primary">{translateLabel(locale, 'Properties for Sale')}</a>
-      <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-primary">{translateLabel(locale, 'Properties for Rent')}</a>
-      <a href={localePath(locale, '/posts')} class="btn btn-primary">{translateLabel(locale, 'Read Market Insights')}</a>
     </div>
+    <div class="hero__backdrop" aria-hidden="true"></div>
   </section>
+
+  <div class="trust-bar">
+    <div class="trust-bar__inner">
+      <div class="trust-bar__item">
+        <span class="trust-bar__number">500+</span>
+        <span class="trust-bar__label">{translateLabel(locale, 'Properties Listed')}</span>
+      </div>
+      <div class="trust-bar__divider"></div>
+      <div class="trust-bar__item">
+        <span class="trust-bar__number">98%</span>
+        <span class="trust-bar__label">{translateLabel(locale, 'Client Satisfaction')}</span>
+      </div>
+      <div class="trust-bar__divider"></div>
+      <div class="trust-bar__item">
+        <span class="trust-bar__number">10+</span>
+        <span class="trust-bar__label">{translateLabel(locale, 'Years Experience')}</span>
+      </div>
+      <div class="trust-bar__divider"></div>
+      <div class="trust-bar__item">
+        <span class="trust-bar__number">50+</span>
+        <span class="trust-bar__label">{translateLabel(locale, 'Expert Agents')}</span>
+      </div>
+    </div>
+  </div>
 
   {cards.length > 0 && (
     <section class="featured-section">
-      <h2 {...homepage?.edit.featured_section_heading}>
-        {homepage?.data.featured_section_heading ?? 'Featured Properties'}
-      </h2>
+      <div class="featured-section__header">
+        <h2 {...homepage?.edit.featured_section_heading}>
+          {homepage?.data.featured_section_heading ?? 'Featured Properties'}
+        </h2>
+        <p class="featured-section__subtitle">{translateLabel(locale, 'Handpicked properties for you')}</p>
+      </div>
       <PropertyGrid cards={cards} />
       <div class="featured-section__cta">
         <a href={localePath(locale, '/properties')} class="btn btn-primary">{translateLabel(locale, 'View All Properties')}</a>
@@ -54,15 +86,167 @@ const cards = results.data.map(formatPropertyCard)
 </BaseLayout>
 
 <style>
+  /* ── Hero ─────────────────────────────────────────────────────── */
   .hero {
+    position: relative;
     text-align: center;
+    padding: 6rem var(--spacing-page) 5rem;
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, var(--color-primary-light) 100%);
+    overflow: hidden;
+    color: #fff;
+  }
+  .hero__backdrop {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%);
+    pointer-events: none;
+  }
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .hero__heading {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .hero__tagline {
+    font-size: var(--text-lg);
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 2.5rem;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .hero__actions {
+    display: flex;
+    gap: 0.875rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-hero-primary {
+    background: var(--color-accent, #e8a020);
+    color: #fff;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: var(--text-base);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  }
+  .btn-hero-primary:hover { background: #d4911a; transform: translateY(-1px); }
+
+  .btn-hero-secondary {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--text-base);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.35);
+    backdrop-filter: blur(4px);
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-hero-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+
+  .btn-hero-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: var(--text-base);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .btn-hero-ghost:hover { color: #fff; text-decoration: underline; }
+
+  /* ── Trust Bar ────────────────────────────────────────────────── */
+  .trust-bar {
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .trust-bar__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem var(--spacing-page);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .trust-bar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 2.5rem;
+  }
+  .trust-bar__number {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1.1;
+  }
+  .trust-bar__label {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: 0.2rem;
+    white-space: nowrap;
+  }
+  .trust-bar__divider {
+    width: 1px;
+    height: 2.5rem;
+    background: var(--color-border);
+    flex-shrink: 0;
+  }
+
+  /* ── Featured Section ─────────────────────────────────────────── */
+  .featured-section {
     padding: 4rem var(--spacing-page);
     background: var(--color-bg-soft);
   }
-  .hero h1 { font-size: var(--text-3xl); margin-bottom: 1rem; }
-  .hero__tagline { font-size: var(--text-lg); color: var(--color-text-muted); margin-bottom: 2rem; }
-  .hero__actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-  .featured-section { padding: 3rem var(--spacing-page); }
-  .featured-section h2 { font-size: var(--text-2xl); margin-bottom: 2rem; text-align: center; }
-  .featured-section__cta { text-align: center; margin-top: 2rem; }
+  .featured-section__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .featured-section__header h2 {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+  .featured-section__subtitle {
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
+  }
+  .featured-section__cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .trust-bar__item { padding: 0.5rem 1.25rem; }
+    .trust-bar__divider { display: none; }
+    .hero { padding: 4rem var(--spacing-page) 3.5rem; }
+  }
 </style>
