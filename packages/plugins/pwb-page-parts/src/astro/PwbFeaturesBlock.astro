@@ -1,0 +1,104 @@
+---
+import { defaultFeatures, normalizeLocale, t } from "../i18n.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+
+const heading = typeof node?.heading === "string" && node.heading.trim() ? node.heading : t(locale, "featuresHeading");
+
+const fallback = defaultFeatures(locale);
+
+function readFeature(index) {
+  const titleKey = `item${index}Title`;
+  const bodyKey = `item${index}Body`;
+  const item = fallback[index - 1];
+
+  return {
+    icon: item.icon,
+    title:
+      typeof node?.[titleKey] === "string" && node[titleKey].trim() ? node[titleKey].trim() : item.title,
+    body: typeof node?.[bodyKey] === "string" && node[bodyKey].trim() ? node[bodyKey].trim() : item.body,
+  };
+}
+
+const features = [readFeature(1), readFeature(2), readFeature(3)];
+---
+
+<section class="pwb-features">
+  <h3>{heading}</h3>
+  <div class="pwb-features__grid">
+    {features.map((feature) => (
+      <article class="pwb-features__card">
+        <p class="pwb-features__icon" aria-hidden="true">{feature.icon}</p>
+        <h4>{feature.title}</h4>
+        <p>{feature.body}</p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .pwb-features {
+    --pwb-feat-surface: var(--color-surface, #f7f4ed);
+    --pwb-feat-surface-2: color-mix(in srgb, var(--pwb-feat-surface) 88%, white);
+    --pwb-feat-border: color-mix(in srgb, var(--color-border, #cfc9bf) 80%, white);
+    --pwb-feat-accent: var(--color-accent, #936f2f);
+    --pwb-feat-text: var(--color-text, #1f1b16);
+    margin: 2rem 0;
+    color: var(--pwb-feat-text);
+  }
+
+  .pwb-features h3 {
+    margin: 0 0 0.9rem;
+    font-size: clamp(1.2rem, 2.4vw, 1.85rem);
+    line-height: 1.2;
+  }
+
+  .pwb-features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .pwb-features__card {
+    border: 1px solid var(--pwb-feat-border);
+    border-radius: 0.95rem;
+    background: linear-gradient(
+      160deg,
+      var(--pwb-feat-surface-2),
+      color-mix(in srgb, var(--pwb-feat-accent) 10%, var(--pwb-feat-surface))
+    );
+    padding: 0.95rem;
+  }
+
+  .pwb-features__icon {
+    margin: 0;
+    color: var(--pwb-feat-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .pwb-features__card h4 {
+    margin: 0.45rem 0 0;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  .pwb-features__card p {
+    margin: 0.45rem 0 0;
+  }
+
+  @media (max-width: 900px) {
+    .pwb-features__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pwb-features__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -198,7 +198,73 @@ Once running, editors can go into EmDash -> Pages -> Homepage. When they type `/
 
 Upon saving, Astro will dynamically invoke `CtaBlock.astro` with the user-defined JSON whenever it parses that Portable Text block!
 
-## 🚀 Recommended Phasing Plan
-- **Phase 1**: Scaffold Plugin and migrate layout boundaries (Hero, CTA, Features).
-- **Phase 2**: Migrate dynamic parts (Testimonials, Teams) that may need to query other EmDash collections from `Astro.props`.
-- **Phase 3**: Migrate Forms (General Enquiry, Valuations) utilizing the EmDash form storage APIs.
+## 🚀 Recommended Phasing Plan (TDD + i18n + Mobile + Theming)
+
+Use strict **Red → Green → Refactor** for every block type migration:
+
+1. **Red**: Add a failing test for the expected behavior first.
+2. **Green**: Implement the smallest change to pass.
+3. **Refactor**: Improve structure while keeping tests green.
+
+### Phase 0: Foundations and Test Harness
+- Create a test matrix for each block type across:
+  - content behavior (field mapping, defaults, rendering)
+  - i18n behavior (localized labels/content, fallback behavior)
+  - mobile behavior (small viewport layout and interaction)
+  - theme behavior (palette/contrast compatibility)
+- Add baseline tests before migration begins:
+  - editor schema tests for `portableTextBlocks` field contracts
+  - renderer tests that validate `type -> blockComponents` mapping
+  - responsive snapshot or visual-regression checks for common breakpoints
+  - accessibility checks (heading order, focus, contrast)
+
+### Phase 1: Core Static Layout Blocks (Hero, CTA, Features)
+- Migrate low-risk blocks first using Red/Green/Refactor per block.
+- i18n requirements:
+  - no hard-coded user-visible strings in components
+  - provide translation keys/default fallback content
+  - verify localized button labels and headings
+- mobile requirements:
+  - design and test at minimum: 360px, 768px, 1024px+
+  - ensure hero/search and CTA actions remain usable without overflow
+- theming requirements:
+  - use theme tokens/CSS variables instead of hard-coded brand colors
+  - validate light/dark or palette variants used in this project
+
+### Phase 2: Dynamic/Data-Driven Blocks (Testimonials, Teams, Gallery)
+- Add failing tests for data loading and empty/error states before implementation.
+- Validate behavior with missing or partial CMS data.
+- i18n requirements:
+  - localize section chrome (headings, empty-state copy, action labels)
+  - ensure locale-specific formatting where applicable (for example dates)
+- mobile requirements:
+  - carousel/list interactions must support touch and reduced-motion users
+  - image grids must preserve aspect ratio and avoid layout shift
+- theming requirements:
+  - verify text/image overlays meet contrast expectations across themes
+
+### Phase 3: Form Blocks (General Enquiry, Valuations)
+- Start with failing tests for submission success, validation errors, and API failures.
+- Implement minimal passing form logic, then refactor for shared form primitives.
+- i18n requirements:
+  - localize validation and confirmation messages
+  - ensure locale-specific field hints/placeholders are supported
+- mobile requirements:
+  - keyboard-friendly input flow, tap target sizing, stacked layouts
+  - test form completion on narrow viewports
+- theming requirements:
+  - validation states and alerts must be legible in every supported theme
+
+### Phase 4: Hardening and Definition of Done
+- Cross-locale verification for all migrated blocks.
+- Visual QA on mobile/tablet/desktop breakpoints.
+- Theme QA against all supported palettes/tokens.
+- Performance and accessibility pass on representative pages.
+- Regression suite must pass before enabling blocks for editors.
+
+### Definition of Done per Block
+- Red/Green/Refactor cycle completed and committed.
+- Unit/integration tests pass.
+- i18n copy externalized and locale fallback verified.
+- Mobile layout and interaction verified at agreed breakpoints.
+- Theme tokens used; contrast/accessibility checks pass.

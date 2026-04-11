@@ -1,0 +1,82 @@
+---
+import { normalizeLocale, t } from "../i18n.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+
+const title = typeof node?.title === "string" && node.title.trim() ? node.title : t(locale, "ctaTitle");
+const text = typeof node?.text === "string" && node.text.trim() ? node.text : t(locale, "ctaText");
+const buttonLabel =
+  typeof node?.buttonLabel === "string" && node.buttonLabel.trim() ? node.buttonLabel : t(locale, "ctaButton");
+const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim() ? node.buttonHref : "/contact";
+---
+
+<section class="pwb-cta">
+  <div class="pwb-cta__content">
+    <h3>{title}</h3>
+    <p>{text}</p>
+  </div>
+  <div class="pwb-cta__actions">
+    <a class="pwb-cta__button" href={buttonHref}>{buttonLabel}</a>
+  </div>
+</section>
+
+<style>
+  .pwb-cta {
+    --pwb-cta-surface: color-mix(in srgb, var(--color-surface, #f8f5ef) 72%, var(--color-accent, #936f2f));
+    --pwb-cta-border: color-mix(in srgb, var(--color-accent, #936f2f) 45%, var(--color-text, #1f1b16));
+    --pwb-cta-text: var(--color-text, #1f1b16);
+    --pwb-cta-button: var(--color-accent, #936f2f);
+    --pwb-cta-button-text: var(--color-accent-contrast, #ffffff);
+    margin: 2rem 0;
+    border: 1px solid var(--pwb-cta-border);
+    border-radius: 1rem;
+    background: var(--pwb-cta-surface);
+    padding: 1rem;
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    color: var(--pwb-cta-text);
+  }
+
+  .pwb-cta__content h3 {
+    margin: 0;
+    font-size: clamp(1.2rem, 2.1vw, 1.7rem);
+    line-height: 1.15;
+  }
+
+  .pwb-cta__content p {
+    margin: 0.5rem 0 0;
+    max-width: 60ch;
+  }
+
+  .pwb-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    background: var(--pwb-cta-button);
+    color: var(--pwb-cta-button-text);
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid color-mix(in srgb, var(--pwb-cta-button) 68%, black);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .pwb-cta {
+      grid-template-columns: 1fr;
+    }
+
+    .pwb-cta__actions {
+      width: 100%;
+    }
+
+    .pwb-cta__button {
+      width: 100%;
+    }
+  }
+</style>

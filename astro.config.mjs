@@ -8,6 +8,7 @@ import { defineConfig, sessionDrivers } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 import { pwbPropertyEmbedsPlugin } from "pwb-property-embeds";
+import { pwbPagePartsPlugin } from "pwb-page-parts";
 import { pwbPropertiesPlugin } from "pwb-properties";
 import { pwbValuationPlugin } from "pwb-valuation";
 import { pwbValuationIntegration } from "pwb-valuation/integration";
@@ -22,7 +23,7 @@ const emdashLocalExcludes = [
 	"emdash/media/local-runtime",
 ];
 const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbThemePlugin(), resendEmailPlugin()];
-const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbValuationPlugin()];
+const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbPagePartsPlugin(), pwbValuationPlugin()];
 
 export default defineConfig({
 	output: "server",

@@ -1,0 +1,145 @@
+---
+import { normalizeLocale, t } from "../i18n.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+
+const title = typeof node?.title === "string" && node.title.trim() ? node.title : t(locale, "heroTitle");
+const subtitle =
+  typeof node?.subtitle === "string" && node.subtitle.trim() ? node.subtitle : t(locale, "heroSubtitle");
+const primaryLabel =
+  typeof node?.primaryLabel === "string" && node.primaryLabel.trim()
+    ? node.primaryLabel
+    : t(locale, "heroPrimaryCta");
+const primaryHref = typeof node?.primaryHref === "string" && node.primaryHref.trim() ? node.primaryHref : "/properties";
+const secondaryLabel =
+  typeof node?.secondaryLabel === "string" && node.secondaryLabel.trim()
+    ? node.secondaryLabel
+    : t(locale, "heroSecondaryCta");
+const secondaryHref =
+  typeof node?.secondaryHref === "string" && node.secondaryHref.trim() ? node.secondaryHref : "/valuation";
+const backgroundImageUrl =
+  typeof node?.backgroundImageUrl === "string" && node.backgroundImageUrl.trim() ? node.backgroundImageUrl : "";
+const overlay = node?.overlay === "light" ? "light" : "dark";
+
+const style = backgroundImageUrl
+  ? `--hero-bg-image: url('${backgroundImageUrl.replace(/'/g, "")}')`
+  : "";
+---
+
+<section class={`pwb-hero pwb-hero--${overlay}`} style={style}>
+  <div class="pwb-hero__backdrop"></div>
+  <div class="pwb-hero__inner">
+    <h2>{title}</h2>
+    <p>{subtitle}</p>
+    <div class="pwb-hero__actions">
+      <a class="pwb-btn pwb-btn--primary" href={primaryHref}>{primaryLabel}</a>
+      <a class="pwb-btn pwb-btn--ghost" href={secondaryHref}>{secondaryLabel}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pwb-hero {
+    --pwb-surface: var(--color-surface, #f7f4ed);
+    --pwb-text: var(--color-text, #1f1b16);
+    --pwb-accent: var(--color-accent, #936f2f);
+    --pwb-accent-contrast: var(--color-accent-contrast, #ffffff);
+    --pwb-muted: var(--color-muted, #6b6358);
+    position: relative;
+    overflow: clip;
+    border-radius: 1.25rem;
+    min-height: 22rem;
+    background:
+      var(--hero-bg-image, linear-gradient(140deg, color-mix(in srgb, var(--pwb-surface) 82%, white), color-mix(in srgb, var(--pwb-accent) 14%, var(--pwb-surface))));
+    background-position: center;
+    background-size: cover;
+    margin: 2rem 0;
+  }
+
+  .pwb-hero__backdrop {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(140deg, rgba(19, 18, 17, 0.58), rgba(19, 18, 17, 0.15));
+  }
+
+  .pwb-hero--light .pwb-hero__backdrop {
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15));
+  }
+
+  .pwb-hero__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 42rem;
+    padding: clamp(1.25rem, 3vw, 3rem);
+    color: var(--pwb-accent-contrast);
+  }
+
+  .pwb-hero--light .pwb-hero__inner {
+    color: var(--pwb-text);
+  }
+
+  .pwb-hero h2 {
+    margin: 0;
+    font-size: clamp(1.75rem, 4.6vw, 3.2rem);
+    line-height: 1.06;
+  }
+
+  .pwb-hero p {
+    margin: 0.85rem 0 0;
+    max-width: 36ch;
+    color: color-mix(in srgb, currentColor 84%, var(--pwb-muted));
+  }
+
+  .pwb-hero__actions {
+    margin-top: 1.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .pwb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+
+  .pwb-btn--primary {
+    background: var(--pwb-accent);
+    color: var(--pwb-accent-contrast);
+  }
+
+  .pwb-btn--ghost {
+    background: transparent;
+    color: inherit;
+    border-color: color-mix(in srgb, currentColor 55%, transparent);
+  }
+
+  @media (max-width: 768px) {
+    .pwb-hero {
+      border-radius: 0.95rem;
+      min-height: 18.5rem;
+    }
+
+    .pwb-hero__actions {
+      width: 100%;
+    }
+
+    .pwb-btn {
+      flex: 1 1 12rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .pwb-btn {
+      flex-basis: 100%;
+      width: 100%;
+    }
+  }
+</style>

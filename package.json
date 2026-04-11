@@ -30,6 +30,7 @@
 		"better-sqlite3": "^12.8.0",
 		"emdash": "^0.1.0",
 		"pwb-properties": "workspace:*",
+		"pwb-page-parts": "workspace:*",
 		"pwb-property-embeds": "workspace:*",
 		"pwb-valuation": "workspace:*",
 		"react": "^19.2.4",
