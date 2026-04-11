@@ -13,25 +13,97 @@ const href = localePath(currentLocale, card.href)
 
 <article class="property-card">
   <a href={href} class="property-card__link" aria-label={card.title}>
-    {card.image
-      ? <img class="property-card__image" src={card.image} alt={card.title} loading="lazy" />
-      : <div class="property-card__image property-card__image--placeholder" aria-hidden="true" />
-    }
+    <div class="property-card__image-container">
+      {card.image
+        ? <img class="property-card__image" src={card.image} alt={card.title} loading="lazy" />
+        : <div class="property-card__image property-card__image--placeholder" aria-hidden="true" />
+      }
+      {card.featured && (
+        <span class="property-card__badge">{translateLabel(currentLocale, 'Featured')}</span>
+      )}
+    </div>
   </a>
 
-  {card.featured && (
-    <span class="property-card__badge">{translateLabel(currentLocale, 'Featured')}</span>
-  )}
-
   <div class="property-card__body">
-    {card.price && <p class="property-card__price">{card.price}</p>}
-    <h2 class="property-card__title">
-      <a href={href}>{card.title}</a>
-    </h2>
+    <div class="property-card__header">
+      {card.price && <p class="property-card__price">{card.price}</p>}
+      <h2 class="property-card__title">
+        <a href={href}>{card.title}</a>
+      </h2>
+    </div>
+    
     <ul class="property-card__meta">
-      {card.bedrooms != null && <li>{card.bedrooms} {translateLabel(currentLocale, 'bed')}</li>}
-      {card.bathrooms != null && <li>{card.bathrooms} {translateLabel(currentLocale, 'bath')}</li>}
-      {card.area && <li>{card.area}</li>}
+      {card.bedrooms != null && (
+        <li title={translateLabel(currentLocale, 'Bedrooms')}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+          <span>{card.bedrooms}</span>
+        </li>
+      )}
+      {card.bathrooms != null && (
+        <li title={translateLabel(currentLocale, 'Bathrooms')}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-1C4.3 2.4 3 3.5 3 5c0 .6.3 1.2.7 1.6l2.5 2.4"/><path d="M3 22h18c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2z"/><path d="M7 8.5V13"/><path d="M17 8.5V13"/><path d="M3 13h18"/></svg>
+          <span>{card.bathrooms}</span>
+        </li>
+      )}
+      {card.area && (
+        <li title={translateLabel(currentLocale, 'Area')}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>{card.area}</span>
+        </li>
+      )}
     </ul>
   </div>
 </article>
+
+<style>
+  .property-card__image-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .property-card__badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--color-accent);
+    color: #fff;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .property-card__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+  .property-card__title {
+    margin-top: 0.25rem;
+    line-height: 1.4;
+    font-family: var(--font-serif);
+  }
+  .property-card__meta {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+    display: flex;
+    gap: 1.5rem;
+  }
+  .property-card__meta li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+  .property-card__meta .icon {
+    color: var(--color-accent);
+    opacity: 0.8;
+  }
+</style>

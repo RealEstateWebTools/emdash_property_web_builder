@@ -72,38 +72,41 @@ const combinedFooterItems = [
 
 <style>
   .site-footer {
-    background: var(--color-bg-soft, #f8f9fa);
-    border-top: 1px solid var(--color-border, #e5e7eb);
-    margin-top: 4rem;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+    margin-top: 8rem;
+    position: relative;
   }
 
   .footer-inner {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 4rem 1.5rem 2rem;
+    padding: 6rem 1.5rem 3rem;
   }
 
   .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
-    gap: 3rem;
-    margin-bottom: 3rem;
+    gap: 4rem;
+    margin-bottom: 5rem;
   }
 
   .footer-logo {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-text, #1a1a2e);
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--color-primary);
     text-decoration: none;
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
   }
 
   .footer-heading {
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: var(--text-sm);
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted, #6b7280);
-    margin-bottom: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+    margin-bottom: 1.75rem;
   }
 
   .footer-links {
@@ -113,23 +116,25 @@ const combinedFooterItems = [
   }
 
   .footer-links li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.875rem;
   }
 
   .footer-links a {
-    color: var(--color-text-muted, #6b7280);
+    color: var(--color-text-muted);
     text-decoration: none;
-    font-size: 0.875rem;
-    transition: color 120ms ease;
+    font-size: var(--text-base);
+    transition: all 0.2s;
+    font-weight: 500;
   }
 
   .footer-links a:hover {
-    color: var(--color-primary, #1a4f8a);
+    color: var(--color-accent);
+    padding-left: 4px;
   }
 
   .footer-bottom {
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border, #e5e7eb);
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -138,38 +143,48 @@ const combinedFooterItems = [
   }
 
   .footer-copyright {
-    font-size: 0.875rem;
-    color: var(--color-text-muted, #6b7280);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
     margin: 0;
+    font-weight: 500;
   }
 
   .footer-github {
-    font-size: 0.875rem;
-    color: var(--color-text-muted, #6b7280);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
     text-decoration: none;
-    transition: color 120ms ease;
+    transition: color 0.2s;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .footer-github:hover {
-    color: var(--color-primary, #1a4f8a);
+    color: var(--color-primary);
   }
 
   @media (max-width: 900px) {
     .footer-grid {
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
+      gap: 3rem;
     }
     .footer-brand {
       grid-column: span 2;
+      margin-bottom: 1.5rem;
     }
   }
 
   @media (max-width: 640px) {
     .footer-grid {
       grid-template-columns: 1fr;
+      gap: 2.5rem;
     }
     .footer-brand {
       grid-column: span 1;
+    }
+    .footer-inner {
+      padding-top: 4rem;
     }
   }
 </style>

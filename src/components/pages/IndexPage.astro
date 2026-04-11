@@ -27,6 +27,10 @@ const cards = results.data.map(formatPropertyCard)
 
 <BaseLayout site={site} title={homepage?.data.title}>
   <section class="hero">
+    <div class="hero__image-wrapper">
+      <img src="/hero-bg.png" alt="Luxury Home" class="hero__image" />
+      <div class="hero__overlay"></div>
+    </div>
     <div class="hero__inner">
       <h1 class="hero__heading" {...homepage?.edit.title}>
         {homepage?.data.title ?? 'Find Your Dream Property'}
@@ -37,34 +41,58 @@ const cards = results.data.map(formatPropertyCard)
         </div>
       )}
       <div class="hero__actions">
-        <a href={localePath(locale, '/properties')} class="btn btn-hero-primary">{translateLabel(locale, 'Properties for Sale')}</a>
-        <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-hero-secondary">{translateLabel(locale, 'Properties for Rent')}</a>
-        <a href={localePath(locale, '/posts')} class="btn btn-hero-ghost">{translateLabel(locale, 'Read Market Insights')}</a>
+        <a href={localePath(locale, '/properties')} class="btn btn-hero-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          {translateLabel(locale, 'Properties for Sale')}
+        </a>
+        <a href={localePath(locale, '/properties?mode=rental')} class="btn btn-hero-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          {translateLabel(locale, 'Properties for Rent')}
+        </a>
       </div>
     </div>
-    <div class="hero__backdrop" aria-hidden="true"></div>
   </section>
 
   <div class="trust-bar">
     <div class="trust-bar__inner">
       <div class="trust-bar__item">
-        <span class="trust-bar__number">500+</span>
-        <span class="trust-bar__label">{translateLabel(locale, 'Properties Listed')}</span>
+        <div class="trust-bar__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div class="trust-bar__content">
+          <span class="trust-bar__number">500+</span>
+          <span class="trust-bar__label">{translateLabel(locale, 'Properties Listed')}</span>
+        </div>
       </div>
       <div class="trust-bar__divider"></div>
       <div class="trust-bar__item">
-        <span class="trust-bar__number">98%</span>
-        <span class="trust-bar__label">{translateLabel(locale, 'Client Satisfaction')}</span>
+        <div class="trust-bar__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="trust-bar__content">
+          <span class="trust-bar__number">98%</span>
+          <span class="trust-bar__label">{translateLabel(locale, 'Client Satisfaction')}</span>
+        </div>
       </div>
       <div class="trust-bar__divider"></div>
       <div class="trust-bar__item">
-        <span class="trust-bar__number">10+</span>
-        <span class="trust-bar__label">{translateLabel(locale, 'Years Experience')}</span>
+        <div class="trust-bar__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="trust-bar__content">
+          <span class="trust-bar__number">10+</span>
+          <span class="trust-bar__label">{translateLabel(locale, 'Years Experience')}</span>
+        </div>
       </div>
       <div class="trust-bar__divider"></div>
       <div class="trust-bar__item">
-        <span class="trust-bar__number">50+</span>
-        <span class="trust-bar__label">{translateLabel(locale, 'Expert Agents')}</span>
+        <div class="trust-bar__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="trust-bar__content">
+          <span class="trust-bar__number">50+</span>
+          <span class="trust-bar__label">{translateLabel(locale, 'Expert Agents')}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -89,164 +117,206 @@ const cards = results.data.map(formatPropertyCard)
   /* ── Hero ─────────────────────────────────────────────────────── */
   .hero {
     position: relative;
-    text-align: center;
-    padding: 6rem var(--spacing-page) 5rem;
-    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, var(--color-primary-light) 100%);
+    padding: 10rem var(--spacing-page) 10rem;
     overflow: hidden;
     color: #fff;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .hero__backdrop {
+  .hero__image-wrapper {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.06) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%);
-    pointer-events: none;
+    z-index: 0;
+  }
+  .hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8));
+    z-index: 1;
   }
   .hero__inner {
     position: relative;
-    z-index: 1;
-    max-width: 800px;
-    margin: 0 auto;
+    z-index: 10;
+    max-width: 900px;
+    text-align: center;
   }
   .hero__heading {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 700;
-    line-height: 1.15;
-    margin-bottom: 1.25rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 2rem;
     color: #fff;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
   .hero__tagline {
-    font-size: var(--text-lg);
-    color: rgba(255,255,255,0.85);
-    margin-bottom: 2.5rem;
-    max-width: 560px;
+    font-size: var(--text-xl);
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 3.5rem;
+    max-width: 650px;
     margin-left: auto;
     margin-right: auto;
     line-height: 1.6;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
   .hero__actions {
     display: flex;
-    gap: 0.875rem;
+    gap: 1.25rem;
     justify-content: center;
     flex-wrap: wrap;
   }
 
   .btn-hero-primary {
-    background: var(--color-accent, #e8a020);
+    background: var(--color-accent);
     color: #fff;
-    padding: 0.75rem 1.75rem;
+    padding: 1rem 2.5rem;
     border-radius: var(--radius-md);
     font-weight: 700;
-    font-size: var(--text-base);
+    font-size: var(--text-lg);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    transition: background 0.2s, transform 0.15s;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    gap: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.5);
   }
-  .btn-hero-primary:hover { background: #d4911a; transform: translateY(-1px); }
+  .btn-hero-primary:hover { 
+    background: #2563eb; 
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.6);
+  }
 
   .btn-hero-secondary {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.1);
     color: #fff;
-    padding: 0.75rem 1.75rem;
+    padding: 1rem 2.5rem;
     border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: var(--text-base);
+    font-weight: 700;
+    font-size: var(--text-lg);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    border: 1px solid rgba(255,255,255,0.35);
-    backdrop-filter: blur(4px);
-    transition: background 0.2s, transform 0.15s;
+    gap: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .btn-hero-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
-
-  .btn-hero-ghost {
-    background: transparent;
-    color: rgba(255,255,255,0.8);
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    font-size: var(--text-base);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    transition: color 0.2s;
+  .btn-hero-secondary:hover { 
+    background: rgba(255,255,255,0.2); 
+    transform: translateY(-3px);
+    border-color: #fff;
   }
-  .btn-hero-ghost:hover { color: #fff; text-decoration: underline; }
 
   /* ── Trust Bar ────────────────────────────────────────────────── */
   .trust-bar {
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    position: relative;
+    margin-top: -4rem;
+    z-index: 20;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
   }
   .trust-bar__inner {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 1.5rem var(--spacing-page);
-    display: flex;
+    padding: 3rem var(--spacing-page);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
     align-items: center;
-    justify-content: center;
     gap: 0;
-    flex-wrap: wrap;
   }
   .trust-bar__item {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 0.5rem 2.5rem;
+    gap: 1.25rem;
+    justify-content: center;
+  }
+  .trust-bar__icon {
+    width: 48px;
+    height: 48px;
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
   }
   .trust-bar__number {
+    display: block;
     font-size: var(--text-2xl);
     font-weight: 800;
     color: var(--color-primary);
-    line-height: 1.1;
+    line-height: 1;
   }
   .trust-bar__label {
+    display: block;
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-    margin-top: 0.2rem;
-    white-space: nowrap;
+    font-weight: 500;
+    margin-top: 0.25rem;
   }
   .trust-bar__divider {
     width: 1px;
-    height: 2.5rem;
+    height: 3rem;
     background: var(--color-border);
     flex-shrink: 0;
   }
 
   /* ── Featured Section ─────────────────────────────────────────── */
   .featured-section {
-    padding: 4rem var(--spacing-page);
+    padding: 8rem var(--spacing-page);
     background: var(--color-bg-soft);
   }
   .featured-section__header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .featured-section__header h2 {
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    color: var(--color-text);
-    margin-bottom: 0.5rem;
+    font-family: var(--font-serif);
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
   }
   .featured-section__subtitle {
-    font-size: var(--text-base);
+    font-size: var(--text-lg);
     color: var(--color-text-muted);
   }
   .featured-section__cta {
     text-align: center;
-    margin-top: 2.5rem;
+    margin-top: 5rem;
+  }
+
+  @media (max-width: 1024px) {
+    .trust-bar__inner {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2.5rem;
+    }
+    .trust-bar__divider { display: none; }
+    .trust-bar__item { justify-content: flex-start; }
   }
 
   @media (max-width: 640px) {
-    .trust-bar__item { padding: 0.5rem 1.25rem; }
-    .trust-bar__divider { display: none; }
-    .hero { padding: 4rem var(--spacing-page) 3.5rem; }
+    .trust-bar__inner {
+      grid-template-columns: 1fr;
+    }
+    .hero { min-height: 60vh; padding: 6rem var(--spacing-page) 4rem; }
+    .hero__heading { font-size: 3rem; }
+    .trust-bar { margin-top: 0; border-radius: 0; }
   }
 </style>

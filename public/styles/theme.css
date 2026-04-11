@@ -1,81 +1,90 @@
 /* ── Color Palette ──────────────────────────────────────────────── */
 :root {
-  --color-primary:       #1a4f8a;
-  --color-primary-light: #2d6cb8;
-  --color-primary-dark:  #0d3360;
-  --color-accent:        #e8a020;
-  --color-text:          #1a1a2e;
-  --color-text-muted:    #6b7280;
+  --color-primary:       #0f172a;
+  --color-primary-light: #1e293b;
+  --color-primary-dark:  #020617;
+  --color-accent:        #3b82f6;
+  --color-accent-soft:   rgba(59, 130, 246, 0.1);
+  --color-text:          #1e293b;
+  --color-text-muted:    #64748b;
   --color-bg:            #ffffff;
-  --color-bg-soft:       #f8f9fa;
-  --color-border:        #e5e7eb;
-  --color-success:       #16a34a;
-  --color-error:         #dc2626;
+  --color-bg-soft:       #f8fafc;
+  --color-border:        #e2e8f0;
+  --color-success:       #10b981;
+  --color-error:         #ef4444;
 
   /* ── Typography ─────────────────────────────────────────────────── */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-serif: 'Outfit', 'Playfair Display', Georgia, serif;
+  --text-xs:   0.75rem;
   --text-sm:   0.875rem;
   --text-base: 1rem;
   --text-lg:   1.125rem;
   --text-xl:   1.25rem;
   --text-2xl:  1.5rem;
   --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
 
   /* ── Spacing & Radius ───────────────────────────────────────────── */
-  --radius-sm:    4px;
-  --radius-md:    8px;
-  --radius-lg:    16px;
+  --radius-sm:    6px;
+  --radius-md:    12px;
+  --radius-lg:    24px;
   --spacing-page: 1.5rem;
 
-  /* ── Shadows ────────────────────────────────────────────────────── */
-  --shadow-card:  0 2px 8px rgba(0,0,0,0.08);
-  --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+  /* ── Shadows (Premium Elevation) ────────────────────────────────── */
+  --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card:  0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+  /* ── Glassmorphism ─────────────────────────────────────────────── */
+  --glass-bg:      rgba(255, 255, 255, 0.7);
+  --glass-border:  rgba(255, 255, 255, 0.18);
+  --glass-blur:    12px;
 
   /* ── Card layout ────────────────────────────────────────────────── */
-  /* Controls the structural layout of PropertyCard */
-  --card-direction:      column;          /* column = vertical card, row = horizontal */
-  --card-image-ratio:    16/9;            /* image aspect ratio */
-  --card-image-width:    100%;            /* image width (set to fixed px for row layout) */
-  --card-image-shrink:   0;              /* flex-shrink for image in row layout */
-  --card-body-padding:   1rem;
-  --card-hover-lift:     -2px;            /* translateY on hover — set 0 to disable */
+  --card-direction:      column;
+  --card-image-ratio:    4/3;
+  --card-image-width:    100%;
+  --card-image-shrink:   0;
+  --card-body-padding:   1.25rem;
+  --card-hover-lift:     -6px;
   --card-border-width:   1px;
   --card-border-style:   solid;
   --card-price-size:     var(--text-xl);
-  --card-title-size:     var(--text-base);
-  --card-meta-gap:       1rem;
+  --card-title-size:     var(--text-lg);
+  --card-meta-gap:       1.25rem;
 
   /* ── Grid layout ────────────────────────────────────────────────── */
-  --grid-columns:  repeat(auto-fill, minmax(280px, 1fr));
-  --grid-gap:      1.5rem;
+  --grid-columns:  repeat(auto-fill, minmax(320px, 1fr));
+  --grid-gap:      2rem;
   --grid-padding:  var(--spacing-page);
 
   /* ── Detail page ────────────────────────────────────────────────── */
   --detail-gallery-cols:     2fr 1fr 1fr;
-  --detail-gallery-gap:      0.5rem;
+  --detail-gallery-gap:      0.75rem;
   --detail-main-photo-rows:  span 2;
   --detail-specs-direction:  row;
-  --detail-specs-gap:        1.5rem;
-  --detail-price-size:       var(--text-2xl);
+  --detail-specs-gap:        2rem;
+  --detail-price-size:       var(--text-3xl);
 
   /* ── Header ─────────────────────────────────────────────────────── */
-  --header-bg:          var(--color-bg);
+  --header-bg:          var(--glass-bg);
   --header-border:      1px solid var(--color-border);
   --header-position:    sticky;
-  --header-padding-y:   0.75rem;
-  --header-logo-size:   var(--text-xl);
+  --header-padding-y:   1rem;
+  --header-logo-size:   var(--text-2xl);
 
-  /* Backward-compatible aliases used by legacy CMS page components */
-  --font-size-xs:       0.75rem;
+  /* Backward-compatible aliases */
+  --font-size-xs:       var(--text-xs);
   --font-size-sm:       var(--text-sm);
   --font-size-base:     var(--text-base);
   --font-size-lg:       var(--text-lg);
   --font-size-xl:       var(--text-xl);
   --font-size-2xl:      var(--text-2xl);
   --font-size-3xl:      var(--text-3xl);
-  --font-size-4xl:      clamp(2rem, 4vw, 2.5rem);
-  --font-size-5xl:      clamp(2.4rem, 5vw, 3.25rem);
+  --font-size-4xl:      var(--text-4xl);
+  --font-size-5xl:      clamp(2.4rem, 5vw, 3.5rem);
 
   --leading-tight:      1.2;
   --leading-snug:       1.35;
@@ -105,37 +114,35 @@
   --color-muted:        var(--color-text-muted);
   --color-border-subtle: color-mix(in srgb, var(--color-border) 60%, transparent);
   --color-surface:      var(--color-bg-soft);
-  --color-accent-hover: var(--color-primary-light);
+  --color-accent-hover: #2563eb;
   --color-on-accent:    #fff;
-  --color-accent-ring:  color-mix(in srgb, var(--color-primary) 25%, transparent);
+  --color-accent-ring:  rgba(59, 130, 246, 0.2);
 
-  --radius:             var(--radius-sm);
+  --radius:             var(--radius-md);
   --transition-fast:    120ms ease;
-  --transition-base:    180ms ease;
-  --shadow-dropdown:    var(--shadow-card);
+  --transition-base:    250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-dropdown:    var(--shadow-hover);
   --shadow-btn-active:  0 1px 2px rgba(0, 0, 0, 0.08);
 
-  --tag-padding-y:      0.15rem;
-  --avatar-size-xs:     18px;
-  --avatar-size-sm:     20px;
-  --avatar-size-md:     24px;
-  --avatar-size-lg:     32px;
+  --tag-padding-y:      0.25rem;
+  --avatar-size-xs:     24px;
+  --avatar-size-sm:     32px;
+  --avatar-size-md:     48px;
+  --avatar-size-lg:     64px;
 
-  --content-width:      680px;
-  --wide-width:         1200px;
-  --gutter-width:       220px;
-  --meta-col-width:     190px;
-  --nav-height:         64px;
+  --nav-height:         80px;
 }
 
-/* ── Dark mode (optional) ──────────────────────────────────────── */
+/* ── Dark mode (Premium Dark) ──────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-text:      #f1f5f9;
+    --color-text:      #f8fafc;
     --color-text-muted:#94a3b8;
-    --color-bg:        #0f172a;
-    --color-bg-soft:   #1e293b;
-    --color-border:    #334155;
+    --color-bg:        #020617;
+    --color-bg-soft:   #0f172a;
+    --color-border:    #1e293b;
+    --glass-bg:        rgba(15, 23, 42, 0.8);
+    --color-accent:    #3b82f6;
   }
 }
 

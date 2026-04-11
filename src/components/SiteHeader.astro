@@ -36,64 +36,181 @@ const combinedNavItems = [
   <div class="site-header__inner">
     <a href={localePath(currentLocale, '/')} class="site-header__logo">
       {site.logo_url
-        ? <img src={site.logo_url} alt={localizedBrand} height="40" />
+        ? <img src={site.logo_url} alt={localizedBrand} height="40" class="logo-image" />
         : <span class="site-header__title">{localizedBrand}</span>
       }
     </a>
 
-    <nav class="site-header__nav" aria-label="Main navigation">
-      {combinedNavItems.map(item => (
-        <a href={localePath(currentLocale, item.url)} target={item.target}>{item.label}</a>
-      ))}
-    </nav>
+    <button class="menu-toggle" aria-label="Toggle menu" id="menu-toggle">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="menu-icon"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="close-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
 
-  <div class="site-header__locales" aria-label="Language switcher">
-    {ALL_LOCALES.map((locale) => (
-      <a
-        href={localePath(locale, '/')}
-        class:list={['site-header__locale', { 'site-header__locale--active': locale === currentLocale }]}
-        aria-current={locale === currentLocale ? 'page' : undefined}
-      >
-        {localeLabel(locale)}
-      </a>
-    ))}
-  </div>
+    <div class="site-header__actions" id="nav-content">
+      <nav class="site-header__nav" aria-label="Main navigation">
+        {combinedNavItems.map(item => (
+          <a href={localePath(currentLocale, item.url)} target={item.target}>{item.label}</a>
+        ))}
+      </nav>
+
+      <div class="site-header__locales" aria-label="Language switcher">
+        {ALL_LOCALES.map((locale) => (
+          <a
+            href={localePath(locale, '/')}
+            class:list={['site-header__locale', { 'site-header__locale--active': locale === currentLocale }]}
+            aria-current={locale === currentLocale ? 'page' : undefined}
+          >
+            {localeLabel(locale)}
+          </a>
+        ))}
+      </div>
+    </div>
   </div>
 </header>
 
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const nav = document.getElementById('nav-content');
+  const body = document.body;
+
+  toggle?.addEventListener('click', () => {
+    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!isExpanded));
+    nav?.classList.toggle('is-open');
+    toggle.classList.toggle('is-active');
+    body.classList.toggle('menu-open');
+  });
+</script>
+
 <style>
   .site-header {
-    background: var(--color-bg);
+    background: var(--header-bg);
+    backdrop-filter: blur(var(--glass-blur));
     border-bottom: 1px solid var(--color-border);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    transition: background 0.3s ease;
   }
   .site-header__inner {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0.75rem var(--spacing-page);
+    padding: 0 var(--spacing-page);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 2rem;
   }
-  .site-header__logo { text-decoration: none; }
-  .site-header__title { font-size: var(--text-xl); font-weight: 700; color: var(--color-primary); }
-  .site-header__nav { display: flex; gap: 1.5rem; }
-  .site-header__nav a { text-decoration: none; color: var(--color-text); font-size: var(--text-sm); }
-  .site-header__nav a:hover { color: var(--color-primary); }
+  .site-header__logo { 
+    text-decoration: none; 
+    display: flex;
+    align-items: center;
+    z-index: 1001;
+  }
+  .site-header__title { 
+    font-size: var(--text-2xl); 
+    font-weight: 800; 
+    color: var(--color-primary);
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
+  }
+  .logo-image { height: 40px; width: auto; }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .site-header__nav { display: flex; gap: 2rem; }
+  .site-header__nav a { 
+    text-decoration: none; 
+    color: var(--color-text); 
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .site-header__nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-accent);
+    transition: width 0.3s ease;
+  }
+  .site-header__nav a:hover { color: var(--color-accent); }
+  .site-header__nav a:hover::after { width: 100%; }
+
   .site-header__locales { display: flex; gap: 0.5rem; }
   .site-header__locale {
     text-decoration: none;
     font-size: var(--text-xs);
-    color: var(--color-text-muted, var(--color-text));
-    padding: 0.25rem 0.5rem;
+    color: var(--color-text-muted);
+    padding: 0.35rem 0.75rem;
     border: 1px solid var(--color-border);
     border-radius: 999px;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .site-header__locale:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
   }
   .site-header__locale--active {
-    color: var(--color-primary);
+    color: #fff;
+    background: var(--color-primary);
     border-color: var(--color-primary);
+  }
+
+  /* Mobile Styles */
+  .menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+    transition: color 0.2s;
+  }
+  .menu-toggle .close-icon { display: none; }
+  .menu-toggle.is-active .menu-icon { display: none; }
+  .menu-toggle.is-active .close-icon { display: block; }
+
+  @media (max-width: 768px) {
+    .menu-toggle { display: block; }
+    .site-header__actions {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100vh;
+      background: var(--color-bg);
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      gap: 3rem;
+    }
+    .site-header__actions.is-open {
+      transform: translateX(0);
+    }
+    .site-header__nav {
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+    .site-header__nav a {
+      font-size: var(--text-xl);
+    }
   }
 </style>
