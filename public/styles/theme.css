@@ -1,21 +1,21 @@
 /* ── Color Palette ──────────────────────────────────────────────── */
 :root {
-  --color-primary:       #0f172a;
-  --color-primary-light: #1e293b;
-  --color-primary-dark:  #020617;
-  --color-accent:        #3b82f6;
-  --color-accent-soft:   rgba(59, 130, 246, 0.1);
-  --color-text:          #1e293b;
-  --color-text-muted:    #64748b;
+  --color-primary:       #930b27; /* Deep Red / Maroon */
+  --color-primary-light: #b41031;
+  --color-primary-dark:  #6a071c;
+  --color-accent:        #0066cc; /* Solid Blue Accent */
+  --color-accent-soft:   rgba(0, 102, 204, 0.1);
+  --color-text:          #2b2b2b;
+  --color-text-muted:    #6b7280;
   --color-bg:            #ffffff;
-  --color-bg-soft:       #f8fafc;
-  --color-border:        #e2e8f0;
+  --color-bg-soft:       #f9fafb;
+  --color-border:        #e5e7eb;
   --color-success:       #10b981;
-  --color-error:         #ef4444;
+  --color-error:         #dc2626;
 
   /* ── Typography ─────────────────────────────────────────────────── */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Outfit', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
   --text-xs:   0.75rem;
   --text-sm:   0.875rem;
   --text-base: 1rem;
@@ -26,21 +26,21 @@
   --text-4xl:  2.25rem;
 
   /* ── Spacing & Radius ───────────────────────────────────────────── */
-  --radius-sm:    6px;
-  --radius-md:    12px;
-  --radius-lg:    24px;
+  --radius-sm:    4px;
+  --radius-md:    8px;
+  --radius-lg:    16px;
   --spacing-page: 1.5rem;
 
-  /* ── Shadows (Premium Elevation) ────────────────────────────────── */
-  --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card:  0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  /* ── Shadows (Flat & Crisp Elevation) ───────────────────────────── */
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.06);
+  --shadow-card:  0 2px 10px rgba(0,0,0,0.08);
+  --shadow-hover: 0 12px 30px rgba(0,0,0,0.12);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
 
   /* ── Glassmorphism ─────────────────────────────────────────────── */
-  --glass-bg:      rgba(255, 255, 255, 0.7);
-  --glass-border:  rgba(255, 255, 255, 0.18);
-  --glass-blur:    12px;
+  --glass-bg:      rgba(255, 255, 255, 0.95);
+  --glass-border:  rgba(255, 255, 255, 0.1);
+  --glass-blur:    8px;
 
   /* ── Card layout ────────────────────────────────────────────────── */
   --card-direction:      column;
@@ -48,7 +48,7 @@
   --card-image-width:    100%;
   --card-image-shrink:   0;
   --card-body-padding:   1.25rem;
-  --card-hover-lift:     -6px;
+  --card-hover-lift:     -4px;
   --card-border-width:   1px;
   --card-border-style:   solid;
   --card-price-size:     var(--text-xl);
@@ -69,10 +69,11 @@
   --detail-price-size:       var(--text-3xl);
 
   /* ── Header ─────────────────────────────────────────────────────── */
-  --header-bg:          var(--glass-bg);
-  --header-border:      1px solid var(--color-border);
+  --header-bg:          #2a2a2a; /* Dark charcoal header */
+  --header-text:        #ffffff;
+  --header-border:      none;
   --header-position:    sticky;
-  --header-padding-y:   1rem;
+  --header-padding-y:   1.25rem;
   --header-logo-size:   var(--text-2xl);
 
   /* Backward-compatible aliases */
@@ -93,7 +94,7 @@
 
   --tracking-tight:     -0.02em;
   --tracking-snug:      -0.01em;
-  --tracking-wide:      0.08em;
+  --tracking-wide:      0.05em;
   --tracking-wider:     0.1em;
 
   --spacing-1:          0.25rem;
@@ -114,14 +115,14 @@
   --color-muted:        var(--color-text-muted);
   --color-border-subtle: color-mix(in srgb, var(--color-border) 60%, transparent);
   --color-surface:      var(--color-bg-soft);
-  --color-accent-hover: #2563eb;
+  --color-accent-hover: #0052a3;
   --color-on-accent:    #fff;
-  --color-accent-ring:  rgba(59, 130, 246, 0.2);
+  --color-accent-ring:  rgba(0, 102, 204, 0.2);
 
   --radius:             var(--radius-md);
-  --transition-fast:    120ms ease;
-  --transition-base:    250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-dropdown:    var(--shadow-hover);
+  --transition-fast:    150ms ease-in-out;
+  --transition-base:    250ms ease-in-out;
+  --shadow-dropdown:    var(--shadow-card);
   --shadow-btn-active:  0 1px 2px rgba(0, 0, 0, 0.08);
 
   --tag-padding-y:      0.25rem;
@@ -137,11 +138,11 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --color-text:      #f8fafc;
-    --color-text-muted:#94a3b8;
-    --color-bg:        #020617;
-    --color-bg-soft:   #0f172a;
-    --color-border:    #1e293b;
-    --glass-bg:        rgba(15, 23, 42, 0.8);
+    --color-text-muted:#9ca3af;
+    --color-bg:        #111827;
+    --color-bg-soft:   #1f2937;
+    --color-border:    #374151;
+    --glass-bg:        rgba(31, 41, 55, 0.95);
     --color-accent:    #3b82f6;
   }
 }
