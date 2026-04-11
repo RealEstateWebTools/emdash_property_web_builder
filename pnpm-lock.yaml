@@ -37,6 +37,9 @@ importers:
       emdash:
         specifier: ^0.1.0
         version: 0.1.0(patch_hash=f0a912258f468ffebe652ff4adfd443de06af60e77633cc9297850ec6fb9e166)(278cfc80116fa1acc56065c528ee6e70)
+      pwb-page-parts:
+        specifier: workspace:*
+        version: link:packages/plugins/pwb-page-parts
       pwb-properties:
         specifier: workspace:*
         version: link:packages/plugins/pwb-properties
@@ -77,6 +80,12 @@ importers:
       wrangler:
         specifier: ^4.79.0
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
+
+  packages/plugins/pwb-page-parts:
+    dependencies:
+      emdash:
+        specifier: '*'
+        version: 0.1.0(patch_hash=f0a912258f468ffebe652ff4adfd443de06af60e77633cc9297850ec6fb9e166)(278cfc80116fa1acc56065c528ee6e70)
 
   packages/plugins/pwb-properties:
     dependencies:
