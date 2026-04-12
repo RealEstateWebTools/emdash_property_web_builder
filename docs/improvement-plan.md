@@ -105,27 +105,24 @@ Current `translateLabel` / `translateBrand` ad-hoc objects in `locale.ts` will n
 
 ## 3. Feature Improvements
 
-### 3a. Breadcrumbs (emdash#414)
+### 3a. Breadcrumbs (emdash#414) — DONE
 
-Upgrade to `emdash@0.1.1` (merged 2026-04-11). Implement breadcrumbs on:
+Upgraded to `emdash@0.2.0` (latest, includes breadcrumbs). Implemented on:
 
 - Property detail: Home → Properties → [Property Title]
-- Blog post: Home → Blog → [Category] → [Post Title]
-- CMS page: Home → [Page Title]
-- Category/tag pages: Home → Blog → [Category Name]
-- Homepage, search, 404: pass `breadcrumbs: []` (explicit opt-out)
+- Property index: Home → Properties for Sale/Rent
+- Blog post: Home → Posts → [Post Title]
+- Posts index: Home → Posts
 
-Benefits: JSON-LD structured data for SEO, visual breadcrumb component.
+`BaseLayout.astro` renders `<nav aria-label="Breadcrumb">` when `breadcrumbs` prop is non-empty.
+`Base.astro` passes `breadcrumbs` to `createPublicPageContext` for plugin/SEO use (PR #414 API).
+Patch `patches/emdash@0.2.0.patch` re-applies 4 fixes: OAuth CF env, InlinePortableTextEditor plugin-block-attrs, locale-aware RecentPosts widget.
 
-**Before upgrading:** verify the existing `patches/emdash@0.1.0.patch` — check which hunks are now upstream in 0.1.1 and drop them. Document any remaining hunks.
+### 3b. Sitemap — DONE
 
-### 3b. Sitemap
+emdash 0.2.0 provides built-in `/sitemap.xml` (index), `/sitemap-[collection].xml` (per-collection), and `/robots.txt` routes — all registered automatically by the integration.
 
-No sitemap exists. Add `@astrojs/sitemap` wired to:
-- EmDash collection URLs (posts, pages)
-- Property URLs from PWB API
-
-Add `public/robots.txt` referencing `sitemap-index.xml`. Add a docs-validation test that verifies the reference exists.
+Added `src/pages/sitemap-properties.xml.ts` to cover PWB property listings (fetches up to 1000 properties via `searchProperties`, capped at 10 pages). Fails gracefully (empty sitemap) if PWB API is unavailable.
 
 ### 3c. Property Alert Sign-ups
 
@@ -185,9 +182,9 @@ Each hunk in `patches/emdash@0.1.0.patch` should be documented:
 | 5 | PWB page parts plugin test baseline | Medium | Low | **Done** (pre-existing) |
 | 6 | E2E Playwright setup | High | Medium | **Done** |
 | 7 | CI pipeline | High | Medium | **Done** |
-| 8 | Upgrade emdash 0.1.1 + breadcrumbs | Medium | Medium | Pending |
-| 9 | Component logic extraction + tests | Medium | Medium | Pending |
-| 10 | Sitemap | Low | Low | Pending |
+| 8 | Upgrade emdash 0.2.0 + breadcrumbs | Medium | Medium | **Done** |
+| 9 | Component logic extraction + tests | Medium | Medium | **Done** |
+| 10 | Sitemap | Low | Low | **Done** |
 | 11 | Property alert CTA (wire or remove) | Low | Low | Pending |
 | 12 | i18n consolidation | Low | High | Pending |
 | 13 | astro.config.mjs → .ts | Low | Low | Pending |
