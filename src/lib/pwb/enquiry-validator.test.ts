@@ -41,4 +41,23 @@ describe('validateEnquiry', () => {
     expect(result.valid).toBe(false)
     expect(result.errors.name).toBeDefined()
   })
+
+  it('reports all errors simultaneously when all fields invalid', () => {
+    const result = validateEnquiry({ name: '', email: 'bad', message: 'short' })
+    expect(result.valid).toBe(false)
+    expect(result.errors.name).toBeDefined()
+    expect(result.errors.email).toBeDefined()
+    expect(result.errors.message).toBeDefined()
+  })
+
+  it('accepts message of exactly 10 characters', () => {
+    const result = validateEnquiry({ name: 'Jane', email: 'jane@example.com', message: '1234567890' })
+    expect(result.valid).toBe(true)
+  })
+
+  it('rejects message of exactly 9 characters', () => {
+    const result = validateEnquiry({ name: 'Jane', email: 'jane@example.com', message: '123456789' })
+    expect(result.valid).toBe(false)
+    expect(result.errors.message).toMatch(/10 character/i)
+  })
 })

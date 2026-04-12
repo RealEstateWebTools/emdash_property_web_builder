@@ -17,9 +17,11 @@ export function buildPageMeta(
     title?: string
     description?: string
     canonical?: string
+    /** Override the site name used in page titles (e.g. "My Blog" for blog pages). */
+    siteTitle?: string
   } = {}
 ): PageMeta {
-  const siteName = translateBrand(overrides.locale ?? 'en', site.company_display_name ?? site.title)
+  const siteName = overrides.siteTitle ?? translateBrand(overrides.locale ?? 'en', site.company_display_name ?? site.title)
   const title = overrides.title ? `${overrides.title} | ${siteName}` : siteName
   const description = overrides.description ?? site.meta_description ?? ''
 

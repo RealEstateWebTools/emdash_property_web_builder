@@ -23,12 +23,14 @@ interface Props {
   description?: string
   canonical?: string
   alternateLinks?: Array<{ locale: string; href: string }>
+  /** Override site name in page titles (e.g. translateBrand(locale, "My Blog") for blog pages). */
+  siteTitle?: string
 }
 
-const { site, title, description, canonical, alternateLinks = [] } = Astro.props
+const { site, title, description, canonical, alternateLinks = [], siteTitle } = Astro.props
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const localizedSiteTitle = translateBrand(currentLocale, site.company_display_name ?? site.title)
-const meta = buildPageMeta(site, { locale: currentLocale, title, description, canonical })
+const meta = buildPageMeta(site, { locale: currentLocale, title, description, canonical, siteTitle })
 
 // Palette resolution: admin panel setting > PUBLIC_PALETTE env var > 'default'
 // The plugin stores its KV under key `plugin:pwb-theme:<key>` in the options table.

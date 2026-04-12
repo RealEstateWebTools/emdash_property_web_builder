@@ -18,7 +18,9 @@
 		"typecheck": "astro check",
 		"test": "vitest",
 		"test:run": "vitest run",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui"
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "^13.1.6",
@@ -29,8 +31,8 @@
 		"astro": "^6.1.2",
 		"better-sqlite3": "^12.8.0",
 		"emdash": "^0.1.0",
-		"pwb-properties": "workspace:*",
 		"pwb-page-parts": "workspace:*",
+		"pwb-properties": "workspace:*",
 		"pwb-property-embeds": "workspace:*",
 		"pwb-valuation": "workspace:*",
 		"react": "^19.2.4",
@@ -39,6 +41,7 @@
 	"devDependencies": {
 		"@astrojs/check": "^0.9.7",
 		"@cloudflare/workers-types": "^4.20260401.1",
+		"@playwright/test": "^1.59.1",
 		"@types/better-sqlite3": "^7.6.13",
 		"@vitest/coverage-v8": "^4.1.2",
 		"happy-dom": "^20.8.9",

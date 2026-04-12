@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { PwbClient } from './client'
+import { describe, it, expect, vi } from 'vitest'
+import { PwbClient, createPwbClient } from './client'
 
 const client = new PwbClient('http://localhost:3001')
 
@@ -121,5 +121,64 @@ describe('PwbClient error handling', () => {
       )
     )
     await expect(client.getSiteDetails()).rejects.toThrow('HTTP 521')
+  })
+
+  it('propagates network failures from getSiteDetails', async () => {
+    const { server } = await import('../../test/mocks/pwb-server')
+    const { http, HttpResponse } = await import('msw')
+    server.use(
+      http.get('http://localhost:3001/api_public/v1/en/site_details', () =>
+        HttpResponse.error()
+      )
+    )
+    await expect(client.getSiteDetails()).rejects.toThrow()
+  })
+
+  it('propagates network failures from getProperty', async () => {
+    const { server } = await import('../../test/mocks/pwb-server')
+    const { http, HttpResponse } = await import('msw')
+    server.use(
+      http.get('http://localhost:3001/api_public/v1/en/properties/:slug', () =>
+        HttpResponse.error()
+      )
+    )
+    await expect(client.getProperty('beautiful-villa-marbella')).rejects.toThrow()
+  })
+
+  it('getProperty throws with HTTP status message on 500', async () => {
+    const { server } = await import('../../test/mocks/pwb-server')
+    const { http, HttpResponse } = await import('msw')
+    server.use(
+      http.get('http://localhost:3001/api_public/v1/en/properties/:slug', () =>
+        new HttpResponse(null, { status: 500 })
+      )
+    )
+    await expect(client.getProperty('beautiful-villa-marbella')).rejects.toThrow('HTTP 500')
+  })
+
+  it('submitEnquiry returns errors array on 422 without throwing', async () => {
+    const result = await client.submitEnquiry({ name: 'Jane', email: '', message: 'hello' })
+    expect(result.success).toBe(false)
+    expect(Array.isArray(result.errors)).toBe(true)
+  })
+
+  it('submitEnquiry propagates network failures', async () => {
+    const { server } = await import('../../test/mocks/pwb-server')
+    const { http, HttpResponse } = await import('msw')
+    server.use(
+      http.post('http://localhost:3001/api_public/v1/enquiries', () =>
+        HttpResponse.error()
+      )
+    )
+    await expect(
+      client.submitEnquiry({ name: 'Jane', email: 'jane@example.com', message: 'Is this still available?' })
+    ).rejects.toThrow()
+  })
+})
+
+describe('createPwbClient', () => {
+  it('throws a clear error when PWB_API_URL is not set', () => {
+    // import.meta.env.PWB_API_URL is undefined in the test environment
+    expect(() => createPwbClient()).toThrow('PWB_API_URL')
   })
 })

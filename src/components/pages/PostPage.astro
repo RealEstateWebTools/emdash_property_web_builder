@@ -18,7 +18,7 @@ import TranslationLinks from "../TranslationLinks.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { getReadingTime } from "../../utils/reading-time";
-import { entrySlug, localePath, translateLabel } from "../../lib/locale";
+import { entrySlug, localePath, translateBrand, translateLabel } from "../../lib/locale";
 
 interface Props {
 	locale: string;
@@ -86,16 +86,19 @@ const publishDate =
 		month: "long",
 		day: "numeric",
 	}) ?? null;
+
+const postLayoutProps = post ? {
+	site,
+	siteTitle: translateBrand(locale, "My Blog"),
+	title: post.data.title,
+	description: post.data.excerpt ?? undefined,
+	canonical: canonicalHref ?? undefined,
+	alternateLinks,
+} : null;
 ---
 
-{post ? (
-	<BaseLayout
-		site={site}
-		title={post.data.title}
-		description={post.data.excerpt ?? undefined}
-		canonical={canonicalHref ?? undefined}
-		alternateLinks={alternateLinks}
-	>
+{post && postLayoutProps ? (
+	<BaseLayout {...postLayoutProps}>
 	<article class="article">
 		{
 			post.data.featured_image && (

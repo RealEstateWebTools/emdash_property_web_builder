@@ -2,11 +2,13 @@
 import { createPwbClient } from '../../lib/pwb/client'
 import { buildSearchParams } from '../../lib/pwb/search-params'
 import { formatPropertyCard } from '../../lib/pwb/formatters'
+import { fallbackSite } from '../../lib/pwb/fallback-site'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import SearchBar from '../SearchBar.astro'
 import PropertyGrid from '../PropertyGrid.astro'
 import MapView from '../MapView.astro'
 import { localePath, translateLabel } from '../../lib/locale'
+import type { SearchConfig, SearchResults, SearchFacets } from '../../lib/pwb/types'
 
 interface Props {
   locale: string
@@ -14,19 +16,26 @@ interface Props {
 
 const { locale } = Astro.props
 
-const client = createPwbClient(locale)
-const [site, config] = await Promise.all([
-  client.getSiteDetails(),
-  client.getSearchConfig(),
-])
+let site = fallbackSite
+let config: SearchConfig | null = null
+let results: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 12, total_pages: 0 } }
+let facets: SearchFacets | null = null
 
 const searchParams = buildSearchParams(Astro.url.searchParams)
 const mode = (Astro.url.searchParams.get('mode') ?? 'sale') as 'sale' | 'rental'
 
-const [results, facets] = await Promise.all([
-  client.searchProperties(searchParams),
-  client.getSearchFacets(mode),
-])
+try {
+  const client = createPwbClient(locale)
+  ;[
+    [site, config],
+    [results, facets],
+  ] = await Promise.all([
+    Promise.all([client.getSiteDetails(), client.getSearchConfig()]),
+    Promise.all([client.searchProperties(searchParams), client.getSearchFacets(mode)]),
+  ])
+} catch {
+  site = fallbackSite
+}
 
 const cards = results.data.map(formatPropertyCard)
 
