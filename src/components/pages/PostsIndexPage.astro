@@ -63,7 +63,7 @@ const noPostsLabel = translateLabel(locale, "No posts yet.");
 			<h1 class="page-title">{allPostsLabel}</h1>
 			<p class="page-description">
 				{posts.length}
-				{posts.length === 1 ? "article" : "articles"}
+				{translateLabel(locale, posts.length === 1 ? "article" : "articles")}
 			</p>
 			<p class="page-link-row">
 				<a href={localePath(locale, '/properties')}>{translateLabel(locale, 'Browse properties')}</a>

@@ -159,7 +159,7 @@ const isLoggedIn = !!Astro.locals.user;
 				<div class="footer-grid">
 					<div class="footer-brand">
 						<a href={localePath(currentLocale, '/')} class="footer-logo">{translateLabel(currentLocale, siteTitle)}</a>
-						<p class="footer-tagline">{currentLocale === 'es' ? 'Ideas, historias y contexto del mercado inmobiliario.' : currentLocale === 'fr' ? 'Idees, analyses et histoires autour de l\'immobilier.' : 'Thoughts, stories, and ideas.'}</p>
+						<p class="footer-tagline">{translateLabel(currentLocale, 'Thoughts, stories, and ideas.')}</p>
 					</div>
 					<div class="footer-nav">
 						<h4 class="footer-heading">{translateLabel(currentLocale, 'Navigate')}</h4>
@@ -197,7 +197,7 @@ const isLoggedIn = !!Astro.locals.user;
 									</li>
 								))
 							}
-							<li><a href={localePath(currentLocale, '/rss.xml')}>{currentLocale === 'es' ? 'Canal RSS' : currentLocale === 'fr' ? 'Flux RSS' : 'RSS Feed'}</a></li>
+							<li><a href={localePath(currentLocale, '/rss.xml')}>{translateLabel(currentLocale, 'RSS Feed')}</a></li>
 						</ul>
 					</div>
 					<div class="footer-widgets-section">

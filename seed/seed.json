@@ -201,30 +201,6 @@
 
 	"sections": [
 		{
-			"slug": "property-alerts",
-			"title": "Property Alerts",
-			"description": "A call-to-action block for property alert sign-ups",
-			"keywords": ["alerts", "subscribe", "email", "cta", "notifications"],
-			"source": "theme",
-			"content": [
-				{
-					"_type": "block",
-					"style": "h3",
-					"children": [{ "_type": "span", "text": "Never miss a property" }]
-				},
-				{
-					"_type": "block",
-					"style": "normal",
-					"children": [
-						{
-							"_type": "span",
-							"text": "Register for property alerts and be the first to hear about new listings that match your requirements."
-						}
-					]
-				}
-			]
-		},
-		{
 			"slug": "free-valuation",
 			"title": "Free Valuation",
 			"description": "Call-to-action for booking a free property valuation",

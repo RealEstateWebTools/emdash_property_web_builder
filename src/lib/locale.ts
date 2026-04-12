@@ -1,9 +1,9 @@
 /**
  * Locale validation and path helpers.
  *
- * Must stay in sync with the i18n block in astro.config.mjs.
+ * Must stay in sync with the i18n block in astro.config.ts.
  * When adding a new locale:
- *   1. Add it to i18n.locales in astro.config.mjs
+ *   1. Add it to i18n.locales in astro.config.ts
  *   2. Add it to SUPPORTED_LOCALES here
  *   3. Add a fallback in i18n.fallback if needed
  */
@@ -68,6 +68,10 @@ export function entrySlug(entryId: string): string {
 
 const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
   es: {
+    'Thoughts, stories, and ideas.': 'Ideas, historias y contexto del mercado inmobiliario.',
+    'RSS Feed': 'Canal RSS',
+    'article': 'artículo',
+    'articles': 'artículos',
     'Home': 'Inicio',
     'Properties for Sale': 'Propiedades en venta',
     'Properties for Rent': 'Propiedades en alquiler',
@@ -112,6 +116,10 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     'properties found': 'propiedades encontradas',
   },
   fr: {
+    'Thoughts, stories, and ideas.': 'Idees, analyses et histoires autour de l\'immobilier.',
+    'RSS Feed': 'Flux RSS',
+    'article': 'article',
+    'articles': 'articles',
     'Home': 'Accueil',
     'Properties for Sale': 'Biens a vendre',
     'Properties for Rent': 'Biens a louer',
