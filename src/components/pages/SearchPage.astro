@@ -4,7 +4,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
-import { getReadingTime, extractText } from "../../utils/reading-time";
+import { getReadingTime } from "../../utils/reading-time";
+import { matchesQuery, buildSearchSummary } from "../../lib/search/post-search";
 import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
@@ -24,19 +25,6 @@ try {
 	site = fallbackSite;
 }
 
-// Simple search: match query against title, excerpt, and content
-function matchesQuery(post: (typeof allPosts)[0], q: string): boolean {
-	if (!q) return false;
-	const lower = q.toLowerCase();
-	const title = (post.data.title || "").toLowerCase();
-	const excerpt = (post.data.excerpt || "").toLowerCase();
-	// Extract plain text from portable text blocks (avoids matching on _type, _key, etc.)
-	const content = extractText(post.data.content).toLowerCase();
-	return (
-		title.includes(lower) || excerpt.includes(lower) || content.includes(lower)
-	);
-}
-
 const results = query ? allPosts.filter((p) => matchesQuery(p, query)) : [];
 
 const searchAction = localePath(locale, '/search')
@@ -44,19 +32,7 @@ const searchLabel = translateLabel(locale, 'Search')
 const searchDescription = translateLabel(locale, 'Search blog posts')
 const searchPlaceholder = translateLabel(locale, 'Search posts...')
 const searchHint = translateLabel(locale, 'Enter a search term to find posts.')
-const searchSummary = query
-	? locale === 'es'
-		? results.length === 0
-			? `No hay resultados para "${query}"`
-			: `${results.length} resultado${results.length === 1 ? '' : 's'} para "${query}"`
-		: locale === 'fr'
-			? results.length === 0
-				? `Aucun resultat pour "${query}"`
-				: `${results.length} resultat${results.length === 1 ? '' : 's'} pour "${query}"`
-			: results.length === 0
-				? `No results for "${query}"`
-				: `${results.length} result${results.length === 1 ? '' : 's'} for "${query}"`
-	: null
+const searchSummary = buildSearchSummary(query, results.length, locale)
 ---
 
 <BaseLayout

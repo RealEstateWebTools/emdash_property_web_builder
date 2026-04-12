@@ -1,6 +1,7 @@
 ---
 import { createPwbClient } from '../../lib/pwb/client'
 import { formatPropertyDetail } from '../../lib/pwb/detail-formatter'
+import { htmlToMetaDescription } from '../../lib/pwb/formatters'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyDetail from '../PropertyDetail.astro'
@@ -46,7 +47,7 @@ const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
   <BaseLayout
     site={site}
     title={detail.title}
-    description={property.description?.replace(/<[^>]*>/g, '').slice(0, 160)}
+    description={htmlToMetaDescription(property.description)}
     canonical={new URL(canonicalPath, Astro.url.origin).href}
     breadcrumbs={[
       { name: translateLabel(locale, "Home"), url: localePath(locale, "/") },

@@ -1,5 +1,14 @@
 import type { PropertySummary } from './types'
 
+/**
+ * Strips HTML tags from a string and truncates to `maxLength` characters.
+ * Used to generate clean meta description text from HTML property descriptions.
+ */
+export function htmlToMetaDescription(html: string | null | undefined, maxLength = 160): string | null {
+  if (!html) return null
+  return html.replace(/<[^>]*>/g, '').slice(0, maxLength) || null
+}
+
 export interface PropertyCardData {
   id: number
   slug: string

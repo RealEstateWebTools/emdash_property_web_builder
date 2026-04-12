@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatPropertyCard } from './formatters'
+import { formatPropertyCard, htmlToMetaDescription } from './formatters'
 import type { PropertySummary } from './types'
 
 const rawProperty: PropertySummary = {
@@ -59,5 +59,38 @@ describe('formatPropertyCard', () => {
   it('marks highlighted properties', () => {
     const card = formatPropertyCard(rawProperty)
     expect(card.featured).toBe(true)
+  })
+})
+
+describe('htmlToMetaDescription', () => {
+  it('strips HTML tags', () => {
+    expect(htmlToMetaDescription('<p>Hello <strong>world</strong></p>')).toBe('Hello world')
+  })
+
+  it('truncates to 160 chars by default', () => {
+    const long = 'a'.repeat(200)
+    expect(htmlToMetaDescription(long)).toHaveLength(160)
+  })
+
+  it('respects a custom maxLength', () => {
+    expect(htmlToMetaDescription('Hello world', 5)).toBe('Hello')
+  })
+
+  it('returns null for null input', () => {
+    expect(htmlToMetaDescription(null)).toBeNull()
+  })
+
+  it('returns null for undefined input', () => {
+    expect(htmlToMetaDescription(undefined)).toBeNull()
+  })
+
+  it('returns null for empty string after stripping', () => {
+    expect(htmlToMetaDescription('<br/>')).toBeNull()
+  })
+
+  it('preserves plain text unchanged', () => {
+    expect(htmlToMetaDescription('A sea-view apartment in Marbella.')).toBe(
+      'A sea-view apartment in Marbella.',
+    )
   })
 })
