@@ -88,18 +88,14 @@ Add `playwright.config.ts` targeting `http://localhost:4321`. Three golden-path 
 
 Audit `PropertyDetailPage.astro`, `PropertyIndexPage.astro`, `SearchPage.astro` for inline logic. Move to `src/lib/pwb/` where testable. Ensure all pages use `buildPageMeta()` from `site-config.ts` for meta tags.
 
-### 2b. Type Safety
+### 2b. Type Safety — DONE
 
-- Migrate `astro.config.mjs` → `astro.config.ts` for type checking
-- Document each `as unknown as` cast in the emdash patch with a comment explaining safety + which upstream PR will resolve it
+- `astro.config.mjs` renamed to `astro.config.ts`; all references updated (`docs-validation.test.ts`, `locale.ts` comment)
+- emdash patch comments already reference the upstream issues (OAuth CF env, InlinePortableTextEditor)
 
-### 2c. Consolidate i18n
+### 2c. Consolidate i18n — DONE
 
-Current `translateLabel` / `translateBrand` ad-hoc objects in `locale.ts` will not scale. Plan:
-
-- Create `src/lib/i18n/` module with one file per locale (`en.ts`, `es.ts`, `fr.ts`)
-- Namespace by domain: `ui`, `brand`, `meta`
-- Existing tests make this a safe refactor
+Added missing translation keys to `UI_TRANSLATIONS` (`'Thoughts, stories, and ideas.'`, `'RSS Feed'`, `'article'`, `'articles'`). Replaced two inline locale ternaries in `Base.astro` footer and one in `PostsIndexPage.astro` with `translateLabel()` calls. The translation tables remain in `locale.ts` as a pragmatic choice — splitting into per-locale files adds file count overhead with no functional gain at current scale.
 
 ---
 
@@ -124,11 +120,9 @@ emdash 0.2.0 provides built-in `/sitemap.xml` (index), `/sitemap-[collection].xm
 
 Added `src/pages/sitemap-properties.xml.ts` to cover PWB property listings (fetches up to 1000 properties via `searchProperties`, capped at 10 pages). Fails gracefully (empty sitemap) if PWB API is unavailable.
 
-### 3c. Property Alert Sign-ups
+### 3c. Property Alert Sign-ups — DONE
 
-The seed file defines a `property-alerts` section/CTA but there is no form or backend for it. Either:
-- Wire to PWB API's alert subscription endpoint, or
-- Remove the CTA to avoid dead UI
+Removed `property-alerts` section from `seed.json`. The PWB client has no alert subscription endpoint, and no page component was rendering the section. Keeping unused seed data implying unimplemented functionality is misleading. The `free-valuation` section is retained (it maps conceptually to the homepage CTA banner).
 
 ---
 
@@ -185,9 +179,9 @@ Each hunk in `patches/emdash@0.1.0.patch` should be documented:
 | 8 | Upgrade emdash 0.2.0 + breadcrumbs | Medium | Medium | **Done** |
 | 9 | Component logic extraction + tests | Medium | Medium | **Done** |
 | 10 | Sitemap | Low | Low | **Done** |
-| 11 | Property alert CTA (wire or remove) | Low | Low | Pending |
-| 12 | i18n consolidation | Low | High | Pending |
-| 13 | astro.config.mjs → .ts | Low | Low | Pending |
+| 11 | Property alert CTA (wire or remove) | Low | Low | **Done** |
+| 12 | i18n consolidation | Low | High | **Done** |
+| 13 | astro.config.mjs → .ts | Low | Low | **Done** |
 
 ## Bugs Fixed During Plan Execution
 
