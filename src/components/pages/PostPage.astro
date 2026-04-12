@@ -94,6 +94,11 @@ const postLayoutProps = post ? {
 	description: post.data.excerpt ?? undefined,
 	canonical: canonicalHref ?? undefined,
 	alternateLinks,
+	breadcrumbs: [
+		{ name: translateLabel(locale, "Home"), url: localePath(locale, "/") },
+		{ name: translateLabel(locale, "Posts"), url: localePath(locale, "/posts") },
+		{ name: post.data.title ?? safeSlug ?? "", url: postPath },
+	],
 } : null;
 ---
 

@@ -48,6 +48,11 @@ const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
     title={detail.title}
     description={property.description?.replace(/<[^>]*>/g, '').slice(0, 160)}
     canonical={new URL(canonicalPath, Astro.url.origin).href}
+    breadcrumbs={[
+      { name: translateLabel(locale, "Home"), url: localePath(locale, "/") },
+      { name: translateLabel(locale, "Properties"), url: localePath(locale, "/properties") },
+      { name: detail.title, url: canonicalPath },
+    ]}
   >
     <div class="property-detail-page">
       <PropertyDetail detail={detail} />

@@ -49,7 +49,15 @@ const allPostsLabel = translateLabel(locale, "All Posts");
 const noPostsLabel = translateLabel(locale, "No posts yet.");
 ---
 
-<BaseLayout site={site} title={allPostsLabel} description="Browse all blog posts">
+<BaseLayout
+  site={site}
+  title={allPostsLabel}
+  description="Browse all blog posts"
+  breadcrumbs={[
+    { name: translateLabel(locale, "Home"), url: localePath(locale, "/") },
+    { name: allPostsLabel, url: localePath(locale, "/posts") },
+  ]}
+>
 	<div class="posts-page">
 		<header class="page-header">
 			<h1 class="page-title">{allPostsLabel}</h1>

@@ -30,7 +30,7 @@
 		"@emdash-cms/plugin-webhook-notifier": "^0.1.0",
 		"astro": "^6.1.2",
 		"better-sqlite3": "^12.8.0",
-		"emdash": "^0.1.0",
+		"emdash": "^0.2.0",
 		"pwb-page-parts": "workspace:*",
 		"pwb-properties": "workspace:*",
 		"pwb-property-embeds": "workspace:*",
@@ -55,7 +55,7 @@
 			"better-sqlite3"
 		],
 		"patchedDependencies": {
-			"emdash@0.1.0": "patches/emdash@0.1.0.patch"
+			"emdash@0.2.0": "patches/emdash@0.2.0.patch"
 		}
 	}
 }

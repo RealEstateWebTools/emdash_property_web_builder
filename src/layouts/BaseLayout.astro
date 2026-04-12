@@ -3,6 +3,7 @@ import { buildPageMeta } from '../lib/pwb/site-config'
 import SiteHeader from '../components/SiteHeader.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
+import type { BreadcrumbItem } from 'emdash'
 import {
   buildThemeStyleOverrides,
   DEFAULT_THEME_SETTINGS,
@@ -25,9 +26,11 @@ interface Props {
   alternateLinks?: Array<{ locale: string; href: string }>
   /** Override site name in page titles (e.g. translateBrand(locale, "My Blog") for blog pages). */
   siteTitle?: string
+  /** Breadcrumb trail. undefined = no breadcrumbs rendered; [] = empty (opt-out); non-empty = rendered. */
+  breadcrumbs?: BreadcrumbItem[]
 }
 
-const { site, title, description, canonical, alternateLinks = [], siteTitle } = Astro.props
+const { site, title, description, canonical, alternateLinks = [], siteTitle, breadcrumbs } = Astro.props
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const localizedSiteTitle = translateBrand(currentLocale, site.company_display_name ?? site.title)
 const meta = buildPageMeta(site, { locale: currentLocale, title, description, canonical, siteTitle })
@@ -132,6 +135,20 @@ const themeOverrides = buildThemeStyleOverrides(themeSettings)
   </head>
   <body>
     <SiteHeader site={site} />
+    {breadcrumbs && breadcrumbs.length > 0 && (
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <ol class="breadcrumb-list">
+          {breadcrumbs.map((crumb, i) => (
+            <li class="breadcrumb-item">
+              {i < breadcrumbs.length - 1
+                ? <a href={crumb.url} class="breadcrumb-link">{crumb.name}</a>
+                : <span aria-current="page" class="breadcrumb-current">{crumb.name}</span>
+              }
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
     <main>
       <slot />
     </main>

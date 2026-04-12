@@ -24,6 +24,8 @@ interface Props {
 	/** Pass content reference for plugin page contributions on content pages */
 	content?: { collection: string; id: string; slug?: string | null };
 	alternateLinks?: Array<{ locale: string; href: string }>;
+	/** Breadcrumb trail for plugins/SEO. undefined = let plugins derive; [] = opt-out; non-empty = used verbatim. */
+	breadcrumbs?: import("emdash").BreadcrumbItem[];
 }
 
 const {
@@ -38,6 +40,7 @@ const {
 	author,
 	content,
 	alternateLinks = [],
+	breadcrumbs,
 } = Astro.props;
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE;
 const siteTitle = translateBrand(currentLocale, "My Blog");
@@ -64,6 +67,7 @@ const pageCtx = createPublicPageContext({
 	seo: { ogImage: image, robots },
 	articleMeta: { publishedTime, modifiedTime, author },
 	siteName: siteTitle,
+	breadcrumbs,
 });
 
 // Check if user is logged in (for showing admin link)

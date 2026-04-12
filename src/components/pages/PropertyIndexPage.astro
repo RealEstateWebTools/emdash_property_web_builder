@@ -49,6 +49,10 @@ function buildPageHref(page: number): string {
 <BaseLayout
   site={site}
   title={translateLabel(locale, mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale')}
+  breadcrumbs={[
+    { name: translateLabel(locale, "Home"), url: localePath(locale, "/") },
+    { name: translateLabel(locale, mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale'), url: localePath(locale, "/properties") },
+  ]}
 >
   <div class="search-page">
     <SearchBar
