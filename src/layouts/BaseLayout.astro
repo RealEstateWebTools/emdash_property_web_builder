@@ -6,14 +6,8 @@ import type { SiteDetails } from '../lib/pwb/types'
 import type { BreadcrumbItem } from 'emdash'
 import {
   applySiteProfileToSite,
-  DEFAULT_SITE_PROFILE_SETTINGS,
-  SITE_PROFILE_BRAND_NAME_KV_KEY,
-  SITE_PROFILE_OFFICE_ADDRESS_KV_KEY,
-  SITE_PROFILE_OFFICE_EMAIL_KV_KEY,
-  SITE_PROFILE_OFFICE_PHONE_KV_KEY,
-  SITE_PROFILE_TAGLINE_KV_KEY,
+  readSiteProfileSettingsFromDb,
   type SiteProfileSettings,
-  sanitizeSiteProfileSettings,
 } from '../lib/site-profile.js'
 import {
   buildThemeStyleOverrides,
@@ -47,8 +41,9 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 // Palette resolution: admin panel setting > PUBLIC_PALETTE env var > 'default'
 // The plugin stores its KV under key `plugin:pwb-theme:<key>` in the options table.
 let themeSettings = DEFAULT_THEME_SETTINGS
-let siteProfile: SiteProfileSettings = DEFAULT_SITE_PROFILE_SETTINGS
+let siteProfile: SiteProfileSettings
 const db = Astro.locals.emdash?.db
+siteProfile = await readSiteProfileSettingsFromDb(db)
 if (db) {
   try {
     const rows = await (db as any)
@@ -60,11 +55,6 @@ if (db) {
         `plugin:pwb-theme:${THEME_SURFACE_KV_KEY}`,
         `plugin:pwb-theme:${THEME_MOTION_KV_KEY}`,
         `plugin:pwb-theme:${THEME_HEADER_KV_KEY}`,
-        `plugin:site-profile:${SITE_PROFILE_BRAND_NAME_KV_KEY}`,
-        `plugin:site-profile:${SITE_PROFILE_TAGLINE_KV_KEY}`,
-        `plugin:site-profile:${SITE_PROFILE_OFFICE_ADDRESS_KV_KEY}`,
-        `plugin:site-profile:${SITE_PROFILE_OFFICE_PHONE_KV_KEY}`,
-        `plugin:site-profile:${SITE_PROFILE_OFFICE_EMAIL_KV_KEY}`,
       ])
       .execute()
 
@@ -81,13 +71,6 @@ if (db) {
       surface: rawSettings.surface,
       motion: rawSettings.motion,
       header: rawSettings.header,
-    })
-    siteProfile = sanitizeSiteProfileSettings({
-      brandName: rawSettings.brand_name,
-      tagline: rawSettings.tagline,
-      officeAddress: rawSettings.office_address,
-      officePhone: rawSettings.office_phone,
-      officeEmail: rawSettings.office_email,
     })
   } catch {
     // Plugin not yet installed or DB unavailable — fall through to env var

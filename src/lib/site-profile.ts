@@ -45,3 +45,39 @@ export function applySiteProfileToSite(site: SiteDetails, profile: SiteProfileSe
     company_display_name: profile.brandName,
   }
 }
+
+export async function readSiteProfileSettingsFromDb(db: any): Promise<SiteProfileSettings> {
+  if (!db) return DEFAULT_SITE_PROFILE_SETTINGS
+
+  try {
+    const rows = await db
+      .selectFrom('options')
+      .select(['name', 'value'])
+      .where('name', 'in', [
+        `plugin:site-profile:${SITE_PROFILE_BRAND_NAME_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_TAGLINE_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_OFFICE_ADDRESS_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_OFFICE_PHONE_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_OFFICE_EMAIL_KV_KEY}`,
+      ])
+      .execute()
+
+    const rawSettings = Object.fromEntries(
+      rows.map((row: { name: string; value: unknown }) => {
+        const key = row.name.split(':').slice(-1)[0]
+        const parsed = typeof row.value === 'string' ? JSON.parse(row.value) : null
+        return [key, parsed]
+      }),
+    )
+
+    return sanitizeSiteProfileSettings({
+      brandName: rawSettings.brand_name,
+      tagline: rawSettings.tagline,
+      officeAddress: rawSettings.office_address,
+      officePhone: rawSettings.office_phone,
+      officeEmail: rawSettings.office_email,
+    })
+  } catch {
+    return DEFAULT_SITE_PROFILE_SETTINGS
+  }
+}
