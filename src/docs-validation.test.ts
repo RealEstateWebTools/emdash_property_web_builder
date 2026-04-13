@@ -53,7 +53,6 @@ function collectMarkdownFiles(dir: string): string[] {
 function extractPnpmCommands(content: string, filePath: string) {
   const results: Array<{ script: string; command: string; file: string; lineNum: number }> = []
   const codeBlockRe = /```(?:bash|sh|shell)?\n([\s\S]*?)```/g
-  const lines = content.split('\n')
 
   let match: RegExpExecArray | null
   while ((match = codeBlockRe.exec(content)) !== null) {

@@ -12,7 +12,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 const ROOT = resolve(process.cwd())
 
@@ -20,16 +20,6 @@ function readSource(relativePath: string) {
   return readFileSync(resolve(ROOT, relativePath), 'utf8')
 }
 
-/** Reads the route file AND the shared page component it delegates to (if any). */
-function readRouteAndSharedPageSource(relativePath: string) {
-  const routeSource = readSource(relativePath)
-  const sharedPageImport = routeSource.match(/from ['"](.+components\/pages\/.+\.astro)['"]/)?.[1]
-  if (!sharedPageImport) return routeSource
-
-  const sharedPagePath = resolve(ROOT, dirname(relativePath), sharedPageImport)
-  const sharedPageSource = readFileSync(sharedPagePath, 'utf8')
-  return `${routeSource}\n${sharedPageSource}`
-}
 
 // ─── PWB resilience pattern ───────────────────────────────────────────────────
 

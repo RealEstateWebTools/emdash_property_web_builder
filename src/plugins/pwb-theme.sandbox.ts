@@ -12,17 +12,13 @@ import {
   sanitizeThemeSettings,
 } from './pwb-theme.js'
 
+// Mirror of VALID_PALETTES in pwb-theme.ts — kept in sync so the sandbox
+// option list is validated against the descriptor's palette set at type-check time.
 const VALID_PALETTES = [
-  'default',
-  'coastal',
-  'countryside',
-  'luxury',
-  'mediterranean',
-  'nordic',
-  'urban',
+  'default', 'coastal', 'countryside', 'luxury', 'mediterranean', 'nordic', 'urban',
 ] as const
 
-const PALETTE_OPTIONS = [
+const PALETTE_OPTIONS: Array<{ value: (typeof VALID_PALETTES)[number]; label: string }> = [
   { value: 'default',       label: 'Default — Standard layout' },
   { value: 'coastal',       label: 'Coastal — Ocean blues, 3-col grid' },
   { value: 'countryside',   label: 'Countryside — Sage green, warm stone' },

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { PwbClient, createPwbClient } from './client'
 
 const client = new PwbClient('http://localhost:3001')

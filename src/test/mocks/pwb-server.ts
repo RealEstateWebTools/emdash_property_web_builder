@@ -8,7 +8,6 @@ import searchConfig from '../fixtures/search-config.json'
 import page from '../fixtures/page.json'
 
 const BASE = 'http://localhost:3001/api_public/v1'
-const LBASE = `${BASE}/:locale`
 
 export const handlers = [
   // Localized endpoints (new path structure with locale prefix)
