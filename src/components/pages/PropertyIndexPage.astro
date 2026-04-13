@@ -38,6 +38,13 @@ try {
 }
 
 const cards = results.data.map(formatPropertyCard)
+const pageTitle = translateLabel(locale, mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale')
+const introCopy = translateLabel(
+  locale,
+  mode === 'rental'
+    ? 'Explore rental homes with stronger locations, better presentation, and clearer filtering.'
+    : 'Explore homes for sale with better presentation, selective curation, and faster shortlist building.'
+)
 
 function buildPageHref(page: number): string {
   const params = new URLSearchParams(Astro.url.searchParams)
@@ -48,13 +55,31 @@ function buildPageHref(page: number): string {
 
 <BaseLayout
   site={site}
-  title={translateLabel(locale, mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale')}
+  title={pageTitle}
   breadcrumbs={[
     { name: translateLabel(locale, "Home"), url: localePath(locale, "/") },
-    { name: translateLabel(locale, mode === 'rental' ? 'Properties for Rent' : 'Properties for Sale'), url: localePath(locale, "/properties") },
+    { name: pageTitle, url: localePath(locale, "/properties") },
   ]}
 >
-  <div class="search-page">
+  <section class="search-page">
+    <div class="search-page__hero">
+      <div class="search-page__hero-copy">
+        <p class="search-page__eyebrow">{translateLabel(locale, mode === 'rental' ? 'Rental collection' : 'Property collection')}</p>
+        <h1>{pageTitle}</h1>
+        <p>{introCopy}</p>
+      </div>
+      <div class="search-page__hero-stats">
+        <div>
+          <strong>{results.meta.total}</strong>
+          <span>{translateLabel(locale, 'properties found')}</span>
+        </div>
+        <div>
+          <strong>{results.meta.total_pages}</strong>
+          <span>{translateLabel(locale, 'Search results pages')}</span>
+        </div>
+      </div>
+    </div>
+
     <SearchBar
       config={config}
       facets={facets}
@@ -62,32 +87,192 @@ function buildPageHref(page: number): string {
       mode={mode}
     />
 
-    <div class="search-results">
-      <p class="result-count">{results.meta.total} {translateLabel(locale, 'properties found')}</p>
-      <PropertyGrid cards={cards} />
+    <div class="search-page__content">
+      <section class="search-results">
+        <div class="search-results__toolbar">
+          <p class="result-count">{results.meta.total} {translateLabel(locale, 'properties found')}</p>
+          <p class="search-results__meta">
+            {translateLabel(locale, mode === 'rental' ? 'Rental homes with stronger presentation.' : 'For-sale homes with stronger presentation.')}
+          </p>
+        </div>
 
-      {results.meta.total_pages > 1 && (
-        <nav class="pagination" aria-label={translateLabel(locale, 'Search results pages')}>
-          {Array.from({ length: results.meta.total_pages }, (_, i) => i + 1).map((page) => (
-            <a
-              href={buildPageHref(page)}
-              class={page === results.meta.page ? 'active' : ''}
-              aria-current={page === results.meta.page ? 'page' : undefined}
-            >
-              {page}
-            </a>
-          ))}
-        </nav>
+        <PropertyGrid cards={cards} />
+
+        {results.meta.total_pages > 1 && (
+          <nav class="pagination" aria-label={translateLabel(locale, 'Search results pages')}>
+            {Array.from({ length: results.meta.total_pages }, (_, i) => i + 1).map((page) => (
+              <a
+                href={buildPageHref(page)}
+                class={page === results.meta.page ? 'active' : ''}
+                aria-current={page === results.meta.page ? 'page' : undefined}
+              >
+                {page}
+              </a>
+            ))}
+          </nav>
+        )}
+      </section>
+
+      {results.map_markers.length > 0 && (
+        <aside class="search-page__map-panel">
+          <div class="search-page__map-copy">
+            <p class="search-page__eyebrow">{translateLabel(locale, 'Map overview')}</p>
+            <h2>{translateLabel(locale, 'Browse the market geographically')}</h2>
+            <p>{translateLabel(locale, 'Use the map to understand location clusters, coastal options, and neighborhood density before narrowing your shortlist further.')}</p>
+          </div>
+          <MapView markers={results.map_markers} />
+        </aside>
       )}
     </div>
-
-    {results.map_markers.length > 0 && (
-      <MapView markers={results.map_markers} />
-    )}
-  </div>
+  </section>
 </BaseLayout>
 
 <style>
-  .search-page { max-width: 1200px; margin: 0 auto; }
-  .result-count { padding: 1rem var(--spacing-page); color: var(--color-text-muted); }
+  .search-page {
+    width: min(100%, 76rem);
+    margin: 0 auto;
+    padding: var(--space-section-sm) var(--spacing-page) var(--space-section-lg);
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .search-page__hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    align-items: end;
+  }
+
+  .search-page__hero-copy {
+    max-width: 42rem;
+  }
+
+  .search-page__eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .search-page__hero h1,
+  .search-page__map-copy h2 {
+    margin: 0 0 0.9rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 5vw, 4.1rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    color: var(--color-primary);
+  }
+
+  .search-page__hero p,
+  .search-page__map-copy p,
+  .search-results__meta {
+    color: var(--color-text-soft);
+    line-height: 1.75;
+    font-size: var(--text-lg);
+  }
+
+  .search-page__hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: rgba(22, 53, 76, 0.08);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    min-width: 18rem;
+  }
+
+  .search-page__hero-stats div {
+    padding: 1.1rem 1.2rem;
+    background: var(--color-surface-strong);
+  }
+
+  .search-page__hero-stats strong {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+
+  .search-page__hero-stats span {
+    color: var(--color-text-soft);
+    font-size: var(--text-sm);
+  }
+
+  .search-page__content {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .search-results {
+    background: var(--color-surface-strong);
+    border: 1px solid rgba(22, 53, 76, 0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .search-results__toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 1.35rem var(--spacing-page) 0.25rem;
+  }
+
+  .result-count {
+    margin: 0;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: var(--text-lg);
+  }
+
+  .search-results__meta {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .search-results :global(.property-grid) {
+    padding-top: 1rem;
+  }
+
+  .search-page__map-panel {
+    background:
+      linear-gradient(180deg, rgba(244, 238, 228, 0.86), rgba(252, 250, 247, 0.94)),
+      var(--color-bg-soft);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(22, 53, 76, 0.08);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+  }
+
+  .search-page__map-copy {
+    margin-bottom: 1rem;
+    max-width: 40rem;
+  }
+
+  .search-page__map-copy h2 {
+    font-size: clamp(1.9rem, 3vw, 2.8rem);
+  }
+
+  .search-page__map-panel :global(.map-view) {
+    margin: 0;
+    min-height: 28rem;
+  }
+
+  @media (max-width: 900px) {
+    .search-page__hero,
+    .search-results__toolbar {
+      flex-direction: column;
+      align-items: start;
+    }
+
+    .search-page__hero-stats {
+      width: 100%;
+      min-width: 0;
+    }
+  }
 </style>

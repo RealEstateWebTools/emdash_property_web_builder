@@ -158,3 +158,62 @@ const themeOverrides = buildThemeStyleOverrides(themeSettings)
     <SiteFooter siteTitle={localizedSiteTitle} />
   </body>
 </html>
+
+<style>
+  .breadcrumb-nav {
+    width: min(100%, 76rem);
+    margin: 0 auto;
+    padding: 1rem var(--spacing-page) 0;
+  }
+
+  .breadcrumb-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .breadcrumb-item:not(:last-child)::after {
+    content: '/';
+    color: rgba(22, 53, 76, 0.32);
+  }
+
+  .breadcrumb-link,
+  .breadcrumb-current {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .breadcrumb-link {
+    color: var(--color-text-soft);
+    background: rgba(22, 53, 76, 0.04);
+  }
+
+  .breadcrumb-link:hover {
+    color: var(--color-primary);
+    background: rgba(22, 53, 76, 0.08);
+  }
+
+  .breadcrumb-current {
+    color: var(--color-primary);
+    background: rgba(185, 138, 78, 0.12);
+    max-width: min(100%, 36rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

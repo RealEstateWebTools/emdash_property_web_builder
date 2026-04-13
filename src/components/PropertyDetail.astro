@@ -1,54 +1,266 @@
 ---
 import type { PropertyDetailData } from '../lib/pwb/detail-formatter'
+import { DEFAULT_LOCALE, translateLabel } from '../lib/locale'
 
 interface Props {
   detail: PropertyDetailData
 }
 
 const { detail } = Astro.props
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const statusLabel = detail.forSale
+  ? translateLabel(currentLocale, 'For sale')
+  : detail.forRent
+    ? translateLabel(currentLocale, 'For rent')
+    : translateLabel(currentLocale, 'Property')
+
+const facts = [
+  detail.bedrooms != null ? { value: String(detail.bedrooms), label: translateLabel(currentLocale, 'Bedrooms') } : null,
+  detail.bathrooms != null ? { value: String(detail.bathrooms), label: translateLabel(currentLocale, 'Bathrooms') } : null,
+  detail.garages != null ? { value: String(detail.garages), label: translateLabel(currentLocale, 'Garages') } : null,
+  detail.area ? { value: detail.area, label: translateLabel(currentLocale, 'Area') } : null,
+].filter(Boolean)
 ---
 
 <article class="property-detail">
-  <!-- Photo gallery -->
-  {detail.photos.length > 0 && (
-    <div class="property-detail__gallery">
-      {detail.photos.map((photo, i) => (
-        <img
-          src={photo.url}
-          alt={photo.alt ?? `${detail.title} photo ${i + 1}`}
-          class={i === 0 ? 'property-detail__photo--main' : 'property-detail__photo'}
-          loading={i === 0 ? 'eager' : 'lazy'}
-        />
-      ))}
-    </div>
-  )}
-
   <div class="property-detail__content">
     <header class="property-detail__header">
-      {detail.featured && <span class="property-card__badge">Featured</span>}
-      <h1 class="property-detail__title">{detail.title}</h1>
+      <div class="property-detail__header-main">
+        <div class="property-detail__badges">
+          <span class="property-detail__status">{statusLabel}</span>
+          {detail.featured && <span class="property-detail__featured">{translateLabel(currentLocale, 'Featured')}</span>}
+        </div>
+        <h1 class="property-detail__title">{detail.title}</h1>
+        {detail.fullAddress && <p class="property-detail__address">{detail.fullAddress}</p>}
+      </div>
       {detail.price && <p class="property-detail__price">{detail.price}</p>}
-      <p class="property-detail__address">{detail.fullAddress}</p>
     </header>
 
-    <ul class="property-detail__specs">
-      {detail.bedrooms != null && (
-        <li><strong>{detail.bedrooms}</strong> Bedrooms</li>
-      )}
-      {detail.bathrooms != null && (
-        <li><strong>{detail.bathrooms}</strong> Bathrooms</li>
-      )}
-      {detail.garages != null && (
-        <li><strong>{detail.garages}</strong> Garages</li>
-      )}
-      {detail.area && (
-        <li><strong>{detail.area}</strong> Built</li>
-      )}
-      <li><strong>{detail.propertyTypeLabel}</strong></li>
-    </ul>
+    <section class="property-detail__facts" aria-label={translateLabel(currentLocale, 'Property overview')}>
+      {facts.map((fact) => fact && (
+        <article class="property-detail__fact">
+          <strong>{fact.value}</strong>
+          <span>{fact.label}</span>
+        </article>
+      ))}
+      <article class="property-detail__fact">
+        <strong>{detail.propertyTypeLabel}</strong>
+        <span>{translateLabel(currentLocale, 'Property type')}</span>
+      </article>
+    </section>
 
     {detail.description && (
-      <div class="property-detail__description" set:html={detail.description} />
+      <section class="property-detail__narrative">
+        <p class="property-detail__eyebrow">{translateLabel(currentLocale, 'Overview')}</p>
+        <div class="property-detail__description" set:html={detail.description} />
+      </section>
     )}
   </div>
+
+  {detail.photos.length > 0 && (
+    <section class="property-detail__hero">
+      <div class="property-detail__gallery">
+        {detail.photos.map((photo, i) => (
+          <img
+            src={photo.url}
+            alt={photo.alt ?? `${detail.title} photo ${i + 1}`}
+            class={i === 0 ? 'property-detail__photo--main' : 'property-detail__photo'}
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+        ))}
+      </div>
+    </section>
+  )}
 </article>
+
+<style>
+  .property-detail {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .property-detail__hero,
+  .property-detail__content {
+    background: var(--color-surface-strong);
+    border: 1px solid rgba(22, 53, 76, 0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .property-detail__gallery {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr 1fr;
+    gap: 0.4rem;
+    background: rgba(22, 53, 76, 0.06);
+    padding: 0.4rem;
+  }
+
+  .property-detail__photo--main {
+    grid-row: span 2;
+    width: 100%;
+    height: 100%;
+    min-height: 30rem;
+    object-fit: cover;
+    border-radius: calc(var(--radius-xl) - 0.4rem);
+  }
+
+  .property-detail__photo {
+    width: 100%;
+    height: 100%;
+    min-height: 14.8rem;
+    object-fit: cover;
+    border-radius: calc(var(--radius-xl) - 0.4rem);
+  }
+
+  .property-detail__content {
+    padding: clamp(1.35rem, 3vw, 2.2rem);
+  }
+
+  .property-detail__header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .property-detail__badges {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+  }
+
+  .property-detail__status,
+  .property-detail__featured {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .property-detail__status {
+    background: rgba(22, 53, 76, 0.08);
+    color: var(--color-primary);
+  }
+
+  .property-detail__featured {
+    background: var(--color-accent-soft);
+    color: var(--color-primary);
+  }
+
+  .property-detail__title {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 0.94;
+    color: var(--color-primary);
+    letter-spacing: -0.04em;
+  }
+
+  .property-detail__price {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 3vw, 3rem);
+    line-height: 1;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .property-detail__address {
+    margin: 0;
+    color: var(--color-text-soft);
+    font-size: var(--text-lg);
+  }
+
+  .property-detail__facts {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1px;
+    background: rgba(22, 53, 76, 0.08);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .property-detail__fact {
+    background: rgba(244, 238, 228, 0.42);
+    padding: 1rem 1.1rem;
+  }
+
+  .property-detail__fact strong {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    line-height: 1;
+    color: var(--color-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .property-detail__fact span {
+    color: var(--color-text-soft);
+    font-size: var(--text-sm);
+  }
+
+  .property-detail__eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .property-detail__description {
+    color: var(--color-text);
+    line-height: 1.85;
+    font-size: 1.04rem;
+  }
+
+  .property-detail__description :global(p) {
+    margin: 0 0 1rem;
+  }
+
+  @media (max-width: 900px) {
+    .property-detail__gallery {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .property-detail__photo--main {
+      min-height: 22rem;
+    }
+
+    .property-detail__facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .property-detail__header {
+      flex-direction: column;
+    }
+
+    .property-detail__price {
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .property-detail__gallery {
+      grid-template-columns: 1fr;
+    }
+
+    .property-detail__photo--main,
+    .property-detail__photo {
+      min-height: 15rem;
+      grid-row: auto;
+    }
+
+    .property-detail__facts {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

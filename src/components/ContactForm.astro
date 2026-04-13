@@ -54,7 +54,7 @@ const heading = propertyTitle
 
   <div class="form-status" aria-live="polite"></div>
 
-  <button type="submit" class="btn btn-primary">
+  <button type="submit" class="btn btn-primary contact-form__submit">
     <span class="btn-text">{translateLabel(currentLocale, 'Send Enquiry')}</span>
     <span class="btn-loading" hidden>{translateLabel(currentLocale, 'Sending...')}</span>
   </button>
@@ -74,7 +74,6 @@ const heading = propertyTitle
         message: String(data.message ?? ''),
       })
 
-      // Clear previous errors
       form.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''))
       form.querySelector('.form-status')!.textContent = ''
 
@@ -86,7 +85,6 @@ const heading = propertyTitle
         return
       }
 
-      // Show loading state
       const btnText = form.querySelector('.btn-text')!
       const btnLoading = form.querySelector<HTMLElement>('.btn-loading')!
       const submitBtn = form.querySelector<HTMLButtonElement>('button[type=submit]')!
@@ -144,3 +142,52 @@ const heading = propertyTitle
     })
   })
 </script>
+
+<style>
+  .contact-form {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+  }
+
+  .contact-form h2 {
+    margin: 0 0 1.25rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    line-height: 1;
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--color-text-soft);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(22, 53, 76, 0.12);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--color-text);
+  }
+
+  .contact-form__submit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+</style>

@@ -41,6 +41,9 @@ const similarListing = property?.page_contents.find(
 )
 const similarProperties = similarListing?.summ_listings ?? []
 const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
+const contactTitle = detail
+  ? translateLabel(locale, detail.forRent ? 'Arrange a viewing or ask for availability' : 'Arrange a viewing or ask for details')
+  : null
 ---
 
 {property && detail ? (
@@ -56,16 +59,36 @@ const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
     ]}
   >
     <div class="property-detail-page">
-      <PropertyDetail detail={detail} />
-      <ContactForm propertyId={property.id} propertyTitle={property.title} />
-      {similarProperties.length > 0 && (
-        <SimilarProperties properties={similarProperties} />
-      )}
+      <div class="property-detail-page__main">
+        <PropertyDetail detail={detail} />
+      </div>
+
+      <aside class="property-detail-page__sidebar">
+        <section class="property-detail-page__panel property-detail-page__panel--contact">
+          <p class="property-detail-page__eyebrow">{translateLabel(locale, 'Next step')}</p>
+          <h2>{contactTitle}</h2>
+          <p>{translateLabel(locale, 'Use the enquiry form to request a viewing, ask for floorplans, or confirm the latest availability with the team.')}</p>
+          <ContactForm propertyId={property.id} propertyTitle={property.title} />
+        </section>
+
+        <section class="property-detail-page__panel property-detail-page__panel--summary">
+          <p class="property-detail-page__eyebrow">{translateLabel(locale, 'Why this listing')}</p>
+          <ul class="property-detail-page__notes">
+            <li>{translateLabel(locale, 'Strong presentation with a clearer gallery and structured facts at a glance.')}</li>
+            <li>{translateLabel(locale, 'Designed to keep key information visible before the enquiry step.')}</li>
+            <li>{translateLabel(locale, 'Balanced layout for desktop browsing and mobile follow-up enquiries.')}</li>
+          </ul>
+        </section>
+      </aside>
     </div>
+
+    {similarProperties.length > 0 && (
+      <SimilarProperties properties={similarProperties} />
+    )}
   </BaseLayout>
 ) : (
   <BaseLayout site={site} title={translateLabel(locale, 'Page not found')}>
-    <div class="property-detail-page">
+    <div class="property-detail-page property-detail-page--empty">
       <h1>404</h1>
       <p>{translateLabel(locale, "The property you're looking for doesn't exist.")}</p>
       <p><a href={localePath(locale, '/properties')}>{translateLabel(locale, 'Browse all properties')}</a></p>
@@ -74,5 +97,79 @@ const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
 )}
 
 <style>
-  .property-detail-page { max-width: 1000px; margin: 0 auto; padding: 2rem var(--spacing-page); }
+  .property-detail-page {
+    width: min(100%, 76rem);
+    margin: 0 auto;
+    padding: var(--space-section-sm) var(--spacing-page) var(--space-section-lg);
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(19rem, 0.85fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .property-detail-page__sidebar {
+    display: grid;
+    gap: 1.5rem;
+    position: sticky;
+    top: calc(var(--nav-height) + 1.5rem);
+  }
+
+  .property-detail-page__panel {
+    background:
+      linear-gradient(180deg, rgba(244, 238, 228, 0.78), rgba(252, 250, 247, 0.94)),
+      var(--color-surface);
+    border: 1px solid rgba(22, 53, 76, 0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: 1.4rem;
+  }
+
+  .property-detail-page__eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .property-detail-page__panel h2 {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1;
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .property-detail-page__panel p {
+    color: var(--color-text-soft);
+    line-height: 1.75;
+  }
+
+  .property-detail-page__notes {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--color-text-soft);
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .property-detail-page--empty {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    min-height: 50vh;
+    align-content: center;
+  }
+
+  @media (max-width: 960px) {
+    .property-detail-page {
+      grid-template-columns: 1fr;
+    }
+
+    .property-detail-page__sidebar {
+      position: static;
+    }
+  }
 </style>

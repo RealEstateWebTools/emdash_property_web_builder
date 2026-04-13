@@ -14,10 +14,48 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 ---
 
 <section class="similar-properties">
-  <h2 class="similar-properties__heading">{translateLabel(currentLocale, 'Similar Properties')}</h2>
+  <div class="similar-properties__intro">
+    <p class="similar-properties__eyebrow">{translateLabel(currentLocale, 'You may also like')}</p>
+    <h2 class="similar-properties__heading">{translateLabel(currentLocale, 'Similar Properties')}</h2>
+  </div>
   <div class="property-grid">
     {cards.map((card) => (
       <PropertyCard card={card} />
     ))}
   </div>
 </section>
+
+<style>
+  .similar-properties {
+    width: min(100%, 76rem);
+    margin: 0 auto;
+    padding: 0 var(--spacing-page) var(--space-section-lg);
+  }
+
+  .similar-properties__intro {
+    margin-bottom: 1rem;
+  }
+
+  .similar-properties__eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .similar-properties__heading {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-primary);
+  }
+
+  .similar-properties :global(.property-grid) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+</style>
