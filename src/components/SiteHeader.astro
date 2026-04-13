@@ -127,13 +127,13 @@ const combinedNavItems = [
   .site-header__actions {
     display: flex;
     align-items: center;
-    gap: 2.5rem;
+    gap: var(--nav-actions-gap);
   }
 
-  .site-header__nav { display: flex; gap: 2rem; }
+  .site-header__nav { display: flex; gap: var(--nav-gap); }
   .site-header__nav a {
     text-decoration: none;
-    color: var(--header-text, #fff);
+    color: var(--color-nav-link);
     font-size: var(--text-sm);
     font-weight: 600;
     transition: color 0.2s;
@@ -165,13 +165,13 @@ const combinedNavItems = [
   }
   .site-header__locale:hover {
     border-color: var(--color-accent);
-    color: #fff;
+    color: var(--color-on-accent, white);
     background: var(--color-accent);
   }
   .site-header__locale--active {
-    color: #fff;
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    color: var(--color-on-accent, white);
+    background: var(--color-primary, var(--color-accent));
+    border-color: var(--color-primary, var(--color-accent));
   }
 
   /* Mobile Styles */
