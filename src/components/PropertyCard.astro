@@ -65,7 +65,7 @@ const href = localePath(currentLocale, card.href)
     top: 1rem;
     left: 1rem;
     background: var(--color-accent);
-    color: #fff;
+    color: var(--color-on-accent, white);
     padding: 0.35rem 0.75rem;
     border-radius: var(--radius-sm);
     font-size: var(--text-xs);
@@ -73,7 +73,7 @@ const href = localePath(currentLocale, card.href)
     text-transform: uppercase;
     letter-spacing: 0.05em;
     z-index: 2;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-sm);
   }
   .property-card__body {
     display: flex;
@@ -93,12 +93,12 @@ const href = localePath(currentLocale, card.href)
     border-top: 1px solid var(--color-border);
     padding-top: 1rem;
     display: flex;
-    gap: 1.5rem;
+    gap: var(--spacing-6, 1.5rem);
   }
   .property-card__meta li {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--spacing-2, 0.5rem);
     color: var(--color-text-muted);
     font-weight: 500;
   }
