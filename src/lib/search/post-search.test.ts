@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { matchesQuery, buildSearchSummary } from "./post-search";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { matchesQuery, buildSearchSummary, searchPosts } from "./post-search";
 
 const makePost = (overrides: {
 	title?: string;
@@ -100,5 +102,41 @@ describe("buildSearchSummary", () => {
 
 	it("falls back to English for unknown locale", () => {
 		expect(buildSearchSummary("test", 1, "de")).toBe('1 result for "test"');
+	});
+});
+
+describe("searchPosts", () => {
+	it("returns no results for empty query", () => {
+		const results = searchPosts(
+			[
+				makePost({ title: "One" }),
+				makePost({ title: "Two" }),
+			],
+			"",
+		);
+		expect(results).toEqual([]);
+	});
+
+	it("limits result count when a limit is provided", () => {
+		const posts = [
+			makePost({ title: "Villa One" }),
+			makePost({ title: "Villa Two" }),
+			makePost({ title: "Villa Three" }),
+		];
+
+		const results = searchPosts(posts, "villa", 2);
+		expect(results).toHaveLength(2);
+		expect(results[0].data.title).toBe("Villa One");
+		expect(results[1].data.title).toBe("Villa Two");
+	});
+});
+
+describe("SearchPage conventions", () => {
+	it("applies Astro.cache.set(cacheHint) when querying EmDash posts", () => {
+		const source = readFileSync(
+			resolve(process.cwd(), "src/components/pages/SearchPage.astro"),
+			"utf8",
+		);
+		expect(source).toContain("Astro.cache.set(cacheHint)");
 	});
 });

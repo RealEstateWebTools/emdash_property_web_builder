@@ -23,6 +23,18 @@ export function matchesQuery(post: SearchablePost, q: string): boolean {
 }
 
 /**
+ * Filters posts by query and optionally caps result count.
+ */
+export function searchPosts<T extends SearchablePost>(posts: T[], query: string, limit?: number): T[] {
+	if (!query) return [];
+	const matched = posts.filter((post) => matchesQuery(post, query));
+	if (typeof limit === "number" && limit >= 0) {
+		return matched.slice(0, limit);
+	}
+	return matched;
+}
+
+/**
  * Builds a localised search-results summary string.
  * Returns null when there is no active query.
  */

@@ -5,7 +5,7 @@ import PostCard from "../PostCard.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { getReadingTime } from "../../utils/reading-time";
-import { matchesQuery, buildSearchSummary } from "../../lib/search/post-search";
+import { searchPosts, buildSearchSummary } from "../../lib/search/post-search";
 import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
@@ -15,8 +15,10 @@ interface Props {
 const { locale } = Astro.props
 
 const query = Astro.url.searchParams.get("q")?.trim() || "";
+const SEARCH_RESULT_LIMIT = 50;
 
-const { entries: allPosts } = await getEmDashCollection("posts", { locale });
+const { entries: allPosts, cacheHint } = await getEmDashCollection("posts", { locale });
+Astro.cache.set(cacheHint);
 
 let site = fallbackSite;
 try {
@@ -25,7 +27,7 @@ try {
 	site = fallbackSite;
 }
 
-const results = query ? allPosts.filter((p) => matchesQuery(p, query)) : [];
+const results = searchPosts(allPosts, query, SEARCH_RESULT_LIMIT);
 
 const searchAction = localePath(locale, '/search')
 const searchLabel = translateLabel(locale, 'Search')
