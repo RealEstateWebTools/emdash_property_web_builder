@@ -12,6 +12,12 @@ interface Props {
 const { config, currentParams, mode } = Astro.props
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const action = localePath(currentLocale, '/properties')
+const selectedPriceFrom = mode === 'rental'
+  ? currentParams.for_rent_price_from
+  : currentParams.for_sale_price_from
+const selectedPriceTo = mode === 'rental'
+  ? currentParams.for_rent_price_till
+  : currentParams.for_sale_price_till
 ---
 
 <section class="search-bar">
@@ -43,7 +49,7 @@ const action = localePath(currentLocale, '/properties')
           {(mode === 'rental' ? config.price_options.rent.from : config.price_options.sale.from)
             .filter(p => p > 0)
             .map((p) => (
-              <option value={String(p)}>{p.toLocaleString()}</option>
+              <option value={String(p)} selected={selectedPriceFrom === String(p)}>{p.toLocaleString()}</option>
             ))
           }
         </select>
@@ -52,7 +58,7 @@ const action = localePath(currentLocale, '/properties')
           <option value="">{translateLabel(currentLocale, 'Max price')}</option>
           {(mode === 'rental' ? config.price_options.rent.to : config.price_options.sale.to)
             .map((p) => (
-              <option value={String(p)}>{p.toLocaleString()}</option>
+              <option value={String(p)} selected={selectedPriceTo === String(p)}>{p.toLocaleString()}</option>
             ))
           }
         </select>

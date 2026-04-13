@@ -112,6 +112,35 @@ describe('buildSearchParams round-trip', () => {
     // Sale price fields must be absent in rental mode
     expect(roundTripped.for_sale_price_from).toBeUndefined()
   })
+
+  it('round-trips sale price_from and price_to correctly', () => {
+    const original = buildSearchParams(
+      new URLSearchParams({ mode: 'sale', price_from: '250000', price_to: '750000' })
+    )
+    const url = buildSearchUrl(original)
+    const qs = new URLSearchParams(url.replace('/properties?', ''))
+    const roundTripped = buildSearchParams(qs)
+    expect(roundTripped.for_sale_price_from).toBe('250000')
+    expect(roundTripped.for_sale_price_till).toBe('750000')
+  })
+
+  it('round-trips sort correctly', () => {
+    const original = buildSearchParams(new URLSearchParams({ sort: 'price_desc' }))
+    const url = buildSearchUrl(original)
+    const qs = new URLSearchParams(url.replace('/properties?', ''))
+    const roundTripped = buildSearchParams(qs)
+    expect(roundTripped.sort_by).toBe('price_desc')
+  })
+
+  it('preserves page only when explicitly needed', () => {
+    const withPage = buildSearchUrl({ page: 3 })
+    const withPageQs = new URLSearchParams(withPage.replace('/properties?', ''))
+    const withPageParams = buildSearchParams(withPageQs)
+    expect(withPageParams.page).toBe(3)
+
+    const withoutExplicitPage = buildSearchUrl({ page: 1 })
+    expect(withoutExplicitPage).toBe('/properties')
+  })
 })
 
 describe('buildSearchParams edge cases', () => {
