@@ -9,34 +9,44 @@ const { markers } = Astro.props
 const markersJson = JSON.stringify(markers)
 ---
 
-<div id="map" class="map-view" aria-label="Property locations map"></div>
+{markers.length > 0 && (
+  <>
+    <div id="map" class="map-view" aria-label="Property locations map" data-markers={markersJson}></div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script type="module">
+      import { buildMarkerPopupHtml } from '../lib/map/popup'
 
-<script define:vars={{ markersJson }}>
-  const markers = JSON.parse(markersJson)
-  if (markers.length === 0) {
-    document.getElementById('map')?.remove()
-  } else {
-    const script = document.createElement('script')
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-    script.onload = () => {
-      const map = L.map('map')
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map)
+      const mapEl = document.getElementById('map')
+      if (mapEl) {
+        const markers = JSON.parse(mapEl.getAttribute('data-markers') ?? '[]')
+        if (!Array.isArray(markers) || markers.length === 0) {
+          mapEl.remove()
+        } else {
+          await import('leaflet/dist/leaflet.css')
+          const L = await import('leaflet')
 
-      const bounds = []
-      markers.forEach((m) => {
-        const popup = `<a href="${m.url}"><strong>${m.title}</strong><br>${m.price ?? ''}</a>`
-        L.marker([m.lat, m.lng]).bindPopup(popup).addTo(map)
-        bounds.push([m.lat, m.lng])
-      })
-      map.fitBounds(bounds, { padding: [40, 40] })
-    }
-    document.head.appendChild(script)
-  }
-</script>
+          const map = L.map(mapEl)
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+          }).addTo(map)
+
+          const bounds = []
+          markers.forEach((m) => {
+            const popup = buildMarkerPopupHtml({
+              url: String(m.url ?? '#'),
+              title: String(m.title ?? ''),
+              price: m.price == null ? null : String(m.price),
+            })
+            L.marker([Number(m.lat), Number(m.lng)]).bindPopup(popup).addTo(map)
+            bounds.push([Number(m.lat), Number(m.lng)])
+          })
+
+          map.fitBounds(bounds, { padding: [40, 40] })
+        }
+      }
+    </script>
+  </>
+)}
 
 <style>
   .map-view {

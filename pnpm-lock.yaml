@@ -37,6 +37,9 @@ importers:
       emdash:
         specifier: ^0.2.0
         version: 0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70)
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
       pwb-page-parts:
         specifier: workspace:*
         version: link:packages/plugins/pwb-page-parts
@@ -2632,6 +2635,9 @@ packages:
 
   layerr@3.0.0:
     resolution: {integrity: sha512-tv754Ki2dXpPVApOrjTyRo4/QegVb9eVFq4mjqp4+NM5NaX7syQvN5BBNfV/ZpAHCEHV24XdUVrBAoka4jt3pA==}
+
+  leaflet@1.9.4:
+    resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
 
   lib0@0.2.117:
     resolution: {integrity: sha512-DeXj9X5xDCjgKLU/7RR+/HQEVzuuEUiwldwOGsHK/sfAfELGWEyTcf0x+uOvCvK3O2zPmZePXWL85vtia6GyZw==}
@@ -6935,6 +6941,8 @@ snapshots:
   kysely@0.27.6: {}
 
   layerr@3.0.0: {}
+
+  leaflet@1.9.4: {}
 
   lib0@0.2.117:
     dependencies:

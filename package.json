@@ -31,6 +31,7 @@
 		"astro": "^6.1.2",
 		"better-sqlite3": "^12.8.0",
 		"emdash": "^0.2.0",
+		"leaflet": "^1.9.4",
 		"pwb-page-parts": "workspace:*",
 		"pwb-properties": "workspace:*",
 		"pwb-property-embeds": "workspace:*",

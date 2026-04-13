@@ -8,6 +8,10 @@ interface Props {
 
 const { propertyId, propertyTitle } = Astro.props
 const formId = `enquiry-form-${propertyId ?? 'general'}`
+const nameId = `${formId}-name`
+const emailId = `${formId}-email`
+const phoneId = `${formId}-phone`
+const messageId = `${formId}-message`
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const heading = propertyTitle
   ? `${translateLabel(currentLocale, 'Enquire about')} ${propertyTitle}`
@@ -26,25 +30,25 @@ const heading = propertyTitle
   <h2>{heading}</h2>
 
   <div class="form-group">
-    <label for="name">{translateLabel(currentLocale, 'Name *')}</label>
-    <input type="text" id="name" name="name" required autocomplete="name" />
+    <label for={nameId}>{translateLabel(currentLocale, 'Name *')}</label>
+    <input type="text" id={nameId} name="name" required autocomplete="name" />
     <span class="field-error" data-field="name" aria-live="polite"></span>
   </div>
 
   <div class="form-group">
-    <label for="email">{translateLabel(currentLocale, 'Email *')}</label>
-    <input type="email" id="email" name="email" required autocomplete="email" />
+    <label for={emailId}>{translateLabel(currentLocale, 'Email *')}</label>
+    <input type="email" id={emailId} name="email" required autocomplete="email" />
     <span class="field-error" data-field="email" aria-live="polite"></span>
   </div>
 
   <div class="form-group">
-    <label for="phone">{translateLabel(currentLocale, 'Phone (optional)')}</label>
-    <input type="tel" id="phone" name="phone" autocomplete="tel" />
+    <label for={phoneId}>{translateLabel(currentLocale, 'Phone (optional)')}</label>
+    <input type="tel" id={phoneId} name="phone" autocomplete="tel" />
   </div>
 
   <div class="form-group">
-    <label for="message">{translateLabel(currentLocale, 'Message *')}</label>
-    <textarea id="message" name="message" rows="5" required></textarea>
+    <label for={messageId}>{translateLabel(currentLocale, 'Message *')}</label>
+    <textarea id={messageId} name="message" rows="5" required></textarea>
     <span class="field-error" data-field="message" aria-live="polite"></span>
   </div>
 

@@ -41,7 +41,13 @@ const combinedNavItems = [
       }
     </a>
 
-    <button class="menu-toggle" aria-label="Toggle menu" id="menu-toggle">
+    <button
+      class="menu-toggle"
+      aria-label="Toggle menu"
+      aria-controls="nav-content"
+      aria-expanded="false"
+      id="menu-toggle"
+    >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="menu-icon"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="close-icon"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
     </button>
@@ -103,15 +109,15 @@ const combinedNavItems = [
     align-items: center;
     justify-content: space-between;
   }
-  .site-header__logo { 
-    text-decoration: none; 
+  .site-header__logo {
+    text-decoration: none;
     display: flex;
     align-items: center;
     z-index: 1001;
   }
-  .site-header__title { 
-    font-size: var(--text-2xl); 
-    font-weight: 800; 
+  .site-header__title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
     color: var(--header-text, #fff);
     font-family: var(--font-serif);
     letter-spacing: -0.02em;
@@ -125,9 +131,9 @@ const combinedNavItems = [
   }
 
   .site-header__nav { display: flex; gap: 2rem; }
-  .site-header__nav a { 
-    text-decoration: none; 
-    color: var(--header-text, #fff); 
+  .site-header__nav a {
+    text-decoration: none;
+    color: var(--header-text, #fff);
     font-size: var(--text-sm);
     font-weight: 600;
     transition: color 0.2s;
