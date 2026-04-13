@@ -10,17 +10,29 @@ interface Props {
 const { siteTitle } = Astro.props
 const menu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
-const localizedSiteTitle = translateBrand(currentLocale, siteTitle)
 const menuItems = menu?.items ?? []
+const fallbackBrand = translateBrand(currentLocale, 'Property Search')
+const localizedSiteTitle = translateBrand(currentLocale, siteTitle)
+const displaySiteTitle = localizedSiteTitle && localizedSiteTitle !== 'Home' ? localizedSiteTitle : fallbackBrand
 
 const defaultNavItems: Array<{ url: string; label: string; target?: string }> = [
-  { url: '/', label: translateLabel(currentLocale, 'Home') },
   { url: '/properties', label: translateLabel(currentLocale, 'Properties') },
   { url: '/posts', label: translateLabel(currentLocale, 'Posts') },
 ]
 
-const hasMenuUrl = (url: string) =>
-  menuItems.some((item) => item.url === url || item.url.startsWith(`${url}/`))
+const normalizeUrl = (url: string) => {
+  const normalized = url.trim() || '/'
+  if (normalized === '/') return normalized
+  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
+}
+
+const hasMenuUrl = (url: string) => {
+  const candidate = normalizeUrl(url)
+  return menuItems.some((item) => {
+    const target = normalizeUrl(item.url)
+    return target === candidate || target.startsWith(`${candidate}/`)
+  })
+}
 
 const combinedFooterItems = [
   ...defaultNavItems.filter((item) => !hasMenuUrl(item.url)),
@@ -29,112 +41,153 @@ const combinedFooterItems = [
     label: translateLabel(currentLocale, item.label),
     target: item.target,
   })),
-]
+].filter((item, index, items) => (
+  items.findIndex((candidate) => normalizeUrl(candidate.url) === normalizeUrl(item.url)) === index
+))
 ---
 
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href={localePath(currentLocale, '/')} class="footer-logo">{localizedSiteTitle}</a>
+        <p class="footer-eyebrow">{translateLabel(currentLocale, 'Boutique real estate')}</p>
+        <a href={localePath(currentLocale, '/')} class="footer-logo">{displaySiteTitle}</a>
+        <p class="footer-description">
+          {translateLabel(currentLocale, 'A more refined property search experience, with cleaner presentation, sharper marketing, and better communication at every step.')}
+        </p>
       </div>
+
       <div class="footer-nav">
         <h4 class="footer-heading">{translateLabel(currentLocale, 'Navigate')}</h4>
         <ul class="footer-links">
           {combinedFooterItems.map(item => (
             <li>
               <a
-				href={localePath(currentLocale, item.url)}
+                href={localePath(currentLocale, item.url)}
                 target={item.target}
                 rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               >
-				{item.label}
+                {item.label}
               </a>
             </li>
           ))}
         </ul>
       </div>
+
+      <div class="footer-nav">
+        <h4 class="footer-heading">{translateLabel(currentLocale, 'Connect')}</h4>
+        <ul class="footer-links">
+          <li><a href={localePath(currentLocale, '/contact')}>{translateLabel(currentLocale, 'Contact Us')}</a></li>
+          <li><a href={localePath(currentLocale, '/properties')}>{translateLabel(currentLocale, 'View All Properties')}</a></li>
+          <li>
+            <a
+              href="https://github.com/RealEstateWebTools/emdash_property_web_builder"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View on GitHub
+            </a>
+          </li>
+        </ul>
+      </div>
+
       <div class="footer-widgets-section">
+        <h4 class="footer-heading">{translateLabel(currentLocale, 'Updates')}</h4>
         <WidgetArea name="footer" />
       </div>
     </div>
+
     <div class="footer-bottom">
-      <p class="footer-copyright">&copy; {new Date().getFullYear()} {localizedSiteTitle}</p>
-      <a
-        href="https://github.com/RealEstateWebTools/emdash_property_web_builder"
-        class="footer-github"
-        target="_blank"
-        rel="noopener noreferrer"
-      >View on GitHub</a>
+      <p class="footer-copyright">&copy; {new Date().getFullYear()} {displaySiteTitle}</p>
+      <p class="footer-signoff">{translateLabel(currentLocale, 'Crafted for modern real-estate brands')}</p>
     </div>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    background: var(--color-bg);
-    border-top: 1px solid var(--color-border);
+    background:
+      radial-gradient(circle at top left, rgba(185, 138, 78, 0.16), transparent 28%),
+      linear-gradient(180deg, #0f2231 0%, #091a27 100%);
+    color: var(--color-on-dark);
     margin-top: var(--space-section-lg);
     position: relative;
   }
 
   .footer-inner {
-    max-width: 1200px;
+    width: min(100%, 76rem);
     margin: 0 auto;
-    padding: 6rem 1.5rem 3rem;
+    padding: 5rem var(--spacing-page) 2rem;
   }
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 4rem;
-    margin-bottom: 5rem;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 2.25rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-eyebrow {
+    margin: 0 0 0.8rem;
+    font-size: var(--text-xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    font-weight: 700;
   }
 
   .footer-logo {
-    font-size: var(--text-2xl);
-    font-weight: 800;
-    color: var(--color-primary);
+    display: inline-block;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--color-on-dark);
     text-decoration: none;
     font-family: var(--font-serif);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin-bottom: 1rem;
+  }
+
+  .footer-description {
+    color: rgba(246, 242, 235, 0.74);
+    max-width: 24rem;
+    line-height: 1.8;
   }
 
   .footer-heading {
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-primary);
-    margin-bottom: 1.75rem;
+    letter-spacing: 0.16em;
+    color: rgba(246, 242, 235, 0.6);
+    margin-bottom: 1.25rem;
   }
 
   .footer-links {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-
-  .footer-links li {
-    margin-bottom: 0.875rem;
+    display: grid;
+    gap: 0.85rem;
   }
 
   .footer-links a {
-    color: var(--color-text-muted);
+    color: rgba(246, 242, 235, 0.86);
     text-decoration: none;
     font-size: var(--text-base);
-    transition: all 0.2s;
+    transition: color var(--transition-base), transform var(--transition-base);
     font-weight: 500;
+    display: inline-block;
   }
 
   .footer-links a:hover {
-    color: var(--color-accent);
-    padding-left: 4px;
+    color: var(--color-gold);
+    transform: translateX(3px);
   }
 
   .footer-bottom {
-    padding-top: 2rem;
-    border-top: 1px solid var(--color-border);
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -142,49 +195,22 @@ const combinedFooterItems = [
     flex-wrap: wrap;
   }
 
-  .footer-copyright {
+  .footer-copyright,
+  .footer-signoff {
     font-size: var(--text-sm);
-    color: var(--color-text-muted);
+    color: rgba(246, 242, 235, 0.56);
     margin: 0;
-    font-weight: 500;
   }
 
-  .footer-github {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    text-decoration: none;
-    transition: color 0.2s;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .footer-github:hover {
-    color: var(--color-primary);
-  }
-
-  @media (max-width: 900px) {
+  @media (max-width: 960px) {
     .footer-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-    }
-    .footer-brand {
-      grid-column: span 2;
-      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 640px) {
     .footer-grid {
       grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
-    .footer-brand {
-      grid-column: span 1;
-    }
-    .footer-inner {
-      padding-top: 4rem;
     }
   }
 </style>

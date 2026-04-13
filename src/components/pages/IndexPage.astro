@@ -19,466 +19,831 @@ const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage',
 Astro.cache.set(cacheHint)
 
 let site = fallbackSite
-let results: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 6, total_pages: 0 } }
+let featuredSaleResults: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 3, total_pages: 0 } }
+let featuredRentalResults: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 3, total_pages: 0 } }
+
 try {
   const client = createPwbClient(locale)
-  ;[site, results] = await Promise.all([
+  ;[site, featuredSaleResults, featuredRentalResults] = await Promise.all([
     client.getSiteDetails(),
-    client.searchProperties({ featured: 'true', per_page: 6 }),
+    client.searchProperties({ featured: 'true', sale_or_rental: 'sale', per_page: 3 }),
+    client.searchProperties({ featured: 'true', sale_or_rental: 'rental', per_page: 3 }),
   ])
 } catch {
   site = fallbackSite
 }
 
-const cards = results.data.map(formatPropertyCard)
+const saleCards = featuredSaleResults.data.map(formatPropertyCard)
+const rentalCards = featuredRentalResults.data.map(formatPropertyCard)
+const hasFeaturedInventory = saleCards.length > 0 || rentalCards.length > 0
+const brandName = site.company_display_name ?? site.title
+
+const services = [
+  {
+    eyebrow: translateLabel(locale, 'Buy'),
+    title: translateLabel(locale, 'Curated property search'),
+    body: translateLabel(locale, 'Tell us the brief and we will narrow the market to homes that actually fit your lifestyle, timeline, and budget.'),
+  },
+  {
+    eyebrow: translateLabel(locale, 'Rent'),
+    title: translateLabel(locale, 'Premium rental guidance'),
+    body: translateLabel(locale, 'From relocation apartments to seasonal lets, we shape a shortlist quickly and manage the detail with landlords and agents.'),
+  },
+  {
+    eyebrow: translateLabel(locale, 'Sell'),
+    title: translateLabel(locale, 'Positioning that earns attention'),
+    body: translateLabel(locale, 'We package, market, and negotiate each listing with the polish expected from a modern boutique real-estate brand.'),
+  },
+]
+
+const testimonials = [
+  {
+    quote: translateLabel(locale, 'They filtered the noise out of the market and only showed us homes worth seeing. We moved faster and with more confidence.'),
+    name: 'Sarah Johnson',
+    role: translateLabel(locale, 'Home buyer'),
+  },
+  {
+    quote: translateLabel(locale, 'The presentation quality felt different immediately. Better photography, sharper positioning, and stronger enquiries from week one.'),
+    name: 'Michael Chen',
+    role: translateLabel(locale, 'Property seller'),
+  },
+  {
+    quote: translateLabel(locale, 'It felt like having a calm advisor instead of a pushy sales team. Clear communication, good taste, and no wasted viewings.'),
+    name: 'Emma Wilson',
+    role: translateLabel(locale, 'Relocation client'),
+  },
+]
 ---
 
 <BaseLayout site={site} title={homepage?.data.title}>
   <section class="hero">
     <div class="hero__image-wrapper">
-      <img src="/hero-bg.png" alt="Luxury Home" class="hero__image" />
+      <img src="/hero-bg.png" alt="Luxury home exterior with pool" class="hero__image" />
       <div class="hero__overlay"></div>
     </div>
+
     <div class="hero__inner">
-      <h1 class="hero__heading" {...homepage?.edit.title}>
-        {homepage?.data.title ?? 'Find Your Dream Property'}
-      </h1>
-      {homepage?.data.content && (
-        <div class="hero__tagline" {...homepage.edit.content}>
-          <PortableText value={homepage.data.content} />
+      <div class="hero__copy">
+        <p class="hero__eyebrow">{translateLabel(locale, 'Boutique property advisory')}</p>
+        <h1 class="hero__heading" {...homepage?.edit.title}>
+          {homepage?.data.title ?? 'Find Your Dream Property'}
+        </h1>
+        {homepage?.data.content && (
+          <div class="hero__tagline" {...homepage.edit.content}>
+            <PortableText value={homepage.data.content} />
+          </div>
+        )}
+
+        <div class="hero__search">
+          <form action={localePath(locale, '/properties')} method="get" class="hero-search-form">
+            <div class="hero-search-form__field">
+              <label class="hero-search-form__label" for="hero-mode">{translateLabel(locale, 'Looking to')}</label>
+              <select id="hero-mode" name="sale_or_rental" class="hero-search-form__input">
+                <option value="">{translateLabel(locale, 'All Types')}</option>
+                <option value="sale">{translateLabel(locale, 'Buy')}</option>
+                <option value="rental">{translateLabel(locale, 'Rent')}</option>
+              </select>
+            </div>
+            <div class="hero-search-form__field hero-search-form__field--location">
+              <label class="hero-search-form__label" for="hero-location">{translateLabel(locale, 'Location')}</label>
+              <input
+                id="hero-location"
+                type="text"
+                name="location"
+                placeholder={translateLabel(locale, 'Enter city or neighborhood...')}
+                class="hero-search-form__input"
+              />
+            </div>
+            <button type="submit" class="hero-search-form__submit">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              {translateLabel(locale, 'Search')}
+            </button>
+          </form>
         </div>
-      )}
-      <div class="hero__search">
-        <form action={localePath(locale, '/properties')} method="get" class="hero-search-form">
-          <div class="hero-search-form__field">
-            <select name="mode" class="hero-search-form__input">
-              <option value="">{translateLabel(locale, 'All Types')}</option>
-              <option value="sale">{translateLabel(locale, 'Buy')}</option>
-              <option value="rental">{translateLabel(locale, 'Rent')}</option>
-            </select>
-          </div>
-          <div class="hero-search-form__field hero-search-form__field--location">
-            <input type="text" name="location" placeholder={translateLabel(locale, 'Enter city or neighborhood...')} class="hero-search-form__input" />
-          </div>
-          <button type="submit" class="hero-search-form__submit">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            {translateLabel(locale, 'Search')}
-          </button>
-        </form>
-      </div>
-      <div class="hero__ctas">
-        <a href={localePath(locale, '/properties')} class="hero__cta-btn hero__cta-btn--primary">
-          {translateLabel(locale, 'Browse Properties')}
-        </a>
-        <a href={localePath(locale, '/contact')} class="hero__cta-btn hero__cta-btn--ghost">
-          {translateLabel(locale, 'Contact Us')}
-        </a>
+
+        <div class="hero__ctas">
+          <a href={localePath(locale, '/properties')} class="hero__cta-btn hero__cta-btn--primary">
+            {translateLabel(locale, 'Browse Properties')}
+          </a>
+          <a href={localePath(locale, '/contact')} class="hero__cta-btn hero__cta-btn--ghost">
+            {translateLabel(locale, 'Contact Us')}
+          </a>
+        </div>
+
+        <div class="hero__highlights" aria-label={translateLabel(locale, 'Quick brand highlights')}>
+          <span>{translateLabel(locale, '500+ homes marketed')}</span>
+          <span>{translateLabel(locale, '98% client satisfaction')}</span>
+          <span>{translateLabel(locale, 'Local expertise, international presentation')}</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <div class="trust-bar">
-    <div class="trust-bar__inner">
-      <div class="trust-bar__item">
-        <div class="trust-bar__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        </div>
-        <div class="trust-bar__content">
-          <span class="trust-bar__number">500+</span>
-          <span class="trust-bar__label">{translateLabel(locale, 'Properties Listed')}</span>
-        </div>
-      </div>
-      <div class="trust-bar__divider"></div>
-      <div class="trust-bar__item">
-        <div class="trust-bar__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div class="trust-bar__content">
-          <span class="trust-bar__number">98%</span>
-          <span class="trust-bar__label">{translateLabel(locale, 'Client Satisfaction')}</span>
-        </div>
-      </div>
-      <div class="trust-bar__divider"></div>
-      <div class="trust-bar__item">
-        <div class="trust-bar__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="trust-bar__content">
-          <span class="trust-bar__number">10+</span>
-          <span class="trust-bar__label">{translateLabel(locale, 'Years Experience')}</span>
-        </div>
-      </div>
-      <div class="trust-bar__divider"></div>
-      <div class="trust-bar__item">
-        <div class="trust-bar__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div class="trust-bar__content">
-          <span class="trust-bar__number">50+</span>
-          <span class="trust-bar__label">{translateLabel(locale, 'Expert Agents')}</span>
-        </div>
-      </div>
+  <section class="stats-band" aria-label={translateLabel(locale, 'Performance highlights')}>
+    <div class="stats-band__inner">
+      <article class="stats-band__item">
+        <span class="stats-band__number">500+</span>
+        <span class="stats-band__label">{translateLabel(locale, 'Properties listed')}</span>
+      </article>
+      <article class="stats-band__item">
+        <span class="stats-band__number">98%</span>
+        <span class="stats-band__label">{translateLabel(locale, 'Client satisfaction')}</span>
+      </article>
+      <article class="stats-band__item">
+        <span class="stats-band__number">15</span>
+        <span class="stats-band__label">{translateLabel(locale, 'Years of local experience')}</span>
+      </article>
+      <article class="stats-band__item">
+        <span class="stats-band__number">24h</span>
+        <span class="stats-band__label">{translateLabel(locale, 'Average first response')}</span>
+      </article>
     </div>
-  </div>
+  </section>
 
-  {cards.length > 0 && (
-    <section class="featured-section">
-      <div class="featured-section__header">
+  <section class="services-section">
+    <div class="section-heading">
+      <p class="section-heading__eyebrow">{translateLabel(locale, 'What we do')}</p>
+      <h2>{translateLabel(locale, 'A more considered way to buy, rent, and sell')}</h2>
+      <p>{translateLabel(locale, 'We combine local market knowledge with cleaner presentation, faster shortlist building, and stronger communication from first enquiry to completion.')}</p>
+    </div>
+
+    <div class="services-grid">
+      {services.map((service) => (
+        <article class="service-card">
+          <p class="service-card__eyebrow">{service.eyebrow}</p>
+          <h3>{service.title}</h3>
+          <p>{service.body}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {hasFeaturedInventory && (
+    <section class="inventory-section">
+      <div class="section-heading section-heading--left">
+        <p class="section-heading__eyebrow">{translateLabel(locale, 'Featured homes')}</p>
         <h2 {...homepage?.edit.featured_section_heading}>
           {homepage?.data.featured_section_heading ?? 'Featured Properties'}
         </h2>
-        <p class="featured-section__subtitle">{translateLabel(locale, 'Handpicked properties for you')}</p>
+        <p>{translateLabel(locale, 'Selected listings presented with the same editorial care we bring to the rest of the brand.')}</p>
       </div>
-      <PropertyGrid cards={cards} />
-      <div class="featured-section__cta">
-        <a href={localePath(locale, '/properties')} class="btn btn-primary">{translateLabel(locale, 'View All Properties')}</a>
-      </div>
+
+      {saleCards.length > 0 && (
+        <div class="inventory-group">
+          <div class="inventory-group__header">
+            <div>
+              <p class="inventory-group__eyebrow">{translateLabel(locale, 'For sale')}</p>
+              <h3>{translateLabel(locale, 'Move-in ready opportunities')}</h3>
+            </div>
+            <a href={localePath(locale, '/properties?sale_or_rental=sale')} class="inventory-group__link">
+              {translateLabel(locale, 'View All Properties')}
+            </a>
+          </div>
+          <PropertyGrid cards={saleCards} />
+        </div>
+      )}
+
+      {rentalCards.length > 0 && (
+        <div class="inventory-group">
+          <div class="inventory-group__header">
+            <div>
+              <p class="inventory-group__eyebrow">{translateLabel(locale, 'For rent')}</p>
+              <h3>{translateLabel(locale, 'Flexible lets with strong locations')}</h3>
+            </div>
+            <a href={localePath(locale, '/properties?sale_or_rental=rental')} class="inventory-group__link">
+              {translateLabel(locale, 'View All Properties')}
+            </a>
+          </div>
+          <PropertyGrid cards={rentalCards} />
+        </div>
+      )}
     </section>
   )}
+
+  <section class="testimonial-section">
+    <div class="section-heading">
+      <p class="section-heading__eyebrow">{translateLabel(locale, 'Client perspective')}</p>
+      <h2>{translateLabel(locale, 'Confidence comes from clarity and good taste')}</h2>
+      <p>{translateLabel(locale, 'Clients return because the process feels calm, selective, and visibly better organised than the average agency experience.')}</p>
+    </div>
+
+    <div class="testimonial-grid">
+      {testimonials.map((testimonial) => (
+        <article class="testimonial-card">
+          <p class="testimonial-card__quote">“{testimonial.quote}”</p>
+          <div class="testimonial-card__author">
+            <span class="testimonial-card__avatar" aria-hidden="true">{testimonial.name.slice(0, 1)}</span>
+            <div>
+              <h3>{testimonial.name}</h3>
+              <p>{testimonial.role}</p>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
 
   <section class="cta-banner">
     <div class="cta-banner__inner">
       <div class="cta-banner__text">
-        <h2>{translateLabel(locale, 'Ready to Sell or Let Your Property?')}</h2>
-        <p>{translateLabel(locale, 'Get a free valuation from our expert team today.')}</p>
+        <p class="cta-banner__eyebrow">{translateLabel(locale, 'Ready when you are')}</p>
+        <h2>{translateLabel(locale, `Plan your next move with ${brandName}`)}</h2>
+        <p>{translateLabel(locale, 'Whether you are listing, relocating, or narrowing a search, we can help you move with a clear brief and a sharper shortlist.')}</p>
       </div>
       <div class="cta-banner__actions">
         <a href={localePath(locale, '/contact')} class="btn btn-cta-primary">{translateLabel(locale, 'Contact Us')}</a>
+        <a href={localePath(locale, '/properties')} class="btn btn-cta-secondary">{translateLabel(locale, 'Browse Properties')}</a>
       </div>
     </div>
   </section>
 </BaseLayout>
+
 <style>
-  /* ── Hero ─────────────────────────────────────────────────────── */
   .hero {
     position: relative;
     padding: var(--space-section-lg) var(--spacing-page) var(--space-section-md);
     overflow: hidden;
-    color: #fff;
-    min-height: 68vh;
+    color: var(--color-on-dark);
+    min-height: calc(100vh - var(--nav-height));
     display: flex;
     align-items: center;
-    justify-content: center;
   }
+
   .hero__image-wrapper {
     position: absolute;
     inset: 0;
     z-index: 0;
   }
+
   .hero__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
+    transform: scale(1.04);
   }
+
   .hero__overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8));
+    background:
+      linear-gradient(90deg, rgba(9, 26, 39, 0.88) 0%, rgba(9, 26, 39, 0.62) 48%, rgba(9, 26, 39, 0.38) 100%),
+      linear-gradient(180deg, rgba(9, 26, 39, 0.22) 0%, rgba(9, 26, 39, 0.66) 100%);
     z-index: 1;
   }
+
   .hero__inner {
     position: relative;
     z-index: 10;
-    max-width: 900px;
-    width: 100%;
-    text-align: center;
-  }
-  .hero__heading {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 4.5vw, 3.25rem);
-    font-weight: 700;
-    line-height: 1.15;
-    margin-bottom: 1.25rem;
-    color: #fff;
-    letter-spacing: -0.02em;
-  }
-  .hero__tagline {
-    font-size: var(--text-lg);
-    color: rgba(255,255,255,0.88);
-    margin-bottom: 2.5rem;
-    max-width: 580px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.65;
+    width: min(100%, 76rem);
+    margin: 0 auto;
   }
 
-  /* ── Hero Search Box ─────────────────────────────────────────── */
-  .hero__search {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    padding: 1rem;
-    border-radius: var(--radius-md);
-    max-width: 800px;
-    margin: 0 auto;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+  .hero__copy {
+    max-width: 44rem;
   }
+
+  .hero__eyebrow {
+    margin: 0 0 var(--spacing-4);
+    font-size: var(--text-xs);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  .hero__heading {
+    font-family: var(--font-serif);
+    font-size: clamp(3.5rem, 8vw, 6.4rem);
+    line-height: 0.95;
+    margin-bottom: var(--spacing-6);
+    color: var(--color-on-dark);
+    letter-spacing: -0.04em;
+  }
+
+  .hero__tagline {
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    color: rgba(246, 242, 235, 0.88);
+    margin-bottom: var(--spacing-8);
+    max-width: 38rem;
+    line-height: 1.75;
+  }
+
+  .hero__tagline :global(p) {
+    margin: 0;
+  }
+
+  .hero__search {
+    background: rgba(247, 242, 234, 0.14);
+    backdrop-filter: blur(16px);
+    padding: var(--spacing-3);
+    border-radius: var(--radius-lg);
+    max-width: 54rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: var(--shadow-hero-panel);
+  }
+
   .hero-search-form {
-    display: flex;
-    background: #fff;
-    border-radius: var(--radius-sm);
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr) auto;
+    background: rgba(252, 248, 243, 0.96);
+    border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: var(--shadow-lg);
   }
+
   .hero-search-form__field {
-    flex: 1;
-    position: relative;
-    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.15rem;
+    border-right: 1px solid rgba(22, 53, 76, 0.12);
   }
+
   .hero-search-form__field--location {
-    flex: 2;
+    min-width: 0;
   }
+
+  .hero-search-form__label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-soft);
+    font-weight: 700;
+  }
+
   .hero-search-form__input {
     width: 100%;
     border: none;
-    padding: 1.25rem 1.5rem;
+    padding: 0;
     font-size: var(--text-base);
     color: var(--color-text);
     background: transparent;
     outline: none;
-    font-weight: 500;
+    font-weight: 600;
+    min-height: 1.75rem;
   }
+
+  .hero-search-form__input::placeholder {
+    color: var(--color-text-muted);
+  }
+
   .hero-search-form__input:focus {
-    background: var(--color-bg-soft);
+    background: transparent;
   }
+
   select.hero-search-form__input {
     appearance: none;
     cursor: pointer;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316354c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: right 1rem center;
+    background-position: right center;
     background-size: 1rem;
-    padding-right: 2.5rem;
-  }
-  .hero-search-form__submit {
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    padding: 0 2.5rem;
-    font-size: var(--text-lg);
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background 0.2s ease;
-  }
-  .hero-search-form__submit:hover {
-    background: var(--color-primary-dark);
+    padding-right: 1.4rem;
   }
 
-  /* ── Hero CTA buttons ─────────────────────────────────────────── */
+  .hero-search-form__submit {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border: none;
+    padding: 0 1.75rem;
+    font-size: var(--text-base);
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background var(--transition-base), transform var(--transition-base);
+  }
+
+  .hero-search-form__submit:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+  }
+
   .hero__ctas {
     display: flex;
     gap: 1rem;
-    justify-content: center;
-    margin-top: 1.5rem;
+    margin-top: var(--spacing-6);
     flex-wrap: wrap;
   }
+
   .hero__cta-btn {
     display: inline-flex;
     align-items: center;
-    padding: 0.75rem 1.75rem;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
+    justify-content: center;
+    min-width: 12rem;
+    padding: 0.95rem 1.6rem;
+    border-radius: 999px;
+    font-weight: 700;
     font-size: var(--text-base);
     text-decoration: none;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    transition: transform var(--transition-base), background var(--transition-base), color var(--transition-base), border-color var(--transition-base);
   }
+
   .hero__cta-btn--primary {
-    background: #fff;
+    background: var(--color-surface-strong);
     color: var(--color-primary);
-    border: 2px solid #fff;
+    border: 1px solid var(--color-surface-strong);
+    box-shadow: var(--shadow-md);
   }
+
   .hero__cta-btn--primary:hover {
-    background: transparent;
-    color: #fff;
+    transform: translateY(-2px);
+    background: var(--color-surface);
   }
+
   .hero__cta-btn--ghost {
     background: transparent;
-    color: #fff;
-    border: 2px solid rgba(255,255,255,0.65);
+    color: var(--color-on-dark);
+    border: 1px solid rgba(255, 255, 255, 0.55);
   }
+
   .hero__cta-btn--ghost:hover {
-    border-color: #fff;
-    background: rgba(255,255,255,0.1);
+    border-color: var(--color-on-dark);
+    background: rgba(255, 255, 255, 0.08);
   }
 
-  @media (max-width: 768px) {
-    .hero__search {
-      background: transparent;
-      backdrop-filter: none;
-      padding: 0;
-      border: none;
-    }
-    .hero-search-form {
-      flex-direction: column;
-      border-radius: var(--radius-md);
-    }
-    .hero-search-form__field {
-      border-right: none;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .hero-search-form__submit {
-      padding: 1.25rem;
-      justify-content: center;
-    }
+  .hero__highlights {
+    margin-top: var(--spacing-8);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
-  /* ── Trust Bar ────────────────────────────────────────────────── */
-  .trust-bar {
-    background: var(--color-bg);
-    border-bottom: 1px solid var(--color-border);
+  .hero__highlights span {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(246, 242, 235, 0.92);
+    font-size: var(--text-sm);
+  }
+
+  .stats-band {
+    margin: calc(var(--space-section-sm) * -0.9) auto 0;
     position: relative;
-    margin-top: -4rem;
-    z-index: 20;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+    z-index: 30;
+    padding: 0 var(--spacing-page);
   }
-  .trust-bar__inner {
-    max-width: 1100px;
+
+  .stats-band__inner {
+    width: min(100%, 72rem);
     margin: 0 auto;
-    padding: 2rem var(--spacing-page);
     display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
-    align-items: center;
-    gap: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: rgba(22, 53, 76, 0.08);
+    border: 1px solid rgba(22, 53, 76, 0.12);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
   }
-  .trust-bar__item {
+
+  .stats-band__item {
+    padding: 1.5rem;
+    background: var(--color-surface-strong);
     display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.35rem;
   }
-  .trust-bar__icon {
-    width: 48px;
-    height: 48px;
-    background: var(--color-accent-soft);
-    color: var(--color-accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    flex-shrink: 0;
-  }
-  .trust-bar__number {
-    display: block;
-    font-size: var(--text-2xl);
-    font-weight: 800;
+
+  .stats-band__number {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3rem);
     color: var(--color-primary);
     line-height: 1;
   }
-  .trust-bar__label {
-    display: block;
+
+  .stats-band__label {
+    color: var(--color-text-soft);
     font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    font-weight: 500;
-    margin-top: 0.25rem;
-  }
-  .trust-bar__divider {
-    width: 1px;
-    height: 3rem;
-    background: var(--color-border);
-    flex-shrink: 0;
+    max-width: 12rem;
   }
 
-  /* ── Featured Section ─────────────────────────────────────────── */
-  .featured-section {
-    padding: var(--space-section-md) var(--spacing-page) var(--space-section-lg);
-    background: var(--color-bg-soft);
+  .services-section,
+  .inventory-section,
+  .testimonial-section {
+    padding-left: var(--spacing-page);
+    padding-right: var(--spacing-page);
   }
-  .featured-section__header {
+
+  .services-section {
+    padding-top: var(--space-section-md);
+    padding-bottom: var(--space-section-md);
+    background:
+      radial-gradient(circle at top left, rgba(185, 138, 78, 0.12), transparent 32%),
+      linear-gradient(180deg, var(--color-bg-soft) 0%, var(--color-surface) 100%);
+  }
+
+  .section-heading {
+    width: min(100%, 46rem);
+    margin: 0 auto 3rem;
     text-align: center;
-    margin-bottom: 2.5rem;
-    max-width: 700px;
+  }
+
+  .section-heading--left {
     margin-left: auto;
     margin-right: auto;
+    width: min(100%, 72rem);
+    text-align: left;
   }
-  .featured-section__header h2 {
+
+  .section-heading__eyebrow,
+  .inventory-group__eyebrow,
+  .service-card__eyebrow,
+  .cta-banner__eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .section-heading h2,
+  .inventory-group__header h3,
+  .cta-banner__text h2 {
     font-family: var(--font-serif);
-    font-size: var(--text-4xl);
-    font-weight: 800;
+    font-size: clamp(2.2rem, 4vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
     color: var(--color-primary);
-    margin-bottom: 1.25rem;
-    letter-spacing: -0.02em;
   }
-  .featured-section__subtitle {
+
+  .section-heading p,
+  .service-card p,
+  .testimonial-card__quote,
+  .cta-banner__text p {
+    color: var(--color-text-soft);
     font-size: var(--text-lg);
-    color: var(--color-text-muted);
+    line-height: 1.7;
   }
-  .featured-section__cta {
-    text-align: center;
-    margin-top: 3rem;
+
+  .services-grid {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .service-card {
+    background: var(--color-surface-strong);
+    border: 1px solid rgba(22, 53, 76, 0.1);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .service-card h3 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 2vw, 2rem);
+    color: var(--color-primary);
+    margin-bottom: 0.9rem;
+    line-height: 1.1;
+  }
+
+  .inventory-section {
+    padding-top: var(--space-section-md);
+    padding-bottom: var(--space-section-lg);
+    background: var(--color-bg);
+  }
+
+  .inventory-group {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+  }
+
+  .inventory-group + .inventory-group {
+    margin-top: var(--space-section-sm);
+  }
+
+  .inventory-group__header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .inventory-group__link {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .inventory-group__link:hover {
+    color: var(--color-primary);
+  }
+
+  .inventory-section :global(.property-grid) {
+    padding: 0;
+  }
+
+  .testimonial-section {
+    padding-top: var(--space-section-md);
+    padding-bottom: var(--space-section-lg);
+    background:
+      linear-gradient(180deg, rgba(244, 238, 228, 0.92) 0%, rgba(244, 238, 228, 0.52) 100%),
+      var(--color-bg-soft);
+  }
+
+  .testimonial-grid {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .testimonial-card {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(22, 53, 76, 0.1);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .testimonial-card__quote {
+    font-size: var(--text-base);
+  }
+
+  .testimonial-card__author {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .testimonial-card__avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: var(--color-on-dark);
+    font-weight: 700;
+  }
+
+  .testimonial-card__author h3 {
+    margin: 0 0 0.15rem;
+    font-size: var(--text-lg);
+    color: var(--color-primary);
+  }
+
+  .testimonial-card__author p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .cta-banner {
+    padding: var(--space-section-md) var(--spacing-page);
+    background:
+      linear-gradient(135deg, rgba(8, 26, 38, 0.96), rgba(22, 53, 76, 0.94)),
+      var(--color-primary);
+    color: var(--color-on-dark);
+  }
+
+  .cta-banner__inner {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    padding: clamp(2rem, 4vw, 3.25rem);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    box-shadow: var(--shadow-hero-panel);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .cta-banner__text {
+    max-width: 42rem;
+  }
+
+  .cta-banner__text h2 {
+    color: var(--color-on-dark);
+    margin-bottom: 1rem;
+  }
+
+  .cta-banner__text p {
+    color: rgba(246, 242, 235, 0.82);
+    margin: 0;
+  }
+
+  .cta-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-cta-primary,
+  .btn-cta-secondary {
+    min-width: 11rem;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.95rem 1.5rem;
+    font-weight: 700;
+  }
+
+  .btn-cta-primary {
+    background: var(--color-surface-strong);
+    color: var(--color-primary);
+  }
+
+  .btn-cta-primary:hover {
+    background: var(--color-surface);
+  }
+
+  .btn-cta-secondary {
+    background: transparent;
+    color: var(--color-on-dark);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+  }
+
+  .btn-cta-secondary:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.06);
   }
 
   @media (max-width: 1024px) {
-    .trust-bar__inner {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2.5rem;
+    .stats-band__inner,
+    .services-grid,
+    .testimonial-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .trust-bar__divider { display: none; }
-    .trust-bar__item { justify-content: flex-start; }
+
+    .hero__heading {
+      max-width: 12ch;
+    }
+
+    .inventory-group__header,
+    .cta-banner__inner {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      min-height: auto;
+      padding-top: var(--space-section-lg);
+    }
+
+    .hero-search-form {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-search-form__field {
+      border-right: none;
+      border-bottom: 1px solid rgba(22, 53, 76, 0.12);
+    }
+
+    .hero-search-form__submit {
+      padding: 1rem 1.25rem;
+      justify-content: center;
+    }
+
+    .stats-band {
+      margin-top: calc(var(--space-section-sm) * -0.55);
+    }
+
+    .stats-band__inner,
+    .services-grid,
+    .testimonial-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 640px) {
-    .trust-bar__inner {
-      grid-template-columns: 1fr;
+    .hero__heading {
+      font-size: clamp(2.8rem, 16vw, 4.5rem);
     }
-    .hero { min-height: 60vh; padding: 6rem var(--spacing-page) 4rem; }
-    .hero__heading { font-size: 3rem; }
-    .trust-bar { margin-top: 0; border-radius: 0; }
-  }
 
-  /* ── CTA Banner ────────────────────────────────────────────────── */
-  .cta-banner {
-    background: var(--color-primary);
-    padding: var(--space-section-md) var(--spacing-page);
-    color: #fff;
-    text-align: center;
-  }
-  .cta-banner__inner {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-  }
-  .cta-banner__text h2 {
-    font-family: var(--font-serif);
-    font-size: var(--text-3xl);
-    font-weight: 800;
-    margin-bottom: 1.25rem;
-    letter-spacing: -0.01em;
-  }
-  .cta-banner__text p {
-    font-size: var(--text-lg);
-    color: rgba(255,255,255,0.9);
-  }
-  .btn-cta-primary {
-    background: #fff;
-    color: var(--color-primary);
-    padding: 1rem 2.5rem;
-    border-radius: var(--radius-md);
-    font-weight: 700;
-    font-size: var(--text-lg);
-    text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    white-space: nowrap;
-  }
-  .btn-cta-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  }
-  @media (min-width: 768px) {
-    .cta-banner__inner {
-      flex-direction: row;
-      justify-content: space-between;
-      text-align: left;
+    .hero__ctas {
+      flex-direction: column;
+      align-items: stretch;
     }
-    .cta-banner__text h2 {
-      margin-bottom: 0.5rem;
+
+    .hero__cta-btn,
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      width: 100%;
+    }
+
+    .inventory-group__link {
+      white-space: normal;
     }
   }
 </style>
