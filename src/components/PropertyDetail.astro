@@ -20,22 +20,97 @@ const facts = [
   detail.garages != null ? { value: String(detail.garages), label: translateLabel(currentLocale, 'Garages') } : null,
   detail.area ? { value: detail.area, label: translateLabel(currentLocale, 'Area') } : null,
 ].filter(Boolean)
+
+const galleryId = `property-gallery-${detail.id}`
 ---
 
 <article class="property-detail">
-  <div class="property-detail__content">
-    <header class="property-detail__header">
-      <div class="property-detail__header-main">
-        <div class="property-detail__badges">
-          <span class="property-detail__status">{statusLabel}</span>
-          {detail.featured && <span class="property-detail__featured">{translateLabel(currentLocale, 'Featured')}</span>}
-        </div>
-        <h1 class="property-detail__title">{detail.title}</h1>
-        {detail.fullAddress && <p class="property-detail__address">{detail.fullAddress}</p>}
-      </div>
-      {detail.price && <p class="property-detail__price">{detail.price}</p>}
-    </header>
+  {detail.photos.length > 0 && (
+    <section class="property-detail__hero">
+      <div class="property-gallery" id={galleryId} data-gallery>
+        <div class="property-gallery__stage">
+          {detail.photos.map((photo, i) => (
+            <figure
+              class:list={['property-gallery__slide', { 'property-gallery__slide--active': i === 0 }]}
+              data-slide
+              data-index={i}
+            >
+              <img
+                src={photo.url}
+                alt={photo.alt ?? `${detail.title} photo ${i + 1}`}
+                class="property-gallery__image"
+                loading={i === 0 ? 'eager' : 'lazy'}
+              />
+              <div class="property-gallery__overlay">
+                <div class="property-gallery__badges">
+                  <span class="property-gallery__status">{statusLabel}</span>
+                  {detail.featured && <span class="property-gallery__featured">{translateLabel(currentLocale, 'Featured')}</span>}
+                </div>
+                <div class="property-gallery__meta">
+                  <h1 class="property-gallery__title">{detail.title}</h1>
+                  <div class="property-gallery__meta-row">
+                    {detail.fullAddress && <p class="property-gallery__address">{detail.fullAddress}</p>}
+                    {detail.price && <p class="property-gallery__price">{detail.price}</p>}
+                  </div>
+                </div>
+              </div>
+            </figure>
+          ))}
 
+          {detail.photos.length > 1 && (
+            <>
+              <button
+                type="button"
+                class="property-gallery__control property-gallery__control--prev"
+                data-gallery-prev
+                aria-label={translateLabel(currentLocale, 'Previous image')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button
+                type="button"
+                class="property-gallery__control property-gallery__control--next"
+                data-gallery-next
+                aria-label={translateLabel(currentLocale, 'Next image')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </>
+          )}
+
+          <div class="property-gallery__counter">
+            <span data-gallery-current>1</span>
+            <span>/</span>
+            <span>{detail.photos.length}</span>
+          </div>
+        </div>
+
+        {detail.photos.length >= 3 && (
+          <div class="property-gallery__thumbs" role="tablist" aria-label={translateLabel(currentLocale, 'Property image thumbnails')}>
+            {detail.photos.map((photo, i) => (
+              <button
+                type="button"
+                class:list={['property-gallery__thumb', { 'property-gallery__thumb--active': i === 0 }]}
+                data-gallery-thumb
+                data-index={i}
+                aria-label={`${translateLabel(currentLocale, 'View image')} ${i + 1}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+              >
+                <img
+                  src={photo.variants.thumbnail ?? photo.url}
+                  alt=""
+                  loading="lazy"
+                  class="property-gallery__thumb-image"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <div class="property-detail__content">
     <section class="property-detail__facts" aria-label={translateLabel(currentLocale, 'Property overview')}>
       {facts.map((fact) => fact && (
         <article class="property-detail__fact">
@@ -56,22 +131,68 @@ const facts = [
       </section>
     )}
   </div>
-
-  {detail.photos.length > 0 && (
-    <section class="property-detail__hero">
-      <div class="property-detail__gallery">
-        {detail.photos.map((photo, i) => (
-          <img
-            src={photo.url}
-            alt={photo.alt ?? `${detail.title} photo ${i + 1}`}
-            class={i === 0 ? 'property-detail__photo--main' : 'property-detail__photo'}
-            loading={i === 0 ? 'eager' : 'lazy'}
-          />
-        ))}
-      </div>
-    </section>
-  )}
 </article>
+
+<script is:inline>
+  document.querySelectorAll('[data-gallery]').forEach((galleryEl) => {
+    const gallery = galleryEl;
+    const slides = Array.from(gallery.querySelectorAll('[data-slide]'));
+    const thumbs = Array.from(gallery.querySelectorAll('[data-gallery-thumb]'));
+    const currentEl = gallery.querySelector('[data-gallery-current]');
+    const prev = gallery.querySelector('[data-gallery-prev]');
+    const next = gallery.querySelector('[data-gallery-next]');
+
+    if (slides.length <= 1) return;
+
+    let index = slides.findIndex((slide) => slide.classList.contains('property-gallery__slide--active'));
+    if (index < 0) index = 0;
+
+    const render = () => {
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('property-gallery__slide--active', slideIndex === index);
+      });
+
+      thumbs.forEach((thumb, thumbIndex) => {
+        const active = thumbIndex === index;
+        thumb.classList.toggle('property-gallery__thumb--active', active);
+        thumb.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      if (currentEl) currentEl.textContent = String(index + 1);
+    };
+
+    prev?.addEventListener('click', () => {
+      index = (index - 1 + slides.length) % slides.length;
+      render();
+    });
+
+    next?.addEventListener('click', () => {
+      index = (index + 1) % slides.length;
+      render();
+    });
+
+    thumbs.forEach((thumb, thumbIndex) => {
+      thumb.addEventListener('click', () => {
+        index = thumbIndex;
+        render();
+      });
+    });
+
+    gallery.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        index = (index - 1 + slides.length) % slides.length;
+        render();
+      }
+
+      if (event.key === 'ArrowRight') {
+        index = (index + 1) % slides.length;
+        render();
+      }
+    });
+
+    render();
+  });
+</script>
 
 <style>
   .property-detail {
@@ -88,52 +209,62 @@ const facts = [
     overflow: hidden;
   }
 
-  .property-detail__gallery {
+  .property-gallery {
     display: grid;
-    grid-template-columns: 1.45fr 1fr 1fr;
-    gap: 0.4rem;
-    background: rgba(22, 53, 76, 0.06);
-    padding: 0.4rem;
+    gap: 0.75rem;
+    padding: 0.6rem;
+    background: rgba(22, 53, 76, 0.05);
   }
 
-  .property-detail__photo--main {
-    grid-row: span 2;
+  .property-gallery__stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: calc(var(--radius-xl) - 0.5rem);
+    min-height: clamp(26rem, 62vh, 40rem);
+    background: #d8d4cf;
+    outline: none;
+  }
+
+  .property-gallery__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 260ms ease;
+  }
+
+  .property-gallery__slide--active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .property-gallery__image {
     width: 100%;
     height: 100%;
-    min-height: 30rem;
     object-fit: cover;
-    border-radius: calc(var(--radius-xl) - 0.4rem);
   }
 
-  .property-detail__photo {
-    width: 100%;
-    height: 100%;
-    min-height: 14.8rem;
-    object-fit: cover;
-    border-radius: calc(var(--radius-xl) - 0.4rem);
-  }
-
-  .property-detail__content {
-    padding: clamp(1.35rem, 3vw, 2.2rem);
-  }
-
-  .property-detail__header {
+  .property-gallery__overlay {
+    position: absolute;
+    inset: 0;
     display: flex;
-    align-items: start;
+    flex-direction: column;
     justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    background:
+      linear-gradient(180deg, rgba(9, 26, 39, 0.22) 0%, rgba(9, 26, 39, 0) 34%, rgba(9, 26, 39, 0.74) 100%);
+    color: var(--color-on-dark);
+    pointer-events: none;
   }
 
-  .property-detail__badges {
+  .property-gallery__badges {
     display: flex;
     gap: 0.6rem;
     flex-wrap: wrap;
-    margin-bottom: 0.8rem;
   }
 
-  .property-detail__status,
-  .property-detail__featured {
+  .property-gallery__status,
+  .property-gallery__featured {
     display: inline-flex;
     align-items: center;
     padding: 0.45rem 0.8rem;
@@ -142,40 +273,147 @@ const facts = [
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    backdrop-filter: blur(8px);
   }
 
-  .property-detail__status {
-    background: rgba(22, 53, 76, 0.08);
+  .property-gallery__status {
+    background: rgba(9, 26, 39, 0.54);
+    color: var(--color-on-dark);
+  }
+
+  .property-gallery__featured {
+    background: rgba(216, 187, 137, 0.88);
     color: var(--color-primary);
   }
 
-  .property-detail__featured {
-    background: var(--color-accent-soft);
-    color: var(--color-primary);
+  .property-gallery__meta {
+    display: grid;
+    gap: 0.7rem;
   }
 
-  .property-detail__title {
-    margin: 0 0 0.6rem;
-    font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
-    line-height: 0.94;
-    color: var(--color-primary);
-    letter-spacing: -0.04em;
-  }
-
-  .property-detail__price {
+  .property-gallery__title {
     margin: 0;
+    max-width: 14ch;
     font-family: var(--font-serif);
-    font-size: clamp(2rem, 3vw, 3rem);
+    font-size: clamp(2.3rem, 5vw, 4.8rem);
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+  }
+
+  .property-gallery__meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .property-gallery__address,
+  .property-gallery__price {
+    margin: 0;
+  }
+
+  .property-gallery__address {
+    color: rgba(246, 242, 235, 0.86);
+    font-size: var(--text-lg);
+  }
+
+  .property-gallery__price {
+    font-family: var(--font-serif);
+    font-size: clamp(1.8rem, 3vw, 2.9rem);
     line-height: 1;
-    color: var(--color-accent);
+    color: var(--color-gold);
     white-space: nowrap;
   }
 
-  .property-detail__address {
-    margin: 0;
-    color: var(--color-text-soft);
-    font-size: var(--text-lg);
+  .property-gallery__control,
+  .property-gallery__counter {
+    position: absolute;
+    z-index: 3;
+  }
+
+  .property-gallery__control {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 999px;
+    background: rgba(252, 250, 247, 0.84);
+    color: var(--color-primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-base), background var(--transition-base);
+  }
+
+  .property-gallery__control:hover {
+    background: var(--color-surface-strong);
+  }
+
+  .property-gallery__control--prev {
+    left: 1rem;
+  }
+
+  .property-gallery__control--next {
+    right: 1rem;
+  }
+
+  .property-gallery__counter {
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(9, 26, 39, 0.54);
+    color: var(--color-on-dark);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+  }
+
+  .property-gallery__thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(4.5rem, 5.75rem));
+    justify-content: start;
+    gap: 0.5rem;
+    padding: 0 0.15rem 0.15rem;
+  }
+
+  .property-gallery__thumb {
+    border: 2px solid transparent;
+    border-radius: calc(var(--radius-md) - 0.1rem);
+    padding: 0;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    opacity: 0.82;
+    box-shadow: var(--shadow-sm);
+    transition: opacity var(--transition-base), transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .property-gallery__thumb:hover,
+  .property-gallery__thumb--active {
+    opacity: 1;
+    transform: translateY(-2px);
+    border-color: rgba(22, 53, 76, 0.22);
+    box-shadow: var(--shadow-md);
+  }
+
+  .property-gallery__thumb-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  .property-detail__content {
+    padding: clamp(1.35rem, 3vw, 2.2rem);
   }
 
   .property-detail__facts {
@@ -227,36 +465,53 @@ const facts = [
   }
 
   @media (max-width: 900px) {
-    .property-detail__gallery {
-      grid-template-columns: 1fr 1fr;
+    .property-gallery__stage {
+      min-height: 22rem;
     }
 
-    .property-detail__photo--main {
-      min-height: 22rem;
+    .property-gallery__title {
+      max-width: 16ch;
+      font-size: clamp(2rem, 7vw, 3.5rem);
+    }
+
+    .property-gallery__meta-row {
+      align-items: start;
+      flex-direction: column;
     }
 
     .property-detail__facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .property-detail__header {
-      flex-direction: column;
-    }
-
-    .property-detail__price {
-      white-space: normal;
-    }
   }
 
   @media (max-width: 640px) {
-    .property-detail__gallery {
-      grid-template-columns: 1fr;
+    .property-gallery {
+      padding: 0.4rem;
     }
 
-    .property-detail__photo--main,
-    .property-detail__photo {
-      min-height: 15rem;
-      grid-row: auto;
+    .property-gallery__stage {
+      min-height: 18rem;
+    }
+
+    .property-gallery__overlay {
+      padding: 0.9rem;
+    }
+
+    .property-gallery__control {
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+
+    .property-gallery__control--prev {
+      left: 0.7rem;
+    }
+
+    .property-gallery__control--next {
+      right: 0.7rem;
+    }
+
+    .property-gallery__thumbs {
+      grid-template-columns: repeat(auto-fit, minmax(4rem, 4.75rem));
     }
 
     .property-detail__facts {
