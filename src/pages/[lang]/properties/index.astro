@@ -1,11 +1,8 @@
 ---
 import PropertyIndexPage from '../../../components/pages/PropertyIndexPage.astro'
-import { validateLocale } from '../../../lib/locale'
+import { resolveLocalizedLocale } from '../../../lib/route-locale'
 
-const locale = validateLocale(Astro.params.lang)
-if (!locale) {
-  Astro.response.status = 404
-}
+const locale = resolveLocalizedLocale(Astro)
 ---
 
 {locale ? <PropertyIndexPage locale={locale} /> : null}

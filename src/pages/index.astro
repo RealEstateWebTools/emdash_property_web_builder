@@ -1,8 +1,8 @@
 ---
 import IndexPage from '../components/pages/IndexPage.astro'
-import { DEFAULT_LOCALE } from '../lib/locale'
+import { resolveDefaultLocale } from '../lib/route-locale'
 
-const locale = Astro.currentLocale ?? DEFAULT_LOCALE
+const locale = resolveDefaultLocale(Astro.currentLocale)
 ---
 
 <IndexPage locale={locale} />

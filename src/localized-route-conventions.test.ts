@@ -22,13 +22,34 @@ describe('localized route conventions', () => {
     'src/pages/[lang]/tag/[slug].astro',
   ]
 
-  it('guards every localized route wrapper with validateLocale and a direct 404', () => {
+  it('guards every localized route wrapper with shared locale bootstrap helper', () => {
     for (const route of localizedRouteWrappers) {
       const source = readSource(route)
 
-      expect(source, `${route} should validate Astro.params.lang`).toContain('validateLocale(Astro.params.lang)')
-      expect(source, `${route} should set a 404 on invalid locale`).toContain('Astro.response.status = 404')
+      expect(source, `${route} should use shared locale bootstrap helper`).toContain('resolveLocalizedLocale(Astro)')
     }
+
+    const helper = readSource('src/lib/route-locale.ts')
+    expect(helper).toContain('validateLocale(ctx.params.lang)')
+    expect(helper).toContain('ctx.response.status = 404')
+  })
+
+  it('keeps root and localized index wrappers aligned on the same page component', () => {
+    const root = readSource('src/pages/index.astro')
+    const localized = readSource('src/pages/[lang]/index.astro')
+
+    expect(root).toContain('IndexPage')
+    expect(localized).toContain('IndexPage')
+    expect(root).toContain('<IndexPage locale={locale} />')
+    expect(localized).toContain('<IndexPage locale={locale} />')
+  })
+
+  it('keeps root and localized CMS slug wrappers aligned on locale + slug forwarding', () => {
+    const root = readSource('src/pages/pages/[slug].astro')
+    const localized = readSource('src/pages/[lang]/pages/[slug].astro')
+
+    expect(root).toContain('<CmsPage locale={locale} slug={slug} />')
+    expect(localized).toContain('<CmsPage locale={locale} slug={slug} />')
   })
 
   it('keeps localized UI text centralized in the locale helper', () => {

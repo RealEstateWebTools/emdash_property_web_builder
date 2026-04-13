@@ -2,12 +2,9 @@
 export const prerender = false;
 
 import SearchPage from '../../components/pages/SearchPage.astro'
-import { validateLocale } from '../../lib/locale'
+import { resolveLocalizedLocale } from '../../lib/route-locale'
 
-const locale = validateLocale(Astro.params.lang)
-if (!locale) {
-  Astro.response.status = 404
-}
+const locale = resolveLocalizedLocale(Astro)
 ---
 
 {locale ? <SearchPage locale={locale} /> : null}

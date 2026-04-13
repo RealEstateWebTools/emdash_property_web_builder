@@ -1,12 +1,9 @@
 ---
 import TagPage from '../../../components/pages/TagPage.astro'
-import { validateLocale } from '../../../lib/locale'
+import { resolveLocalizedLocale } from '../../../lib/route-locale'
 
-const locale = validateLocale(Astro.params.lang)
+const locale = resolveLocalizedLocale(Astro)
 const { slug } = Astro.params
-if (!locale) {
-  Astro.response.status = 404
-}
 ---
 
 {locale && slug ? <TagPage locale={locale} slug={slug} /> : null}
