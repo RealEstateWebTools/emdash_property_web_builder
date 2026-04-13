@@ -52,14 +52,116 @@ const HEADER_OPTIONS = [
   { value: 'compact', label: 'Compact — sticky with reduced height' },
 ]
 
+const APPLY_PRESET_ACTION_PREFIX = 'apply_theme_preset:'
+const RESET_THEME_ACTION_ID = 'reset_theme'
+
+const THEME_PRESETS = [
+  {
+    id: 'editorial',
+    label: 'Editorial',
+    description: 'Balanced default for broad inventory sites.',
+    settings: {
+      palette: 'default',
+      density: 'comfortable',
+      surface: 'soft',
+      motion: 'standard',
+      header: 'sticky',
+    },
+  },
+  {
+    id: 'coastal-showcase',
+    label: 'Coastal Showcase',
+    description: 'Airy spacing for premium coastal listings.',
+    settings: {
+      palette: 'coastal',
+      density: 'spacious',
+      surface: 'soft',
+      motion: 'calm',
+      header: 'sticky',
+    },
+  },
+  {
+    id: 'luxury-brochure',
+    label: 'Luxury Brochure',
+    description: 'Sharper framing and stronger contrast for prestige stock.',
+    settings: {
+      palette: 'luxury',
+      density: 'comfortable',
+      surface: 'sharp',
+      motion: 'standard',
+      header: 'compact',
+    },
+  },
+  {
+    id: 'urban-compact',
+    label: 'Urban Compact',
+    description: 'Dense, modern browsing for apartment-heavy portfolios.',
+    settings: {
+      palette: 'urban',
+      density: 'compact',
+      surface: 'flat',
+      motion: 'expressive',
+      header: 'compact',
+    },
+  },
+  {
+    id: 'nordic-minimal',
+    label: 'Nordic Minimal',
+    description: 'Quiet, minimal framing with more breathing room.',
+    settings: {
+      palette: 'nordic',
+      density: 'spacious',
+      surface: 'flat',
+      motion: 'calm',
+      header: 'static',
+    },
+  },
+] as const satisfies ReadonlyArray<{
+  id: string
+  label: string
+  description: string
+  settings: ThemeSettings
+}>
+
+function settingsEqual(left: ThemeSettings, right: ThemeSettings) {
+  return (
+    left.palette === right.palette &&
+    left.density === right.density &&
+    left.surface === right.surface &&
+    left.motion === right.motion &&
+    left.header === right.header
+  )
+}
+
+function findMatchingPreset(settings: ThemeSettings) {
+  return THEME_PRESETS.find((preset) => settingsEqual(preset.settings, settings))
+}
+
+function humanizeSetting(value: string) {
+  return value
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
 function buildSummaryFields(settings: ThemeSettings) {
+  const matchedPreset = findMatchingPreset(settings)
   return [
+    { label: 'Preset', value: matchedPreset?.label ?? 'Custom' },
     { label: 'Palette', value: settings.palette },
     { label: 'Density', value: settings.density },
     { label: 'Surface', value: settings.surface },
     { label: 'Motion', value: settings.motion },
     { label: 'Header', value: settings.header },
   ]
+}
+
+function buildPresetFields(settings: ThemeSettings) {
+  const matchedPreset = findMatchingPreset(settings)
+  return THEME_PRESETS.map((preset) => ({
+    label: preset.label,
+    value: matchedPreset?.id === preset.id ? `${preset.description} Active now.` : preset.description,
+  }))
 }
 
 function buildEffectFields(settings: ThemeSettings) {
@@ -93,29 +195,107 @@ function buildEffectFields(settings: ThemeSettings) {
             ? 'Stronger hover lift and emphasis'
             : 'Moderate hover feedback',
     },
+    {
+      label: 'Header Effect',
+      value:
+        settings.header === 'static'
+          ? 'Header scrolls away with the page'
+          : settings.header === 'compact'
+            ? 'Sticky header with reduced height'
+            : 'Sticky header with the full brand treatment',
+    },
   ]
 }
 
+function buildPresetActionRows(settings: ThemeSettings) {
+  return [
+    THEME_PRESETS.slice(0, 3),
+    THEME_PRESETS.slice(3),
+  ].map((row) => ({
+    type: 'actions',
+    elements: row.map((preset) => ({
+      type: 'button',
+      label: preset.label,
+      action_id: `${APPLY_PRESET_ACTION_PREFIX}${preset.id}`,
+      style: findMatchingPreset(settings)?.id === preset.id ? 'primary' : undefined,
+    })),
+  }))
+}
+
+function buildThemeFormBlockId(settings: ThemeSettings) {
+  return [
+    'theme_settings',
+    settings.palette,
+    settings.density,
+    settings.surface,
+    settings.motion,
+    settings.header,
+  ].join(':')
+}
+
+function buildThemeFieldActionId(field: keyof ThemeSettings, settings: ThemeSettings) {
+  return `${field}:${buildThemeFormBlockId(settings)}`
+}
+
+function readInteractionValue(values: Record<string, unknown> | undefined, fallback: any, field: keyof ThemeSettings) {
+  if (values && typeof values === 'object') {
+    const direct = values[field]
+    if (direct !== undefined) {
+      return direct
+    }
+
+    const prefix = `${field}:`
+    const dynamicEntry = Object.entries(values).find(([key]) => key.startsWith(prefix))
+    if (dynamicEntry) {
+      return dynamicEntry[1]
+    }
+  }
+
+  return fallback?.[field]
+}
+
 function buildSettingsBlocks(settings: ThemeSettings) {
+  const currentPreset = findMatchingPreset(settings)
+  const preview = PALETTE_PREVIEWS[settings.palette]
   return [
     { type: 'header', text: 'Property Theme' },
     {
       type: 'context',
-      text: 'Shape the property browsing experience with palette, spacing, surface, motion, and header controls. These settings apply site-wide wherever the shared property UI uses theme variables.',
+      text: 'Shape the property browsing experience with palette, spacing, surface, motion, and header controls. Use a preset when you want a coherent direction quickly, then fine-tune below if needed.',
     },
     {
       type: 'fields',
       fields: buildSummaryFields(settings),
     },
     {
+      type: 'section',
+      text: currentPreset
+        ? `Current direction: *${currentPreset.label}*. ${currentPreset.description}`
+        : `Current direction: *Custom*. Built from ${humanizeSetting(settings.palette)} palette, ${humanizeSetting(settings.density)} density, ${humanizeSetting(settings.surface)} surfaces, ${humanizeSetting(settings.motion)} motion, and a ${humanizeSetting(settings.header)} header.`,
+      accessory: {
+        type: 'button',
+        label: 'Reset to Default',
+        action_id: RESET_THEME_ACTION_ID,
+      },
+    },
+    {
+      type: 'section',
+      text: 'Quick presets',
+    },
+    ...buildPresetActionRows(settings),
+    {
+      type: 'fields',
+      fields: buildPresetFields(settings),
+    },
+    {
       type: 'image',
       url: buildThemePreviewDataUrl(settings),
-      alt: `${PALETTE_PREVIEWS[settings.palette].title} theme preview`,
+      alt: `${preview.title} theme preview`,
       title: 'Theme Preview',
     },
     {
       type: 'section',
-      text: 'Palettes control the broad art direction. The other controls are palette-safe refinements layered on top.',
+      text: `${preview.title} sets the overall mood. The controls below tune spacing, edge treatment, interaction energy, and header behavior without forcing a full redesign.`,
     },
     {
       type: 'fields',
@@ -123,39 +303,39 @@ function buildSettingsBlocks(settings: ThemeSettings) {
     },
     {
       type: 'form',
-      block_id: 'theme_settings',
+      block_id: buildThemeFormBlockId(settings),
       fields: [
         {
           type: 'select',
-          action_id: 'palette',
+          action_id: buildThemeFieldActionId('palette', settings),
           label: 'Palette',
           initial_value: settings.palette,
           options: PALETTE_OPTIONS,
         },
         {
           type: 'select',
-          action_id: 'density',
+          action_id: buildThemeFieldActionId('density', settings),
           label: 'Density',
           initial_value: settings.density,
           options: DENSITY_OPTIONS,
         },
         {
           type: 'select',
-          action_id: 'surface',
+          action_id: buildThemeFieldActionId('surface', settings),
           label: 'Surface Style',
           initial_value: settings.surface,
           options: SURFACE_OPTIONS,
         },
         {
           type: 'select',
-          action_id: 'motion',
+          action_id: buildThemeFieldActionId('motion', settings),
           label: 'Interaction Tone',
           initial_value: settings.motion,
           options: MOTION_OPTIONS,
         },
         {
           type: 'select',
-          action_id: 'header',
+          action_id: buildThemeFieldActionId('header', settings),
           label: 'Header Behavior',
           initial_value: settings.header,
           options: HEADER_OPTIONS,
@@ -165,7 +345,7 @@ function buildSettingsBlocks(settings: ThemeSettings) {
     },
     {
       type: 'context',
-      text: 'Use palettes for visual identity, density for grid rhythm, surface style for edge and shadow treatment, interaction tone for hover intensity, and header behavior for browsing ergonomics.',
+      text: 'Use presets to move fast. Use the form when the site needs a custom mix that does not fit one of the preset directions.',
     },
   ]
 }
@@ -206,13 +386,32 @@ export default definePlugin({
       handler: async (routeCtx: any, ctx: any) => {
         const interaction = routeCtx.input ?? {}
 
+        if (typeof interaction.action_id === 'string' && interaction.action_id.startsWith(APPLY_PRESET_ACTION_PREFIX)) {
+          const presetId = interaction.action_id.slice(APPLY_PRESET_ACTION_PREFIX.length)
+          const preset = THEME_PRESETS.find((candidate) => candidate.id === presetId)
+          const settings = preset?.settings ?? DEFAULT_THEME_SETTINGS
+          await writeThemeSettings(ctx, settings)
+          return {
+            blocks: buildSettingsBlocks(settings),
+            toast: { message: `${preset?.label ?? 'Default'} preset applied.`, type: 'success' },
+          }
+        }
+
+        if (interaction.action_id === RESET_THEME_ACTION_ID) {
+          await writeThemeSettings(ctx, DEFAULT_THEME_SETTINGS)
+          return {
+            blocks: buildSettingsBlocks(DEFAULT_THEME_SETTINGS),
+            toast: { message: 'Theme reset to default.', type: 'success' },
+          }
+        }
+
         if (interaction.action_id === 'save_theme') {
           const settings = sanitizeThemeSettings({
-            palette: interaction.values?.palette ?? interaction.value?.palette,
-            density: interaction.values?.density ?? interaction.value?.density,
-            surface: interaction.values?.surface ?? interaction.value?.surface,
-            motion: interaction.values?.motion ?? interaction.value?.motion,
-            header: interaction.values?.header ?? interaction.value?.header,
+            palette: readInteractionValue(interaction.values, interaction.value, 'palette'),
+            density: readInteractionValue(interaction.values, interaction.value, 'density'),
+            surface: readInteractionValue(interaction.values, interaction.value, 'surface'),
+            motion: readInteractionValue(interaction.values, interaction.value, 'motion'),
+            header: readInteractionValue(interaction.values, interaction.value, 'header'),
           })
           await writeThemeSettings(ctx, settings)
           return {

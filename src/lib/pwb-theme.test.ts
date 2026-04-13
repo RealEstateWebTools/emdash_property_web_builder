@@ -85,15 +85,20 @@ describe('pwb-theme admin route', () => {
     const result = await themePlugin.routes!.admin.handler({ input: {} }, { kv })
 
     expect(result.blocks[2].fields).toEqual([
+      { label: 'Preset', value: 'Custom' },
       { label: 'Palette', value: 'nordic' },
       { label: 'Density', value: 'spacious' },
       { label: 'Surface', value: 'sharp' },
       { label: 'Motion', value: 'calm' },
       { label: 'Header', value: 'static' },
     ])
-    expect(result.blocks[3].type).toBe('image')
-    expect(result.blocks[5].fields).toHaveLength(4)
-    expect(result.blocks[6].fields).toHaveLength(5)
+    expect(result.blocks[4].type).toBe('section')
+    expect(result.blocks[5].type).toBe('actions')
+    expect(result.blocks[6].type).toBe('actions')
+    expect(result.blocks[7].fields).toHaveLength(5)
+    expect(result.blocks[8].type).toBe('image')
+    expect(result.blocks[10].fields).toHaveLength(5)
+    expect(result.blocks[11].fields).toHaveLength(5)
   })
 
   it('persists the expanded settings set on save', async () => {
@@ -121,5 +126,53 @@ describe('pwb-theme admin route', () => {
     expect(await kv.get('settings:motion')).toBe('expressive')
     expect(await kv.get('settings:header')).toBe('compact')
     expect(result.toast).toEqual({ message: 'Theme settings saved.', type: 'success' })
+  })
+
+  it('applies a preset in one click', async () => {
+    const kv = createKvStore()
+
+    const result = await themePlugin.routes!.admin.handler(
+      {
+        input: {
+          action_id: 'apply_theme_preset:coastal-showcase',
+        },
+      },
+      { kv },
+    )
+
+    expect(await kv.get('settings:palette')).toBe('coastal')
+    expect(await kv.get('settings:density')).toBe('spacious')
+    expect(await kv.get('settings:surface')).toBe('soft')
+    expect(await kv.get('settings:motion')).toBe('calm')
+    expect(await kv.get('settings:header')).toBe('sticky')
+    expect(result.toast).toEqual({ message: 'Coastal Showcase preset applied.', type: 'success' })
+  })
+
+  it('resets the theme settings to default', async () => {
+    const kv = createKvStore(
+      new Map([
+        ['settings:palette', 'luxury'],
+        ['settings:density', 'compact'],
+        ['settings:surface', 'flat'],
+        ['settings:motion', 'expressive'],
+        ['settings:header', 'compact'],
+      ]),
+    )
+
+    const result = await themePlugin.routes!.admin.handler(
+      {
+        input: {
+          action_id: 'reset_theme',
+        },
+      },
+      { kv },
+    )
+
+    expect(await kv.get('settings:palette')).toBe(DEFAULT_THEME_SETTINGS.palette)
+    expect(await kv.get('settings:density')).toBe(DEFAULT_THEME_SETTINGS.density)
+    expect(await kv.get('settings:surface')).toBe(DEFAULT_THEME_SETTINGS.surface)
+    expect(await kv.get('settings:motion')).toBe(DEFAULT_THEME_SETTINGS.motion)
+    expect(await kv.get('settings:header')).toBe(DEFAULT_THEME_SETTINGS.header)
+    expect(result.toast).toEqual({ message: 'Theme reset to default.', type: 'success' })
   })
 })
