@@ -4,7 +4,7 @@ import siteDetails from '../../test/fixtures/site-details.json'
 import type { SiteDetails } from './types'
 
 describe('buildPageMeta', () => {
-  const site = siteDetails as SiteDetails
+  const site = siteDetails as unknown as SiteDetails
   const propertySearchSite: SiteDetails = {
     ...site,
     title: 'Property Search',

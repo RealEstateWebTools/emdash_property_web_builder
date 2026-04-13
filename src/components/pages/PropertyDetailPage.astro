@@ -47,7 +47,7 @@ const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
   <BaseLayout
     site={site}
     title={detail.title}
-    description={htmlToMetaDescription(property.description)}
+    description={htmlToMetaDescription(property.description) ?? undefined}
     canonical={new URL(canonicalPath, Astro.url.origin).href}
     breadcrumbs={[
       { name: translateLabel(locale, "Home"), url: localePath(locale, "/") },

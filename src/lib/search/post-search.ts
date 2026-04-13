@@ -1,3 +1,4 @@
+import type { PortableTextBlock } from "emdash/ui";
 import { extractText } from "../../utils/reading-time";
 
 export interface SearchablePost {
@@ -17,7 +18,7 @@ export function matchesQuery(post: SearchablePost, q: string): boolean {
 	const lower = q.toLowerCase();
 	const title = (post.data.title || "").toLowerCase();
 	const excerpt = (post.data.excerpt || "").toLowerCase();
-	const content = extractText(post.data.content).toLowerCase();
+	const content = extractText(post.data.content as PortableTextBlock[] | undefined).toLowerCase();
 	return title.includes(lower) || excerpt.includes(lower) || content.includes(lower);
 }
 

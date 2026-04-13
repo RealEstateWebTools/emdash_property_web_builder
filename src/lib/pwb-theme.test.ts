@@ -82,7 +82,7 @@ describe('pwb-theme admin route', () => {
       ]),
     )
 
-    const result = await themePlugin.routes.admin.handler({ input: {} }, { kv })
+    const result = await themePlugin.routes!.admin.handler({ input: {} }, { kv })
 
     expect(result.blocks[2].fields).toEqual([
       { label: 'Palette', value: 'nordic' },
@@ -99,7 +99,7 @@ describe('pwb-theme admin route', () => {
   it('persists the expanded settings set on save', async () => {
     const kv = createKvStore()
 
-    const result = await themePlugin.routes.admin.handler(
+    const result = await themePlugin.routes!.admin.handler(
       {
         input: {
           action_id: 'save_theme',

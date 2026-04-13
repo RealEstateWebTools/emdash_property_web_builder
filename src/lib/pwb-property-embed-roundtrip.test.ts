@@ -125,7 +125,8 @@ describe("PWB property embed plugin config", () => {
 
 		try {
 			const plugin = createPlugin();
-			const result = await plugin.routes?.["properties/list"]?.handler({});
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const result = await plugin.routes?.["properties/list"]?.handler({} as any);
 			expect(result).toEqual({ items: [{ id: "villa-marbella", name: "Villa Marbella" }] });
 		} finally {
 			global.fetch = originalFetch;

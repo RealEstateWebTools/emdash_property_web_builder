@@ -29,7 +29,7 @@ try {
 
 const { entries: posts } = await getEmDashCollection("posts", {
 	locale,
-	where: { category: term?.slug },
+	where: term?.slug ? { category: term.slug } : {},
 	orderBy: { published_at: "desc" },
 });
 

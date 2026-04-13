@@ -3,8 +3,8 @@ import type { SearchConfig, SearchFacets, SearchParams } from '../lib/pwb/types'
 import { DEFAULT_LOCALE, localePath, translateLabel } from '../lib/locale'
 
 interface Props {
-  config: SearchConfig
-  facets: SearchFacets
+  config: SearchConfig | null
+  facets: SearchFacets | null
   currentParams: SearchParams
   mode: 'sale' | 'rental'
 }
@@ -18,50 +18,54 @@ const action = localePath(currentLocale, '/properties')
   <form method="get" action={action}>
     <input type="hidden" name="mode" value={mode} />
 
-    <select name="type" aria-label={translateLabel(currentLocale, 'Property type')}>
-      <option value="">{translateLabel(currentLocale, 'All types')}</option>
-      {config.property_types.map((pt) => (
-        <option value={pt.key} selected={currentParams.property_type === pt.key}>
-          {pt.label} ({pt.count})
-        </option>
-      ))}
-    </select>
+    {config && (
+      <>
+        <select name="type" aria-label={translateLabel(currentLocale, 'Property type')}>
+          <option value="">{translateLabel(currentLocale, 'All types')}</option>
+          {config.property_types.map((pt) => (
+            <option value={pt.key} selected={currentParams.property_type === pt.key}>
+              {pt.label} ({pt.count})
+            </option>
+          ))}
+        </select>
 
-    <select name="bedrooms" aria-label={translateLabel(currentLocale, 'Bedrooms')}>
-      <option value="">{translateLabel(currentLocale, 'Any bedrooms')}</option>
-      {config.bedrooms.filter(b => b > 0).map((b) => (
-        <option value={String(b)} selected={currentParams.bedrooms_from === String(b)}>
-          {b}+ {translateLabel(currentLocale, 'bed')}
-        </option>
-      ))}
-    </select>
+        <select name="bedrooms" aria-label={translateLabel(currentLocale, 'Bedrooms')}>
+          <option value="">{translateLabel(currentLocale, 'Any bedrooms')}</option>
+          {config.bedrooms.filter(b => b > 0).map((b) => (
+            <option value={String(b)} selected={currentParams.bedrooms_from === String(b)}>
+              {b}+ {translateLabel(currentLocale, 'bed')}
+            </option>
+          ))}
+        </select>
 
-    <select name="price_from" aria-label={translateLabel(currentLocale, 'Min price')}>
-      <option value="">{translateLabel(currentLocale, 'Min price')}</option>
-      {(mode === 'rental' ? config.price_options.rent.from : config.price_options.sale.from)
-        .filter(p => p > 0)
-        .map((p) => (
-          <option value={String(p)}>{p.toLocaleString()}</option>
-        ))
-      }
-    </select>
+        <select name="price_from" aria-label={translateLabel(currentLocale, 'Min price')}>
+          <option value="">{translateLabel(currentLocale, 'Min price')}</option>
+          {(mode === 'rental' ? config.price_options.rent.from : config.price_options.sale.from)
+            .filter(p => p > 0)
+            .map((p) => (
+              <option value={String(p)}>{p.toLocaleString()}</option>
+            ))
+          }
+        </select>
 
-    <select name="price_to" aria-label={translateLabel(currentLocale, 'Max price')}>
-      <option value="">{translateLabel(currentLocale, 'Max price')}</option>
-      {(mode === 'rental' ? config.price_options.rent.to : config.price_options.sale.to)
-        .map((p) => (
-          <option value={String(p)}>{p.toLocaleString()}</option>
-        ))
-      }
-    </select>
+        <select name="price_to" aria-label={translateLabel(currentLocale, 'Max price')}>
+          <option value="">{translateLabel(currentLocale, 'Max price')}</option>
+          {(mode === 'rental' ? config.price_options.rent.to : config.price_options.sale.to)
+            .map((p) => (
+              <option value={String(p)}>{p.toLocaleString()}</option>
+            ))
+          }
+        </select>
 
-    <select name="sort" aria-label={translateLabel(currentLocale, 'Sort by')}>
-      {config.sort_options.map((s) => (
-        <option value={s.value} selected={currentParams.sort_by === s.value}>
-          {translateLabel(currentLocale, s.label)}
-        </option>
-      ))}
-    </select>
+        <select name="sort" aria-label={translateLabel(currentLocale, 'Sort by')}>
+          {config.sort_options.map((s) => (
+            <option value={s.value} selected={currentParams.sort_by === s.value}>
+              {translateLabel(currentLocale, s.label)}
+            </option>
+          ))}
+        </select>
+      </>
+    )}
 
     <button type="submit" class="btn btn-primary">{translateLabel(currentLocale, 'Search')}</button>
   </form>

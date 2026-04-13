@@ -49,8 +49,8 @@ export default definePlugin({
 
     'email:deliver': {
       handler: async (event: any, ctx: any) => {
-        const apiKey = await ctx.kv.get<string>(API_KEY_KV)
-        const fromAddress = await ctx.kv.get<string>(FROM_ADDRESS_KV)
+        const apiKey = (await ctx.kv.get(API_KEY_KV)) as string | null
+        const fromAddress = (await ctx.kv.get(FROM_ADDRESS_KV)) as string | null
 
         if (!apiKey) {
           throw new Error('Resend API key is not configured. Go to Plugins > Resend Email > Settings.')
@@ -107,8 +107,8 @@ export default definePlugin({
             await ctx.kv.set(FROM_ADDRESS_KV, rawFrom.trim())
           }
 
-          const hasApiKey = !!(await ctx.kv.get<string>(API_KEY_KV))
-          const fromAddress = (await ctx.kv.get<string>(FROM_ADDRESS_KV)) ?? ''
+          const hasApiKey = !!((await ctx.kv.get(API_KEY_KV)) as string | null)
+          const fromAddress = ((await ctx.kv.get(FROM_ADDRESS_KV)) as string | null) ?? ''
 
           return {
             blocks: buildSettingsBlocks(fromAddress, hasApiKey),
@@ -116,8 +116,8 @@ export default definePlugin({
           }
         }
 
-        const hasApiKey = !!(await ctx.kv.get<string>(API_KEY_KV))
-        const fromAddress = (await ctx.kv.get<string>(FROM_ADDRESS_KV)) ?? ''
+        const hasApiKey = !!((await ctx.kv.get(API_KEY_KV)) as string | null)
+        const fromAddress = ((await ctx.kv.get(FROM_ADDRESS_KV)) as string | null) ?? ''
 
         return { blocks: buildSettingsBlocks(fromAddress, hasApiKey) }
       },

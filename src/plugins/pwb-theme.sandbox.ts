@@ -175,13 +175,13 @@ function buildSettingsBlocks(settings: ThemeSettings) {
 }
 
 async function readThemeSettings(ctx: any): Promise<ThemeSettings> {
-  const [palette, density, surface, motion, header] = await Promise.all([
-    ctx.kv.get<string>(PALETTE_KV_KEY),
-    ctx.kv.get<string>(THEME_DENSITY_KV_KEY),
-    ctx.kv.get<string>(THEME_SURFACE_KV_KEY),
-    ctx.kv.get<string>(THEME_MOTION_KV_KEY),
-    ctx.kv.get<string>(THEME_HEADER_KV_KEY),
-  ])
+  const [palette, density, surface, motion, header] = (await Promise.all([
+    ctx.kv.get(PALETTE_KV_KEY),
+    ctx.kv.get(THEME_DENSITY_KV_KEY),
+    ctx.kv.get(THEME_SURFACE_KV_KEY),
+    ctx.kv.get(THEME_MOTION_KV_KEY),
+    ctx.kv.get(THEME_HEADER_KV_KEY),
+  ])) as (string | null)[]
 
   return sanitizeThemeSettings({ palette, density, surface, motion, header })
 }

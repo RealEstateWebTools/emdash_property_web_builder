@@ -13,7 +13,7 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const localizedSiteTitle = translateBrand(currentLocale, siteTitle)
 const menuItems = menu?.items ?? []
 
-const defaultNavItems = [
+const defaultNavItems: Array<{ url: string; label: string; target?: string }> = [
   { url: '/', label: translateLabel(currentLocale, 'Home') },
   { url: '/properties', label: translateLabel(currentLocale, 'Properties') },
   { url: '/posts', label: translateLabel(currentLocale, 'Posts') },
