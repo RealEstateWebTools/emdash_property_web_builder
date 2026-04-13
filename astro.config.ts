@@ -14,6 +14,7 @@ import { pwbValuationPlugin } from "pwb-valuation";
 import { pwbValuationIntegration } from "pwb-valuation/integration";
 import { pwbThemePlugin } from "./src/plugins/pwb-theme.js";
 import { resendEmailPlugin } from "./src/plugins/resend-email.js";
+import { siteProfilePlugin } from "./src/plugins/site-profile.js";
 
 const isDev = process.env.NODE_ENV !== "production";
 const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
@@ -22,7 +23,7 @@ const emdashLocalExcludes = [
 	"emdash/storage/local",
 	"emdash/media/local-runtime",
 ];
-const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbThemePlugin(), resendEmailPlugin()];
+const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbThemePlugin(), siteProfilePlugin(), resendEmailPlugin()];
 const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbPagePartsPlugin(), pwbValuationPlugin()];
 
 export default defineConfig({
@@ -123,6 +124,8 @@ export default defineConfig({
 				"pwb-valuation/integration",
 				"./src/plugins/pwb-theme.js",
 				"./src/plugins/pwb-theme.sandbox.js",
+				"./src/plugins/site-profile.js",
+				"./src/plugins/site-profile.sandbox.js",
 				"./src/plugins/resend-email.js",
 				"./src/plugins/resend-email.sandbox.js",
 			],

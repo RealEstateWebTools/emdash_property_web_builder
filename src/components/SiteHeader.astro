@@ -1,17 +1,23 @@
 ---
 import { getMenu } from 'emdash'
 import type { SiteDetails } from '../lib/pwb/types'
+import { fallbackSite } from '../lib/pwb/fallback-site'
+import type { SiteProfileSettings } from '../lib/site-profile'
 import { ALL_LOCALES, DEFAULT_LOCALE, localeLabel, localePath, translateBrand, translateLabel } from '../lib/locale'
 
 interface Props {
   site: SiteDetails
+  siteProfile: SiteProfileSettings
 }
 
-const { site } = Astro.props
+const { site, siteProfile } = Astro.props
 const primaryMenu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const menuItems = primaryMenu?.items ?? []
-const fallbackBrand = translateBrand(currentLocale, 'Property Search')
+const fallbackBrand = translateBrand(
+  currentLocale,
+  fallbackSite.company_display_name ?? fallbackSite.title,
+)
 const localizedBrand = translateBrand(currentLocale, site.company_display_name ?? site.title)
 const displayBrand = localizedBrand && localizedBrand !== 'Home' ? localizedBrand : fallbackBrand
 
@@ -49,7 +55,7 @@ const combinedNavItems = [
 <header class="site-header">
   <div class="site-header__topbar">
     <div class="site-header__topbar-inner">
-      <p>{translateLabel(currentLocale, 'Curated homes, rentals, and local insight')}</p>
+      <p>{siteProfile.tagline}</p>
       <div class="site-header__locales" aria-label="Language switcher">
         {ALL_LOCALES.map((locale) => (
           <a

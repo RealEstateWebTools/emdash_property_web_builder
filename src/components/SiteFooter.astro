@@ -1,13 +1,15 @@
 ---
 import { getMenu } from 'emdash'
 import { WidgetArea } from 'emdash/ui'
+import type { SiteProfileSettings } from '../lib/site-profile'
 import { DEFAULT_LOCALE, localePath, translateBrand, translateLabel } from '../lib/locale'
 
 interface Props {
   siteTitle: string
+  siteProfile: SiteProfileSettings
 }
 
-const { siteTitle } = Astro.props
+const { siteTitle, siteProfile } = Astro.props
 const menu = await getMenu('primary')
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 const menuItems = menu?.items ?? []
@@ -79,6 +81,9 @@ const combinedFooterItems = [
         <ul class="footer-links">
           <li><a href={localePath(currentLocale, '/contact')}>{translateLabel(currentLocale, 'Contact Us')}</a></li>
           <li><a href={localePath(currentLocale, '/properties')}>{translateLabel(currentLocale, 'View All Properties')}</a></li>
+          <li><span class="footer-contact">{siteProfile.officeAddress}</span></li>
+          <li><a href={`tel:${siteProfile.officePhone.replace(/[^+\d]/g, '')}`}>{siteProfile.officePhone}</a></li>
+          <li><a href={`mailto:${siteProfile.officeEmail}`}>{siteProfile.officeEmail}</a></li>
           <li>
             <a
               href="https://github.com/RealEstateWebTools/emdash_property_web_builder"
@@ -183,6 +188,12 @@ const combinedFooterItems = [
   .footer-links a:hover {
     color: var(--color-gold);
     transform: translateX(3px);
+  }
+
+  .footer-contact {
+    color: rgba(246, 242, 235, 0.74);
+    line-height: 1.7;
+    display: inline-block;
   }
 
   .footer-bottom {

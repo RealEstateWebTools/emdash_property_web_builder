@@ -5,6 +5,17 @@ import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
 import type { BreadcrumbItem } from 'emdash'
 import {
+  applySiteProfileToSite,
+  DEFAULT_SITE_PROFILE_SETTINGS,
+  SITE_PROFILE_BRAND_NAME_KV_KEY,
+  SITE_PROFILE_OFFICE_ADDRESS_KV_KEY,
+  SITE_PROFILE_OFFICE_EMAIL_KV_KEY,
+  SITE_PROFILE_OFFICE_PHONE_KV_KEY,
+  SITE_PROFILE_TAGLINE_KV_KEY,
+  type SiteProfileSettings,
+  sanitizeSiteProfileSettings,
+} from '../lib/site-profile.js'
+import {
   buildThemeStyleOverrides,
   DEFAULT_THEME_SETTINGS,
   PALETTE_KV_KEY,
@@ -32,12 +43,11 @@ interface Props {
 
 const { site, title, description, canonical, alternateLinks = [], siteTitle, breadcrumbs } = Astro.props
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
-const localizedSiteTitle = translateBrand(currentLocale, site.company_display_name ?? site.title)
-const meta = buildPageMeta(site, { locale: currentLocale, title, description, canonical, siteTitle })
 
 // Palette resolution: admin panel setting > PUBLIC_PALETTE env var > 'default'
 // The plugin stores its KV under key `plugin:pwb-theme:<key>` in the options table.
 let themeSettings = DEFAULT_THEME_SETTINGS
+let siteProfile: SiteProfileSettings = DEFAULT_SITE_PROFILE_SETTINGS
 const db = Astro.locals.emdash?.db
 if (db) {
   try {
@@ -50,6 +60,11 @@ if (db) {
         `plugin:pwb-theme:${THEME_SURFACE_KV_KEY}`,
         `plugin:pwb-theme:${THEME_MOTION_KV_KEY}`,
         `plugin:pwb-theme:${THEME_HEADER_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_BRAND_NAME_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_TAGLINE_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_OFFICE_ADDRESS_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_OFFICE_PHONE_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_OFFICE_EMAIL_KV_KEY}`,
       ])
       .execute()
 
@@ -67,6 +82,13 @@ if (db) {
       motion: rawSettings.motion,
       header: rawSettings.header,
     })
+    siteProfile = sanitizeSiteProfileSettings({
+      brandName: rawSettings.brand_name,
+      tagline: rawSettings.tagline,
+      officeAddress: rawSettings.office_address,
+      officePhone: rawSettings.office_phone,
+      officeEmail: rawSettings.office_email,
+    })
   } catch {
     // Plugin not yet installed or DB unavailable — fall through to env var
   }
@@ -82,6 +104,10 @@ const palette = themeSettings.palette
 const paletteHref = palette !== 'default' ? `/styles/palettes/${palette}.css` : null
 const themeClass = palette !== 'default' ? `theme-${palette}` : undefined
 const themeOverrides = buildThemeStyleOverrides(themeSettings)
+const localizedSiteTitleFromSite = translateBrand(currentLocale, site.company_display_name ?? site.title)
+const siteWithProfile = applySiteProfileToSite(site, siteProfile)
+const localizedSiteTitle = translateBrand(currentLocale, siteWithProfile.company_display_name ?? siteWithProfile.title) || localizedSiteTitleFromSite
+const meta = buildPageMeta(siteWithProfile, { locale: currentLocale, title, description, canonical, siteTitle })
 ---
 
 <!doctype html>
@@ -137,7 +163,7 @@ const themeOverrides = buildThemeStyleOverrides(themeSettings)
     {themeOverrides && <style is:inline>{themeOverrides}</style>}
   </head>
   <body>
-    <SiteHeader site={site} />
+    <SiteHeader site={siteWithProfile} siteProfile={siteProfile} />
     {breadcrumbs && breadcrumbs.length > 0 && (
       <nav aria-label="Breadcrumb" class="breadcrumb-nav">
         <ol class="breadcrumb-list">
@@ -155,7 +181,7 @@ const themeOverrides = buildThemeStyleOverrides(themeSettings)
     <main>
       <slot />
     </main>
-    <SiteFooter siteTitle={localizedSiteTitle} />
+    <SiteFooter siteTitle={localizedSiteTitle} siteProfile={siteProfile} />
   </body>
 </html>
 
