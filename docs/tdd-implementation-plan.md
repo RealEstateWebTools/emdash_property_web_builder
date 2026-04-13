@@ -43,6 +43,111 @@ If you change docs, also run:
 pnpm run test:run -- src/docs-validation.test.ts
 ```
 
+### Detailed Red -> Green -> Refactor Protocol
+
+Use this exact protocol for every milestone.
+
+#### Step 0: Scope Lock
+
+1. Copy the milestone goal into your scratch notes in one sentence.
+2. List only the files mentioned in that milestone.
+3. Explicitly defer all out-of-scope ideas to a follow-up list.
+
+If you cannot describe the scope in one sentence, you are about to overbuild.
+
+#### Step 1: Red (Failing Test First)
+
+1. Add or update tests exactly as listed in the milestone `Red` section.
+2. Run only the targeted test command for that milestone.
+3. Confirm the test fails for the expected reason.
+4. Record the failure reason in one short line in your notes.
+
+Rules for this step:
+
+- Never edit production code before you see the failing assertion.
+- If the test fails for an unrelated reason, fix the test harness first.
+- If the test unexpectedly passes, strengthen the assertion until it fails.
+
+#### Step 2: Green (Minimal Fix)
+
+1. Implement the smallest code change that satisfies the failing test.
+2. Run the same targeted test command again.
+3. Continue only when the targeted tests are green.
+
+Rules for this step:
+
+- Prefer adapting existing helpers over introducing new abstractions.
+- Do not refactor while still red.
+- Avoid changing public behavior that is not explicitly covered by the milestone.
+
+#### Step 3: Refactor (Safe Cleanup)
+
+1. Remove duplication introduced during Green.
+2. Improve names and extract helpers only when it reduces cognitive load.
+3. Re-run the targeted tests after each refactor chunk.
+
+Rules for this step:
+
+- Refactor in tiny increments.
+- Keep output behavior identical.
+- Stop refactoring as soon as readability is acceptable.
+
+#### Step 4: Safety Gate
+
+Before marking a milestone complete, run:
+
+```bash
+pnpm run test:run
+pnpm run typecheck
+```
+
+If docs changed, also run:
+
+```bash
+pnpm run test:run -- src/docs-validation.test.ts
+```
+
+Only move to the next milestone when all gates are green.
+
+### Commit Workflow (Per Milestone)
+
+Use one commit per milestone. Do not mix milestones.
+
+1. `git status --short`
+2. Stage only files touched by the current milestone.
+3. Commit with a milestone-specific message.
+
+Recommended commit message format:
+
+- `Implement Milestone <N> <short-scope>`
+
+Examples:
+
+- `Implement Milestone 1 local enquiry API route`
+- `Implement Milestone 2 search cache hint and helper`
+
+### Failure Handling Playbook
+
+When stuck, follow this order:
+
+1. Re-read the failing assertion and expected behavior.
+2. Re-run only the single failing test with `pnpm run test:run -- <file>`.
+3. Confirm fixture and mock setup is correct.
+4. Check for locale-sensitive behavior (`en`, `es`, `fr`).
+5. Check for cache behavior when EmDash queries are involved.
+6. If still blocked, add a characterization test to lock current behavior.
+
+Do not jump to broad rewrites while debugging a narrow test failure.
+
+### Quality Checklist (Before Opening PR)
+
+1. Every milestone change is test-backed.
+2. No commented-out code or dead branches remain.
+3. Public URL shapes remain unchanged unless the milestone says otherwise.
+4. Localized behavior still works for `en`, `es`, and `fr`.
+5. Error responses do not leak internals.
+6. All required commands are green.
+
 ---
 
 ## Working Rules

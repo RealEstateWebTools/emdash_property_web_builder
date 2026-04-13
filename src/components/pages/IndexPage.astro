@@ -66,6 +66,14 @@ const cards = results.data.map(formatPropertyCard)
           </button>
         </form>
       </div>
+      <div class="hero__ctas">
+        <a href={localePath(locale, '/properties')} class="hero__cta-btn hero__cta-btn--primary">
+          {translateLabel(locale, 'Browse Properties')}
+        </a>
+        <a href={localePath(locale, '/contact')} class="hero__cta-btn hero__cta-btn--ghost">
+          {translateLabel(locale, 'Contact Us')}
+        </a>
+      </div>
     </div>
   </section>
 
@@ -144,10 +152,10 @@ const cards = results.data.map(formatPropertyCard)
   /* ── Hero ─────────────────────────────────────────────────────── */
   .hero {
     position: relative;
-    padding: var(--space-section-lg) var(--spacing-page);
+    padding: var(--space-section-lg) var(--spacing-page) var(--space-section-md);
     overflow: hidden;
     color: #fff;
-    min-height: 80vh;
+    min-height: 68vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -178,23 +186,21 @@ const cards = results.data.map(formatPropertyCard)
   }
   .hero__heading {
     font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 8vw, 4.5rem);
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 2rem;
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
     color: #fff;
     letter-spacing: -0.02em;
-    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
   .hero__tagline {
-    font-size: var(--text-xl);
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 3.5rem;
-    max-width: 650px;
+    font-size: var(--text-lg);
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 2.5rem;
+    max-width: 580px;
     margin-left: auto;
     margin-right: auto;
-    line-height: 1.6;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    line-height: 1.65;
   }
 
   /* ── Hero Search Box ─────────────────────────────────────────── */
@@ -261,6 +267,43 @@ const cards = results.data.map(formatPropertyCard)
     background: var(--color-primary-dark);
   }
 
+  /* ── Hero CTA buttons ─────────────────────────────────────────── */
+  .hero__ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .hero__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: var(--text-base);
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .hero__cta-btn--primary {
+    background: #fff;
+    color: var(--color-primary);
+    border: 2px solid #fff;
+  }
+  .hero__cta-btn--primary:hover {
+    background: transparent;
+    color: #fff;
+  }
+  .hero__cta-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.65);
+  }
+  .hero__cta-btn--ghost:hover {
+    border-color: #fff;
+    background: rgba(255,255,255,0.1);
+  }
+
   @media (max-width: 768px) {
     .hero__search {
       background: transparent;
@@ -295,7 +338,7 @@ const cards = results.data.map(formatPropertyCard)
   .trust-bar__inner {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 3rem var(--spacing-page);
+    padding: 2rem var(--spacing-page);
     display: grid;
     grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
     align-items: center;
@@ -341,12 +384,12 @@ const cards = results.data.map(formatPropertyCard)
 
   /* ── Featured Section ─────────────────────────────────────────── */
   .featured-section {
-    padding: var(--space-section-lg) var(--spacing-page);
+    padding: var(--space-section-md) var(--spacing-page) var(--space-section-lg);
     background: var(--color-bg-soft);
   }
   .featured-section__header {
     text-align: center;
-    margin-bottom: 5rem;
+    margin-bottom: 2.5rem;
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
@@ -365,7 +408,7 @@ const cards = results.data.map(formatPropertyCard)
   }
   .featured-section__cta {
     text-align: center;
-    margin-top: 5rem;
+    margin-top: 3rem;
   }
 
   @media (max-width: 1024px) {

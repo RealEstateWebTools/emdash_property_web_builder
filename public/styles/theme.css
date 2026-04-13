@@ -69,12 +69,30 @@
   --detail-price-size:       var(--text-3xl);
 
   /* ── Header ─────────────────────────────────────────────────────── */
-  --header-bg:          #2a2a2a; /* Dark charcoal header */
-  --header-text:        #ffffff;
-  --header-border:      none;
+  --header-bg:          rgba(255, 255, 255, 0.97);
+  --header-text:        var(--color-text);
+  --header-border:      1px solid var(--color-border);
   --header-position:    sticky;
   --header-padding-y:   1.25rem;
   --header-logo-size:   var(--text-2xl);
+
+  /* ── Nav component tokens ───────────────────────────────────────── */
+  --color-nav-link:     var(--color-text);
+  --nav-gap:            var(--spacing-8);
+  --nav-actions-gap:    var(--spacing-10);
+
+  /* ── Section spacing ────────────────────────────────────────────── */
+  --space-section-sm:   var(--spacing-12);
+  --space-section-md:   var(--spacing-20);
+  --space-section-lg:   6rem;
+
+  /* ── Extended shadow scale ──────────────────────────────────────── */
+  --shadow-md:          0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg:          0 8px 30px rgba(0,0,0,0.12);
+
+  /* ── Font role tokens ───────────────────────────────────────────── */
+  --font-body:          var(--font-sans);
+  --font-heading:       var(--font-serif);
 
   /* Backward-compatible aliases */
   --font-size-xs:       var(--text-xs);
