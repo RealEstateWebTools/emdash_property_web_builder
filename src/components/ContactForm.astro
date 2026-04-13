@@ -1,4 +1,6 @@
 ---
+import { DEFAULT_LOCALE, translateLabel } from '../lib/locale'
+
 interface Props {
   propertyId?: number
   propertyTitle?: string
@@ -6,37 +8,42 @@ interface Props {
 
 const { propertyId, propertyTitle } = Astro.props
 const formId = `enquiry-form-${propertyId ?? 'general'}`
+const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
+const heading = propertyTitle
+  ? `${translateLabel(currentLocale, 'Enquire about')} ${propertyTitle}`
+  : translateLabel(currentLocale, 'Contact Us')
 ---
 
 <form
   id={formId}
   class="contact-form"
   data-property-id={propertyId}
+  data-success-message={translateLabel(currentLocale, 'Your enquiry has been sent!')}
+  data-error-message={translateLabel(currentLocale, 'Something went wrong. Please try again.')}
+  data-network-error-message={translateLabel(currentLocale, 'Network error. Please try again.')}
   novalidate
 >
-  <h2>
-    {propertyTitle ? `Enquire about ${propertyTitle}` : 'Contact Us'}
-  </h2>
+  <h2>{heading}</h2>
 
   <div class="form-group">
-    <label for="name">Name *</label>
+    <label for="name">{translateLabel(currentLocale, 'Name *')}</label>
     <input type="text" id="name" name="name" required autocomplete="name" />
     <span class="field-error" data-field="name" aria-live="polite"></span>
   </div>
 
   <div class="form-group">
-    <label for="email">Email *</label>
+    <label for="email">{translateLabel(currentLocale, 'Email *')}</label>
     <input type="email" id="email" name="email" required autocomplete="email" />
     <span class="field-error" data-field="email" aria-live="polite"></span>
   </div>
 
   <div class="form-group">
-    <label for="phone">Phone (optional)</label>
+    <label for="phone">{translateLabel(currentLocale, 'Phone (optional)')}</label>
     <input type="tel" id="phone" name="phone" autocomplete="tel" />
   </div>
 
   <div class="form-group">
-    <label for="message">Message *</label>
+    <label for="message">{translateLabel(currentLocale, 'Message *')}</label>
     <textarea id="message" name="message" rows="5" required></textarea>
     <span class="field-error" data-field="message" aria-live="polite"></span>
   </div>
@@ -44,8 +51,8 @@ const formId = `enquiry-form-${propertyId ?? 'general'}`
   <div class="form-status" aria-live="polite"></div>
 
   <button type="submit" class="btn btn-primary">
-    <span class="btn-text">Send Enquiry</span>
-    <span class="btn-loading" hidden>Sending…</span>
+    <span class="btn-text">{translateLabel(currentLocale, 'Send Enquiry')}</span>
+    <span class="btn-loading" hidden>{translateLabel(currentLocale, 'Sending...')}</span>
   </button>
 </form>
 
@@ -84,6 +91,9 @@ const formId = `enquiry-form-${propertyId ?? 'general'}`
       submitBtn.disabled = true
 
       const propertyId = form.dataset.propertyId
+      const successMessage = form.dataset.successMessage ?? 'Your enquiry has been sent!'
+      const errorMessage = form.dataset.errorMessage ?? 'Something went wrong. Please try again.'
+      const networkErrorMessage = form.dataset.networkErrorMessage ?? 'Network error. Please try again.'
 
       try {
         const res = await fetch('/api/enquiries', {
@@ -98,19 +108,30 @@ const formId = `enquiry-form-${propertyId ?? 'general'}`
           }),
         })
 
-        const result = await res.json() as { success: boolean; message?: string; errors?: string[] }
+        const result = await res.json() as {
+          success: boolean
+          message?: string
+          errors?: string[]
+          fieldErrors?: Record<string, string>
+        }
         const status = form.querySelector('.form-status')!
 
         if (result.success) {
           form.reset()
-          status.textContent = result.message ?? 'Your enquiry has been sent!'
+          status.textContent = result.message ?? successMessage
           status.className = 'form-status success'
         } else {
-          status.textContent = result.errors?.join(', ') ?? 'Something went wrong. Please try again.'
+          if (result.fieldErrors) {
+            Object.entries(result.fieldErrors).forEach(([field, msg]) => {
+              const el = form.querySelector<HTMLElement>(`[data-field="${field}"]`)
+              if (el) el.textContent = msg
+            })
+          }
+          status.textContent = result.errors?.join(', ') ?? result.message ?? errorMessage
           status.className = 'form-status error'
         }
       } catch {
-        form.querySelector('.form-status')!.textContent = 'Network error. Please try again.'
+        form.querySelector('.form-status')!.textContent = networkErrorMessage
       } finally {
         btnText.removeAttribute('hidden')
         btnLoading.setAttribute('hidden', '')

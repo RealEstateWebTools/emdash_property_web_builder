@@ -12,6 +12,18 @@ import {
 } from './locale'
 
 describe('locale helpers', () => {
+  const requiredUiKeys = [
+    'Properties',
+    'Posts',
+    'Bathrooms',
+    'Area',
+    'Contact Us',
+    'Send Enquiry',
+    'Your enquiry has been sent!',
+    'Something went wrong. Please try again.',
+    'Network error. Please try again.',
+  ] as const
+
   it('keeps locale constants aligned with the expected default and supported locales', () => {
     expect(DEFAULT_LOCALE).toBe('en')
     expect(SUPPORTED_LOCALES).toEqual(['es', 'fr'])
@@ -56,5 +68,17 @@ describe('locale helpers', () => {
     expect(translateBrand('fr', 'My Blog')).toBe('Mon Blog')
     expect(translateBrand('en', 'Property Search')).toBe('Property Search')
     expect(translateBrand('es', 'Custom Brand')).toBe('Custom Brand')
+  })
+
+  it('defines required UI keys for Spanish locale', () => {
+    requiredUiKeys.forEach((key) => {
+      expect(translateLabel('es', key)).not.toBe(key)
+    })
+  })
+
+  it('defines required UI keys for French locale', () => {
+    requiredUiKeys.forEach((key) => {
+      expect(translateLabel('fr', key)).not.toBe(key)
+    })
   })
 })
