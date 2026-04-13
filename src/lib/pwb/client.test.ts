@@ -6,13 +6,13 @@ const client = new PwbClient('http://localhost:3001')
 describe('PwbClient.getSiteDetails', () => {
   it('returns site details', async () => {
     const result = await client.getSiteDetails()
-    expect(result.title).toBe('Sunshine Realty')
+    expect(result.title).toBe('Demo Realty')
     expect(result.default_currency).toBe('EUR')
   })
 
   it('includes og metadata', async () => {
     const result = await client.getSiteDetails()
-    expect(result.og['og:title']).toBe('Sunshine Realty')
+    expect(result.og['og:title']).toBe('Demo Realty')
   })
 })
 

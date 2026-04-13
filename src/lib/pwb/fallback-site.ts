@@ -2,9 +2,9 @@ import type { SiteDetails } from './types'
 
 export const fallbackSite: SiteDetails = {
   id: 0,
-  title: 'Property Search',
+  title: 'Demo Realty',
   meta_description: null,
-  company_display_name: null,
+  company_display_name: 'Demo Realty',
   logo_url: null,
   default_currency: null,
   default_area_unit: null,

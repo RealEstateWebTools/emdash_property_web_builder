@@ -13,12 +13,12 @@ describe('buildPageMeta', () => {
 
   it('uses the site title when no page title given', () => {
     const meta = buildPageMeta(site)
-    expect(meta.title).toBe('Sunshine Realty')
+    expect(meta.title).toBe('Demo Realty')
   })
 
   it('appends site name to page title when given', () => {
     const meta = buildPageMeta(site, { title: 'Villas for Sale' })
-    expect(meta.title).toBe('Villas for Sale | Sunshine Realty')
+    expect(meta.title).toBe('Villas for Sale | Demo Realty')
   })
 
   it('falls back to default meta description', () => {
@@ -38,7 +38,7 @@ describe('buildPageMeta', () => {
 
   it('merges OG tags with page overrides', () => {
     const meta = buildPageMeta(site, { title: 'Villas' })
-    expect(meta.og['og:title']).toBe('Villas | Sunshine Realty')
+    expect(meta.og['og:title']).toBe('Villas | Demo Realty')
     expect(meta.og['og:type']).toBe('website')
   })
 

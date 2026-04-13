@@ -1,13 +1,13 @@
 {
   "id": 1,
-  "title": "Sunshine Realty",
+  "title": "Demo Realty",
   "meta_description": "Find your dream property",
-  "company_display_name": "Sunshine Realty",
+  "company_display_name": "Demo Realty",
   "logo_url": "https://example.com/logo.png",
   "default_currency": "EUR",
   "default_area_unit": "sqm",
   "og": {
-    "og:title": "Sunshine Realty",
+    "og:title": "Demo Realty",
     "og:type": "website"
   },
   "twitter": {},
