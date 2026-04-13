@@ -3,9 +3,11 @@ import { getEmDashEntry } from 'emdash'
 import { PortableText } from 'emdash/ui'
 import { createPwbClient } from '../../lib/pwb/client'
 import { formatPropertyCard } from '../../lib/pwb/formatters'
+import { fallbackSite } from '../../lib/pwb/fallback-site'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyGrid from '../PropertyGrid.astro'
 import { localePath, translateLabel } from '../../lib/locale'
+import type { SearchResults } from '../../lib/pwb/types'
 
 interface Props {
   locale: string
@@ -16,11 +18,17 @@ const { locale } = Astro.props
 const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage', { locale })
 Astro.cache.set(cacheHint)
 
-const client = createPwbClient(locale)
-const [site, results] = await Promise.all([
-  client.getSiteDetails(),
-  client.searchProperties({ featured: 'true', per_page: 6 }),
-])
+let site = fallbackSite
+let results: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 6, total_pages: 0 } }
+try {
+  const client = createPwbClient(locale)
+  ;[site, results] = await Promise.all([
+    client.getSiteDetails(),
+    client.searchProperties({ featured: 'true', per_page: 6 }),
+  ])
+} catch {
+  site = fallbackSite
+}
 
 const cards = results.data.map(formatPropertyCard)
 ---
