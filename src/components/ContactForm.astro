@@ -84,20 +84,17 @@ const formId = `enquiry-form-${propertyId ?? 'general'}`
       submitBtn.disabled = true
 
       const propertyId = form.dataset.propertyId
-      const pwbUrl = document.querySelector<HTMLMetaElement>('meta[name="pwb-api-url"]')?.content
 
       try {
-        const res = await fetch(`${pwbUrl}/api_public/v1/enquiries`, {
+        const res = await fetch('/api/enquiries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
-            enquiry: {
-              name: data.name,
-              email: data.email,
-              phone: data.phone || undefined,
-              message: data.message,
-              property_id: propertyId ?? undefined,
-            },
+            name: data.name,
+            email: data.email,
+            phone: data.phone || undefined,
+            message: data.message,
+            property_id: propertyId ?? undefined,
           }),
         })
 

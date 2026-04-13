@@ -97,9 +97,6 @@ const themeOverrides = buildThemeStyleOverrides(themeSettings)
     ))}
     <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.url.origin).href} />
 
-    <!-- PWB API URL for client-side fetch (contact form) -->
-    <meta name="pwb-api-url" content={import.meta.env.PWB_API_URL} />
-
     <!-- Open Graph -->
     {Object.entries(meta.og).map(([property, content]) => (
       <meta property={property} content={content} />

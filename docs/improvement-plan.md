@@ -4,6 +4,10 @@ Generated: 2026-04-12
 
 This document captures the full improvement plan for `emdash_property_web_builder`, covering test coverage expansion, code quality, feature work, and infrastructure.
 
+For an execution-focused runbook that follows `Red -> Green -> Refactor` and breaks
+the next improvements into milestone-by-milestone steps a junior developer can
+follow, see [docs/tdd-implementation-plan.md](tdd-implementation-plan.md).
+
 ---
 
 ## Current State Summary
