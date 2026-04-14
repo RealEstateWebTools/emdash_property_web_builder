@@ -99,6 +99,16 @@
 					"type": "string"
 				},
 				{
+					"slug": "pre_featured_content",
+					"label": "Homepage Content Before Featured Listings",
+					"type": "portableText"
+				},
+				{
+					"slug": "post_featured_content",
+					"label": "Homepage Content After Featured Listings",
+					"type": "portableText"
+				},
+				{
 					"slug": "trust_content",
 					"label": "Homepage Trust Content",
 					"type": "portableText"
@@ -273,7 +283,22 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
-					"trust_content": [
+					"pre_featured_content": [
+						{
+							"_type": "pwb-features",
+							"heading": "A more considered way to buy, rent, and sell",
+							"feature1Icon": "01",
+							"feature1Title": "Curated property search",
+							"feature1Description": "We cut through the noise and build a shortlist around the location, budget, and pace of move that actually matter to you.",
+							"feature2Icon": "02",
+							"feature2Title": "Premium rental guidance",
+							"feature2Description": "From relocation apartments to longer lets, we help renters move quickly without settling for poor presentation or weak communication.",
+							"feature3Icon": "03",
+							"feature3Title": "Positioning that earns attention",
+							"feature3Description": "We package and position each listing so it feels considered, competitive, and ready for stronger buyer attention from day one."
+						}
+					],
+					"post_featured_content": [
 						{
 							"_type": "pwb-stats",
 							"heading": "Performance snapshot",
@@ -315,8 +340,16 @@
 							"point3Value": "Calm advice, cleaner presentation, and responsive communication",
 							"buttonLabel": "Speak with the team",
 							"buttonHref": "/pages/contact"
+						},
+						{
+							"_type": "pwb-cta",
+							"heading": "Plan your next move with Demo Realty",
+							"body": "Whether you are listing, relocating, or narrowing a search, we can help you move with a clear brief and a sharper shortlist.",
+							"buttonLabel": "Contact Us",
+							"buttonHref": "/pages/contact"
 						}
 					],
+					"trust_content": [],
 					"content": [
 						{
 							"_type": "block",
@@ -410,7 +443,22 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
-					"trust_content": [
+					"pre_featured_content": [
+						{
+							"_type": "pwb-features",
+							"heading": "Una forma mas cuidada de comprar, alquilar y vender",
+							"feature1Icon": "01",
+							"feature1Title": "Busqueda mas selectiva",
+							"feature1Description": "Convertimos un mercado ruidoso en una seleccion corta y util, alineada con ubicacion, presupuesto y tiempos reales.",
+							"feature2Icon": "02",
+							"feature2Title": "Alquileres con mejor criterio",
+							"feature2Description": "Ayudamos a los inquilinos a moverse rapido sin aceptar mala presentacion, poca claridad o seguimiento debil.",
+							"feature3Icon": "03",
+							"feature3Title": "Posicionamiento con mas impacto",
+							"feature3Description": "Presentamos cada inmueble con mas cuidado para generar mejor atencion desde el primer dia."
+						}
+					],
+					"post_featured_content": [
 						{
 							"_type": "pwb-stats",
 							"heading": "Indicadores clave",
@@ -423,8 +471,16 @@
 							"item3Label": "Anos de experiencia local",
 							"item4Value": "24h",
 							"item4Label": "Tiempo medio de respuesta"
+						},
+						{
+							"_type": "pwb-cta",
+							"heading": "Habla con Demo Realty",
+							"body": "Si estas buscando vivienda, valorando vender o preparando una mudanza, podemos ayudarte a definir el siguiente paso con mas claridad.",
+							"buttonLabel": "Contactar",
+							"buttonHref": "/pages/contact"
 						}
 					],
+					"trust_content": [],
 					"content": [
 						{
 							"_type": "block",
@@ -451,7 +507,22 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
-					"trust_content": [
+					"pre_featured_content": [
+						{
+							"_type": "pwb-features",
+							"heading": "Une approche plus soignee pour acheter, louer et vendre",
+							"feature1Icon": "01",
+							"feature1Title": "Recherche plus ciblee",
+							"feature1Description": "Nous transformons un marche bruyant en une selection courte et pertinente selon le secteur, le budget et le calendrier.",
+							"feature2Icon": "02",
+							"feature2Title": "Location mieux accompagnee",
+							"feature2Description": "Nous aidons les locataires a avancer vite sans accepter une presentation faible ou une communication mediocre.",
+							"feature3Icon": "03",
+							"feature3Title": "Mise en valeur plus convaincante",
+							"feature3Description": "Chaque bien est positionne avec plus de soin pour attirer une meilleure attention des le lancement."
+						}
+					],
+					"post_featured_content": [
 						{
 							"_type": "pwb-stats",
 							"heading": "Indicateurs de confiance",
@@ -464,8 +535,16 @@
 							"item3Label": "Ans d experience locale",
 							"item4Value": "24h",
 							"item4Label": "Delai moyen de reponse"
+						},
+						{
+							"_type": "pwb-cta",
+							"heading": "Parlez avec Demo Realty",
+							"body": "Que vous prepariez une mise en vente, une relocation ou une recherche de bien, nous pouvons clarifier la prochaine etape.",
+							"buttonLabel": "Nous contacter",
+							"buttonHref": "/pages/contact"
 						}
 					],
+					"trust_content": [],
 					"content": [
 						{
 							"_type": "block",

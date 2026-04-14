@@ -99,6 +99,16 @@
 					"type": "string"
 				},
 				{
+					"slug": "pre_featured_content",
+					"label": "Homepage Content Before Featured Listings",
+					"type": "portableText"
+				},
+				{
+					"slug": "post_featured_content",
+					"label": "Homepage Content After Featured Listings",
+					"type": "portableText"
+				},
+				{
 					"slug": "trust_content",
 					"label": "Homepage Trust Content",
 					"type": "portableText"
@@ -276,7 +286,22 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
-					"trust_content": [
+					"pre_featured_content": [
+						{
+							"_type": "pwb-features",
+							"heading": "Replace this with your core service positioning",
+							"feature1Icon": "01",
+							"feature1Title": "Define your buyer offer",
+							"feature1Description": "Explain how your agency helps buyers search, shortlist, and move with more confidence.",
+							"feature2Icon": "02",
+							"feature2Title": "Define your lettings offer",
+							"feature2Description": "Show how you support renters or landlords with a clearer, faster, more reliable process.",
+							"feature3Icon": "03",
+							"feature3Title": "Define your seller offer",
+							"feature3Description": "Spell out how you win instructions through better advice, better marketing, or stronger local knowledge."
+						}
+					],
+					"post_featured_content": [
 						{
 							"_type": "pwb-local-expertise",
 							"eyebrow": "Local credibility",
@@ -290,8 +315,16 @@
 							"point3Value": "Add the service style you want to be known for",
 							"buttonLabel": "Contact the office",
 							"buttonHref": "/pages/contact"
+						},
+						{
+							"_type": "pwb-cta",
+							"heading": "Add a strong homepage call to action",
+							"body": "Use this block to direct visitors toward your preferred conversion route, whether that is contact, valuation, or registration.",
+							"buttonLabel": "Contact the office",
+							"buttonHref": "/pages/contact"
 						}
 					],
+					"trust_content": [],
 					"content": [
 						{
 							"_type": "block",

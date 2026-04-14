@@ -4,18 +4,23 @@ import { DEFAULT_LOCALE, translateLabel } from '../lib/locale'
 interface Props {
   propertyId?: number
   propertyTitle?: string
+  heading?: string
+  submitLabel?: string
+  intro?: string
+  showHeading?: boolean
 }
 
-const { propertyId, propertyTitle } = Astro.props
+const { propertyId, propertyTitle, heading: headingOverride, submitLabel, intro, showHeading = true } = Astro.props
 const formId = `enquiry-form-${propertyId ?? 'general'}`
 const nameId = `${formId}-name`
 const emailId = `${formId}-email`
 const phoneId = `${formId}-phone`
 const messageId = `${formId}-message`
 const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
-const heading = propertyTitle
+const heading = headingOverride ?? (propertyTitle
   ? `${translateLabel(currentLocale, 'Enquire about')} ${propertyTitle}`
-  : translateLabel(currentLocale, 'Contact Us')
+  : translateLabel(currentLocale, 'Contact Us'))
+const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
 ---
 
 <form
@@ -27,7 +32,8 @@ const heading = propertyTitle
   data-network-error-message={translateLabel(currentLocale, 'Network error. Please try again.')}
   novalidate
 >
-  <h2>{heading}</h2>
+  {showHeading && <h2>{heading}</h2>}
+  {intro && <p class="contact-form__intro">{intro}</p>}
 
   <div class="form-group">
     <label for={nameId}>{translateLabel(currentLocale, 'Name *')}</label>
@@ -55,7 +61,7 @@ const heading = propertyTitle
   <div class="form-status" aria-live="polite"></div>
 
   <button type="submit" class="btn btn-primary contact-form__submit">
-    <span class="btn-text">{translateLabel(currentLocale, 'Send Enquiry')}</span>
+    <span class="btn-text">{submitText}</span>
     <span class="btn-loading" hidden>{translateLabel(currentLocale, 'Sending...')}</span>
   </button>
 </form>
@@ -157,6 +163,12 @@ const heading = propertyTitle
     line-height: 1;
     color: var(--color-primary);
     letter-spacing: -0.03em;
+  }
+
+  .contact-form__intro {
+    margin: 0 0 1.1rem;
+    color: var(--color-text-soft);
+    line-height: 1.75;
   }
 
   .form-group {

@@ -99,6 +99,16 @@
 					"type": "string"
 				},
 				{
+					"slug": "pre_featured_content",
+					"label": "Homepage Content Before Featured Listings",
+					"type": "portableText"
+				},
+				{
+					"slug": "post_featured_content",
+					"label": "Homepage Content After Featured Listings",
+					"type": "portableText"
+				},
+				{
 					"slug": "trust_content",
 					"label": "Homepage Trust Content",
 					"type": "portableText"
@@ -247,7 +257,22 @@
 					"featured_collection_mode": "featured_any",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
-					"trust_content": [
+					"pre_featured_content": [
+						{
+							"_type": "pwb-features",
+							"heading": "Keep the pre-launch homepage focused",
+							"feature1Icon": "01",
+							"feature1Title": "Explain what is live now",
+							"feature1Description": "Tell visitors they can already browse listings, book valuations, or contact the office directly.",
+							"feature2Icon": "02",
+							"feature2Title": "Set expectations clearly",
+							"feature2Description": "Use this area to explain what the team covers before the full site and content plan are in place.",
+							"feature3Icon": "03",
+							"feature3Title": "Point to the next step",
+							"feature3Description": "Keep the message direct so the homepage still converts while the full website is being prepared."
+						}
+					],
+					"post_featured_content": [
 						{
 							"_type": "pwb-local-expertise",
 							"eyebrow": "Before launch",
@@ -261,8 +286,16 @@
 							"point3Value": "Add your expected turnaround time",
 							"buttonLabel": "Contact the team",
 							"buttonHref": "/pages/contact"
+						},
+						{
+							"_type": "pwb-cta",
+							"heading": "Invite the first enquiry now",
+							"body": "Use this final call to action to send visitors toward contact or valuation while the broader site is still being built.",
+							"buttonLabel": "Contact the team",
+							"buttonHref": "/pages/contact"
 						}
 					],
+					"trust_content": [],
 					"content": [
 						{
 							"_type": "block",

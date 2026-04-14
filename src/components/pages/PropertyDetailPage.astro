@@ -3,6 +3,8 @@ import { createPwbClient } from '../../lib/pwb/client'
 import { formatPropertyDetail } from '../../lib/pwb/detail-formatter'
 import { htmlToMetaDescription } from '../../lib/pwb/formatters'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
+import { buildPropertyCtaModel } from '../../lib/property-cta'
+import { readSiteProfileSettingsFromDb } from '../../lib/site-profile'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyDetail from '../PropertyDetail.astro'
 import ContactForm from '../ContactForm.astro'
@@ -21,6 +23,7 @@ const client = createPwbClient(locale)
 
 let property = null
 let site = fallbackSite
+const siteProfile = await readSiteProfileSettingsFromDb(Astro.locals.emdash?.db)
 
 if (safeSlug) {
   try {
@@ -41,8 +44,14 @@ const similarListing = property?.page_contents.find(
 )
 const similarProperties = similarListing?.summ_listings ?? []
 const canonicalPath = localePath(locale, `/properties/${safeSlug}`)
-const contactTitle = detail
-  ? translateLabel(locale, detail.forRent ? 'Arrange a viewing or ask for availability' : 'Arrange a viewing or ask for details')
+const contactFormId = `enquiry-form-${property?.id ?? 'general'}`
+const propertyCta = detail
+  ? buildPropertyCtaModel({
+      locale,
+      settings: siteProfile,
+      propertyTitle: detail.title,
+      formId: contactFormId,
+    })
   : null
 ---
 
@@ -65,10 +74,36 @@ const contactTitle = detail
 
       <aside class="property-detail-page__sidebar">
         <section class="property-detail-page__panel property-detail-page__panel--contact">
-          <p class="property-detail-page__eyebrow">{translateLabel(locale, 'Next step')}</p>
-          <h2>{contactTitle}</h2>
-          <p>{translateLabel(locale, 'Use the enquiry form to request a viewing, ask for floorplans, or confirm the latest availability with the team.')}</p>
-          <ContactForm propertyId={property.id} propertyTitle={property.title} />
+          <p class="property-detail-page__eyebrow">{propertyCta?.eyebrow ?? translateLabel(locale, 'Primary action')}</p>
+          <h2>{propertyCta?.title ?? translateLabel(locale, 'Arrange a viewing or ask for details')}</h2>
+          <p>{propertyCta?.body ?? translateLabel(locale, 'Use the enquiry form to request a viewing, ask for floorplans, or confirm the latest availability with the team.')}</p>
+
+          {propertyCta && (
+            <div class="property-detail-page__cta-actions">
+              <a
+                href={propertyCta.primaryHref}
+                class="btn btn-primary property-detail-page__cta-button"
+                target={propertyCta.type === 'whatsapp_chat' ? '_blank' : undefined}
+                rel={propertyCta.type === 'whatsapp_chat' ? 'noreferrer' : undefined}
+              >
+                {propertyCta.primaryLabel}
+              </a>
+              {propertyCta.secondaryLabel && propertyCta.secondaryHref && (
+                <a href={propertyCta.secondaryHref} class="btn property-detail-page__cta-secondary">
+                  {propertyCta.secondaryLabel}
+                </a>
+              )}
+            </div>
+          )}
+
+          <ContactForm
+            propertyId={property.id}
+            propertyTitle={property.title}
+            heading={propertyCta?.formTitle}
+            submitLabel={propertyCta?.formSubmitLabel}
+            intro={propertyCta?.inlineFormIntro}
+            showHeading={false}
+          />
         </section>
 
         <section class="property-detail-page__panel property-detail-page__panel--summary">
@@ -84,6 +119,19 @@ const contactTitle = detail
 
     {similarProperties.length > 0 && (
       <SimilarProperties properties={similarProperties} />
+    )}
+
+    {propertyCta?.showsMobileStickyBar && (
+      <div class="property-detail-page__mobile-cta">
+        <a
+          href={propertyCta.primaryHref}
+          class="btn btn-primary property-detail-page__mobile-cta-button"
+          target={propertyCta.type === 'whatsapp_chat' ? '_blank' : undefined}
+          rel={propertyCta.type === 'whatsapp_chat' ? 'noreferrer' : undefined}
+        >
+          {propertyCta.primaryLabel}
+        </a>
+      </div>
     )}
   </BaseLayout>
 ) : (
@@ -155,6 +203,37 @@ const contactTitle = detail
     gap: 0.8rem;
   }
 
+  .property-detail-page__cta-actions {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.1rem 0 1.2rem;
+  }
+
+  .property-detail-page__cta-button,
+  .property-detail-page__cta-secondary,
+  .property-detail-page__mobile-cta-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .property-detail-page__cta-secondary {
+    border-radius: var(--radius-md);
+    padding: 0.95rem 1.1rem;
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--color-primary);
+    border: 1px solid rgba(22, 53, 76, 0.14);
+    background: rgba(255, 255, 255, 0.58);
+  }
+
+  .property-detail-page__cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .property-detail-page__mobile-cta {
+    display: none;
+  }
+
   .property-detail-page--empty {
     grid-template-columns: 1fr;
     justify-items: center;
@@ -170,6 +249,27 @@ const contactTitle = detail
 
     .property-detail-page__sidebar {
       position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .property-detail-page {
+      padding-bottom: calc(var(--space-section-lg) + 5.5rem);
+    }
+
+    .property-detail-page__mobile-cta {
+      display: block;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 40;
+      padding: 0.85rem var(--spacing-page) calc(0.85rem + env(safe-area-inset-bottom, 0px));
+      background:
+        linear-gradient(180deg, rgba(248, 245, 239, 0.74), rgba(248, 245, 239, 0.96)),
+        var(--color-surface);
+      border-top: 1px solid rgba(22, 53, 76, 0.1);
+      backdrop-filter: blur(14px);
     }
   }
 </style>

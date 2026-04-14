@@ -3,6 +3,7 @@ import { getEmDashEntry, getTranslations } from "emdash";
 import { PortableText } from "emdash/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TranslationLinks from "../TranslationLinks.astro";
+import ContactForm from "../ContactForm.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
 import { readSiteProfileSettingsFromDb } from "../../lib/site-profile";
@@ -64,11 +65,21 @@ const alternateLinks = page
 			<div class:list={['page-layout', { 'page-layout--contact': slug === 'contact' }]}>
 				<div class="page-content">
 				<PortableText value={page.data.content} />
+				{slug === 'contact' && (
+					<section class="contact-form-panel">
+						<p class="contact-form-panel__eyebrow">{translateLabel(locale, 'Start the conversation')}</p>
+						<ContactForm
+							heading={translateLabel(locale, 'Tell us what you need help with')}
+							intro={translateLabel(locale, 'Use the form for buying, selling, renting, valuations, or general office questions. The team can route your enquiry to the right next step.')}
+						/>
+					</section>
+				)}
 				</div>
 				{slug === 'contact' && (
 					<aside class="contact-details-panel">
 						<p class="contact-details-panel__eyebrow">{translateLabel(locale, 'Contact Us')}</p>
 						<h2>{siteProfile.brandName}</h2>
+						<p class="contact-details-panel__intro">{translateLabel(locale, 'Speak to a real local team for viewings, valuations, landlord questions, and buyer support.')}</p>
 						<ul class="contact-details-panel__list">
 							<li>
 								<span>{translateLabel(locale, 'Address')}</span>
@@ -82,6 +93,19 @@ const alternateLinks = page
 								<span>{translateLabel(locale, 'Email')}</span>
 								<strong><a href={`mailto:${siteProfile.officeEmail}`}>{siteProfile.officeEmail}</a></strong>
 							</li>
+						</ul>
+						<div class="contact-details-panel__actions">
+							<a class="btn btn-primary contact-details-panel__action" href={`tel:${siteProfile.officePhone.replace(/[^+\d]/g, '')}`}>
+								{translateLabel(locale, 'Call the office')}
+							</a>
+							<a class="btn contact-details-panel__action contact-details-panel__action--secondary" href={`mailto:${siteProfile.officeEmail}`}>
+								{translateLabel(locale, 'Send an email')}
+							</a>
+						</div>
+						<ul class="contact-details-panel__trust-list">
+							<li>{translateLabel(locale, 'Clear route for valuations, viewings, and buyer questions')}</li>
+							<li>{translateLabel(locale, 'Office identity and contact details shown before the first enquiry')}</li>
+							<li>{translateLabel(locale, 'Consistent trust cues across contact and property detail journeys')}</li>
 						</ul>
 					</aside>
 				)}
@@ -218,6 +242,12 @@ const alternateLinks = page
 		letter-spacing: -0.03em;
 	}
 
+	.contact-details-panel__intro {
+		margin: 0 0 1.1rem;
+		color: var(--color-text-soft);
+		line-height: 1.75;
+	}
+
 	.contact-details-panel__list {
 		list-style: none;
 		padding: 0;
@@ -247,6 +277,59 @@ const alternateLinks = page
 	}
 
 	.contact-details-panel__list a:hover {
+		color: var(--color-accent);
+	}
+
+	.contact-details-panel__actions {
+		display: grid;
+		gap: 0.75rem;
+		margin-top: 1.25rem;
+	}
+
+	.contact-details-panel__action {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.contact-details-panel__action--secondary {
+		border-radius: var(--radius-md);
+		padding: 0.95rem 1.1rem;
+		text-decoration: none;
+		font-weight: 700;
+		color: var(--color-primary);
+		border: 1px solid rgba(22, 53, 76, 0.14);
+		background: rgba(255, 255, 255, 0.58);
+	}
+
+	.contact-details-panel__action--secondary:hover {
+		background: rgba(255, 255, 255, 0.9);
+	}
+
+	.contact-details-panel__trust-list {
+		margin: 1.25rem 0 0;
+		padding-left: 1.1rem;
+		color: var(--color-text-soft);
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.contact-form-panel {
+		margin-top: 2rem;
+		padding: 1.5rem;
+		border-radius: var(--radius-xl);
+		border: 1px solid rgba(22, 53, 76, 0.08);
+		background:
+			linear-gradient(180deg, rgba(244, 238, 228, 0.72), rgba(252, 250, 247, 0.94)),
+			var(--color-surface);
+		box-shadow: var(--shadow-md);
+	}
+
+	.contact-form-panel__eyebrow {
+		margin: 0 0 0.7rem;
+		font-size: var(--text-xs);
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
 		color: var(--color-accent);
 	}
 

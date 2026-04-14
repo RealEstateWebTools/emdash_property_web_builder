@@ -20,7 +20,12 @@ const { locale } = Astro.props
 const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage', { locale })
 Astro.cache.set(cacheHint)
 const homepageData = (homepage?.data ?? undefined) as Record<string, unknown> | undefined
-const trustContent = Array.isArray(homepageData?.trust_content) ? homepageData.trust_content : []
+const preFeaturedContent = Array.isArray(homepageData?.pre_featured_content) ? homepageData.pre_featured_content : []
+const postFeaturedContent = Array.isArray(homepageData?.post_featured_content)
+  ? homepageData.post_featured_content
+  : Array.isArray(homepageData?.trust_content)
+    ? homepageData.trust_content
+    : []
 
 let site = fallbackSite
 let featuredGroups: Awaited<ReturnType<typeof loadHomepageListingGroups>> = []
@@ -38,25 +43,6 @@ try {
 }
 
 const hasFeaturedInventory = featuredGroups.length > 0
-const brandName = site.company_display_name ?? site.title
-
-const services = [
-  {
-    eyebrow: translateLabel(locale, 'Buy'),
-    title: translateLabel(locale, 'Curated property search'),
-    body: translateLabel(locale, 'We cut through the noise and build a shortlist around the location, budget, and pace of move that actually matter to you.'),
-  },
-  {
-    eyebrow: translateLabel(locale, 'Rent'),
-    title: translateLabel(locale, 'Premium rental guidance'),
-    body: translateLabel(locale, 'From relocation apartments to longer lets, we help renters move quickly without settling for poor presentation or weak communication.'),
-  },
-  {
-    eyebrow: translateLabel(locale, 'Sell'),
-    title: translateLabel(locale, 'Positioning that earns attention'),
-    body: translateLabel(locale, 'We package and position each listing so it feels considered, competitive, and ready for stronger buyer attention from day one.'),
-  },
-]
 
 ---
 
@@ -124,23 +110,11 @@ const services = [
     </div>
   </section>
 
-  <section class="services-section">
-    <div class="section-heading">
-      <p class="section-heading__eyebrow">{translateLabel(locale, 'What we do')}</p>
-      <h2>{translateLabel(locale, 'A more considered way to buy, rent, and sell')}</h2>
-      <p>{translateLabel(locale, 'We combine local market knowledge with cleaner presentation, faster shortlist building, and stronger communication from first enquiry to completion.')}</p>
-    </div>
-
-    <div class="services-grid">
-      {services.map((service) => (
-        <article class="service-card">
-          <p class="service-card__eyebrow">{service.eyebrow}</p>
-          <h3>{service.title}</h3>
-          <p>{service.body}</p>
-        </article>
-      ))}
-    </div>
-  </section>
+  {preFeaturedContent.length > 0 && (
+    <section class="homepage-modules homepage-modules--pre-featured">
+      <PortableText value={preFeaturedContent} />
+    </section>
+  )}
 
   {hasFeaturedInventory && (
     <section class="inventory-section">
@@ -169,25 +143,11 @@ const services = [
     </section>
   )}
 
-  {trustContent.length > 0 && (
-    <section class="trust-content-section">
-      <PortableText value={trustContent} />
+  {postFeaturedContent.length > 0 && (
+    <section class="homepage-modules homepage-modules--post-featured">
+      <PortableText value={postFeaturedContent} />
     </section>
   )}
-
-  <section class="cta-banner">
-    <div class="cta-banner__inner">
-      <div class="cta-banner__text">
-        <p class="cta-banner__eyebrow">{translateLabel(locale, 'Ready when you are')}</p>
-        <h2>{translateLabel(locale, `Plan your next move with ${brandName}`)}</h2>
-        <p>{translateLabel(locale, 'Whether you are listing, relocating, or narrowing a search, we can help you move with a clear brief and a sharper shortlist.')}</p>
-      </div>
-      <div class="cta-banner__actions">
-        <a href={localePath(locale, '/contact')} class="btn btn-cta-primary">{translateLabel(locale, 'Contact Us')}</a>
-        <a href={localePath(locale, '/properties')} class="btn btn-cta-secondary">{translateLabel(locale, 'Browse Properties')}</a>
-      </div>
-    </div>
-  </section>
 </BaseLayout>
 
 <style>
@@ -414,14 +374,13 @@ const services = [
     font-size: var(--text-sm);
   }
 
-  .services-section,
   .inventory-section,
-  .trust-content-section {
+  .homepage-modules {
     padding-left: var(--spacing-page);
     padding-right: var(--spacing-page);
   }
 
-  .services-section {
+  .homepage-modules--pre-featured {
     padding-top: var(--space-section-md);
     padding-bottom: var(--space-section-md);
     background:
@@ -443,9 +402,7 @@ const services = [
   }
 
   .section-heading__eyebrow,
-  .inventory-group__eyebrow,
-  .service-card__eyebrow,
-  .cta-banner__eyebrow {
+  .inventory-group__eyebrow {
     margin: 0 0 0.75rem;
     font-size: var(--text-xs);
     text-transform: uppercase;
@@ -455,8 +412,7 @@ const services = [
   }
 
   .section-heading h2,
-  .inventory-group__header h3,
-  .cta-banner__text h2 {
+  .inventory-group__header h3 {
     font-family: var(--font-serif);
     font-size: clamp(2.2rem, 4vw, 3.75rem);
     line-height: 1;
@@ -464,36 +420,10 @@ const services = [
     color: var(--color-primary);
   }
 
-  .section-heading p,
-  .service-card p,
-  .cta-banner__text p {
+  .section-heading p {
     color: var(--color-text-soft);
     font-size: var(--text-lg);
     line-height: 1.7;
-  }
-
-  .services-grid {
-    width: min(100%, 72rem);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
-  }
-
-  .service-card {
-    background: var(--color-surface-strong);
-    border: 1px solid rgba(22, 53, 76, 0.1);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    box-shadow: var(--shadow-md);
-  }
-
-  .service-card h3 {
-    font-family: var(--font-serif);
-    font-size: clamp(1.6rem, 2vw, 2rem);
-    color: var(--color-primary);
-    margin-bottom: 0.9rem;
-    line-height: 1.1;
   }
 
   .inventory-section {
@@ -534,7 +464,7 @@ const services = [
     padding: 0;
   }
 
-  .trust-content-section {
+  .homepage-modules--post-featured {
     padding-top: 0;
     padding-bottom: var(--space-section-lg);
     background:
@@ -542,89 +472,12 @@ const services = [
       var(--color-bg-soft);
   }
 
-  .cta-banner {
-    padding: var(--space-section-md) var(--spacing-page);
-    background:
-      linear-gradient(135deg, rgba(8, 26, 38, 0.96), rgba(22, 53, 76, 0.94)),
-      var(--color-primary);
-    color: var(--color-on-dark);
-  }
-
-  .cta-banner__inner {
-    width: min(100%, 72rem);
-    margin: 0 auto;
-    padding: clamp(2rem, 4vw, 3.25rem);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-    box-shadow: var(--shadow-hero-panel);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-  }
-
-  .cta-banner__text {
-    max-width: 42rem;
-  }
-
-  .cta-banner__text h2 {
-    color: var(--color-on-dark);
-    margin-bottom: 1rem;
-  }
-
-  .cta-banner__text p {
-    color: rgba(246, 242, 235, 0.82);
-    margin: 0;
-  }
-
-  .cta-banner__actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .btn-cta-primary,
-  .btn-cta-secondary {
-    min-width: 11rem;
-    justify-content: center;
-    border-radius: 999px;
-    padding: 0.95rem 1.5rem;
-    font-weight: 700;
-  }
-
-  .btn-cta-primary {
-    background: var(--color-surface-strong);
-    color: var(--color-primary);
-  }
-
-  .btn-cta-primary:hover {
-    background: var(--color-surface);
-  }
-
-  .btn-cta-secondary {
-    background: transparent;
-    color: var(--color-on-dark);
-    border: 1px solid rgba(255, 255, 255, 0.24);
-  }
-
-  .btn-cta-secondary:hover {
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.06);
-  }
-
   @media (max-width: 1024px) {
-    .services-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .hero__heading {
       max-width: 12ch;
     }
 
-    .inventory-group__header,
-    .cta-banner__inner {
+    .inventory-group__header {
       align-items: start;
       flex-direction: column;
     }
@@ -650,9 +503,6 @@ const services = [
       justify-content: center;
     }
 
-    .services-grid {
-      grid-template-columns: 1fr;
-    }
   }
 
   @media (max-width: 640px) {
@@ -665,9 +515,7 @@ const services = [
       align-items: stretch;
     }
 
-    .hero__cta-btn,
-    .btn-cta-primary,
-    .btn-cta-secondary {
+    .hero__cta-btn {
       width: 100%;
     }
 

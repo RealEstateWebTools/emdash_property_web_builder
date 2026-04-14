@@ -1,16 +1,34 @@
 import { definePlugin, extractPlainText, getEmDashEntry, getMenu, getPluginSetting, getSiteSettings } from 'emdash'
 import {
   DEFAULT_SITE_PROFILE_SETTINGS,
+  SITE_PROFILE_PROPERTY_CTA_BODY_KV_KEY,
+  SITE_PROFILE_PROPERTY_CTA_LABEL_KV_KEY,
+  SITE_PROFILE_PROPERTY_CTA_MOBILE_MODE_KV_KEY,
+  SITE_PROFILE_PROPERTY_CTA_TYPE_KV_KEY,
   SITE_PROFILE_BRAND_NAME_KV_KEY,
   SITE_PROFILE_OFFICE_ADDRESS_KV_KEY,
   SITE_PROFILE_OFFICE_EMAIL_KV_KEY,
   SITE_PROFILE_OFFICE_PHONE_KV_KEY,
   SITE_PROFILE_TAGLINE_KV_KEY,
+  VALID_PROPERTY_CTA_MOBILE_MODES,
+  VALID_PROPERTY_CTA_TYPES,
   sanitizeSiteProfileSettings,
   type SiteProfileSettings,
 } from '../lib/site-profile.js'
 import { buildSiteLaunchChecklist } from '../lib/site-launch-checklist.js'
 import { DEFAULT_THEME_SETTINGS, sanitizeThemeSettings } from './pwb-theme.js'
+
+const PROPERTY_CTA_TYPE_OPTIONS: Array<{ value: (typeof VALID_PROPERTY_CTA_TYPES)[number]; label: string }> = [
+  { value: 'book_viewing', label: 'Book viewing — push toward viewing requests' },
+  { value: 'general_enquiry', label: 'General enquiry — broad buyer questions' },
+  { value: 'valuation_request', label: 'Valuation request — owner capture from listing pages' },
+  { value: 'whatsapp_chat', label: 'WhatsApp chat — faster first contact' },
+]
+
+const PROPERTY_CTA_MOBILE_OPTIONS: Array<{ value: (typeof VALID_PROPERTY_CTA_MOBILE_MODES)[number]; label: string }> = [
+  { value: 'sticky', label: 'Sticky bar — persistent mobile CTA' },
+  { value: 'inline', label: 'Inline only — no sticky mobile bar' },
+]
 
 function safeString(value: unknown): string {
   return typeof value === 'string' ? value : ''
@@ -81,6 +99,20 @@ function buildWebsiteBlocks(input: {
         { type: 'button', text: 'View homepage', url: joinUrl(input.siteUrl, '/') },
         { type: 'button', text: 'View contact area', url: joinUrl(input.siteUrl, '/') },
       ],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: '*Property page CTAs*\nControl the primary action shown on listing detail pages and how aggressive the mobile CTA should feel.',
+      accessory: {
+        type: 'button',
+        text: 'Edit CTA defaults',
+        url: '/_emdash/admin/plugins/site-profile/settings',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [{ type: 'button', text: 'Preview a property', url: joinUrl(input.siteUrl, '/properties') }],
     },
     { type: 'divider' },
     {
@@ -172,6 +204,8 @@ function buildSettingsBlocks(settings: SiteProfileSettings, siteUrl: string) {
         { label: 'Office Address', value: settings.officeAddress },
         { label: 'Office Phone', value: settings.officePhone },
         { label: 'Office Email', value: settings.officeEmail },
+        { label: 'Property CTA Type', value: settings.propertyCtaType },
+        { label: 'Property CTA Mobile', value: settings.propertyCtaMobileMode },
       ],
     },
     {
@@ -220,12 +254,40 @@ function buildSettingsBlocks(settings: SiteProfileSettings, siteUrl: string) {
           initial_value: settings.officeEmail,
           placeholder: 'hello@demorealty.com',
         },
+        {
+          type: 'select',
+          action_id: 'property_cta_type',
+          label: 'Property page primary CTA',
+          initial_value: settings.propertyCtaType,
+          options: PROPERTY_CTA_TYPE_OPTIONS,
+        },
+        {
+          type: 'text_input',
+          action_id: 'property_cta_label',
+          label: 'Property CTA label override',
+          initial_value: settings.propertyCtaLabel,
+          placeholder: 'Leave blank to use the default label',
+        },
+        {
+          type: 'text_input',
+          action_id: 'property_cta_body',
+          label: 'Property CTA intro override',
+          initial_value: settings.propertyCtaBody,
+          placeholder: 'Optional helper copy shown above the property enquiry area',
+        },
+        {
+          type: 'select',
+          action_id: 'property_cta_mobile_mode',
+          label: 'Mobile CTA behavior',
+          initial_value: settings.propertyCtaMobileMode,
+          options: PROPERTY_CTA_MOBILE_OPTIONS,
+        },
       ],
       submit: { label: 'Save Brand & Office', action_id: 'save_site_profile' },
     },
     {
       type: 'context',
-      text: 'These values affect the site header, footer, and the agency identity used across the public shell.',
+      text: 'These values affect the site header, footer, office identity, and the default conversion path on property detail pages.',
     },
   ]
 }
@@ -269,12 +331,26 @@ function buildChecklistBlocks(result: ReturnType<typeof buildSiteLaunchChecklist
 }
 
 async function readSiteProfileSettings(ctx: any): Promise<SiteProfileSettings> {
-  const [brandName, tagline, officeAddress, officePhone, officeEmail] = (await Promise.all([
+  const [
+    brandName,
+    tagline,
+    officeAddress,
+    officePhone,
+    officeEmail,
+    propertyCtaType,
+    propertyCtaLabel,
+    propertyCtaBody,
+    propertyCtaMobileMode,
+  ] = (await Promise.all([
     ctx.kv.get(SITE_PROFILE_BRAND_NAME_KV_KEY),
     ctx.kv.get(SITE_PROFILE_TAGLINE_KV_KEY),
     ctx.kv.get(SITE_PROFILE_OFFICE_ADDRESS_KV_KEY),
     ctx.kv.get(SITE_PROFILE_OFFICE_PHONE_KV_KEY),
     ctx.kv.get(SITE_PROFILE_OFFICE_EMAIL_KV_KEY),
+    ctx.kv.get(SITE_PROFILE_PROPERTY_CTA_TYPE_KV_KEY),
+    ctx.kv.get(SITE_PROFILE_PROPERTY_CTA_LABEL_KV_KEY),
+    ctx.kv.get(SITE_PROFILE_PROPERTY_CTA_BODY_KV_KEY),
+    ctx.kv.get(SITE_PROFILE_PROPERTY_CTA_MOBILE_MODE_KV_KEY),
   ])) as (string | null)[]
 
   return sanitizeSiteProfileSettings({
@@ -283,6 +359,10 @@ async function readSiteProfileSettings(ctx: any): Promise<SiteProfileSettings> {
     officeAddress,
     officePhone,
     officeEmail,
+    propertyCtaType,
+    propertyCtaLabel,
+    propertyCtaBody,
+    propertyCtaMobileMode,
   })
 }
 
@@ -293,6 +373,10 @@ async function writeSiteProfileSettings(ctx: any, settings: SiteProfileSettings)
     ctx.kv.set(SITE_PROFILE_OFFICE_ADDRESS_KV_KEY, settings.officeAddress),
     ctx.kv.set(SITE_PROFILE_OFFICE_PHONE_KV_KEY, settings.officePhone),
     ctx.kv.set(SITE_PROFILE_OFFICE_EMAIL_KV_KEY, settings.officeEmail),
+    ctx.kv.set(SITE_PROFILE_PROPERTY_CTA_TYPE_KV_KEY, settings.propertyCtaType),
+    ctx.kv.set(SITE_PROFILE_PROPERTY_CTA_LABEL_KV_KEY, settings.propertyCtaLabel),
+    ctx.kv.set(SITE_PROFILE_PROPERTY_CTA_BODY_KV_KEY, settings.propertyCtaBody),
+    ctx.kv.set(SITE_PROFILE_PROPERTY_CTA_MOBILE_MODE_KV_KEY, settings.propertyCtaMobileMode),
   ])
 }
 
@@ -439,6 +523,11 @@ export default definePlugin({
             officeAddress: interaction.values?.office_address ?? interaction.value?.office_address,
             officePhone: interaction.values?.office_phone ?? interaction.value?.office_phone,
             officeEmail: interaction.values?.office_email ?? interaction.value?.office_email,
+            propertyCtaType: interaction.values?.property_cta_type ?? interaction.value?.property_cta_type,
+            propertyCtaLabel: interaction.values?.property_cta_label ?? interaction.value?.property_cta_label,
+            propertyCtaBody: interaction.values?.property_cta_body ?? interaction.value?.property_cta_body,
+            propertyCtaMobileMode:
+              interaction.values?.property_cta_mobile_mode ?? interaction.value?.property_cta_mobile_mode,
           })
           await writeSiteProfileSettings(ctx, settings)
           return {
