@@ -9,7 +9,7 @@
 
 	"settings": {
 		"title": "Demo Realty",
-		"tagline": "Expert local knowledge, exceptional service"
+		"tagline": "Boutique guidance for homes, rentals, and next moves"
 	},
 
 	"collections": [
@@ -166,7 +166,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Looking to buy, sell, or rent? Our expert team is here to help. Contact us today for a free valuation."
+									"text": "Planning a move, a sale, or a new rental search? Speak to Demo Realty for a sharper shortlist, better presentation, and straightforward local advice."
 								}
 							]
 						}
@@ -189,7 +189,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Expert estate agents helping buyers, sellers, and landlords get the best results. Local knowledge, exceptional service."
+									"text": "Demo Realty is a presentation-led local agency helping buyers, renters, sellers, and landlords move with more clarity and less friction."
 								}
 							]
 						}
@@ -234,8 +234,8 @@
 				"locale": "en",
 				"status": "published",
 				"data": {
-					"title": "Find Your Dream Property",
-					"featured_section_heading": "Featured Properties",
+					"title": "Homes chosen with more care",
+					"featured_section_heading": "Featured homes",
 					"content": [
 						{
 							"_type": "block",
@@ -243,7 +243,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Browse our exclusive selection of properties for sale and rent. Expert local knowledge, exceptional service."
+									"text": "Demo Realty pairs local market judgment with calm advice, cleaner presentation, and a more selective approach to buying, renting, and selling."
 								}
 							]
 						}
@@ -256,7 +256,7 @@
 				"locale": "en",
 				"status": "published",
 				"data": {
-					"title": "About Us",
+					"title": "About Demo Realty",
 					"content": [
 						{
 							"_type": "block",
@@ -264,7 +264,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "We are a leading independent estate agency with deep roots in the local community. Our team of experienced property professionals is dedicated to helping you buy, sell, or rent with confidence."
+									"text": "Demo Realty is a boutique estate agency built for clients who want stronger advice, sharper presentation, and a more considered property experience from first enquiry to completion."
 								}
 							]
 						},
@@ -274,14 +274,14 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Whether you're a first-time buyer taking your first step onto the property ladder, an investor growing your portfolio, or a landlord looking for reliable management, we provide expert guidance every step of the way."
+									"text": "We work across home search, rentals, valuations, and sales strategy, combining local knowledge with practical judgment so every decision feels better informed."
 								}
 							]
 						},
 						{
 							"_type": "block",
 							"style": "h2",
-							"children": [{ "_type": "span", "text": "Why choose us?" }]
+							"children": [{ "_type": "span", "text": "Why clients choose Demo Realty" }]
 						},
 						{
 							"_type": "block",
@@ -289,7 +289,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Local expertise, honest advice, and a results-driven approach. We combine in-depth knowledge of the local market with the latest technology to get you the best possible outcome."
+									"text": "Clients come to us for measured advice, polished marketing, responsive communication, and a calmer process than the average agency experience."
 								}
 							]
 						}
@@ -310,7 +310,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Get in touch with our team. We'd love to hear from you."
+									"text": "Tell us whether you are buying, renting, selling, or planning ahead and we will point you to the right next step."
 								}
 							]
 						}

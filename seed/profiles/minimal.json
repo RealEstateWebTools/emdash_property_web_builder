@@ -9,7 +9,7 @@
 
 	"settings": {
 		"title": "Your Agency Name",
-		"tagline": "Expert local knowledge, exceptional service"
+		"tagline": "Clear local advice for buyers, renters, sellers, and landlords"
 	},
 
 	"collections": [
@@ -169,7 +169,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Add your agency description here."
+									"text": "Add a short agency description here so the footer feels branded before launch."
 								}
 							]
 						}
@@ -237,8 +237,8 @@
 				"slug": "homepage",
 				"status": "published",
 				"data": {
-					"title": "Find Your Dream Property",
-					"featured_section_heading": "Featured Properties",
+					"title": "Homes chosen with more care",
+					"featured_section_heading": "Featured homes",
 					"content": [
 						{
 							"_type": "block",
@@ -246,7 +246,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Browse our selection of properties for sale and rent. Replace this text with your agency's value proposition."
+									"text": "Replace this line with a clear value proposition that explains your market, your service style, and why clients should trust your agency."
 								}
 							]
 						}
@@ -258,7 +258,7 @@
 				"slug": "about",
 				"status": "published",
 				"data": {
-					"title": "About Us",
+					"title": "About Your Agency",
 					"content": [
 						{
 							"_type": "block",
@@ -266,7 +266,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Tell your agency's story here. Replace this placeholder with your actual about page content."
+									"text": "Use this page to explain your patch, your approach, and what makes your agency more credible than a generic local competitor."
 								}
 							]
 						}
@@ -286,7 +286,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Get in touch with our team."
+									"text": "Add your preferred contact route here and tell visitors what kind of enquiry this page is for."
 								}
 							]
 						}

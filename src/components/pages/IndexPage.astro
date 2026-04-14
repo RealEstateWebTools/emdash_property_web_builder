@@ -42,34 +42,34 @@ const services = [
   {
     eyebrow: translateLabel(locale, 'Buy'),
     title: translateLabel(locale, 'Curated property search'),
-    body: translateLabel(locale, 'Tell us the brief and we will narrow the market to homes that actually fit your lifestyle, timeline, and budget.'),
+    body: translateLabel(locale, 'We cut through the noise and build a shortlist around the location, budget, and pace of move that actually matter to you.'),
   },
   {
     eyebrow: translateLabel(locale, 'Rent'),
     title: translateLabel(locale, 'Premium rental guidance'),
-    body: translateLabel(locale, 'From relocation apartments to seasonal lets, we shape a shortlist quickly and manage the detail with landlords and agents.'),
+    body: translateLabel(locale, 'From relocation apartments to longer lets, we help renters move quickly without settling for poor presentation or weak communication.'),
   },
   {
     eyebrow: translateLabel(locale, 'Sell'),
     title: translateLabel(locale, 'Positioning that earns attention'),
-    body: translateLabel(locale, 'We package, market, and negotiate each listing with the polish expected from a modern boutique real-estate brand.'),
+    body: translateLabel(locale, 'We package and position each listing so it feels considered, competitive, and ready for stronger buyer attention from day one.'),
   },
 ]
 
 const testimonials = [
   {
-    quote: translateLabel(locale, 'They filtered the noise out of the market and only showed us homes worth seeing. We moved faster and with more confidence.'),
-    name: 'Sarah Johnson',
-    role: translateLabel(locale, 'Home buyer'),
+    quote: translateLabel(locale, 'They filtered the noise out of the market and only showed us homes worth seeing. The shortlist felt sharper immediately.'),
+    name: 'Amelia Hart',
+    role: translateLabel(locale, 'Buyer'),
   },
   {
-    quote: translateLabel(locale, 'The presentation quality felt different immediately. Better photography, sharper positioning, and stronger enquiries from week one.'),
-    name: 'Michael Chen',
-    role: translateLabel(locale, 'Property seller'),
+    quote: translateLabel(locale, 'The presentation quality felt stronger from week one. Better positioning, cleaner photography, and better conversations with buyers.'),
+    name: 'Daniel Reeves',
+    role: translateLabel(locale, 'Seller'),
   },
   {
-    quote: translateLabel(locale, 'It felt like having a calm advisor instead of a pushy sales team. Clear communication, good taste, and no wasted viewings.'),
-    name: 'Emma Wilson',
+    quote: translateLabel(locale, 'It felt like having a calm advisor instead of a pushy sales team. Clear communication, good judgment, and no wasted viewings.'),
+    name: 'Lucia Moreau',
     role: translateLabel(locale, 'Relocation client'),
   },
 ]
@@ -86,7 +86,7 @@ const testimonials = [
       <div class="hero__copy">
         <p class="hero__eyebrow">{translateLabel(locale, 'Boutique property advisory')}</p>
         <h1 class="hero__heading" {...homepage?.edit.title}>
-          {homepage?.data.title ?? 'Find Your Dream Property'}
+          {homepage?.data.title ?? 'Homes chosen with more care'}
         </h1>
         {homepage?.data.content && (
           <div class="hero__tagline" {...homepage.edit.content}>
@@ -132,8 +132,8 @@ const testimonials = [
 
         <div class="hero__highlights" aria-label={translateLabel(locale, 'Quick brand highlights')}>
           <span>{translateLabel(locale, '500+ homes marketed')}</span>
-          <span>{translateLabel(locale, '98% client satisfaction')}</span>
-          <span>{translateLabel(locale, 'Local expertise, international presentation')}</span>
+          <span>{translateLabel(locale, 'Faster shortlists, better fit')}</span>
+          <span>{translateLabel(locale, 'Local market sense, cleaner presentation')}</span>
         </div>
       </div>
     </div>

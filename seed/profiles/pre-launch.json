@@ -9,7 +9,7 @@
 
 	"settings": {
 		"title": "Your Agency Name",
-		"tagline": "Expert local knowledge, exceptional service"
+		"tagline": "Local property advice while the full site is being prepared"
 	},
 
 	"collections": [
@@ -164,7 +164,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Add your agency description here."
+									"text": "Add a short agency description here so even the pre-launch site feels intentional and trustworthy."
 								}
 							]
 						}
@@ -209,7 +209,7 @@
 				"status": "published",
 				"data": {
 					"title": "Welcome — We're Almost Ready",
-					"featured_section_heading": "Latest Listings",
+					"featured_section_heading": "Latest listings",
 					"content": [
 						{
 							"_type": "block",
@@ -217,7 +217,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Our new website is launching soon. In the meantime, browse our current listings or request a free valuation below."
+									"text": "Our full website is in progress. In the meantime, you can still browse live listings, request a valuation, or speak to the team directly."
 								}
 							]
 						}
@@ -237,7 +237,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "Get in touch with our team. We'd love to hear from you."
+									"text": "Tell us what you need help with and we will come back with the right next step while the full website is being prepared."
 								}
 							]
 						}
