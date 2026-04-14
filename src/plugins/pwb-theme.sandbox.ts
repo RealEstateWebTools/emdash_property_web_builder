@@ -254,14 +254,18 @@ function readInteractionValue(values: Record<string, unknown> | undefined, fallb
   return fallback?.[field]
 }
 
-function buildSettingsBlocks(settings: ThemeSettings) {
+function joinUrl(base: string, path: string) {
+  return `${base.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`
+}
+
+function buildSettingsBlocks(settings: ThemeSettings, siteUrl: string) {
   const currentPreset = findMatchingPreset(settings)
   const preview = PALETTE_PREVIEWS[settings.palette]
   return [
-    { type: 'header', text: 'Property Theme' },
+    { type: 'header', text: 'Theme & Styling' },
     {
       type: 'context',
-      text: 'Shape the property browsing experience with palette, spacing, surface, motion, and header controls. Use a preset when you want a coherent direction quickly, then fine-tune below if needed.',
+      text: 'Shape the public visual direction with palette, spacing, surface, motion, and header controls. Use a preset when you want a coherent direction quickly, then preview the homepage or property search before fine-tuning.',
     },
     {
       type: 'fields',
@@ -277,6 +281,13 @@ function buildSettingsBlocks(settings: ThemeSettings) {
         label: 'Reset to Default',
         action_id: RESET_THEME_ACTION_ID,
       },
+    },
+    {
+      type: 'actions',
+      elements: [
+        { type: 'button', text: 'View homepage', url: joinUrl(siteUrl, '/') },
+        { type: 'button', text: 'View properties', url: joinUrl(siteUrl, '/properties') },
+      ],
     },
     {
       type: 'section',
@@ -392,7 +403,7 @@ export default definePlugin({
           const settings = preset?.settings ?? DEFAULT_THEME_SETTINGS
           await writeThemeSettings(ctx, settings)
           return {
-            blocks: buildSettingsBlocks(settings),
+            blocks: buildSettingsBlocks(settings, ctx.site?.url ?? 'http://localhost:4321'),
             toast: { message: `${preset?.label ?? 'Default'} preset applied.`, type: 'success' },
           }
         }
@@ -400,7 +411,7 @@ export default definePlugin({
         if (interaction.action_id === RESET_THEME_ACTION_ID) {
           await writeThemeSettings(ctx, DEFAULT_THEME_SETTINGS)
           return {
-            blocks: buildSettingsBlocks(DEFAULT_THEME_SETTINGS),
+            blocks: buildSettingsBlocks(DEFAULT_THEME_SETTINGS, ctx.site?.url ?? 'http://localhost:4321'),
             toast: { message: 'Theme reset to default.', type: 'success' },
           }
         }
@@ -415,13 +426,13 @@ export default definePlugin({
           })
           await writeThemeSettings(ctx, settings)
           return {
-            blocks: buildSettingsBlocks(settings),
+            blocks: buildSettingsBlocks(settings, ctx.site?.url ?? 'http://localhost:4321'),
             toast: { message: 'Theme settings saved.', type: 'success' },
           }
         }
 
         const current = await readThemeSettings(ctx)
-        return { blocks: buildSettingsBlocks(current) }
+        return { blocks: buildSettingsBlocks(current, ctx.site?.url ?? 'http://localhost:4321') }
       },
     },
   },

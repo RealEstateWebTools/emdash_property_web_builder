@@ -8,7 +8,7 @@ export function pwbPropertiesPlugin() {
 		capabilities: ["network:fetch:any"],
 		adminPages: [
 			{ path: "/", label: "Properties", icon: "list" },
-			{ path: "/settings", label: "Settings", icon: "settings" },
+			{ path: "/settings", label: "Search & Listings", icon: "settings" },
 		],
 	};
 }

@@ -26,12 +26,143 @@ function buildHealthLabel(readyCount: number, totalCount: number): string {
   return `${readyCount} of ${totalCount} complete`
 }
 
-function buildSettingsBlocks(settings: SiteProfileSettings) {
+function joinUrl(base: string, path: string): string {
+  return `${base.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`
+}
+
+function buildWebsiteBlocks(input: {
+  siteUrl: string
+  brandName: string
+  officeAddress: string
+  homepageTitle: string
+  menuCount: number
+  themeLabel: string
+  propertyStatus: string
+  checklistStatus: string
+}) {
   return [
-    { type: 'header', text: 'Site Profile' },
+    { type: 'header', text: 'Website Control Surface' },
     {
       type: 'context',
-      text: 'Manage the public-facing brand and office contact details shown across the site shell. These settings are intended for demo or small-site editorial updates without code changes.',
+      text: 'Use this page as the shortest path to the public website controls that matter most: brand, office details, homepage content, theme, search and listings, SEO, and launch readiness.',
+    },
+    {
+      type: 'stats',
+      items: [
+        { label: 'Brand', value: input.brandName },
+        { label: 'Homepage', value: input.homepageTitle },
+        { label: 'Menu Items', value: String(input.menuCount) },
+      ],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*Launch Checklist*\n${input.checklistStatus}\nReview what is still missing before the site goes live.`,
+      accessory: {
+        type: 'button',
+        text: 'Open checklist',
+        url: '/_emdash/admin/plugins/site-profile/launch-checklist',
+        style: 'primary',
+      },
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*Brand & Office*\n${input.brandName}\nUpdate the agency name, tagline, address, phone, and email shown in the site shell.`,
+      accessory: {
+        type: 'button',
+        text: 'Edit brand',
+        url: '/_emdash/admin/plugins/site-profile/settings',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [
+        { type: 'button', text: 'View homepage', url: joinUrl(input.siteUrl, '/') },
+        { type: 'button', text: 'View contact area', url: joinUrl(input.siteUrl, '/') },
+      ],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*Homepage*\n${input.homepageTitle}\nEdit the hero and introductory content that shapes the first impression.`,
+      accessory: {
+        type: 'button',
+        text: 'Edit homepage',
+        url: '/_emdash/admin/content/pages/homepage',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [{ type: 'button', text: 'Preview homepage', url: joinUrl(input.siteUrl, '/') }],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*Theme*\n${input.themeLabel}\nControl the visual direction, spacing, surface treatment, motion, and header behavior.`,
+      accessory: {
+        type: 'button',
+        text: 'Open theme',
+        url: '/_emdash/admin/plugins/pwb-theme/settings',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [
+        { type: 'button', text: 'View homepage', url: joinUrl(input.siteUrl, '/') },
+        { type: 'button', text: 'View properties', url: joinUrl(input.siteUrl, '/properties') },
+      ],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*Search & Listings*\n${input.propertyStatus}\nConnect the PWB backend and review the public browsing experience for inventory-heavy pages.`,
+      accessory: {
+        type: 'button',
+        text: 'Open listings settings',
+        url: '/_emdash/admin/plugins/pwb-properties/settings',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [
+        { type: 'button', text: 'Preview search', url: joinUrl(input.siteUrl, '/properties') },
+        { type: 'button', text: 'Open listings admin', url: '/_emdash/admin/plugins/pwb-properties/' },
+      ],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*SEO & Site Settings*\nGlobal metadata, logo, favicon, site URL, and verification settings live in the core settings screen.`,
+      accessory: {
+        type: 'button',
+        text: 'Open settings',
+        url: '/_emdash/admin/settings',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [{ type: 'button', text: 'Preview site', url: joinUrl(input.siteUrl, '/') }],
+    },
+    { type: 'divider' },
+    {
+      type: 'section',
+      text: `*Navigation*\n${input.menuCount} primary menu item${input.menuCount === 1 ? '' : 's'} configured.\nUpdate the main navigation when the homepage structure or marketing priorities change.`,
+      accessory: {
+        type: 'button',
+        text: 'Edit menus',
+        url: '/_emdash/admin/menus',
+      },
+    },
+  ]
+}
+
+function buildSettingsBlocks(settings: SiteProfileSettings, siteUrl: string) {
+  return [
+    { type: 'header', text: 'Brand & Office' },
+    {
+      type: 'context',
+      text: 'Manage the public-facing agency identity and office contact details shown across the site shell. This is the fastest place to replace demo branding and make the business feel real.',
     },
     {
       type: 'fields',
@@ -41,6 +172,13 @@ function buildSettingsBlocks(settings: SiteProfileSettings) {
         { label: 'Office Address', value: settings.officeAddress },
         { label: 'Office Phone', value: settings.officePhone },
         { label: 'Office Email', value: settings.officeEmail },
+      ],
+    },
+    {
+      type: 'actions',
+      elements: [
+        { type: 'button', text: 'View homepage', url: joinUrl(siteUrl, '/') },
+        { type: 'button', text: 'Preview properties', url: joinUrl(siteUrl, '/properties') },
       ],
     },
     {
@@ -83,7 +221,11 @@ function buildSettingsBlocks(settings: SiteProfileSettings) {
           placeholder: 'hello@demorealty.com',
         },
       ],
-      submit: { label: 'Save Site Profile', action_id: 'save_site_profile' },
+      submit: { label: 'Save Brand & Office', action_id: 'save_site_profile' },
+    },
+    {
+      type: 'context',
+      text: 'These values affect the site header, footer, and the agency identity used across the public shell.',
     },
   ]
 }
@@ -219,6 +361,62 @@ async function buildChecklistResult(ctx: any) {
   })
 }
 
+async function buildWebsiteSummary(ctx: any) {
+  const [profile, siteSettings, homepageResult, primaryMenu, palette, density, surface, motion, header, pwbApiUrl] =
+    await Promise.all([
+      readSiteProfileSettings(ctx),
+      getSiteSettings(),
+      getEmDashEntry('pages', 'homepage', { locale: 'en' }),
+      getMenu('primary'),
+      getPluginSetting('pwb-theme', 'palette'),
+      getPluginSetting('pwb-theme', 'density'),
+      getPluginSetting('pwb-theme', 'surface'),
+      getPluginSetting('pwb-theme', 'motion'),
+      getPluginSetting('pwb-theme', 'header'),
+      getPluginSetting('pwb-properties', 'pwbApiUrl'),
+    ])
+
+  const themeInput = { palette, density, surface, motion, header }
+  const themeSettings = sanitizeThemeSettings(themeInput)
+  const hasPersistedThemeSettings = Object.values(themeInput).some(
+    (value) => typeof value === 'string' && value.length > 0,
+  )
+  const propertyConnection = await probePropertyConnection(ctx, safeString(pwbApiUrl))
+  const checklist = buildSiteLaunchChecklist({
+    siteTitle: siteSettings.title,
+    hasLogo: Boolean(siteSettings.logo?.mediaId),
+    brandName: profile.brandName,
+    officeAddress: profile.officeAddress,
+    officePhone: profile.officePhone,
+    officeEmail: profile.officeEmail,
+    homepageTitle: homepageResult.entry?.data.title,
+    homepageContentText: extractPlainText(homepageResult.entry?.data.content),
+    primaryMenuItemCount: primaryMenu?.items?.length ?? 0,
+    themeSettings: hasPersistedThemeSettings ? themeSettings : DEFAULT_THEME_SETTINGS,
+    hasPersistedThemeSettings,
+    propertyApiUrl: safeString(pwbApiUrl),
+    propertyConnectionHealthy: propertyConnection.healthy,
+    propertyConnectionLabel: propertyConnection.label,
+  })
+
+  return {
+    siteUrl: safeString(ctx.site?.url).trim() || 'http://localhost:4321',
+    brandName: profile.brandName,
+    officeAddress: profile.officeAddress,
+    homepageTitle: safeString(homepageResult.entry?.data.title).trim() || 'Homepage not configured',
+    menuCount: primaryMenu?.items?.length ?? 0,
+    themeLabel: hasPersistedThemeSettings
+      ? `${themeSettings.palette} palette, ${themeSettings.density} spacing, ${themeSettings.header} header`
+      : 'Using the default theme configuration',
+    propertyStatus:
+      propertyConnection.label ??
+      (safeString(pwbApiUrl).trim()
+        ? 'The listing feed is configured but still needs verification.'
+        : 'No PWB API URL has been configured yet.'),
+    checklistStatus: buildHealthLabel(checklist.readyCount, checklist.totalCount),
+  }
+}
+
 export default definePlugin({
   hooks: {
     'plugin:install': {
@@ -244,18 +442,25 @@ export default definePlugin({
           })
           await writeSiteProfileSettings(ctx, settings)
           return {
-            blocks: buildSettingsBlocks(settings),
+            blocks: buildSettingsBlocks(settings, safeString(ctx.site?.url).trim() || 'http://localhost:4321'),
             toast: { message: 'Site profile saved.', type: 'success' },
           }
         }
 
-        if (currentPage === '/') {
+        if (currentPage === '/launch-checklist') {
           const result = await buildChecklistResult(ctx)
           return { blocks: buildChecklistBlocks(result) }
         }
 
+        if (currentPage === '/') {
+          const website = await buildWebsiteSummary(ctx)
+          return { blocks: buildWebsiteBlocks(website) }
+        }
+
         const current = await readSiteProfileSettings(ctx)
-        return { blocks: buildSettingsBlocks(current) }
+        return {
+          blocks: buildSettingsBlocks(current, safeString(ctx.site?.url).trim() || 'http://localhost:4321'),
+        }
       },
     },
   },

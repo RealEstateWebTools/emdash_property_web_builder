@@ -92,13 +92,14 @@ describe('pwb-theme admin route', () => {
       { label: 'Motion', value: 'calm' },
       { label: 'Header', value: 'static' },
     ])
-    expect(result.blocks[4].type).toBe('section')
-    expect(result.blocks[5].type).toBe('actions')
+    expect(result.blocks[4].type).toBe('actions')
+    expect(result.blocks[5].type).toBe('section')
     expect(result.blocks[6].type).toBe('actions')
-    expect(result.blocks[7].fields).toHaveLength(5)
-    expect(result.blocks[8].type).toBe('image')
-    expect(result.blocks[10].fields).toHaveLength(5)
+    expect(result.blocks[7].type).toBe('actions')
+    expect(result.blocks[8].fields).toHaveLength(5)
+    expect(result.blocks[9].type).toBe('image')
     expect(result.blocks[11].fields).toHaveLength(5)
+    expect(result.blocks[12].fields).toHaveLength(5)
   })
 
   it('persists the expanded settings set on save', async () => {

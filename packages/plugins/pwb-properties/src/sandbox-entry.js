@@ -120,10 +120,10 @@ function buildFilterActions(activeMode) {
 
 function buildSettingsBlocks(currentUrl, error) {
 	const blocks = [
-		{ type: "header", text: "PWB Connection" },
+		{ type: "header", text: "Search & Listings" },
 		{
 			type: "context",
-			text: "Enter the base URL of your PWB Rails backend. No trailing slash. Example: http://localhost:3000",
+			text: "Connect the public property search and listing pages to your PWB Rails backend. This setting affects inventory pages, search results, and property detail views.",
 		},
 	];
 
@@ -134,9 +134,17 @@ function buildSettingsBlocks(currentUrl, error) {
 	if (currentUrl) {
 		blocks.push({
 			type: "fields",
-			fields: [{ label: "Current URL", value: currentUrl }],
+			fields: [{ label: "Current PWB API URL", value: currentUrl }],
 		});
 	}
+
+	blocks.push({
+		type: "actions",
+		elements: [
+			{ type: "button", text: "Preview search", url: "/properties" },
+			{ type: "button", text: "Preview homepage", url: "/" },
+		],
+	});
 
 	blocks.push({
 		type: "form",
@@ -151,6 +159,11 @@ function buildSettingsBlocks(currentUrl, error) {
 			},
 		],
 		submit: { label: "Save", action_id: "save_settings" },
+	});
+
+	blocks.push({
+		type: "context",
+		text: "Use this screen when listings are missing, property search feels stale, or you are switching the site to a different PWB backend.",
 	});
 
 	return blocks;

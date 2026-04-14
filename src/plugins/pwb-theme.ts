@@ -232,6 +232,6 @@ export function pwbThemePlugin(): PluginDescriptor {
     format: 'standard',
     entrypoint: fileURLToPath(new URL('./pwb-theme.sandbox.js', import.meta.url)),
     options: {},
-    adminPages: [{ path: '/settings', label: 'Theme', icon: 'settings' }],
+    adminPages: [{ path: '/settings', label: 'Theme & Styling', icon: 'settings' }],
   }
 }
