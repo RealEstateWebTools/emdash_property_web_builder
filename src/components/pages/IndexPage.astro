@@ -2,12 +2,14 @@
 import { getEmDashEntry } from 'emdash'
 import { PortableText } from 'emdash/ui'
 import { createPwbClient } from '../../lib/pwb/client'
-import { formatPropertyCard } from '../../lib/pwb/formatters'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
+import {
+  loadHomepageListingGroups,
+  readHomepageMerchandisingConfig,
+} from '../../lib/homepage-merchandising'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyGrid from '../PropertyGrid.astro'
 import { localePath, translateLabel } from '../../lib/locale'
-import type { SearchResults } from '../../lib/pwb/types'
 
 interface Props {
   locale: string
@@ -17,25 +19,24 @@ const { locale } = Astro.props
 
 const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage', { locale })
 Astro.cache.set(cacheHint)
+const homepageData = (homepage?.data ?? undefined) as Record<string, unknown> | undefined
 
 let site = fallbackSite
-let featuredSaleResults: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 3, total_pages: 0 } }
-let featuredRentalResults: SearchResults = { data: [], map_markers: [], meta: { total: 0, page: 1, per_page: 3, total_pages: 0 } }
+let featuredGroups: Awaited<ReturnType<typeof loadHomepageListingGroups>> = []
+const merchandising = readHomepageMerchandisingConfig(homepageData)
 
 try {
   const client = createPwbClient(locale)
-  ;[site, featuredSaleResults, featuredRentalResults] = await Promise.all([
+  ;[site, featuredGroups] = await Promise.all([
     client.getSiteDetails(),
-    client.searchProperties({ featured: 'true', sale_or_rental: 'sale', per_page: 3 }),
-    client.searchProperties({ featured: 'true', sale_or_rental: 'rental', per_page: 3 }),
+    loadHomepageListingGroups(client, merchandising),
   ])
 } catch {
   site = fallbackSite
+  featuredGroups = []
 }
 
-const saleCards = featuredSaleResults.data.map(formatPropertyCard)
-const rentalCards = featuredRentalResults.data.map(formatPropertyCard)
-const hasFeaturedInventory = saleCards.length > 0 || rentalCards.length > 0
+const hasFeaturedInventory = featuredGroups.length > 0
 const brandName = site.company_display_name ?? site.title
 
 const services = [
@@ -188,35 +189,20 @@ const testimonials = [
         <p>{translateLabel(locale, 'Selected listings presented with the same editorial care we bring to the rest of the brand.')}</p>
       </div>
 
-      {saleCards.length > 0 && (
+      {featuredGroups.map((group) => (
         <div class="inventory-group">
           <div class="inventory-group__header">
             <div>
-              <p class="inventory-group__eyebrow">{translateLabel(locale, 'For sale')}</p>
-              <h3>{translateLabel(locale, 'Move-in ready opportunities')}</h3>
+              <p class="inventory-group__eyebrow">{translateLabel(locale, group.eyebrow)}</p>
+              <h3>{translateLabel(locale, group.title)}</h3>
             </div>
-            <a href={localePath(locale, '/properties?sale_or_rental=sale')} class="inventory-group__link">
+            <a href={localePath(locale, group.href)} class="inventory-group__link">
               {translateLabel(locale, 'View All Properties')}
             </a>
           </div>
-          <PropertyGrid cards={saleCards} />
+          <PropertyGrid cards={group.cards} />
         </div>
-      )}
-
-      {rentalCards.length > 0 && (
-        <div class="inventory-group">
-          <div class="inventory-group__header">
-            <div>
-              <p class="inventory-group__eyebrow">{translateLabel(locale, 'For rent')}</p>
-              <h3>{translateLabel(locale, 'Flexible lets with strong locations')}</h3>
-            </div>
-            <a href={localePath(locale, '/properties?sale_or_rental=rental')} class="inventory-group__link">
-              {translateLabel(locale, 'View All Properties')}
-            </a>
-          </div>
-          <PropertyGrid cards={rentalCards} />
-        </div>
-      )}
+      ))}
     </section>
   )}
 

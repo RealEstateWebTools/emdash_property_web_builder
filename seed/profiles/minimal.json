@@ -68,6 +68,35 @@
 					"slug": "featured_section_heading",
 					"label": "Featured Section Heading",
 					"type": "string"
+				},
+				{
+					"slug": "featured_collection_mode",
+					"label": "Featured Collection Mode",
+					"type": "select",
+					"defaultValue": "split_featured",
+					"validation": {
+						"options": [
+							"split_featured",
+							"featured_any",
+							"newest_any",
+							"newest_sale",
+							"newest_rental",
+							"property_type_any",
+							"property_type_sale",
+							"property_type_rental"
+						]
+					}
+				},
+				{
+					"slug": "featured_item_limit",
+					"label": "Featured Item Limit",
+					"type": "integer",
+					"defaultValue": 3
+				},
+				{
+					"slug": "featured_property_type",
+					"label": "Featured Property Type Filter",
+					"type": "string"
 				}
 			]
 		}
@@ -239,6 +268,9 @@
 				"data": {
 					"title": "Homes chosen with more care",
 					"featured_section_heading": "Featured homes",
+					"featured_collection_mode": "split_featured",
+					"featured_item_limit": 3,
+					"featured_property_type": "",
 					"content": [
 						{
 							"_type": "block",
