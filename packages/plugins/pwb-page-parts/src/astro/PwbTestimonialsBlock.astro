@@ -1,0 +1,132 @@
+---
+import { normalizeLocale, t } from "../i18n.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+
+const eyebrow =
+  typeof node?.eyebrow === "string" && node.eyebrow.trim() ? node.eyebrow.trim() : t(locale, "testimonialsEyebrow");
+const heading =
+  typeof node?.heading === "string" && node.heading.trim() ? node.heading.trim() : t(locale, "testimonialsHeading");
+const intro =
+  typeof node?.intro === "string" && node.intro.trim() ? node.intro.trim() : t(locale, "testimonialsIntro");
+
+function readItem(index) {
+  const quoteKey = `quote${index}`;
+  const nameKey = `name${index}`;
+  const roleKey = `role${index}`;
+
+  return {
+    quote:
+      typeof node?.[quoteKey] === "string" && node[quoteKey].trim()
+        ? node[quoteKey].trim()
+        : t(locale, `testimonial${index}Quote`),
+    name:
+      typeof node?.[nameKey] === "string" && node[nameKey].trim()
+        ? node[nameKey].trim()
+        : t(locale, `testimonial${index}Name`),
+    role:
+      typeof node?.[roleKey] === "string" && node[roleKey].trim()
+        ? node[roleKey].trim()
+        : t(locale, `testimonial${index}Role`),
+  };
+}
+
+const testimonials = [readItem(1), readItem(2), readItem(3)];
+---
+
+<section class="pwb-testimonials-block">
+  <div class="pwb-testimonials-block__heading">
+    <p>{eyebrow}</p>
+    <h3>{heading}</h3>
+    <span>{intro}</span>
+  </div>
+
+  <div class="pwb-testimonials-block__grid">
+    {testimonials.map((item) => (
+      <article class="pwb-testimonials-block__card">
+        <blockquote>{item.quote}</blockquote>
+        <footer>
+          <strong>{item.name}</strong>
+          <span>{item.role}</span>
+        </footer>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .pwb-testimonials-block {
+    margin: 2rem 0;
+  }
+
+  .pwb-testimonials-block__heading {
+    max-width: 46rem;
+    margin-bottom: 1rem;
+  }
+
+  .pwb-testimonials-block__heading p {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-accent, #936f2f);
+  }
+
+  .pwb-testimonials-block__heading h3 {
+    margin: 0.45rem 0 0;
+    font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+    line-height: 1.08;
+    color: var(--color-primary, #16354c);
+  }
+
+  .pwb-testimonials-block__heading span {
+    display: block;
+    margin-top: 0.55rem;
+    color: var(--color-text-muted, #586473);
+  }
+
+  .pwb-testimonials-block__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .pwb-testimonials-block__card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(252, 250, 247, 0.98));
+    border: 1px solid rgba(22, 53, 76, 0.08);
+    box-shadow: var(--shadow-md, 0 12px 28px rgba(0, 0, 0, 0.08));
+  }
+
+  .pwb-testimonials-block blockquote {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--color-text, #1f2933);
+  }
+
+  .pwb-testimonials-block footer {
+    margin-top: 1rem;
+  }
+
+  .pwb-testimonials-block footer strong {
+    display: block;
+    color: var(--color-primary, #16354c);
+  }
+
+  .pwb-testimonials-block footer span {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--color-text-soft, #6b7280);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 960px) {
+    .pwb-testimonials-block__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

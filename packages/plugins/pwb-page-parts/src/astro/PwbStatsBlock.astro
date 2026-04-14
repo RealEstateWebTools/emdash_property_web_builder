@@ -1,0 +1,110 @@
+---
+import { normalizeLocale, t } from "../i18n.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+
+const heading = typeof node?.heading === "string" && node.heading.trim() ? node.heading : t(locale, "statsHeading");
+const intro = typeof node?.intro === "string" && node.intro.trim() ? node.intro : t(locale, "statsIntro");
+
+function readStat(index) {
+  const valueKey = `item${index}Value`;
+  const labelKey = `item${index}Label`;
+
+  return {
+    value:
+      typeof node?.[valueKey] === "string" && node[valueKey].trim()
+        ? node[valueKey].trim()
+        : t(locale, `stat${index}Value`),
+    label:
+      typeof node?.[labelKey] === "string" && node[labelKey].trim()
+        ? node[labelKey].trim()
+        : t(locale, `stat${index}Label`),
+  };
+}
+
+const stats = [readStat(1), readStat(2), readStat(3), readStat(4)];
+---
+
+<section class="pwb-stats-block">
+  <div class="pwb-stats-block__heading">
+    <h3>{heading}</h3>
+    <p>{intro}</p>
+  </div>
+  <div class="pwb-stats-block__grid">
+    {stats.map((item) => (
+      <article class="pwb-stats-block__item">
+        <strong>{item.value}</strong>
+        <span>{item.label}</span>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .pwb-stats-block {
+    margin: 2rem 0;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(180deg, rgba(248, 245, 239, 0.92), rgba(255, 255, 255, 0.98));
+    border: 1px solid rgba(22, 53, 76, 0.1);
+    box-shadow: var(--shadow-lg, 0 18px 50px rgba(0, 0, 0, 0.08));
+  }
+
+  .pwb-stats-block__heading {
+    margin-bottom: 1rem;
+  }
+
+  .pwb-stats-block__heading h3 {
+    margin: 0;
+    font-size: clamp(1.3rem, 2.6vw, 2rem);
+    line-height: 1.15;
+    color: var(--color-primary, #16354c);
+  }
+
+  .pwb-stats-block__heading p {
+    margin: 0.45rem 0 0;
+    max-width: 60ch;
+    color: var(--color-text-muted, #586473);
+  }
+
+  .pwb-stats-block__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .pwb-stats-block__item {
+    padding: 1rem;
+    border-radius: 1rem;
+    background: var(--color-surface-strong, #fffdf9);
+    border: 1px solid rgba(22, 53, 76, 0.08);
+  }
+
+  .pwb-stats-block__item strong {
+    display: block;
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1;
+    color: var(--color-primary, #16354c);
+  }
+
+  .pwb-stats-block__item span {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--color-text-soft, #52606c);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 900px) {
+    .pwb-stats-block__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .pwb-stats-block__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -12,9 +12,16 @@ describe("pwb-page-parts descriptor", () => {
 });
 
 describe("pwb-page-parts schema", () => {
-  it("declares hero, cta, and features portable text blocks", () => {
+  it("declares the trust and merchandising portable text blocks", () => {
     const types = PORTABLE_TEXT_BLOCKS.map((block) => block.type).sort();
-    expect(types).toEqual(["pwb-cta", "pwb-features", "pwb-hero"]);
+    expect(types).toEqual([
+      "pwb-cta",
+      "pwb-features",
+      "pwb-hero",
+      "pwb-local-expertise",
+      "pwb-stats",
+      "pwb-testimonials",
+    ]);
   });
 
   it("uses Block Kit field elements and stable action ids", () => {
@@ -33,6 +40,6 @@ describe("pwb-page-parts schema", () => {
 
   it("exposes blocks through definePlugin admin config", () => {
     const runtime = createPlugin();
-    expect(runtime.admin.portableTextBlocks).toHaveLength(3);
+    expect(runtime.admin.portableTextBlocks).toHaveLength(6);
   });
 });

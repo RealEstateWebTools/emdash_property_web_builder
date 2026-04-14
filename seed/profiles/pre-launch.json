@@ -97,6 +97,11 @@
 					"slug": "featured_property_type",
 					"label": "Featured Property Type Filter",
 					"type": "string"
+				},
+				{
+					"slug": "trust_content",
+					"label": "Homepage Trust Content",
+					"type": "portableText"
 				}
 			]
 		}
@@ -242,6 +247,22 @@
 					"featured_collection_mode": "featured_any",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
+					"trust_content": [
+						{
+							"_type": "pwb-local-expertise",
+							"eyebrow": "Before launch",
+							"heading": "A focused first impression while the full site is prepared",
+							"body": "This reusable block helps the pre-launch homepage explain the office, the local patch, and the type of enquiries the team can already help with.",
+							"point1Label": "Coverage",
+							"point1Value": "Your local market area",
+							"point2Label": "Open for",
+							"point2Value": "Valuations, listing enquiries, and buyer registrations",
+							"point3Label": "Response",
+							"point3Value": "Add your expected turnaround time",
+							"buttonLabel": "Contact the team",
+							"buttonHref": "/pages/contact"
+						}
+					],
 					"content": [
 						{
 							"_type": "block",

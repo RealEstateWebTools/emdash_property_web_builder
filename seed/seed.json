@@ -97,6 +97,11 @@
 					"slug": "featured_property_type",
 					"label": "Featured Property Type Filter",
 					"type": "string"
+				},
+				{
+					"slug": "trust_content",
+					"label": "Homepage Trust Content",
+					"type": "portableText"
 				}
 			]
 		}
@@ -268,6 +273,50 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
+					"trust_content": [
+						{
+							"_type": "pwb-stats",
+							"heading": "Performance snapshot",
+							"intro": "Trust signals that help the homepage feel commercially credible before an agency customises the finer detail.",
+							"item1Value": "500+",
+							"item1Label": "Homes marketed",
+							"item2Value": "98%",
+							"item2Label": "Client satisfaction",
+							"item3Value": "15",
+							"item3Label": "Years of local experience",
+							"item4Value": "24h",
+							"item4Label": "Average first response"
+						},
+						{
+							"_type": "pwb-testimonials",
+							"eyebrow": "Client perspective",
+							"heading": "Confidence comes from clarity and good taste",
+							"intro": "The trust library gives the default homepage stronger editorial substance without forcing hardcoded testimonial markup.",
+							"quote1": "They filtered the noise out of the market and only showed us homes worth seeing. The shortlist felt sharper immediately.",
+							"name1": "Amelia Hart",
+							"role1": "Buyer",
+							"quote2": "The presentation quality felt stronger from week one. Better positioning, cleaner photography, and better conversations with buyers.",
+							"name2": "Daniel Reeves",
+							"role2": "Seller",
+							"quote3": "It felt like having a calm advisor instead of a pushy sales team. Clear communication, good judgment, and no wasted viewings.",
+							"name3": "Lucia Moreau",
+							"role3": "Relocation client"
+						},
+						{
+							"_type": "pwb-local-expertise",
+							"eyebrow": "Local credibility",
+							"heading": "Trusted advice, presented with more care",
+							"body": "Demo Realty combines neighborhood knowledge, cleaner marketing, and a calmer advisory style so buyers, renters, sellers, and landlords know what to expect before they ever enquire.",
+							"point1Label": "Coverage",
+							"point1Value": "East Brunswick and surrounding neighborhoods",
+							"point2Label": "Specialism",
+							"point2Value": "Sales, rentals, valuations, and relocation support",
+							"point3Label": "Approach",
+							"point3Value": "Calm advice, cleaner presentation, and responsive communication",
+							"buttonLabel": "Speak with the team",
+							"buttonHref": "/pages/contact"
+						}
+					],
 					"content": [
 						{
 							"_type": "block",
@@ -361,6 +410,21 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
+					"trust_content": [
+						{
+							"_type": "pwb-stats",
+							"heading": "Indicadores clave",
+							"intro": "Senales de confianza para que la portada se sienta mas solida antes de cualquier personalizacion.",
+							"item1Value": "500+",
+							"item1Label": "Viviendas comercializadas",
+							"item2Value": "98%",
+							"item2Label": "Satisfaccion del cliente",
+							"item3Value": "15",
+							"item3Label": "Anos de experiencia local",
+							"item4Value": "24h",
+							"item4Label": "Tiempo medio de respuesta"
+						}
+					],
 					"content": [
 						{
 							"_type": "block",
@@ -387,6 +451,21 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
+					"trust_content": [
+						{
+							"_type": "pwb-stats",
+							"heading": "Indicateurs de confiance",
+							"intro": "Des reperes simples pour donner plus de credibilite a la page d accueil des la premiere mise en ligne.",
+							"item1Value": "500+",
+							"item1Label": "Biens commercialises",
+							"item2Value": "98%",
+							"item2Label": "Satisfaction client",
+							"item3Value": "15",
+							"item3Label": "Ans d experience locale",
+							"item4Value": "24h",
+							"item4Label": "Delai moyen de reponse"
+						}
+					],
 					"content": [
 						{
 							"_type": "block",

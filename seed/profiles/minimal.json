@@ -97,6 +97,11 @@
 					"slug": "featured_property_type",
 					"label": "Featured Property Type Filter",
 					"type": "string"
+				},
+				{
+					"slug": "trust_content",
+					"label": "Homepage Trust Content",
+					"type": "portableText"
 				}
 			]
 		}
@@ -271,6 +276,22 @@
 					"featured_collection_mode": "split_featured",
 					"featured_item_limit": 3,
 					"featured_property_type": "",
+					"trust_content": [
+						{
+							"_type": "pwb-local-expertise",
+							"eyebrow": "Local credibility",
+							"heading": "Replace this with your office story",
+							"body": "Use this reusable trust block to explain your patch, your specialism, and the reasons clients should trust the agency before they enquire.",
+							"point1Label": "Coverage",
+							"point1Value": "Add your main area",
+							"point2Label": "Specialism",
+							"point2Value": "Add your core service mix",
+							"point3Label": "Approach",
+							"point3Value": "Add the service style you want to be known for",
+							"buttonLabel": "Contact the office",
+							"buttonHref": "/pages/contact"
+						}
+					],
 					"content": [
 						{
 							"_type": "block",

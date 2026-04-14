@@ -9,5 +9,8 @@ describe("pwb-page-parts blockComponents", () => {
     expect(source).toContain('"pwb-hero": PwbHeroBlock');
     expect(source).toContain('"pwb-cta": PwbCtaBlock');
     expect(source).toContain('"pwb-features": PwbFeaturesBlock');
+    expect(source).toContain('"pwb-stats": PwbStatsBlock');
+    expect(source).toContain('"pwb-testimonials": PwbTestimonialsBlock');
+    expect(source).toContain('"pwb-local-expertise": PwbLocalExpertiseBlock');
   });
 });

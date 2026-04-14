@@ -20,6 +20,7 @@ const { locale } = Astro.props
 const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage', { locale })
 Astro.cache.set(cacheHint)
 const homepageData = (homepage?.data ?? undefined) as Record<string, unknown> | undefined
+const trustContent = Array.isArray(homepageData?.trust_content) ? homepageData.trust_content : []
 
 let site = fallbackSite
 let featuredGroups: Awaited<ReturnType<typeof loadHomepageListingGroups>> = []
@@ -57,23 +58,6 @@ const services = [
   },
 ]
 
-const testimonials = [
-  {
-    quote: translateLabel(locale, 'They filtered the noise out of the market and only showed us homes worth seeing. The shortlist felt sharper immediately.'),
-    name: 'Amelia Hart',
-    role: translateLabel(locale, 'Buyer'),
-  },
-  {
-    quote: translateLabel(locale, 'The presentation quality felt stronger from week one. Better positioning, cleaner photography, and better conversations with buyers.'),
-    name: 'Daniel Reeves',
-    role: translateLabel(locale, 'Seller'),
-  },
-  {
-    quote: translateLabel(locale, 'It felt like having a calm advisor instead of a pushy sales team. Clear communication, good judgment, and no wasted viewings.'),
-    name: 'Lucia Moreau',
-    role: translateLabel(locale, 'Relocation client'),
-  },
-]
 ---
 
 <BaseLayout site={site} title={homepage?.data.title}>
@@ -140,27 +124,6 @@ const testimonials = [
     </div>
   </section>
 
-  <section class="stats-band" aria-label={translateLabel(locale, 'Performance highlights')}>
-    <div class="stats-band__inner">
-      <article class="stats-band__item">
-        <span class="stats-band__number">500+</span>
-        <span class="stats-band__label">{translateLabel(locale, 'Properties listed')}</span>
-      </article>
-      <article class="stats-band__item">
-        <span class="stats-band__number">98%</span>
-        <span class="stats-band__label">{translateLabel(locale, 'Client satisfaction')}</span>
-      </article>
-      <article class="stats-band__item">
-        <span class="stats-band__number">15</span>
-        <span class="stats-band__label">{translateLabel(locale, 'Years of local experience')}</span>
-      </article>
-      <article class="stats-band__item">
-        <span class="stats-band__number">24h</span>
-        <span class="stats-band__label">{translateLabel(locale, 'Average first response')}</span>
-      </article>
-    </div>
-  </section>
-
   <section class="services-section">
     <div class="section-heading">
       <p class="section-heading__eyebrow">{translateLabel(locale, 'What we do')}</p>
@@ -206,28 +169,11 @@ const testimonials = [
     </section>
   )}
 
-  <section class="testimonial-section">
-    <div class="section-heading">
-      <p class="section-heading__eyebrow">{translateLabel(locale, 'Client perspective')}</p>
-      <h2>{translateLabel(locale, 'Confidence comes from clarity and good taste')}</h2>
-      <p>{translateLabel(locale, 'Clients return because the process feels calm, selective, and visibly better organised than the average agency experience.')}</p>
-    </div>
-
-    <div class="testimonial-grid">
-      {testimonials.map((testimonial) => (
-        <article class="testimonial-card">
-          <p class="testimonial-card__quote">“{testimonial.quote}”</p>
-          <div class="testimonial-card__author">
-            <span class="testimonial-card__avatar" aria-hidden="true">{testimonial.name.slice(0, 1)}</span>
-            <div>
-              <h3>{testimonial.name}</h3>
-              <p>{testimonial.role}</p>
-            </div>
-          </div>
-        </article>
-      ))}
-    </div>
-  </section>
+  {trustContent.length > 0 && (
+    <section class="trust-content-section">
+      <PortableText value={trustContent} />
+    </section>
+  )}
 
   <section class="cta-banner">
     <div class="cta-banner__inner">
@@ -468,50 +414,9 @@ const testimonials = [
     font-size: var(--text-sm);
   }
 
-  .stats-band {
-    margin: calc(var(--space-section-sm) * -0.9) auto 0;
-    position: relative;
-    z-index: 30;
-    padding: 0 var(--spacing-page);
-  }
-
-  .stats-band__inner {
-    width: min(100%, 72rem);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
-    background: rgba(22, 53, 76, 0.08);
-    border: 1px solid rgba(22, 53, 76, 0.12);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-xl);
-  }
-
-  .stats-band__item {
-    padding: 1.5rem;
-    background: var(--color-surface-strong);
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .stats-band__number {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--color-primary);
-    line-height: 1;
-  }
-
-  .stats-band__label {
-    color: var(--color-text-soft);
-    font-size: var(--text-sm);
-    max-width: 12rem;
-  }
-
   .services-section,
   .inventory-section,
-  .testimonial-section {
+  .trust-content-section {
     padding-left: var(--spacing-page);
     padding-right: var(--spacing-page);
   }
@@ -561,7 +466,6 @@ const testimonials = [
 
   .section-heading p,
   .service-card p,
-  .testimonial-card__quote,
   .cta-banner__text p {
     color: var(--color-text-soft);
     font-size: var(--text-lg);
@@ -630,65 +534,12 @@ const testimonials = [
     padding: 0;
   }
 
-  .testimonial-section {
-    padding-top: var(--space-section-md);
+  .trust-content-section {
+    padding-top: 0;
     padding-bottom: var(--space-section-lg);
     background:
       linear-gradient(180deg, rgba(244, 238, 228, 0.92) 0%, rgba(244, 238, 228, 0.52) 100%),
       var(--color-bg-soft);
-  }
-
-  .testimonial-grid {
-    width: min(100%, 72rem);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
-  }
-
-  .testimonial-card {
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid rgba(22, 53, 76, 0.1);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    box-shadow: var(--shadow-md);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .testimonial-card__quote {
-    font-size: var(--text-base);
-  }
-
-  .testimonial-card__author {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-  }
-
-  .testimonial-card__avatar {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-primary);
-    color: var(--color-on-dark);
-    font-weight: 700;
-  }
-
-  .testimonial-card__author h3 {
-    margin: 0 0 0.15rem;
-    font-size: var(--text-lg);
-    color: var(--color-primary);
-  }
-
-  .testimonial-card__author p {
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
   }
 
   .cta-banner {
@@ -764,9 +615,7 @@ const testimonials = [
   }
 
   @media (max-width: 1024px) {
-    .stats-band__inner,
-    .services-grid,
-    .testimonial-grid {
+    .services-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -801,13 +650,7 @@ const testimonials = [
       justify-content: center;
     }
 
-    .stats-band {
-      margin-top: calc(var(--space-section-sm) * -0.55);
-    }
-
-    .stats-band__inner,
-    .services-grid,
-    .testimonial-grid {
+    .services-grid {
       grid-template-columns: 1fr;
     }
   }

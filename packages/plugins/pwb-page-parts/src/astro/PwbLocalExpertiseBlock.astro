@@ -1,0 +1,141 @@
+---
+import { normalizeLocale, t } from "../i18n.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+
+const eyebrow =
+  typeof node?.eyebrow === "string" && node.eyebrow.trim() ? node.eyebrow.trim() : t(locale, "localHeadingEyebrow");
+const heading =
+  typeof node?.heading === "string" && node.heading.trim() ? node.heading.trim() : t(locale, "localHeading");
+const body = typeof node?.body === "string" && node.body.trim() ? node.body.trim() : t(locale, "localBody");
+const buttonLabel =
+  typeof node?.buttonLabel === "string" && node.buttonLabel.trim() ? node.buttonLabel.trim() : t(locale, "localButton");
+const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim() ? node.buttonHref.trim() : "/contact";
+
+function readPoint(index) {
+  const labelKey = `point${index}Label`;
+  const valueKey = `point${index}Value`;
+
+  return {
+    label:
+      typeof node?.[labelKey] === "string" && node[labelKey].trim()
+        ? node[labelKey].trim()
+        : t(locale, `localPoint${index}Label`),
+    value:
+      typeof node?.[valueKey] === "string" && node[valueKey].trim()
+        ? node[valueKey].trim()
+        : t(locale, `localPoint${index}Value`),
+  };
+}
+
+const points = [readPoint(1), readPoint(2), readPoint(3)];
+---
+
+<section class="pwb-local-expertise">
+  <div class="pwb-local-expertise__copy">
+    <p>{eyebrow}</p>
+    <h3>{heading}</h3>
+    <span>{body}</span>
+    <a href={buttonHref}>{buttonLabel}</a>
+  </div>
+
+  <div class="pwb-local-expertise__panel">
+    {points.map((point) => (
+      <div class="pwb-local-expertise__row">
+        <strong>{point.label}</strong>
+        <span>{point.value}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .pwb-local-expertise {
+    margin: 2rem 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .pwb-local-expertise__copy,
+  .pwb-local-expertise__panel {
+    border-radius: 1.15rem;
+    border: 1px solid rgba(22, 53, 76, 0.08);
+    box-shadow: var(--shadow-md, 0 12px 28px rgba(0, 0, 0, 0.08));
+  }
+
+  .pwb-local-expertise__copy {
+    padding: 1.35rem;
+    background: linear-gradient(160deg, rgba(255, 248, 240, 0.96), rgba(250, 247, 241, 0.98));
+  }
+
+  .pwb-local-expertise__copy p {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-accent, #936f2f);
+  }
+
+  .pwb-local-expertise__copy h3 {
+    margin: 0.45rem 0 0;
+    font-size: clamp(1.45rem, 3vw, 2.3rem);
+    line-height: 1.08;
+    color: var(--color-primary, #16354c);
+  }
+
+  .pwb-local-expertise__copy span {
+    display: block;
+    margin-top: 0.75rem;
+    color: var(--color-text, #24323f);
+    line-height: 1.75;
+  }
+
+  .pwb-local-expertise__copy a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    background: var(--color-accent, #936f2f);
+    color: var(--color-accent-contrast, #ffffff);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .pwb-local-expertise__panel {
+    background: var(--color-surface-strong, #fffdf9);
+    overflow: clip;
+  }
+
+  .pwb-local-expertise__row {
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid rgba(22, 53, 76, 0.08);
+  }
+
+  .pwb-local-expertise__row:last-child {
+    border-bottom: none;
+  }
+
+  .pwb-local-expertise__row strong {
+    display: block;
+    color: var(--color-primary, #16354c);
+  }
+
+  .pwb-local-expertise__row span {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--color-text-soft, #5f6b78);
+  }
+
+  @media (max-width: 900px) {
+    .pwb-local-expertise {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
