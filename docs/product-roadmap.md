@@ -3,6 +3,10 @@
 This document turns the current product direction into a practical roadmap for
 `emdash_property_web_builder`.
 
+For a more concrete improvement plan focused on setup, admin UX, frontend polish,
+lead generation, and content/data cohesion, see
+[docs/product-improvement-roadmap.md](product-improvement-roadmap.md).
+
 It is written against the architecture the project already has today:
 
 - **PWB** is the canonical backend for listings, search, and enquiries
