@@ -1,4 +1,4 @@
-import { definePlugin } from 'emdash'
+import { definePlugin, extractPlainText, getEmDashEntry, getMenu, getPluginSetting, getSiteSettings } from 'emdash'
 import {
   DEFAULT_SITE_PROFILE_SETTINGS,
   SITE_PROFILE_BRAND_NAME_KV_KEY,
@@ -9,6 +9,22 @@ import {
   sanitizeSiteProfileSettings,
   type SiteProfileSettings,
 } from '../lib/site-profile.js'
+import { buildSiteLaunchChecklist } from '../lib/site-launch-checklist.js'
+import { DEFAULT_THEME_SETTINGS, sanitizeThemeSettings } from './pwb-theme.js'
+
+function safeString(value: unknown): string {
+  return typeof value === 'string' ? value : ''
+}
+
+function buildHealthLabel(readyCount: number, totalCount: number): string {
+  if (readyCount === totalCount) {
+    return 'Ready to launch'
+  }
+  if (readyCount === 0) {
+    return 'Setup required'
+  }
+  return `${readyCount} of ${totalCount} complete`
+}
 
 function buildSettingsBlocks(settings: SiteProfileSettings) {
   return [
@@ -72,6 +88,44 @@ function buildSettingsBlocks(settings: SiteProfileSettings) {
   ]
 }
 
+function buildChecklistBlocks(result: ReturnType<typeof buildSiteLaunchChecklist>) {
+  const blocks: any[] = [
+    { type: 'header', text: 'Launch Checklist' },
+    {
+      type: 'context',
+      text: 'Review the core website setup items before launch. Each item is derived from the current settings and content state, and links straight to the place where it can be fixed.',
+    },
+    {
+      type: 'stats',
+      items: [
+        { label: 'Ready', value: String(result.readyCount) },
+        { label: 'Remaining', value: String(result.totalCount - result.readyCount) },
+        { label: 'Status', value: buildHealthLabel(result.readyCount, result.totalCount) },
+      ],
+    },
+    { type: 'divider' },
+  ]
+
+  result.items.forEach((item, index) => {
+    blocks.push({
+      type: 'section',
+      text: `*${item.label}*\n${item.summary}\n${item.detail}`,
+      accessory: {
+        type: 'button',
+        text: item.actionLabel,
+        url: item.adminPath,
+        style: item.status === 'ready' ? undefined : 'primary',
+      },
+    })
+
+    if (index < result.items.length - 1) {
+      blocks.push({ type: 'divider' })
+    }
+  })
+
+  return blocks
+}
+
 async function readSiteProfileSettings(ctx: any): Promise<SiteProfileSettings> {
   const [brandName, tagline, officeAddress, officePhone, officeEmail] = (await Promise.all([
     ctx.kv.get(SITE_PROFILE_BRAND_NAME_KV_KEY),
@@ -100,6 +154,71 @@ async function writeSiteProfileSettings(ctx: any, settings: SiteProfileSettings)
   ])
 }
 
+async function probePropertyConnection(ctx: any, apiUrl: string) {
+  const trimmedUrl = safeString(apiUrl).trim().replace(/\/+$/, '')
+  if (!trimmedUrl) {
+    return { healthy: false, label: null as string | null }
+  }
+
+  try {
+    const response = await ctx.fetch(`${trimmedUrl}/api_public/v1/en/site_details`, {
+      headers: { Accept: 'application/json' },
+    })
+
+    if (!response.ok) {
+      return { healthy: false, label: `Connection check returned HTTP ${response.status}.` }
+    }
+
+    const site = (await response.json()) as { company_display_name?: string | null; title?: string | null }
+    const label = safeString(site.company_display_name).trim() || safeString(site.title).trim()
+    return {
+      healthy: true,
+      label: label ? `Connected to ${label}.` : 'The listing feed is connected and responding.',
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown network error.'
+    return { healthy: false, label: `Connection check failed: ${message}` }
+  }
+}
+
+async function buildChecklistResult(ctx: any) {
+  const [profile, siteSettings, homepageResult, primaryMenu, palette, density, surface, motion, header, pwbApiUrl] =
+    await Promise.all([
+      readSiteProfileSettings(ctx),
+      getSiteSettings(),
+      getEmDashEntry('pages', 'homepage', { locale: 'en' }),
+      getMenu('primary'),
+      getPluginSetting('pwb-theme', 'palette'),
+      getPluginSetting('pwb-theme', 'density'),
+      getPluginSetting('pwb-theme', 'surface'),
+      getPluginSetting('pwb-theme', 'motion'),
+      getPluginSetting('pwb-theme', 'header'),
+      getPluginSetting('pwb-properties', 'pwbApiUrl'),
+    ])
+
+  const themeInput = { palette, density, surface, motion, header }
+  const themeSettings = sanitizeThemeSettings(themeInput)
+  const hasPersistedThemeSettings = Object.values(themeInput).some((value) => typeof value === 'string' && value.length > 0)
+  const propertyConnection = await probePropertyConnection(ctx, safeString(pwbApiUrl))
+
+  return buildSiteLaunchChecklist({
+    siteTitle: siteSettings.title,
+    hasLogo: Boolean(siteSettings.logo?.mediaId),
+    brandName: profile.brandName,
+    officeAddress: profile.officeAddress,
+    officePhone: profile.officePhone,
+    officeEmail: profile.officeEmail,
+    homepageTitle: homepageResult.entry?.data.title,
+    homepageContentText: extractPlainText(homepageResult.entry?.data.content),
+    primaryMenuItemCount: primaryMenu?.items?.length ?? 0,
+    themeSettings: hasPersistedThemeSettings ? themeSettings : DEFAULT_THEME_SETTINGS,
+    hasPersistedThemeSettings,
+    propertyApiUrl: safeString(pwbApiUrl),
+    propertyConnectionHealthy: propertyConnection.healthy,
+    propertyConnectionLabel: propertyConnection.label,
+  })
+}
+
 export default definePlugin({
   hooks: {
     'plugin:install': {
@@ -113,6 +232,7 @@ export default definePlugin({
     admin: {
       handler: async (routeCtx: any, ctx: any) => {
         const interaction = routeCtx.input ?? {}
+        const currentPage = safeString(interaction.page) || '/'
 
         if (interaction.action_id === 'save_site_profile') {
           const settings = sanitizeSiteProfileSettings({
@@ -127,6 +247,11 @@ export default definePlugin({
             blocks: buildSettingsBlocks(settings),
             toast: { message: 'Site profile saved.', type: 'success' },
           }
+        }
+
+        if (currentPage === '/') {
+          const result = await buildChecklistResult(ctx)
+          return { blocks: buildChecklistBlocks(result) }
         }
 
         const current = await readSiteProfileSettings(ctx)

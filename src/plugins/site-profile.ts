@@ -8,6 +8,9 @@ export function siteProfilePlugin(): PluginDescriptor {
     format: 'standard',
     entrypoint: fileURLToPath(new URL('./site-profile.sandbox.js', import.meta.url)),
     options: {},
-    adminPages: [{ path: '/settings', label: 'Site Profile', icon: 'building' }],
+    adminPages: [
+      { path: '/', label: 'Launch Checklist', icon: 'list' },
+      { path: '/settings', label: 'Site Profile', icon: 'building' },
+    ],
   }
 }
