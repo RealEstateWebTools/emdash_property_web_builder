@@ -154,7 +154,44 @@ function buildPageHref(page: number): string {
       </section>
     </div>
   </section>
+
+  <!-- Mobile floating search FAB — scrolls to SearchBar when tapped -->
+  <button
+    class="search-fab"
+    id="search-fab"
+    type="button"
+    aria-label={translateLabel(locale, 'Open search filters')}
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.3-4.3"/>
+    </svg>
+    <span>{translateLabel(locale, 'Search')}</span>
+  </button>
 </BaseLayout>
+
+<script>
+  const fab = document.getElementById('search-fab')
+  if (fab) {
+    fab.addEventListener('click', () => {
+      const searchBar = document.querySelector('.search-bar, [class*="search-bar"]') as HTMLElement | null
+      const target = searchBar ?? document.querySelector('form')
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        const firstInput = target.querySelector<HTMLElement>('input, select')
+        if (firstInput) setTimeout(() => firstInput.focus(), 400)
+      }
+    })
+
+    // Hide FAB when search bar is visible in viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => { fab.classList.toggle('search-fab--hidden', entry.isIntersecting) },
+      { threshold: 0.5 }
+    )
+    const searchBar = document.querySelector('.search-bar, [class*="search-bar"]') ?? document.querySelector('form')
+    if (searchBar) observer.observe(searchBar)
+  }
+</script>
 
 <style>
   .search-page {
@@ -340,6 +377,45 @@ function buildPageHref(page: number): string {
 
   #search-content[data-view="map"] .search-results__map-panel {
     display: block;
+  }
+
+  /* Mobile floating search FAB */
+  .search-fab {
+    display: none;
+    position: fixed;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    background: var(--color-primary);
+    color: var(--color-on-dark);
+    border: none;
+    border-radius: 999px;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(9, 26, 39, 0.35);
+    transition: opacity 0.22s ease, transform 0.22s ease, background var(--transition-base);
+  }
+
+  .search-fab:hover {
+    background: var(--color-primary-dark, var(--color-primary));
+    opacity: 0.92;
+  }
+
+  .search-fab--hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(0.5rem);
+  }
+
+  @media (max-width: 768px) {
+    .search-fab {
+      display: inline-flex;
+    }
   }
 
   @media (max-width: 900px) {
