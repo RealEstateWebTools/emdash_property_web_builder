@@ -87,42 +87,71 @@ function buildPageHref(page: number): string {
       mode={mode}
     />
 
-    <div class="search-page__content">
+    <div class="search-page__content" id="search-content" data-view="grid">
       <section class="search-results">
         <div class="search-results__toolbar">
           <p class="result-count">{results.meta.total} {translateLabel(locale, 'properties found')}</p>
-          <p class="search-results__meta">
-            {translateLabel(locale, mode === 'rental' ? 'Rental homes with stronger presentation.' : 'For-sale homes with stronger presentation.')}
-          </p>
+          <div class="search-results__toolbar-right">
+            <p class="search-results__meta">
+              {translateLabel(locale, mode === 'rental' ? 'Rental homes with stronger presentation.' : 'For-sale homes with stronger presentation.')}
+            </p>
+            {results.map_markers.length > 0 && (
+              <div class="view-toggle" role="group" aria-label={translateLabel(locale, 'View toggle')}>
+                <button
+                  class="view-toggle__btn view-toggle__btn--active"
+                  data-view-target="grid"
+                  aria-pressed="true"
+                  title={translateLabel(locale, 'Grid view')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+                  </svg>
+                  <span class="sr-only">{translateLabel(locale, 'Grid view')}</span>
+                </button>
+                <button
+                  class="view-toggle__btn"
+                  data-view-target="map"
+                  aria-pressed="false"
+                  title={translateLabel(locale, 'Map view')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M5.5 1L1 3.5V15L5.5 12.5L10.5 15L15 12.5V1L10.5 3.5L5.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                    <path d="M5.5 1V12.5M10.5 3.5V15" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                  <span class="sr-only">{translateLabel(locale, 'Map view')}</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        <PropertyGrid cards={cards} />
+        <div class="search-results__grid-panel">
+          <PropertyGrid cards={cards} />
 
-        {results.meta.total_pages > 1 && (
-          <nav class="pagination" aria-label={translateLabel(locale, 'Search results pages')}>
-            {Array.from({ length: results.meta.total_pages }, (_, i) => i + 1).map((page) => (
-              <a
-                href={buildPageHref(page)}
-                class={page === results.meta.page ? 'active' : ''}
-                aria-current={page === results.meta.page ? 'page' : undefined}
-              >
-                {page}
-              </a>
-            ))}
-          </nav>
+          {results.meta.total_pages > 1 && (
+            <nav class="pagination" aria-label={translateLabel(locale, 'Search results pages')}>
+              {Array.from({ length: results.meta.total_pages }, (_, i) => i + 1).map((page) => (
+                <a
+                  href={buildPageHref(page)}
+                  class={page === results.meta.page ? 'active' : ''}
+                  aria-current={page === results.meta.page ? 'page' : undefined}
+                >
+                  {page}
+                </a>
+              ))}
+            </nav>
+          )}
+        </div>
+
+        {results.map_markers.length > 0 && (
+          <div class="search-results__map-panel">
+            <MapView markers={results.map_markers} />
+          </div>
         )}
       </section>
-
-      {results.map_markers.length > 0 && (
-        <aside class="search-page__map-panel">
-          <div class="search-page__map-copy">
-            <p class="search-page__eyebrow">{translateLabel(locale, 'Map overview')}</p>
-            <h2>{translateLabel(locale, 'Browse the market geographically')}</h2>
-            <p>{translateLabel(locale, 'Use the map to understand location clusters, coastal options, and neighborhood density before narrowing your shortlist further.')}</p>
-          </div>
-          <MapView markers={results.map_markers} />
-        </aside>
-      )}
     </div>
   </section>
 </BaseLayout>
@@ -219,8 +248,15 @@ function buildPageHref(page: number): string {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    align-items: baseline;
+    align-items: center;
     padding: 1.35rem var(--spacing-page) 0.25rem;
+  }
+
+  .search-results__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .result-count {
@@ -239,28 +275,71 @@ function buildPageHref(page: number): string {
     padding-top: 1rem;
   }
 
-  .search-page__map-panel {
-    background:
-      linear-gradient(180deg, rgba(244, 238, 228, 0.86), rgba(252, 250, 247, 0.94)),
-      var(--color-bg-soft);
-    border-radius: var(--radius-xl);
-    border: 1px solid rgba(22, 53, 76, 0.08);
-    box-shadow: var(--shadow-md);
-    padding: 1.5rem;
+  /* View toggle button group */
+  .view-toggle {
+    display: flex;
+    gap: 2px;
+    background: rgba(22, 53, 76, 0.07);
+    border-radius: var(--radius-md);
+    padding: 3px;
   }
 
-  .search-page__map-copy {
-    margin-bottom: 1rem;
-    max-width: 40rem;
+  .view-toggle__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: none;
+    border-radius: calc(var(--radius-md) - 2px);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background var(--transition-base), color var(--transition-base);
   }
 
-  .search-page__map-copy h2 {
-    font-size: clamp(1.9rem, 3vw, 2.8rem);
+  .view-toggle__btn:hover {
+    background: rgba(22, 53, 76, 0.08);
+    color: var(--color-primary);
   }
 
-  .search-page__map-panel :global(.map-view) {
+  .view-toggle__btn--active {
+    background: var(--color-surface-strong);
+    color: var(--color-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Map/grid panel visibility */
+  .search-results__map-panel {
+    display: none;
+    padding: 0 var(--spacing-page) var(--spacing-page);
+  }
+
+  .search-results__map-panel :global(.map-view) {
     margin: 0;
     min-height: 28rem;
+    max-height: 60vh;
+    height: 60vh;
+  }
+
+  #search-content[data-view="map"] .search-results__grid-panel {
+    display: none;
+  }
+
+  #search-content[data-view="map"] .search-results__map-panel {
+    display: block;
   }
 
   @media (max-width: 900px) {
@@ -276,3 +355,30 @@ function buildPageHref(page: number): string {
     }
   }
 </style>
+
+<script>
+  const content = document.getElementById('search-content')
+  if (content) {
+    const STORAGE_KEY = 'pwb-search-view'
+    const saved = sessionStorage.getItem(STORAGE_KEY) as 'grid' | 'map' | null
+    if (saved === 'map') setView('map')
+
+    document.querySelectorAll<HTMLButtonElement>('[data-view-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.viewTarget as 'grid' | 'map'
+        setView(target)
+        sessionStorage.setItem(STORAGE_KEY, target)
+      })
+    })
+
+    function setView(view: 'grid' | 'map') {
+      if (!content) return
+      content.dataset.view = view
+      document.querySelectorAll<HTMLButtonElement>('[data-view-target]').forEach((btn) => {
+        const active = btn.dataset.viewTarget === view
+        btn.classList.toggle('view-toggle__btn--active', active)
+        btn.setAttribute('aria-pressed', String(active))
+      })
+    }
+  }
+</script>
