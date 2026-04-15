@@ -82,6 +82,12 @@ if (themeSettings.palette === 'default') {
     themeSettings = { ...themeSettings, palette: envPalette as Palette }
   }
 }
+// ?palette=<name> query param overrides all other sources — useful for E2E
+// visual regression tests and local theme previewing.
+const urlPalette = Astro.url.searchParams.get('palette')
+if (urlPalette && (VALID_PALETTES as readonly string[]).includes(urlPalette)) {
+  themeSettings = { ...themeSettings, palette: urlPalette as Palette }
+}
 
 const palette = themeSettings.palette
 const paletteHref = palette !== 'default' ? `/styles/palettes/${palette}.css` : null
