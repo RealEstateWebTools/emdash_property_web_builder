@@ -21,6 +21,7 @@ describe("pwb-page-parts schema", () => {
       "pwb-local-expertise",
       "pwb-stats",
       "pwb-testimonials",
+      "pwb-valuation-cta",
     ]);
   });
 
@@ -40,6 +41,6 @@ describe("pwb-page-parts schema", () => {
 
   it("exposes blocks through definePlugin admin config", () => {
     const runtime = createPlugin();
-    expect(runtime.admin.portableTextBlocks).toHaveLength(6);
+    expect(runtime.admin.portableTextBlocks).toHaveLength(7);
   });
 });

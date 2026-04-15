@@ -37,6 +37,9 @@ if (Astro.request.method === "POST") {
       email: formData.get("email"),
       phone: formData.get("phone"),
       address: formData.get("address"),
+      property_type: formData.get("property_type"),
+      bedrooms: formData.get("bedrooms"),
+      condition: formData.get("condition"),
       notes: formData.get("notes"),
     };
 
@@ -139,6 +142,47 @@ const site = await client.getSiteDetails();
             />
           </div>
 
+          <div class="form-row-group">
+            <div class="form-row">
+              <label for="val-prop-type">Property type</label>
+              <select id="val-prop-type" name="property_type">
+                <option value="">— Select —</option>
+                <option value="house">House</option>
+                <option value="apartment">Apartment</option>
+                <option value="villa">Villa</option>
+                <option value="townhouse">Townhouse</option>
+                <option value="commercial">Commercial</option>
+                <option value="land">Land</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label for="val-bedrooms">Bedrooms</label>
+              <select id="val-bedrooms" name="bedrooms">
+                <option value="">— Select —</option>
+                <option value="studio">Studio</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6+">6+</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="val-condition">Property condition</label>
+            <select id="val-condition" name="condition">
+              <option value="">— Select —</option>
+              <option value="excellent">Excellent — move-in ready</option>
+              <option value="good">Good — minor cosmetic work only</option>
+              <option value="needs_work">Needs work — significant renovation required</option>
+              <option value="unknown">Not sure</option>
+            </select>
+          </div>
+
           <div class="form-row">
             <label for="val-notes">Additional notes</label>
             <textarea
@@ -198,10 +242,22 @@ const site = await client.getSiteDetails();
     gap: 1.25rem;
   }
 
+  .form-row-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
   .form-row {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+  }
+
+  @media (max-width: 540px) {
+    .form-row-group {
+      grid-template-columns: 1fr;
+    }
   }
 
   .form-row label {
@@ -210,17 +266,22 @@ const site = await client.getSiteDetails();
   }
 
   .form-row input,
-  .form-row textarea {
+  .form-row textarea,
+  .form-row select {
     padding: 0.6rem 0.8rem;
     border: 1px solid var(--color-border, #d1d5db);
     border-radius: 0.375rem;
     font-size: 1rem;
     width: 100%;
     box-sizing: border-box;
+    background: var(--color-bg, #fff);
+    color: var(--color-text, #1f1b16);
+    font-family: inherit;
   }
 
   .form-row input:focus,
-  .form-row textarea:focus {
+  .form-row textarea:focus,
+  .form-row select:focus {
     outline: 2px solid var(--color-primary, #2563eb);
     outline-offset: 1px;
   }

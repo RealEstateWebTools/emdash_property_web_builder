@@ -1,0 +1,14 @@
+---
+/**
+ * Explicit nested admin shell route.
+ *
+ * EmDash injects a catch-all admin route, but this build is failing to serve
+ * nested admin URLs reliably in production. A more specific site-level route
+ * ensures common admin deep links resolve to the same SPA shell.
+ */
+import AdminPage from "emdash/routes/admin.astro";
+
+export const prerender = false;
+---
+
+<AdminPage />

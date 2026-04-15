@@ -15,6 +15,9 @@ export function buildValuationRows(items) {
     email: item.data.email ?? "—",
     phone: item.data.phone ?? "—",
     address: item.data.address ?? "—",
+    propertyType: item.data.propertyType || "—",
+    bedrooms: item.data.bedrooms || "—",
+    condition: item.data.condition || "—",
     status: item.data.status ?? "new",
     createdAt: item.data.createdAt ?? "—",
   }));
@@ -48,6 +51,9 @@ export function buildListBlocks(result) {
         { key: "name", label: "Name", format: "text" },
         { key: "email", label: "Email", format: "text" },
         { key: "address", label: "Address", format: "text" },
+        { key: "propertyType", label: "Type", format: "text" },
+        { key: "bedrooms", label: "Beds", format: "text" },
+        { key: "condition", label: "Condition", format: "text" },
         { key: "status", label: "Status", format: "badge" },
         { key: "createdAt", label: "Submitted", format: "relative_time" },
       ],
@@ -70,6 +76,9 @@ export default definePlugin({
         const email = typeof body.email === "string" ? body.email.trim() : "";
         const phone = typeof body.phone === "string" ? body.phone.trim() : "";
         const address = typeof body.address === "string" ? body.address.trim() : "";
+        const propertyType = typeof body.property_type === "string" ? body.property_type.trim() : "";
+        const bedrooms = typeof body.bedrooms === "string" ? body.bedrooms.trim() : "";
+        const condition = typeof body.condition === "string" ? body.condition.trim() : "";
         const notes = typeof body.notes === "string" ? body.notes.trim() : "";
 
         if (!name || !email || !address) {
@@ -85,6 +94,9 @@ export default definePlugin({
           email,
           phone,
           address,
+          propertyType,
+          bedrooms,
+          condition,
           notes,
           status: "new",
           createdAt: new Date().toISOString(),

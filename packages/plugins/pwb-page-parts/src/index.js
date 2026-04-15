@@ -110,6 +110,19 @@ export const PORTABLE_TEXT_BLOCKS = [
       { type: "text_input", action_id: "buttonHref", label: "Button link" },
     ],
   },
+  {
+    type: "pwb-valuation-cta",
+    label: "PWB Valuation CTA",
+    icon: "calculator",
+    description: "Valuation request call to action — links to the /valuation page.",
+    fields: [
+      { type: "text_input", action_id: "eyebrow", label: "Eyebrow (optional)" },
+      { type: "text_input", action_id: "heading", label: "Heading" },
+      { type: "text_input", action_id: "body", label: "Body text" },
+      { type: "text_input", action_id: "buttonLabel", label: "Button label" },
+      { type: "text_input", action_id: "valuationHref", label: "Valuation page URL (default: /valuation)" },
+    ],
+  },
 ];
 
 export function pwbPagePartsPlugin() {

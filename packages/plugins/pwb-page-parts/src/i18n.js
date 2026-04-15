@@ -46,6 +46,10 @@ const COPY = {
     localPoint3Label: "Approach",
     localPoint3Value: "Calm advice, cleaner marketing, and responsive communication",
     localButton: "Speak with the team",
+    valuationEyebrow: "Free property valuation",
+    valuationHeading: "What is your property worth?",
+    valuationBody: "Get a free, no-obligation estimate from our local team. We combine recent sales data with on-the-ground expertise to give you a realistic picture.",
+    valuationButton: "Request a Valuation",
   },
   es: {
     heroTitle: "Encuentra tu proximo hogar",
@@ -94,6 +98,10 @@ const COPY = {
     localPoint3Label: "Enfoque",
     localPoint3Value: "Consejo sereno, mejor marketing y comunicacion agil",
     localButton: "Hablar con el equipo",
+    valuationEyebrow: "Valoracion gratuita",
+    valuationHeading: "Cuanto vale tu propiedad?",
+    valuationBody: "Obtén un presupuesto gratuito y sin compromiso de nuestro equipo local. Combinamos datos de ventas recientes con conocimiento del terreno.",
+    valuationButton: "Solicitar valoracion",
   },
 };
 
