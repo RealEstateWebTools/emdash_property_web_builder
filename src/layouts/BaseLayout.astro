@@ -103,7 +103,15 @@ const meta = buildPageMeta(siteWithProfile, { locale: currentLocale, title, desc
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <title>{meta.title}</title>
     {meta.description && <meta name="description" content={meta.description} />}
     {meta.canonical && <link rel="canonical" href={meta.canonical} />}
