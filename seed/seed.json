@@ -144,6 +144,103 @@
 					"type": "text"
 				}
 			]
+		},
+		{
+			"slug": "testimonials",
+			"label": "Testimonials",
+			"labelSingular": "Testimonial",
+			"supports": ["drafts"],
+			"fields": [
+				{
+					"slug": "name",
+					"label": "Client Name",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "role",
+					"label": "Role (e.g. Buyer, Seller, Landlord)",
+					"type": "string"
+				},
+				{
+					"slug": "quote",
+					"label": "Quote",
+					"type": "text",
+					"required": true
+				},
+				{
+					"slug": "rating",
+					"label": "Rating (1–5)",
+					"type": "integer",
+					"defaultValue": 5
+				},
+				{
+					"slug": "property_slug",
+					"label": "Related Property Slug (optional)",
+					"type": "string"
+				},
+				{
+					"slug": "featured",
+					"label": "Show on Homepage",
+					"type": "boolean",
+					"defaultValue": false
+				}
+			]
+		},
+		{
+			"slug": "team",
+			"label": "Team",
+			"labelSingular": "Team Member",
+			"supports": ["drafts"],
+			"fields": [
+				{
+					"slug": "name",
+					"label": "Name",
+					"type": "string",
+					"required": true
+				},
+				{
+					"slug": "title",
+					"label": "Job Title",
+					"type": "string"
+				},
+				{
+					"slug": "bio",
+					"label": "Bio",
+					"type": "portableText"
+				},
+				{
+					"slug": "photo",
+					"label": "Photo",
+					"type": "image"
+				},
+				{
+					"slug": "email",
+					"label": "Email",
+					"type": "string"
+				},
+				{
+					"slug": "phone",
+					"label": "Phone",
+					"type": "string"
+				},
+				{
+					"slug": "speciality",
+					"label": "Speciality",
+					"type": "string"
+				},
+				{
+					"slug": "languages",
+					"label": "Languages Spoken",
+					"type": "string"
+				},
+				{
+					"slug": "display_order",
+					"label": "Display Order",
+					"type": "integer",
+					"defaultValue": 99
+				}
+			]
 		}
 	],
 
@@ -301,6 +398,103 @@
 	],
 
 	"content": {
+		"testimonials": [
+			{
+				"id": "testimonial-amelia",
+				"slug": "amelia-hart",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"name": "Amelia Hart",
+					"role": "Buyer",
+					"quote": "They filtered the noise out of the market and only showed us homes worth seeing. The shortlist felt sharper immediately.",
+					"rating": 5,
+					"featured": true
+				}
+			},
+			{
+				"id": "testimonial-daniel",
+				"slug": "daniel-reeves",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"name": "Daniel Reeves",
+					"role": "Seller",
+					"quote": "The presentation quality felt stronger from week one. Better positioning, cleaner photography, and better conversations with buyers.",
+					"rating": 5,
+					"featured": true
+				}
+			},
+			{
+				"id": "testimonial-lucia",
+				"slug": "lucia-moreau",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"name": "Lucia Moreau",
+					"role": "Relocation client",
+					"quote": "It felt like having a calm advisor instead of a pushy sales team. Clear communication, good judgment, and no wasted viewings.",
+					"rating": 5,
+					"featured": true
+				}
+			}
+		],
+		"team": [
+			{
+				"id": "team-sarah",
+				"slug": "sarah-chen",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"name": "Sarah Chen",
+					"title": "Senior Property Consultant",
+					"speciality": "Residential sales and buyer advisory",
+					"languages": "English, Mandarin",
+					"email": "sarah@demorealty.com",
+					"phone": "+44 7700 900001",
+					"display_order": 1,
+					"bio": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sarah has spent eight years helping buyers find homes that match both their brief and their instincts. She specialises in first-time purchases and upsizing moves, and is known for her honest assessments and calm approach to competitive markets."
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "team-marcus",
+				"slug": "marcus-okafor",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"name": "Marcus Okafor",
+					"title": "Lettings and Rental Specialist",
+					"speciality": "Landlord advisory, rental valuations, tenant sourcing",
+					"languages": "English, French",
+					"email": "marcus@demorealty.com",
+					"phone": "+44 7700 900002",
+					"display_order": 2,
+					"bio": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Marcus works primarily with landlords and relocation clients, managing rental valuations, tenant vetting, and long-term portfolio strategy. His background in property management means he takes a practical view of what makes a rental investment work."
+								}
+							]
+						}
+					]
+				}
+			}
+		],
 		"pages": [
 			{
 				"id": "homepage",
