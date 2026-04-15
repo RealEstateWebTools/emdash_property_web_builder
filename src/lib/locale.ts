@@ -161,6 +161,10 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     'No properties found matching your search.': 'No se encontraron propiedades para tu busqueda.',
     'Similar Properties': 'Propiedades similares',
     'properties found': 'propiedades encontradas',
+    'Open fullscreen gallery': 'Abrir galeria a pantalla completa',
+    'View fullscreen': 'Ver en pantalla completa',
+    'Fullscreen photo gallery': 'Galeria de fotos a pantalla completa',
+    'Close gallery': 'Cerrar galeria',
   },
   fr: {
     'Thoughts, stories, and ideas.': 'Idees, analyses et histoires autour de l\'immobilier.',
@@ -256,6 +260,10 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     'No properties found matching your search.': 'Aucun bien ne correspond a votre recherche.',
     'Similar Properties': 'Biens similaires',
     'properties found': 'biens trouves',
+    'Open fullscreen gallery': 'Ouvrir la galerie en plein ecran',
+    'View fullscreen': 'Voir en plein ecran',
+    'Fullscreen photo gallery': 'Galerie photo en plein ecran',
+    'Close gallery': 'Fermer la galerie',
   },
 }
 

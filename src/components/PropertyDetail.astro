@@ -58,6 +58,16 @@ const galleryId = `property-gallery-${detail.id}`
             </figure>
           ))}
 
+          <button
+            type="button"
+            class="property-gallery__fullscreen"
+            data-gallery-open
+            aria-label={translateLabel(currentLocale, 'Open fullscreen gallery')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>
+            <span>{translateLabel(currentLocale, 'View fullscreen')}</span>
+          </button>
+
           {detail.photos.length > 1 && (
             <>
               <button
@@ -107,6 +117,93 @@ const galleryId = `property-gallery-${detail.id}`
             ))}
           </div>
         )}
+
+        <dialog
+          class="property-gallery-lightbox"
+          data-gallery-lightbox
+          aria-label={translateLabel(currentLocale, 'Fullscreen photo gallery')}
+        >
+          <div class="property-gallery-lightbox__shell">
+            <button
+              type="button"
+              class="property-gallery-lightbox__close"
+              data-gallery-close
+              aria-label={translateLabel(currentLocale, 'Close gallery')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+
+            <div class="property-gallery-lightbox__stage" data-gallery-lightbox-stage>
+              {detail.photos.map((photo, i) => (
+                <figure
+                  class:list={['property-gallery-lightbox__slide', { 'property-gallery-lightbox__slide--active': i === 0 }]}
+                  data-lightbox-slide
+                  data-index={i}
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.alt ?? `${detail.title} photo ${i + 1}`}
+                    class="property-gallery-lightbox__image"
+                    loading="lazy"
+                  />
+                </figure>
+              ))}
+
+              {detail.photos.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    class="property-gallery__control property-gallery__control--prev property-gallery__control--lightbox"
+                    data-gallery-lightbox-prev
+                    aria-label={translateLabel(currentLocale, 'Previous image')}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="property-gallery__control property-gallery__control--next property-gallery__control--lightbox"
+                    data-gallery-lightbox-next
+                    aria-label={translateLabel(currentLocale, 'Next image')}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </>
+              )}
+
+              <div class="property-gallery__counter property-gallery__counter--lightbox">
+                <span data-gallery-lightbox-current>1</span>
+                <span>/</span>
+                <span>{detail.photos.length}</span>
+              </div>
+            </div>
+
+            {detail.photos.length >= 3 && (
+              <div
+                class="property-gallery-lightbox__thumbs"
+                role="tablist"
+                aria-label={translateLabel(currentLocale, 'Property image thumbnails')}
+              >
+                {detail.photos.map((photo, i) => (
+                  <button
+                    type="button"
+                    class:list={['property-gallery-lightbox__thumb', { 'property-gallery-lightbox__thumb--active': i === 0 }]}
+                    data-gallery-lightbox-thumb
+                    data-index={i}
+                    aria-label={`${translateLabel(currentLocale, 'View image')} ${i + 1}`}
+                    aria-selected={i === 0 ? 'true' : 'false'}
+                  >
+                    <img
+                      src={photo.variants.thumbnail ?? photo.url}
+                      alt=""
+                      loading="lazy"
+                      class="property-gallery-lightbox__thumb-image"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </dialog>
       </div>
     </section>
   )}
@@ -139,45 +236,95 @@ const galleryId = `property-gallery-${detail.id}`
     const gallery = galleryEl;
     const slides = Array.from(gallery.querySelectorAll('[data-slide]'));
     const thumbs = Array.from(gallery.querySelectorAll('[data-gallery-thumb]'));
+    const lightboxSlides = Array.from(gallery.querySelectorAll('[data-lightbox-slide]'));
+    const lightboxThumbs = Array.from(gallery.querySelectorAll('[data-gallery-lightbox-thumb]'));
     const currentEl = gallery.querySelector('[data-gallery-current]');
+    const lightboxCurrentEl = gallery.querySelector('[data-gallery-lightbox-current]');
     const prev = gallery.querySelector('[data-gallery-prev]');
     const next = gallery.querySelector('[data-gallery-next]');
+    const open = gallery.querySelector('[data-gallery-open]');
+    const close = gallery.querySelector('[data-gallery-close]');
+    const lightbox = gallery.querySelector('[data-gallery-lightbox]');
+    const lightboxPrev = gallery.querySelector('[data-gallery-lightbox-prev]');
+    const lightboxNext = gallery.querySelector('[data-gallery-lightbox-next]');
     const stage = gallery.querySelector('.property-gallery__stage');
-
-    if (slides.length <= 1) return;
+    const lightboxStage = gallery.querySelector('[data-gallery-lightbox-stage]');
 
     let index = slides.findIndex((slide) => slide.classList.contains('property-gallery__slide--active'));
     if (index < 0) index = 0;
     let touchStartX = 0;
     let touchDeltaX = 0;
+    let lightboxTouchStartX = 0;
+    let lightboxTouchDeltaX = 0;
 
     if (stage) {
       stage.setAttribute('tabindex', '0');
     }
+
+    if (lightboxStage) {
+      lightboxStage.setAttribute('tabindex', '0');
+    }
+
+    const syncThumbState = (collection, activeClass) => {
+      collection.forEach((thumb, thumbIndex) => {
+        const active = thumbIndex === index;
+        thumb.classList.toggle(activeClass, active);
+        thumb.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+    };
 
     const render = () => {
       slides.forEach((slide, slideIndex) => {
         slide.classList.toggle('property-gallery__slide--active', slideIndex === index);
       });
 
-      thumbs.forEach((thumb, thumbIndex) => {
-        const active = thumbIndex === index;
-        thumb.classList.toggle('property-gallery__thumb--active', active);
-        thumb.setAttribute('aria-selected', active ? 'true' : 'false');
+      lightboxSlides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('property-gallery-lightbox__slide--active', slideIndex === index);
       });
 
+      syncThumbState(thumbs, 'property-gallery__thumb--active');
+      syncThumbState(lightboxThumbs, 'property-gallery-lightbox__thumb--active');
+
       if (currentEl) currentEl.textContent = String(index + 1);
+      if (lightboxCurrentEl) lightboxCurrentEl.textContent = String(index + 1);
     };
 
-    prev?.addEventListener('click', () => {
+    const showPrev = () => {
       index = (index - 1 + slides.length) % slides.length;
       render();
-    });
+    };
 
-    next?.addEventListener('click', () => {
+    const showNext = () => {
       index = (index + 1) % slides.length;
       render();
-    });
+    };
+
+    const openLightbox = () => {
+      if (!(lightbox instanceof HTMLDialogElement)) return;
+      if (!lightbox.open) {
+        lightbox.showModal();
+        document.documentElement.classList.add('property-gallery-lightbox-open');
+      }
+      lightboxStage?.focus();
+      render();
+    };
+
+    const closeLightbox = () => {
+      if (!(lightbox instanceof HTMLDialogElement) || !lightbox.open) return;
+      lightbox.close();
+      document.documentElement.classList.remove('property-gallery-lightbox-open');
+      open?.focus();
+    };
+
+    if (slides.length > 1) {
+      prev?.addEventListener('click', showPrev);
+      next?.addEventListener('click', showNext);
+      lightboxPrev?.addEventListener('click', showPrev);
+      lightboxNext?.addEventListener('click', showNext);
+    }
+
+    open?.addEventListener('click', openLightbox);
+    close?.addEventListener('click', closeLightbox);
 
     stage?.addEventListener('touchstart', (event) => {
       touchStartX = event.changedTouches[0]?.clientX ?? 0;
@@ -201,6 +348,27 @@ const galleryId = `property-gallery-${detail.id}`
       touchDeltaX = 0;
     }, { passive: true });
 
+    lightboxStage?.addEventListener('touchstart', (event) => {
+      lightboxTouchStartX = event.changedTouches[0]?.clientX ?? 0;
+      lightboxTouchDeltaX = 0;
+    }, { passive: true });
+
+    lightboxStage?.addEventListener('touchmove', (event) => {
+      const currentX = event.changedTouches[0]?.clientX ?? lightboxTouchStartX;
+      lightboxTouchDeltaX = currentX - lightboxTouchStartX;
+    }, { passive: true });
+
+    lightboxStage?.addEventListener('touchend', () => {
+      if (Math.abs(lightboxTouchDeltaX) < 36) return;
+      if (lightboxTouchDeltaX < 0) {
+        showNext();
+      } else {
+        showPrev();
+      }
+      lightboxTouchStartX = 0;
+      lightboxTouchDeltaX = 0;
+    }, { passive: true });
+
     thumbs.forEach((thumb, thumbIndex) => {
       thumb.addEventListener('click', () => {
         index = thumbIndex;
@@ -208,15 +376,54 @@ const galleryId = `property-gallery-${detail.id}`
       });
     });
 
-    gallery.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowLeft') {
-        index = (index - 1 + slides.length) % slides.length;
+    lightboxThumbs.forEach((thumb, thumbIndex) => {
+      thumb.addEventListener('click', () => {
+        index = thumbIndex;
         render();
+      });
+    });
+
+    stage?.addEventListener('dblclick', openLightbox);
+
+    gallery.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' && slides.length > 1) {
+        showPrev();
       }
 
-      if (event.key === 'ArrowRight') {
-        index = (index + 1) % slides.length;
-        render();
+      if (event.key === 'ArrowRight' && slides.length > 1) {
+        showNext();
+      }
+    });
+
+    lightbox?.addEventListener('click', (event) => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    lightbox?.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeLightbox();
+    });
+
+    lightbox?.addEventListener('close', () => {
+      document.documentElement.classList.remove('property-gallery-lightbox-open');
+    });
+
+    lightboxStage?.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' && slides.length > 1) {
+        event.preventDefault();
+        showPrev();
+      }
+
+      if (event.key === 'ArrowRight' && slides.length > 1) {
+        event.preventDefault();
+        showNext();
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeLightbox();
       }
     });
 
@@ -372,14 +579,16 @@ const galleryId = `property-gallery-${detail.id}`
   }
 
   .property-gallery__control,
-  .property-gallery__counter {
+  .property-gallery__counter,
+  .property-gallery__fullscreen {
     position: absolute;
     z-index: 3;
   }
 
-  .property-gallery__control {
+  .property-gallery__control,
+  .property-gallery__fullscreen,
+  .property-gallery-lightbox__close {
     top: 50%;
-    transform: translateY(-50%);
     width: 3rem;
     height: 3rem;
     display: inline-flex;
@@ -394,8 +603,35 @@ const galleryId = `property-gallery-${detail.id}`
     transition: transform var(--transition-base), background var(--transition-base);
   }
 
+  .property-gallery__control {
+    transform: translateY(-50%);
+  }
+
   .property-gallery__control:hover {
     background: var(--color-surface-strong);
+  }
+
+  .property-gallery__fullscreen,
+  .property-gallery-lightbox__close {
+    top: 1rem;
+    right: 1rem;
+    gap: 0.45rem;
+    width: auto;
+    min-height: 3rem;
+    padding: 0.75rem 0.95rem;
+    transform: none;
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  .property-gallery__fullscreen:hover,
+  .property-gallery-lightbox__close:hover {
+    background: var(--color-surface-strong);
+    transform: translateY(-1px);
+  }
+
+  .property-gallery__fullscreen span {
+    line-height: 1;
   }
 
   .property-gallery__control--prev {
@@ -408,7 +644,7 @@ const galleryId = `property-gallery-${detail.id}`
 
   .property-gallery__counter {
     top: 1rem;
-    right: 1rem;
+    right: 11rem;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -447,6 +683,128 @@ const galleryId = `property-gallery-${detail.id}`
     transform: translateY(-2px);
     border-color: rgba(22, 53, 76, 0.22);
     box-shadow: var(--shadow-md);
+  }
+
+  .property-gallery-lightbox {
+    width: min(100vw, 100%);
+    max-width: none;
+    height: 100vh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: rgba(8, 20, 31, 0.96);
+    color: var(--color-on-dark);
+  }
+
+  .property-gallery-lightbox::backdrop {
+    background: rgba(8, 20, 31, 0.72);
+    backdrop-filter: blur(6px);
+  }
+
+  .property-gallery-lightbox__shell {
+    height: 100%;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .property-gallery-lightbox__stage {
+    position: relative;
+    min-height: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top, rgba(214, 181, 115, 0.16), transparent 40%),
+      rgba(10, 23, 35, 0.88);
+    outline: none;
+  }
+
+  .property-gallery-lightbox__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    display: grid;
+    place-items: center;
+    padding: clamp(2rem, 5vw, 4.5rem);
+    transition: opacity 220ms ease;
+  }
+
+  .property-gallery-lightbox__slide--active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .property-gallery-lightbox__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .property-gallery__control--lightbox {
+    background: rgba(252, 250, 247, 0.16);
+    color: var(--color-on-dark);
+    backdrop-filter: blur(12px);
+  }
+
+  .property-gallery__control--lightbox:hover {
+    background: rgba(252, 250, 247, 0.26);
+  }
+
+  .property-gallery__counter--lightbox {
+    right: auto;
+    left: 1rem;
+    background: rgba(252, 250, 247, 0.16);
+    color: var(--color-on-dark);
+  }
+
+  .property-gallery-lightbox__close {
+    position: absolute;
+    z-index: 4;
+    background: rgba(252, 250, 247, 0.16);
+    color: var(--color-on-dark);
+    backdrop-filter: blur(12px);
+  }
+
+  .property-gallery-lightbox__thumbs {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 0.1rem 0.1rem 0.35rem;
+    scrollbar-width: thin;
+  }
+
+  .property-gallery-lightbox__thumb {
+    flex: 0 0 7rem;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: rgba(252, 250, 247, 0.12);
+    opacity: 0.74;
+    cursor: pointer;
+    transition: opacity var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
+  }
+
+  .property-gallery-lightbox__thumb:hover,
+  .property-gallery-lightbox__thumb--active {
+    opacity: 1;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .property-gallery-lightbox__thumb-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.35;
+    object-fit: cover;
+  }
+
+  :global(html.property-gallery-lightbox-open),
+  :global(html.property-gallery-lightbox-open body) {
+    overflow: hidden;
   }
 
   @keyframes property-panel-enter {
@@ -557,12 +915,26 @@ const galleryId = `property-gallery-${detail.id}`
       height: 2.6rem;
     }
 
+    .property-gallery__fullscreen,
+    .property-gallery-lightbox__close {
+      min-height: 2.6rem;
+      padding: 0.65rem 0.8rem;
+    }
+
+    .property-gallery__fullscreen span {
+      display: none;
+    }
+
     .property-gallery__control--prev {
       left: 0.7rem;
     }
 
     .property-gallery__control--next {
       right: 0.7rem;
+    }
+
+    .property-gallery__counter {
+      right: 4.1rem;
     }
 
     .property-gallery__thumbs {
@@ -584,13 +956,34 @@ const galleryId = `property-gallery-${detail.id}`
     .property-detail__facts {
       grid-template-columns: 1fr;
     }
+
+    .property-gallery-lightbox__shell {
+      padding: 0.75rem;
+      gap: 0.75rem;
+    }
+
+    .property-gallery-lightbox__slide {
+      padding: 3.4rem 0.9rem 1rem;
+    }
+
+    .property-gallery__counter--lightbox {
+      left: 0.75rem;
+      right: auto;
+    }
+
+    .property-gallery-lightbox__thumb {
+      flex-basis: 5.25rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .property-detail__hero,
     .property-detail__content,
     .property-gallery__slide,
-    .property-gallery__thumb {
+    .property-gallery__thumb,
+    .property-gallery-lightbox__thumb,
+    .property-gallery__fullscreen,
+    .property-gallery-lightbox__slide {
       animation: none !important;
       transition: none !important;
       transform: none !important;
