@@ -122,8 +122,22 @@ const meta = buildPageMeta(siteWithProfile, { locale: currentLocale, title, desc
       <meta name={name} content={content} />
     ))}
 
-    <!-- JSON-LD -->
+    <!-- JSON-LD: site -->
     <script type="application/ld+json" set:html={JSON.stringify(meta.jsonLd)} />
+
+    <!-- JSON-LD: BreadcrumbList -->
+    {breadcrumbs && breadcrumbs.length > 1 && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs.map((crumb, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: crumb.name,
+          item: new URL(crumb.url, Astro.url.origin).href,
+        })),
+      })} />
+    )}
 
     <!-- Google Analytics 4 -->
     {site.analytics?.ga4_id && (
