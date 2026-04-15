@@ -53,17 +53,26 @@ const readingTime = post ? getReadingTime(post.data.content) : 0;
 const { entries: recentPosts } = await getEmDashCollection("posts", {
 	locale,
 	orderBy: { published_at: "desc" },
-	limit: 4,
+	limit: 10,
 });
-const otherPosts = post ? recentPosts.filter((p) => p.id !== post.id).slice(0, 3) : [];
+const candidatePosts = post ? recentPosts.filter((p) => p.id !== post.id) : [];
 
-const otherPostsWithTags = await Promise.all(
-	otherPosts.map(async (p) => {
+// Fetch tags for all candidates in parallel, then sort tag-matched posts first
+const currentTagSlugs = new Set(tags.map((t) => t.slug));
+const candidatesWithTags = await Promise.all(
+	candidatePosts.map(async (p) => {
 		const postTags = await getEntryTerms("posts", p.data.id, "tag");
 		const postBylines = p.data.bylines ?? [];
-		return { post: p, tags: postTags, bylines: postBylines };
+		const sharesTag = postTags.some((t) => currentTagSlugs.has(t.slug));
+		return { post: p, tags: postTags, bylines: postBylines, sharesTag };
 	})
 );
+
+// Sort: tag-matched first, then by recency (already sorted by published_at desc)
+const otherPostsWithTags = [
+	...candidatesWithTags.filter((p) => p.sharesTag),
+	...candidatesWithTags.filter((p) => !p.sharesTag),
+].slice(0, 3);
 
 const currentPostHref = new URL(postPath, Astro.url.origin).href;
 const alternateLinks = post
@@ -240,7 +249,11 @@ const postLayoutProps = post ? {
 		otherPostsWithTags.length > 0 && (
 			<section class="more-posts">
 				<div class="more-inner">
-					<h2 class="more-title">Continue reading</h2>
+					<h2 class="more-title">
+			{otherPostsWithTags.some((p) => p.sharesTag)
+				? translateLabel(locale, "Related articles")
+				: translateLabel(locale, "Continue reading")}
+		</h2>
 					<div class="more-grid">
 						{otherPostsWithTags.map(
 							({ post: relatedPost, tags: postTags, bylines: postBylines }) => (

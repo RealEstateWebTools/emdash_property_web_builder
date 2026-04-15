@@ -45,6 +45,21 @@ const formatDate = (date: Date) =>
 		day: "numeric",
 	});
 
+const POSTS_PER_PAGE = 10
+const rawPage = Number(Astro.url.searchParams.get("page") ?? "1")
+const currentPage = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1
+const totalPages = Math.max(1, Math.ceil(sortedPosts.length / POSTS_PER_PAGE))
+const safePage = Math.min(currentPage, totalPages)
+const pageStart = (safePage - 1) * POSTS_PER_PAGE
+const pageEnd = pageStart + POSTS_PER_PAGE
+
+const pagedPosts = postsWithTags.slice(pageStart, pageEnd)
+
+const pageUrl = (n: number) => {
+  const base = localePath(locale, "/posts")
+  return n === 1 ? base : `${base}?page=${n}`
+}
+
 const allPostsLabel = translateLabel(locale, "All Posts");
 const noPostsLabel = translateLabel(locale, "No posts yet.");
 ---
@@ -75,7 +90,7 @@ const noPostsLabel = translateLabel(locale, "No posts yet.");
 				<p class="empty">{noPostsLabel}</p>
 			) : (
 				<div class="posts-list">
-					{postsWithTags.map(({ post, tags, bylines }) => (
+					{pagedPosts.map(({ post, tags, bylines }) => (
 						<article class="post-item">
 							<a href={localePath(locale, `/posts/${entrySlug(post.id)}`)} class="post-link">
 								<div class="post-meta">
@@ -131,6 +146,38 @@ const noPostsLabel = translateLabel(locale, "No posts yet.");
 				</div>
 			)
 		}
+
+		{totalPages > 1 && (
+			<nav class="pagination" aria-label={translateLabel(locale, "Post pagination")}>
+				{safePage > 1 ? (
+					<a href={pageUrl(safePage - 1)} class="pagination__link pagination__link--prev" rel="prev">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+						{translateLabel(locale, "Newer")}
+					</a>
+				) : (
+					<span class="pagination__link pagination__link--disabled">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+						{translateLabel(locale, "Newer")}
+					</span>
+				)}
+
+				<span class="pagination__status">
+					{translateLabel(locale, "Page")} {safePage} {translateLabel(locale, "of")} {totalPages}
+				</span>
+
+				{safePage < totalPages ? (
+					<a href={pageUrl(safePage + 1)} class="pagination__link pagination__link--next" rel="next">
+						{translateLabel(locale, "Older")}
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+					</a>
+				) : (
+					<span class="pagination__link pagination__link--disabled">
+						{translateLabel(locale, "Older")}
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+					</span>
+				)}
+			</nav>
+		)}
 	</div>
 </BaseLayout>
 
@@ -293,6 +340,44 @@ const noPostsLabel = translateLabel(locale, "No posts yet.");
 	.post-tag:hover {
 		color: var(--color-text);
 		background: var(--color-border);
+	}
+
+	.pagination {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-4);
+		margin-top: var(--spacing-12);
+		padding-top: var(--spacing-8);
+		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	.pagination__link {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding: 0.6rem 1rem;
+		border-radius: var(--radius-md);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		text-decoration: none;
+		color: var(--color-primary);
+		background: rgba(22, 53, 76, 0.05);
+		transition: background var(--transition-base);
+	}
+
+	a.pagination__link:hover {
+		background: rgba(22, 53, 76, 0.1);
+	}
+
+	.pagination__link--disabled {
+		opacity: 0.36;
+		cursor: default;
+	}
+
+	.pagination__status {
+		font-size: var(--text-sm);
+		color: var(--color-text-soft);
 	}
 
 	@media (max-width: 600px) {
