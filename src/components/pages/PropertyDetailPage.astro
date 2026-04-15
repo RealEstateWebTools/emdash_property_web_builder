@@ -53,6 +53,29 @@ const propertyCta = detail
       formId: contactFormId,
     })
   : null
+
+const propertyJsonLd = detail
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'RealEstateListing',
+      name: detail.title,
+      description: property?.description ? htmlToMetaDescription(property.description) : undefined,
+      url: new URL(canonicalPath, Astro.url.origin).href,
+      image: detail.photos[0]?.url,
+      numberOfRooms: detail.bedrooms ?? undefined,
+      floorSize: detail.area
+        ? { '@type': 'QuantitativeValue', value: detail.area }
+        : undefined,
+      address: detail.fullAddress
+        ? {
+            '@type': 'PostalAddress',
+            streetAddress: detail.fullAddress,
+            addressLocality: detail.city ?? undefined,
+            addressRegion: detail.region ?? undefined,
+          }
+        : undefined,
+    }
+  : null
 ---
 
 {property && detail ? (
@@ -67,6 +90,9 @@ const propertyCta = detail
       { name: detail.title, url: canonicalPath },
     ]}
   >
+    {propertyJsonLd && (
+      <script slot="head" type="application/ld+json" set:html={JSON.stringify(propertyJsonLd)} />
+    )}
     <div class="property-detail-page">
       <div class="property-detail-page__main">
         <PropertyDetail detail={detail} />

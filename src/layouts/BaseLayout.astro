@@ -144,6 +144,7 @@ const meta = buildPageMeta(siteWithProfile, { locale: currentLocale, title, desc
     <link rel="stylesheet" href="/styles/theme.css" />
     {paletteHref && <link rel="stylesheet" href={paletteHref} />}
     {themeOverrides && <style is:inline>{themeOverrides}</style>}
+    <slot name="head" />
   </head>
   <body>
     <SiteHeader site={siteWithProfile} siteProfile={siteProfile} />

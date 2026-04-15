@@ -42,6 +42,26 @@
 					"slug": "excerpt",
 					"label": "Excerpt",
 					"type": "text"
+				},
+				{
+					"slug": "author",
+					"label": "Author",
+					"type": "string"
+				},
+				{
+					"slug": "published_at",
+					"label": "Published Date",
+					"type": "date"
+				},
+				{
+					"slug": "seo_title",
+					"label": "SEO Title",
+					"type": "string"
+				},
+				{
+					"slug": "seo_description",
+					"label": "SEO Description",
+					"type": "text"
 				}
 			]
 		},
@@ -112,6 +132,16 @@
 					"slug": "trust_content",
 					"label": "Homepage Trust Content",
 					"type": "portableText"
+				},
+				{
+					"slug": "seo_title",
+					"label": "SEO Title",
+					"type": "string"
+				},
+				{
+					"slug": "seo_description",
+					"label": "SEO Description",
+					"type": "text"
 				}
 			]
 		}
