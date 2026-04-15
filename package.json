@@ -6,8 +6,10 @@
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
 		"seed": "node scripts/seed.mjs",
+		"seed:demo": "node scripts/seed.mjs full",
 		"seed:minimal": "node scripts/seed.mjs minimal",
 		"seed:pre-launch": "node scripts/seed.mjs pre-launch",
+		"reset": "node scripts/reset.mjs",
 		"export:d1-sql": "node scripts/export-sqlite-for-d1.mjs",
 		"sync:prod-db": "node scripts/push-local-db-to-d1.mjs",
 		"reset:admin-access": "node scripts/reset-admin-access.mjs --site-url https://emdash-property-web-builder.etewiah.workers.dev",
