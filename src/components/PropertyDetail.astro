@@ -29,6 +29,7 @@ const galleryId = `property-gallery-${detail.id}`
     <section class="property-detail__hero">
       <div class="property-gallery" id={galleryId} data-gallery>
         <div class="property-gallery__stage">
+          <div class="property-gallery__swipe-layer" aria-hidden="true"></div>
           {detail.photos.map((photo, i) => (
             <figure
               class:list={['property-gallery__slide', { 'property-gallery__slide--active': i === 0 }]}
@@ -141,11 +142,18 @@ const galleryId = `property-gallery-${detail.id}`
     const currentEl = gallery.querySelector('[data-gallery-current]');
     const prev = gallery.querySelector('[data-gallery-prev]');
     const next = gallery.querySelector('[data-gallery-next]');
+    const stage = gallery.querySelector('.property-gallery__stage');
 
     if (slides.length <= 1) return;
 
     let index = slides.findIndex((slide) => slide.classList.contains('property-gallery__slide--active'));
     if (index < 0) index = 0;
+    let touchStartX = 0;
+    let touchDeltaX = 0;
+
+    if (stage) {
+      stage.setAttribute('tabindex', '0');
+    }
 
     const render = () => {
       slides.forEach((slide, slideIndex) => {
@@ -170,6 +178,28 @@ const galleryId = `property-gallery-${detail.id}`
       index = (index + 1) % slides.length;
       render();
     });
+
+    stage?.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0]?.clientX ?? 0;
+      touchDeltaX = 0;
+    }, { passive: true });
+
+    stage?.addEventListener('touchmove', (event) => {
+      const currentX = event.changedTouches[0]?.clientX ?? touchStartX;
+      touchDeltaX = currentX - touchStartX;
+    }, { passive: true });
+
+    stage?.addEventListener('touchend', () => {
+      if (Math.abs(touchDeltaX) < 36) return;
+      if (touchDeltaX < 0) {
+        index = (index + 1) % slides.length;
+      } else {
+        index = (index - 1 + slides.length) % slides.length;
+      }
+      render();
+      touchStartX = 0;
+      touchDeltaX = 0;
+    }, { passive: true });
 
     thumbs.forEach((thumb, thumbIndex) => {
       thumb.addEventListener('click', () => {
@@ -207,6 +237,11 @@ const galleryId = `property-gallery-${detail.id}`
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-md);
     overflow: hidden;
+    animation: property-panel-enter 460ms ease both;
+  }
+
+  .property-detail__content {
+    animation-delay: 70ms;
   }
 
   .property-gallery {
@@ -230,12 +265,20 @@ const galleryId = `property-gallery-${detail.id}`
     inset: 0;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 260ms ease;
+    transform: scale(1.018);
+    transition: opacity 260ms ease, transform 520ms ease;
   }
 
   .property-gallery__slide--active {
     opacity: 1;
     visibility: visible;
+    transform: scale(1);
+  }
+
+  .property-gallery__swipe-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
   }
 
   .property-gallery__image {
@@ -255,6 +298,7 @@ const galleryId = `property-gallery-${detail.id}`
       linear-gradient(180deg, rgba(9, 26, 39, 0.22) 0%, rgba(9, 26, 39, 0) 34%, rgba(9, 26, 39, 0.74) 100%);
     color: var(--color-on-dark);
     pointer-events: none;
+    z-index: 2;
   }
 
   .property-gallery__badges {
@@ -405,6 +449,17 @@ const galleryId = `property-gallery-${detail.id}`
     box-shadow: var(--shadow-md);
   }
 
+  @keyframes property-panel-enter {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .property-gallery__thumb-image {
     display: block;
     width: 100%;
@@ -511,11 +566,34 @@ const galleryId = `property-gallery-${detail.id}`
     }
 
     .property-gallery__thumbs {
-      grid-template-columns: repeat(auto-fit, minmax(4rem, 4.75rem));
+      display: flex;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .property-gallery__thumbs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .property-gallery__thumb {
+      flex: 0 0 4.4rem;
     }
 
     .property-detail__facts {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .property-detail__hero,
+    .property-detail__content,
+    .property-gallery__slide,
+    .property-gallery__thumb {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
     }
   }
 </style>

@@ -58,84 +58,99 @@ const summaryItems = [
 
     <input type="hidden" name="mode" value={mode} />
 
-    {config && (
-      <div class="search-bar__grid">
-        <label class="search-bar__field">
-          <span>{translateLabel(currentLocale, 'Property type')}</span>
-          <select name="type" aria-label={translateLabel(currentLocale, 'Property type')}>
-            <option value="">{translateLabel(currentLocale, 'All types')}</option>
-            {config.property_types.map((pt) => (
-              <option value={pt.key} selected={currentParams.property_type === pt.key}>
-                {pt.label} ({pt.count})
-              </option>
-            ))}
-          </select>
-        </label>
+    {(config || facets) && (
+      <details class="search-bar__filters" open={summaryItems.length > 0} data-search-filters>
+        <summary class="search-bar__filters-summary">
+          <span>{translateLabel(currentLocale, 'Search filters')}</span>
+          {summaryItems.length > 0 && (
+            <span class="search-bar__filters-count">
+              {summaryItems.length} {translateLabel(currentLocale, 'filters active')}
+            </span>
+          )}
+        </summary>
 
-        <label class="search-bar__field">
-          <span>{translateLabel(currentLocale, 'Bedrooms')}</span>
-          <select name="bedrooms" aria-label={translateLabel(currentLocale, 'Bedrooms')}>
-            <option value="">{translateLabel(currentLocale, 'Any bedrooms')}</option>
-            {config.bedrooms.filter((b) => b > 0).map((b) => (
-              <option value={String(b)} selected={currentParams.bedrooms_from === String(b)}>
-                {b}+ {translateLabel(currentLocale, 'bed')}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div class="search-bar__filters-body">
+          {config && (
+            <div class="search-bar__grid">
+              <label class="search-bar__field">
+                <span>{translateLabel(currentLocale, 'Property type')}</span>
+                <select name="type" aria-label={translateLabel(currentLocale, 'Property type')}>
+                  <option value="">{translateLabel(currentLocale, 'All types')}</option>
+                  {config.property_types.map((pt) => (
+                    <option value={pt.key} selected={currentParams.property_type === pt.key}>
+                      {pt.label} ({pt.count})
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-        <label class="search-bar__field">
-          <span>{translateLabel(currentLocale, 'Min price')}</span>
-          <select name="price_from" aria-label={translateLabel(currentLocale, 'Min price')}>
-            <option value="">{translateLabel(currentLocale, 'Min price')}</option>
-            {(mode === 'rental' ? config.price_options.rent.from : config.price_options.sale.from)
-              .filter((p) => p > 0)
-              .map((p) => (
-                <option value={String(p)} selected={selectedPriceFrom === String(p)}>{p.toLocaleString()}</option>
-              ))
-            }
-          </select>
-        </label>
+              <label class="search-bar__field">
+                <span>{translateLabel(currentLocale, 'Bedrooms')}</span>
+                <select name="bedrooms" aria-label={translateLabel(currentLocale, 'Bedrooms')}>
+                  <option value="">{translateLabel(currentLocale, 'Any bedrooms')}</option>
+                  {config.bedrooms.filter((b) => b > 0).map((b) => (
+                    <option value={String(b)} selected={currentParams.bedrooms_from === String(b)}>
+                      {b}+ {translateLabel(currentLocale, 'bed')}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-        <label class="search-bar__field">
-          <span>{translateLabel(currentLocale, 'Max price')}</span>
-          <select name="price_to" aria-label={translateLabel(currentLocale, 'Max price')}>
-            <option value="">{translateLabel(currentLocale, 'Max price')}</option>
-            {(mode === 'rental' ? config.price_options.rent.to : config.price_options.sale.to)
-              .map((p) => (
-                <option value={String(p)} selected={selectedPriceTo === String(p)}>{p.toLocaleString()}</option>
-              ))
-            }
-          </select>
-        </label>
+              <label class="search-bar__field">
+                <span>{translateLabel(currentLocale, 'Min price')}</span>
+                <select name="price_from" aria-label={translateLabel(currentLocale, 'Min price')}>
+                  <option value="">{translateLabel(currentLocale, 'Min price')}</option>
+                  {(mode === 'rental' ? config.price_options.rent.from : config.price_options.sale.from)
+                    .filter((p) => p > 0)
+                    .map((p) => (
+                      <option value={String(p)} selected={selectedPriceFrom === String(p)}>{p.toLocaleString()}</option>
+                    ))
+                  }
+                </select>
+              </label>
 
-        <label class="search-bar__field">
-          <span>{translateLabel(currentLocale, 'Sort by')}</span>
-          <select name="sort" aria-label={translateLabel(currentLocale, 'Sort by')}>
-            {config.sort_options.map((s) => (
-              <option value={s.value} selected={currentParams.sort_by === s.value}>
-                {translateLabel(currentLocale, s.label)}
-              </option>
-            ))}
-          </select>
-        </label>
+              <label class="search-bar__field">
+                <span>{translateLabel(currentLocale, 'Max price')}</span>
+                <select name="price_to" aria-label={translateLabel(currentLocale, 'Max price')}>
+                  <option value="">{translateLabel(currentLocale, 'Max price')}</option>
+                  {(mode === 'rental' ? config.price_options.rent.to : config.price_options.sale.to)
+                    .map((p) => (
+                      <option value={String(p)} selected={selectedPriceTo === String(p)}>{p.toLocaleString()}</option>
+                    ))
+                  }
+                </select>
+              </label>
 
-        <div class="search-bar__actions">
-          <button type="submit" class="btn btn-primary search-bar__submit">{translateLabel(currentLocale, 'Search')}</button>
-          <a href={`${action}?mode=${mode}`} class="search-bar__reset">{translateLabel(currentLocale, 'Reset filters')}</a>
+              <label class="search-bar__field">
+                <span>{translateLabel(currentLocale, 'Sort by')}</span>
+                <select name="sort" aria-label={translateLabel(currentLocale, 'Sort by')}>
+                  {config.sort_options.map((s) => (
+                    <option value={s.value} selected={currentParams.sort_by === s.value}>
+                      {translateLabel(currentLocale, s.label)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div class="search-bar__actions">
+                <button type="submit" class="btn btn-primary search-bar__submit">{translateLabel(currentLocale, 'Search')}</button>
+                <a href={`${action}?mode=${mode}`} class="search-bar__reset">{translateLabel(currentLocale, 'Reset filters')}</a>
+              </div>
+            </div>
+          )}
+
+          {facets && (
+            <div class="search-bar__facets" aria-label={translateLabel(currentLocale, 'Popular options')}>
+              {Object.entries(facets.property_types).slice(0, 4).map(([key, count]) => (
+                <a href={`${action}?mode=${mode}&type=${encodeURIComponent(key)}`} class="search-bar__facet-chip">
+                  <span>{key.replace(/_/g, ' ')}</span>
+                  <strong>{count}</strong>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-    )}
-
-    {facets && (
-      <div class="search-bar__facets" aria-label={translateLabel(currentLocale, 'Popular options')}>
-        {Object.entries(facets.property_types).slice(0, 4).map(([key, count]) => (
-          <a href={`${action}?mode=${mode}&type=${encodeURIComponent(key)}`} class="search-bar__facet-chip">
-            <span>{key.replace(/_/g, ' ')}</span>
-            <strong>{count}</strong>
-          </a>
-        ))}
-      </div>
+      </details>
     )}
   </form>
 </section>
@@ -149,6 +164,7 @@ const summaryItems = [
     border-radius: var(--radius-xl);
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
+    animation: search-bar-enter 420ms ease both;
   }
 
   .search-bar__intro {
@@ -198,9 +214,36 @@ const summaryItems = [
     text-decoration: none;
   }
 
+  .search-bar__facet-chip strong {
+    color: var(--color-primary);
+  }
+
   .search-bar__form {
     display: grid;
     gap: 1.25rem;
+  }
+
+  .search-bar__filters {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .search-bar__filters-summary {
+    display: none;
+    list-style: none;
+  }
+
+  .search-bar__filters-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .search-bar__filters-body {
+    display: grid;
+    gap: 1.1rem;
+  }
+
+  .search-bar__filters[open] .search-bar__filters-body {
+    animation: search-filters-enter 220ms ease both;
   }
 
   .search-bar__mode-toggle {
@@ -289,6 +332,28 @@ const summaryItems = [
     gap: 0.75rem;
   }
 
+  @keyframes search-bar-enter {
+    from {
+      opacity: 0;
+      transform: translateY(0.9rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes search-filters-enter {
+    from {
+      opacity: 0;
+      transform: translateY(-0.35rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   @media (max-width: 1100px) {
     .search-bar__grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -308,8 +373,66 @@ const summaryItems = [
       justify-content: flex-start;
     }
 
+    .search-bar__filters {
+      gap: 0.9rem;
+    }
+
+    .search-bar__filters-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      cursor: pointer;
+      padding: 0.95rem 1rem;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(22, 53, 76, 0.1);
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      position: relative;
+    }
+
+    .search-bar__filters-summary::after {
+      content: '+';
+      color: var(--color-accent);
+      font-size: 1.1rem;
+      line-height: 1;
+      flex: 0 0 auto;
+      transition: transform var(--transition-base), opacity var(--transition-base);
+    }
+
+    .search-bar__filters[open] .search-bar__filters-summary::after {
+      content: '−';
+    }
+
+    .search-bar__filters-count {
+      color: var(--color-text-soft);
+      font-size: var(--text-xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .search-bar__filters:not([open]) .search-bar__filters-body {
+      display: none;
+    }
+
     .search-bar__grid {
       grid-template-columns: 1fr;
+    }
+
+    .search-bar__facets {
+      gap: 0.55rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-bar,
+    .search-bar__filters[open] .search-bar__filters-body,
+    .search-bar__filters-summary::after {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
     }
   }
 </style>

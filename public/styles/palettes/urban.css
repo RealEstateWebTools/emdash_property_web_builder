@@ -109,8 +109,132 @@ html.theme-urban .pagination a[aria-current] {
   border-color: var(--color-accent);
 }
 
+html.theme-urban .hero {
+  min-height: auto;
+  padding-top: calc(var(--space-section-md) + 1rem);
+  padding-bottom: var(--space-section-md);
+}
+
+html.theme-urban .hero__overlay {
+  background:
+    linear-gradient(90deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.5) 46%, rgba(15, 23, 42, 0.22) 100%),
+    linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.38) 100%);
+}
+
+html.theme-urban .hero__inner,
+html.theme-urban .inventory-group,
+html.theme-urban .section-heading--left,
+html.theme-urban .search-page,
+html.theme-urban .breadcrumb-nav {
+  width: min(100%, 72rem);
+}
+
+html.theme-urban .hero__copy {
+  max-width: 40rem;
+}
+
+html.theme-urban .hero__heading,
+html.theme-urban .section-heading h2,
+html.theme-urban .inventory-group__header h3,
+html.theme-urban .search-page__hero h1,
+html.theme-urban .search-page__map-copy h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+html.theme-urban .hero__eyebrow,
+html.theme-urban .section-heading__eyebrow,
+html.theme-urban .inventory-group__eyebrow,
+html.theme-urban .search-page__eyebrow {
+  color: var(--color-accent);
+}
+
+html.theme-urban .hero__search,
+html.theme-urban .search-results,
+html.theme-urban .search-page__map-panel,
+html.theme-urban .homepage-modules--pre-featured,
+html.theme-urban .homepage-modules--post-featured,
+html.theme-urban .property-detail__hero,
+html.theme-urban .property-detail__content,
+html.theme-urban .property-detail-page__panel,
+html.theme-urban .contact-form-panel,
+html.theme-urban .contact-details-panel {
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.05);
+}
+
+html.theme-urban .hero-search-form {
+  grid-template-columns: 11rem minmax(0, 1fr) auto;
+}
+
+html.theme-urban .homepage-modules--pre-featured,
+html.theme-urban .homepage-modules--post-featured,
+html.theme-urban .inventory-section {
+  background: var(--color-bg);
+}
+
+html.theme-urban .inventory-group {
+  display: grid;
+  gap: 1rem;
+}
+
+html.theme-urban .inventory-group__header {
+  align-items: start;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.14);
+}
+
+html.theme-urban .property-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(14rem, 0.9fr);
+  min-height: 15rem;
+}
+
+html.theme-urban .property-card__image,
+html.theme-urban .property-card__image--placeholder {
+  aspect-ratio: auto;
+  min-height: 100%;
+}
+
+html.theme-urban .property-card__body {
+  min-height: 0;
+  padding: 1rem 1rem 1.1rem;
+}
+
+html.theme-urban .property-card__meta {
+  gap: 1rem;
+}
+
+html.theme-urban .search-page__hero {
+  align-items: start;
+}
+
+html.theme-urban .search-page__hero-stats {
+  min-width: 16rem;
+  border-radius: 8px;
+}
+
+html.theme-urban .search-results__toolbar {
+  align-items: start;
+  padding-top: 1rem;
+}
+
+html.theme-urban .search-page__content {
+  gap: 1rem;
+}
+
 @media (max-width: 640px) {
   :root {
     --grid-columns: 1fr;
+  }
+
+  html.theme-urban .property-card {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  html.theme-urban .hero-search-form {
+    grid-template-columns: 1fr;
   }
 }

@@ -101,6 +101,14 @@ const combinedNavItems = [
           {translateLabel(currentLocale, 'Contact Us')}
         </a>
       </div>
+
+      <button
+        type="button"
+        class="site-header__scrim"
+        aria-label="Close menu"
+        aria-hidden="true"
+        tabindex="-1"
+      ></button>
     </div>
   </div>
 </header>
@@ -108,14 +116,49 @@ const combinedNavItems = [
 <script>
   const toggle = document.getElementById('menu-toggle');
   const nav = document.getElementById('nav-content');
+  const scrim = document.querySelector('.site-header__scrim');
   const body = document.body;
+  const navLinks = nav?.querySelectorAll('a');
+
+  const closeMenu = () => {
+    toggle?.setAttribute('aria-expanded', 'false');
+    nav?.classList.remove('is-open');
+    toggle?.classList.remove('is-active');
+    body.classList.remove('menu-open');
+  };
+
+  const openMenu = () => {
+    toggle?.setAttribute('aria-expanded', 'true');
+    nav?.classList.add('is-open');
+    toggle?.classList.add('is-active');
+    body.classList.add('menu-open');
+  };
 
   toggle?.addEventListener('click', () => {
     const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!isExpanded));
-    nav?.classList.toggle('is-open');
-    toggle.classList.toggle('is-active');
-    body.classList.toggle('menu-open');
+    if (isExpanded) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  scrim?.addEventListener('click', closeMenu);
+
+  navLinks?.forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      closeMenu();
+    }
   });
 </script>
 
@@ -196,6 +239,10 @@ const combinedNavItems = [
     display: flex;
     align-items: center;
     gap: var(--nav-actions-gap);
+  }
+
+  .site-header__scrim {
+    display: none;
   }
 
   .site-header__nav {
@@ -293,6 +340,10 @@ const combinedNavItems = [
     transition: color var(--transition-base);
   }
 
+  :global(body.menu-open) {
+    overflow: hidden;
+  }
+
   .menu-toggle .close-icon {
     display: none;
   }
@@ -329,14 +380,22 @@ const combinedNavItems = [
       justify-content: center;
       padding: 2rem;
       transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.24s ease,
+        visibility 0.24s ease;
       z-index: 1000;
       gap: 2rem;
       border-left: 1px solid rgba(22, 53, 76, 0.12);
+      box-shadow: -24px 0 48px rgba(9, 26, 39, 0.14);
     }
 
     .site-header__actions.is-open {
       transform: translateX(0);
+      opacity: 1;
+      visibility: visible;
     }
 
     .site-header__nav {
@@ -348,16 +407,63 @@ const combinedNavItems = [
     .site-header__nav a {
       font-size: var(--text-sm);
       color: var(--color-primary);
+      transform: translateX(1rem);
+      opacity: 0;
+      transition:
+        transform 0.32s ease,
+        opacity 0.24s ease,
+        color var(--transition-base);
+    }
+
+    .site-header__actions.is-open .site-header__nav a,
+    .site-header__actions.is-open .site-header__cta {
+      transform: translateX(0);
+      opacity: 1;
     }
 
     .site-header__cta {
       width: 100%;
       text-align: center;
       justify-content: center;
+      transform: translateX(1rem);
+      opacity: 0;
+      transition:
+        transform 0.32s ease 0.06s,
+        opacity 0.24s ease 0.06s,
+        background var(--transition-base);
     }
 
     .site-header__topbar-inner {
       justify-content: flex-end;
+    }
+
+    .site-header__scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      border: 0;
+      padding: 0;
+      background: rgba(9, 26, 39, 0.28);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.24s ease, visibility 0.24s ease;
+      z-index: 999;
+      backdrop-filter: blur(2px);
+    }
+
+    :global(body.menu-open) .site-header__scrim {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header__nav a,
+    .site-header__cta,
+    .site-header__actions,
+    .site-header__scrim {
+      transition: none !important;
+      transform: none !important;
     }
   }
 </style>

@@ -135,9 +135,224 @@ html.theme-luxury .search-bar input {
   border-color: var(--color-border);
 }
 
+html.theme-luxury .hero {
+  min-height: calc(100vh - var(--nav-height) + 2rem);
+  padding-top: calc(var(--space-section-lg) + 1.5rem);
+  padding-bottom: calc(var(--space-section-lg) - 0.5rem);
+}
+
+html.theme-luxury .hero__overlay {
+  background:
+    linear-gradient(90deg, rgba(8, 8, 7, 0.9) 0%, rgba(8, 8, 7, 0.6) 42%, rgba(8, 8, 7, 0.28) 100%),
+    linear-gradient(180deg, rgba(201, 168, 76, 0.08) 0%, rgba(8, 8, 7, 0.44) 100%);
+}
+
+html.theme-luxury .hero__inner,
+html.theme-luxury .inventory-group,
+html.theme-luxury .section-heading--left,
+html.theme-luxury .search-page,
+html.theme-luxury .breadcrumb-nav {
+  width: min(100%, 78rem);
+}
+
+html.theme-luxury .hero__copy {
+  max-width: 38rem;
+}
+
+html.theme-luxury .hero__eyebrow,
+html.theme-luxury .section-heading__eyebrow,
+html.theme-luxury .inventory-group__eyebrow,
+html.theme-luxury .search-page__eyebrow,
+html.theme-luxury .property-detail__eyebrow,
+html.theme-luxury .property-detail-page__eyebrow,
+html.theme-luxury .contact-details-panel__eyebrow,
+html.theme-luxury .contact-form-panel__eyebrow {
+  color: var(--color-primary);
+  letter-spacing: 0.22em;
+}
+
+html.theme-luxury .hero__heading,
+html.theme-luxury .section-heading h2,
+html.theme-luxury .inventory-group__header h3,
+html.theme-luxury .search-page__hero h1,
+html.theme-luxury .search-page__map-copy h2,
+html.theme-luxury .property-gallery__title,
+html.theme-luxury .property-detail-page__panel h2,
+html.theme-luxury .contact-details-panel h2 {
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+html.theme-luxury .hero__search,
+html.theme-luxury .search-bar,
+html.theme-luxury .search-results,
+html.theme-luxury .search-page__map-panel,
+html.theme-luxury .homepage-modules--pre-featured,
+html.theme-luxury .homepage-modules--post-featured,
+html.theme-luxury .property-detail__hero,
+html.theme-luxury .property-detail__content,
+html.theme-luxury .property-detail-page__panel,
+html.theme-luxury .contact-form-panel,
+html.theme-luxury .contact-details-panel {
+  background: linear-gradient(180deg, rgba(26, 25, 22, 0.96), rgba(15, 14, 12, 0.98));
+  border: 1px solid rgba(201, 168, 76, 0.14);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+}
+
+html.theme-luxury .hero__search {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(201, 168, 76, 0.18);
+  border-radius: 2px;
+}
+
+html.theme-luxury .hero-search-form {
+  background: rgba(15, 14, 12, 0.92);
+}
+
+html.theme-luxury .hero-search-form__field {
+  border-right-color: rgba(201, 168, 76, 0.12);
+}
+
+html.theme-luxury .hero-search-form__label,
+html.theme-luxury .hero-search-form__input,
+html.theme-luxury .search-bar__field span,
+html.theme-luxury .search-bar__summary span,
+html.theme-luxury .search-results__meta,
+html.theme-luxury .search-page__hero p,
+html.theme-luxury .search-page__map-copy p,
+html.theme-luxury .property-detail-page__panel p,
+html.theme-luxury .contact-details-panel__intro,
+html.theme-luxury .contact-form__intro,
+html.theme-luxury .contact-details-panel__trust-list {
+  color: var(--color-text-muted);
+}
+
+html.theme-luxury .hero-search-form__submit,
+html.theme-luxury .site-header__cta,
+html.theme-luxury .property-detail-page__cta-button,
+html.theme-luxury .property-detail-page__mobile-cta-button,
+html.theme-luxury .contact-details-panel__action,
+html.theme-luxury .contact-form__submit,
+html.theme-luxury .search-bar__submit {
+  background: var(--color-primary);
+  color: #11100d;
+}
+
+html.theme-luxury .hero__cta-btn--primary,
+html.theme-luxury .btn-primary {
+  background: var(--color-primary);
+  color: #11100d;
+}
+
+html.theme-luxury .hero__cta-btn--ghost,
+html.theme-luxury .property-detail-page__cta-secondary,
+html.theme-luxury .contact-details-panel__action--secondary {
+  color: var(--color-text);
+  border-color: rgba(201, 168, 76, 0.24);
+  background: transparent;
+}
+
+html.theme-luxury .homepage-modules--pre-featured,
+html.theme-luxury .homepage-modules--post-featured,
+html.theme-luxury .inventory-section {
+  background:
+    linear-gradient(180deg, rgba(15, 14, 12, 1), rgba(18, 17, 14, 1)),
+    var(--color-bg);
+}
+
+html.theme-luxury .inventory-group {
+  padding: 1.25rem 0;
+}
+
+html.theme-luxury .inventory-group + .inventory-group {
+  margin-top: 0;
+  border-top: 1px solid rgba(201, 168, 76, 0.1);
+}
+
+html.theme-luxury .inventory-group__header {
+  align-items: start;
+  margin-bottom: 1.25rem;
+}
+
+html.theme-luxury .property-card {
+  align-items: stretch;
+  min-height: 20rem;
+}
+
+html.theme-luxury .property-card__image,
+html.theme-luxury .property-card__image--placeholder {
+  aspect-ratio: auto;
+  min-height: 100%;
+}
+
+html.theme-luxury .property-card__body {
+  min-height: 0;
+  justify-content: center;
+}
+
+html.theme-luxury .property-card__status {
+  background: rgba(8, 8, 7, 0.82);
+  border: 1px solid rgba(201, 168, 76, 0.16);
+}
+
+html.theme-luxury .property-card__meta {
+  border-top-color: rgba(201, 168, 76, 0.1);
+}
+
+html.theme-luxury .search-page__hero {
+  align-items: end;
+  padding-bottom: 0.5rem;
+}
+
+html.theme-luxury .search-page__hero-stats {
+  background: rgba(201, 168, 76, 0.08);
+  min-width: 18rem;
+}
+
+html.theme-luxury .search-page__hero-stats div {
+  background: rgba(15, 14, 12, 0.92);
+}
+
+html.theme-luxury .search-page__hero-stats strong,
+html.theme-luxury .result-count,
+html.theme-luxury .property-gallery__price,
+html.theme-luxury .property-card__price {
+  color: var(--color-primary);
+}
+
+html.theme-luxury .search-results__toolbar {
+  border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+  padding-bottom: 1rem;
+}
+
+html.theme-luxury .property-gallery__control {
+  background: rgba(15, 14, 12, 0.86);
+  color: var(--color-primary);
+  border: 1px solid rgba(201, 168, 76, 0.14);
+}
+
+html.theme-luxury .property-gallery__counter,
+html.theme-luxury .property-gallery__status {
+  background: rgba(8, 8, 7, 0.74);
+}
+
 @media (max-width: 640px) {
   :root {
     --card-direction:   column;
     --card-image-width: 100%;
+  }
+
+  html.theme-luxury .hero {
+    min-height: auto;
+    padding-top: var(--space-section-lg);
+  }
+
+  html.theme-luxury .property-card {
+    min-height: 0;
+  }
+
+  html.theme-luxury .search-page__hero-stats {
+    min-width: 0;
   }
 }

@@ -59,7 +59,7 @@ const THEME_PRESETS = [
   {
     id: 'editorial',
     label: 'Editorial',
-    description: 'Balanced default for broad inventory sites.',
+    description: 'Balanced default with a classic hero, standard cards, and broad mixed-use merchandising.',
     settings: {
       palette: 'default',
       density: 'comfortable',
@@ -71,7 +71,7 @@ const THEME_PRESETS = [
   {
     id: 'coastal-showcase',
     label: 'Coastal Showcase',
-    description: 'Airy spacing for premium coastal listings.',
+    description: 'Opens the canvas up with a softer hero, rounder surfaces, and a more lifestyle-led listing rhythm.',
     settings: {
       palette: 'coastal',
       density: 'spacious',
@@ -83,7 +83,7 @@ const THEME_PRESETS = [
   {
     id: 'luxury-brochure',
     label: 'Luxury Brochure',
-    description: 'Sharper framing and stronger contrast for prestige stock.',
+    description: 'Turns the site into a darker brochure experience with premium framing and editorial list-style inventory.',
     settings: {
       palette: 'luxury',
       density: 'comfortable',
@@ -95,7 +95,7 @@ const THEME_PRESETS = [
   {
     id: 'urban-compact',
     label: 'Urban Compact',
-    description: 'Dense, modern browsing for apartment-heavy portfolios.',
+    description: 'Compresses the layout with sharper geometry and split-panel cards for denser city inventory browsing.',
     settings: {
       palette: 'urban',
       density: 'compact',
@@ -107,7 +107,7 @@ const THEME_PRESETS = [
   {
     id: 'nordic-minimal',
     label: 'Nordic Minimal',
-    description: 'Quiet, minimal framing with more breathing room.',
+    description: 'Keeps the interface quiet and airy with restrained surfaces and calmer browsing energy.',
     settings: {
       palette: 'nordic',
       density: 'spacious',
@@ -144,6 +144,25 @@ function humanizeSetting(value: string) {
     .join(' ')
 }
 
+function describePaletteLayoutEffect(palette: ThemeSettings['palette']) {
+  switch (palette) {
+    case 'coastal':
+      return 'Wider homepage rhythm, softer showcase sections, and rounder merchandising blocks.'
+    case 'luxury':
+      return 'Dark brochure framing, calmer premium hierarchy, and list-style inventory presentation.'
+    case 'urban':
+      return 'Tighter containers, sharper framing, and more compact split-panel listing cards.'
+    case 'nordic':
+      return 'Minimal spacing language with quieter surfaces and simplified typography contrast.'
+    case 'mediterranean':
+      return 'Warmer, more decorative presentation with stronger visual texture and hospitality cues.'
+    case 'countryside':
+      return 'Softer rural framing with organic surfaces and more grounded listing presentation.'
+    default:
+      return 'Balanced mixed-use layout with a conventional hero and standard listing rhythm.'
+  }
+}
+
 function buildSummaryFields(settings: ThemeSettings) {
   const matchedPreset = findMatchingPreset(settings)
   return [
@@ -170,12 +189,13 @@ function buildEffectFields(settings: ThemeSettings) {
     { label: 'Palette Mood', value: preview.mood },
     {
       label: 'Layout Effect',
-      value:
+      value: `${describePaletteLayoutEffect(settings.palette)} ${
         settings.density === 'compact'
-          ? 'Tighter cards and less whitespace'
+          ? 'Density setting keeps the page tighter.'
           : settings.density === 'spacious'
-            ? 'More open spacing and larger rhythm'
-            : 'Balanced spacing for mixed content pages',
+            ? 'Density setting opens the page up further.'
+            : 'Density setting stays balanced.'
+      }`,
     },
     {
       label: 'Surface Effect',
@@ -306,7 +326,7 @@ function buildSettingsBlocks(settings: ThemeSettings, siteUrl: string) {
     },
     {
       type: 'section',
-      text: `${preview.title} sets the overall mood. The controls below tune spacing, edge treatment, interaction energy, and header behavior without forcing a full redesign.`,
+      text: `${preview.title} sets both mood and page structure. The controls below tune spacing, edge treatment, interaction energy, and header behavior without forcing a full redesign.`,
     },
     {
       type: 'fields',
