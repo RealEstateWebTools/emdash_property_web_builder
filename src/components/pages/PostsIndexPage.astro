@@ -12,7 +12,10 @@ interface Props {
 
 const { locale } = Astro.props
 
-const { entries: posts, cacheHint } = await getEmDashCollection("posts", { locale });
+const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
+  locale,
+  orderBy: { published_at: "desc" },
+});
 let site = fallbackSite;
 
 try {
