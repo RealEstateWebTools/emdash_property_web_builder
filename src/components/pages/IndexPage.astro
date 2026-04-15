@@ -44,9 +44,22 @@ try {
 
 const hasFeaturedInventory = featuredGroups.length > 0
 
+const siteName = site.company_display_name ?? site.title
+const siteUrl = Astro.url.origin
+
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: siteName,
+  url: siteUrl,
+  ...(site.logo_url ? { logo: site.logo_url } : {}),
+  ...(site.og['og:description'] ? { description: site.og['og:description'] } : {}),
+}
 ---
 
 <BaseLayout site={site} title={homepage?.data.title}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
+
   <section class="hero">
     <div class="hero__image-wrapper">
       <img src="/hero-bg.png" alt="Luxury home exterior with pool" class="hero__image" />
