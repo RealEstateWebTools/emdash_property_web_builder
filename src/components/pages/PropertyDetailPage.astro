@@ -96,6 +96,22 @@ const propertyJsonLd = detail
     <div class="property-detail-page">
       <div class="property-detail-page__main">
         <PropertyDetail detail={detail} />
+
+        <div class="property-share-bar">
+          <button
+            class="property-share-btn"
+            id="property-share-btn"
+            type="button"
+            aria-label={translateLabel(locale, 'Share this property')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            <span id="property-share-label">{translateLabel(locale, 'Share')}</span>
+          </button>
+        </div>
       </div>
 
       <aside class="property-detail-page__sidebar">
@@ -160,6 +176,29 @@ const propertyJsonLd = detail
       </div>
     )}
 
+    <script define:vars={{ _shareTitle: detail.title, _shareText: htmlToMetaDescription(property.description) ?? '' }}>
+      const btn = document.getElementById('property-share-btn')
+      const label = document.getElementById('property-share-label')
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          const url = location.href
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: _shareTitle, text: _shareText, url })
+            } catch {}
+          } else {
+            try {
+              await navigator.clipboard.writeText(url)
+              if (label) {
+                label.textContent = 'Link copied!'
+                setTimeout(() => { label.textContent = 'Share' }, 2500)
+              }
+            } catch {}
+          }
+        })
+      }
+    </script>
+
     <script define:vars={{
       _rvSlug: safeSlug,
       _rvTitle: detail.title,
@@ -199,6 +238,32 @@ const propertyJsonLd = detail
     grid-template-columns: minmax(0, 1.65fr) minmax(19rem, 0.85fr);
     gap: 1.5rem;
     align-items: start;
+  }
+
+  .property-share-bar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem 0 0;
+  }
+
+  .property-share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid rgba(22, 53, 76, 0.14);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--color-primary);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition-base), border-color var(--transition-base);
+  }
+
+  .property-share-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(22, 53, 76, 0.22);
   }
 
   .property-detail-page__sidebar {
