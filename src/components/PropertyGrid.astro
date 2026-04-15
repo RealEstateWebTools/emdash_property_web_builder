@@ -1,7 +1,7 @@
 ---
 import PropertyCard from './PropertyCard.astro'
 import type { PropertyCardData } from '../lib/pwb/formatters'
-import { DEFAULT_LOCALE, translateLabel } from '../lib/locale'
+import { DEFAULT_LOCALE, localePath, translateLabel } from '../lib/locale'
 
 interface Props {
   cards: PropertyCardData[]
@@ -12,7 +12,20 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
 ---
 
 {cards.length === 0
-  ? <p class="property-grid__empty">{translateLabel(currentLocale, 'No properties found matching your search.')}</p>
+  ? (
+    <div class="property-grid__empty">
+      <p class="property-grid__empty-heading">{translateLabel(currentLocale, 'No properties found')}</p>
+      <p class="property-grid__empty-body">{translateLabel(currentLocale, 'Try adjusting your filters — a wider location, broader price range, or fewer bedrooms usually reveals more options.')}</p>
+      <div class="property-grid__empty-actions">
+        <a href={localePath(currentLocale, '/properties')} class="property-grid__empty-link property-grid__empty-link--primary">
+          {translateLabel(currentLocale, 'Browse all properties')}
+        </a>
+        <a href={localePath(currentLocale, '/properties?mode=rental')} class="property-grid__empty-link">
+          {translateLabel(currentLocale, 'Browse rentals instead')}
+        </a>
+      </div>
+    </div>
+  )
   : (
     <div class="property-grid">
       {cards.map((card) => (
@@ -21,3 +34,63 @@ const currentLocale = Astro.currentLocale ?? DEFAULT_LOCALE
     </div>
   )
 }
+
+<style>
+  .property-grid__empty {
+    padding: 3rem var(--spacing-page) 3.5rem;
+    text-align: center;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  .property-grid__empty-heading {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--color-primary);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .property-grid__empty-body {
+    margin: 0 0 1.75rem;
+    color: var(--color-text-soft);
+    line-height: 1.75;
+  }
+
+  .property-grid__empty-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .property-grid__empty-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid rgba(22, 53, 76, 0.16);
+    color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.6);
+    transition: background var(--transition-base);
+  }
+
+  .property-grid__empty-link--primary {
+    background: var(--color-primary);
+    color: var(--color-on-dark);
+    border-color: transparent;
+  }
+
+  .property-grid__empty-link--primary:hover {
+    background: var(--color-primary-dark, var(--color-primary));
+    opacity: 0.9;
+  }
+
+  .property-grid__empty-link:not(.property-grid__empty-link--primary):hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+</style>
