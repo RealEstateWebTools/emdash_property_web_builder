@@ -870,4 +870,50 @@ const galleryId = `property-gallery-${detail.id}`
       transform: none !important;
     }
   }
+
+  @media print {
+    /* Show only the first slide at full width; hide controls & lightbox */
+    .property-gallery {
+      display: block;
+    }
+
+    .property-gallery__stage {
+      height: auto;
+      page-break-inside: avoid;
+    }
+
+    .property-gallery__slide {
+      display: none;
+    }
+
+    .property-gallery__slide--active {
+      display: block;
+    }
+
+    .property-gallery__swipe-layer,
+    .property-gallery__fullscreen,
+    .property-gallery__nav,
+    .property-gallery__thumbs,
+    .property-gallery-lightbox {
+      display: none !important;
+    }
+
+    .property-gallery__image {
+      max-height: 50vh;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .property-gallery__overlay {
+      position: relative;
+      background: none;
+      padding: 0.75rem 0 0;
+    }
+
+    .property-gallery__title,
+    .property-gallery__price,
+    .property-gallery__address {
+      color: #000 !important;
+    }
+  }
 </style>

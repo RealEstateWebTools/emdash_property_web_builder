@@ -109,4 +109,23 @@ const facts = [
       animation: none !important;
     }
   }
+
+  @media print {
+    .property-detail__content {
+      padding: 0;
+    }
+
+    .property-detail__facts {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      background: #eee;
+    }
+
+    .property-detail__fact {
+      background: #fff;
+    }
+
+    .property-detail__description {
+      font-size: 0.9rem;
+    }
+  }
 </style>

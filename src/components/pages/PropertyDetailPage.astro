@@ -383,4 +383,23 @@ const propertyJsonLd = detail
       backdrop-filter: blur(14px);
     }
   }
+
+  @media print {
+    .property-detail-page {
+      display: block;
+      padding: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .property-detail-page__sidebar,
+    .property-share-bar,
+    .property-detail-page__mobile-cta {
+      display: none !important;
+    }
+
+    .property-detail-page__main {
+      width: 100%;
+    }
+  }
 </style>
