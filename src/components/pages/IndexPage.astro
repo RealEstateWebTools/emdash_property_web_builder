@@ -148,6 +148,58 @@ const hasFeaturedInventory = featuredGroups.length > 0
       <PortableText value={postFeaturedContent} />
     </section>
   )}
+
+  <!-- Recently viewed: server renders nothing; client fills this in from localStorage -->
+  <section class="recently-viewed" id="recently-viewed" aria-hidden="true" style="display:none">
+    <div class="recently-viewed__inner">
+      <div class="recently-viewed__header">
+        <p class="section-heading__eyebrow">{translateLabel(locale, 'Your recent activity')}</p>
+        <h2 class="recently-viewed__title">{translateLabel(locale, 'Recently Viewed')}</h2>
+      </div>
+      <div class="recently-viewed__grid" id="recently-viewed-grid"></div>
+    </div>
+  </section>
+
+  <script define:vars={{ _rvLocale: locale }}>
+    try {
+      const KEY = 'pwb-recently-viewed'
+      const raw = localStorage.getItem(KEY)
+      if (raw) {
+        const list = JSON.parse(raw)
+        const localeItems = list.filter((e) => !e.locale || e.locale === _rvLocale)
+        if (localeItems.length > 0) {
+          const section = document.getElementById('recently-viewed')
+          const grid = document.getElementById('recently-viewed-grid')
+          if (section && grid) {
+            localeItems.slice(0, 4).forEach((item) => {
+              const card = document.createElement('a')
+              card.href = item.path
+              card.className = 'rv-card'
+              card.innerHTML = item.imageUrl
+                ? `<div class="rv-card__img"><img src="${item.imageUrl}" alt="" loading="lazy" /></div>`
+                : `<div class="rv-card__img rv-card__img--placeholder"></div>`
+              const body = document.createElement('div')
+              body.className = 'rv-card__body'
+              const title = document.createElement('p')
+              title.className = 'rv-card__title'
+              title.textContent = item.title
+              body.appendChild(title)
+              if (item.price) {
+                const price = document.createElement('p')
+                price.className = 'rv-card__price'
+                price.textContent = item.price
+                body.appendChild(price)
+              }
+              card.appendChild(body)
+              grid.appendChild(card)
+            })
+            section.style.display = ''
+            section.removeAttribute('aria-hidden')
+          }
+        }
+      }
+    } catch {}
+  </script>
 </BaseLayout>
 
 <style>
@@ -472,6 +524,96 @@ const hasFeaturedInventory = featuredGroups.length > 0
       var(--color-bg-soft);
   }
 
+  /* Recently viewed */
+  .recently-viewed {
+    padding: var(--space-section-sm) var(--spacing-page) var(--space-section-md);
+    background:
+      linear-gradient(180deg, rgba(244, 238, 228, 0.52) 0%, var(--color-bg) 100%),
+      var(--color-bg-soft);
+  }
+
+  .recently-viewed__inner {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+  }
+
+  .recently-viewed__header {
+    margin-bottom: 1.5rem;
+  }
+
+  .recently-viewed__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-primary);
+    margin: 0.6rem 0 0;
+  }
+
+  .recently-viewed__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  :global(.rv-card) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-surface-strong);
+    border: 1px solid rgba(22, 53, 76, 0.07);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base), transform var(--transition-base);
+  }
+
+  :global(.rv-card:hover) {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  :global(.rv-card__img) {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-bg-soft);
+  }
+
+  :global(.rv-card__img img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  :global(.rv-card__img--placeholder) {
+    background: linear-gradient(135deg, rgba(22, 53, 76, 0.06), rgba(22, 53, 76, 0.03));
+  }
+
+  :global(.rv-card__body) {
+    padding: 0.7rem 0.85rem 0.85rem;
+  }
+
+  :global(.rv-card__title) {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  :global(.rv-card__price) {
+    margin: 0.3rem 0 0;
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
   @media (max-width: 1024px) {
     .hero__heading {
       max-width: 12ch;
@@ -480,6 +622,10 @@ const hasFeaturedInventory = featuredGroups.length > 0
     .inventory-group__header {
       align-items: start;
       flex-direction: column;
+    }
+
+    .recently-viewed__grid {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
@@ -503,6 +649,9 @@ const hasFeaturedInventory = featuredGroups.length > 0
       justify-content: center;
     }
 
+    .recently-viewed__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   @media (max-width: 640px) {

@@ -159,6 +159,26 @@ const propertyJsonLd = detail
         </a>
       </div>
     )}
+
+    <script define:vars={{
+      _rvSlug: safeSlug,
+      _rvTitle: detail.title,
+      _rvPrice: detail.price ?? null,
+      _rvImageUrl: detail.photos[0]?.url ?? null,
+      _rvLocale: locale,
+      _rvPath: canonicalPath,
+    }}>
+      try {
+        const KEY = 'pwb-recently-viewed'
+        const MAX = 6
+        const entry = { slug: _rvSlug, title: _rvTitle, price: _rvPrice, imageUrl: _rvImageUrl, locale: _rvLocale, path: _rvPath }
+        const raw = localStorage.getItem(KEY)
+        const list = raw ? JSON.parse(raw) : []
+        const filtered = list.filter((e) => e.slug !== _rvSlug)
+        filtered.unshift(entry)
+        localStorage.setItem(KEY, JSON.stringify(filtered.slice(0, MAX)))
+      } catch {}
+    </script>
   </BaseLayout>
 ) : (
   <BaseLayout site={site} title={translateLabel(locale, 'Page not found')}>
