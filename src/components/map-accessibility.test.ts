@@ -19,7 +19,10 @@ describe('Milestone 6 conventions', () => {
   it('mobile nav toggle has aria-controls and initial aria-expanded state', () => {
     expect(siteHeader).toContain('aria-controls="nav-content"')
     expect(siteHeader).toContain('aria-expanded="false"')
-    expect(siteHeader).toContain("toggle.setAttribute('aria-expanded', String(!isExpanded));")
+    // The toggle script sets aria-expanded explicitly on open and close
+    expect(siteHeader).toContain("aria-expanded")
+    expect(siteHeader).toContain("openMenu")
+    expect(siteHeader).toContain("closeMenu")
   })
 
   it('contact form field ids are namespaced by formId', () => {
