@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   emdash@0.2.0:
-    hash: e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d
+    hash: 6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c
     path: patches/emdash@0.2.0.patch
 
 importers:
@@ -27,10 +27,10 @@ importers:
         version: 0.1.0(7f0277e3d6e76e4035bb8e6feab1aea8)
       '@emdash-cms/plugin-forms':
         specifier: ^0.1.0
-        version: 0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(emdash@0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70))(react@19.2.4)
+        version: 0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(emdash@0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70))(react@19.2.4)
       '@emdash-cms/plugin-webhook-notifier':
         specifier: ^0.1.0
-        version: 0.1.0(emdash@0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70))
+        version: 0.1.0(emdash@0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70))
       astro:
         specifier: ^6.1.2
         version: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
@@ -39,7 +39,7 @@ importers:
         version: 12.8.0
       emdash:
         specifier: ^0.2.0
-        version: 0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70)
+        version: 0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70)
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -4673,18 +4673,18 @@ snapshots:
       '@wordpress/block-serialization-default-parser': 5.43.0
       parse5: 7.3.0
 
-  '@emdash-cms/plugin-forms@0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(emdash@0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70))(react@19.2.4)':
+  '@emdash-cms/plugin-forms@0.1.0(@cloudflare/kumo@1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6))(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(astro@6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3))(emdash@0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70))(react@19.2.4)':
     dependencies:
       '@cloudflare/kumo': 1.17.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6)
       '@phosphor-icons/react': 2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       astro: 6.1.3(@types/node@25.5.2)(rollup@4.60.1)(typescript@6.0.2)(yaml@2.8.3)
-      emdash: 0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70)
+      emdash: 0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70)
       react: 19.2.4
       ulidx: 2.4.1
 
-  '@emdash-cms/plugin-webhook-notifier@0.1.0(emdash@0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70))':
+  '@emdash-cms/plugin-webhook-notifier@0.1.0(emdash@0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70))':
     dependencies:
-      emdash: 0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70)
+      emdash: 0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70)
 
   '@emmetio/abbreviation@2.3.3':
     dependencies:
@@ -6373,7 +6373,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  emdash@0.2.0(patch_hash=e40eb62bd2080813082fbd6eff9fd51bf13151a39c2dd685712b299452505d2d)(278cfc80116fa1acc56065c528ee6e70):
+  emdash@0.2.0(patch_hash=6e0ac6fc97da895a6bcc813172e0c4c39cbdee098b3a716e4f8b3d80ed13765c)(278cfc80116fa1acc56065c528ee6e70):
     dependencies:
       '@astrojs/react': 5.0.2(@types/node@25.5.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
       '@emdash-cms/admin': 0.2.0(@floating-ui/dom@1.7.6)(@tiptap/extension-collaboration@3.22.2(@tiptap/core@3.22.2(@tiptap/pm@3.22.2))(@tiptap/pm@3.22.2)(@tiptap/y-tiptap@3.0.2(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(yjs@13.6.30))(@tiptap/extensions@3.22.2(@tiptap/core@3.22.2(@tiptap/pm@3.22.2))(@tiptap/pm@3.22.2))(@tiptap/y-tiptap@3.0.2(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.3.6)

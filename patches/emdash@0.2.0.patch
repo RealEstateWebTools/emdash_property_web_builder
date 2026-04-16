@@ -1,3 +1,24 @@
+diff --git a/src/astro/routes/admin.astro b/src/astro/routes/admin.astro
+index bcdbd9e499eebc65fd80221c7a17c56b3e64b62e..56518b961ec472bab571171a5b5d54db7eb7aa9c 100644
+--- a/src/astro/routes/admin.astro
++++ b/src/astro/routes/admin.astro
+@@ -13,9 +13,15 @@ import AdminWrapper from "emdash/routes/PluginRegistry";
+ export const prerender = false;
+ 
+ import { resolveLocale } from "@emdash-cms/admin/locales";
++import { messages as deMessages } from "@emdash-cms/admin/locales/de/messages.mjs";
++import { messages as enMessages } from "@emdash-cms/admin/locales/en/messages.mjs";
+ 
+ const resolvedLocale = resolveLocale(Astro.request);
+-const { messages } = await import(`@emdash-cms/admin/locales/${resolvedLocale}/messages.mjs`);
++const messagesByLocale = {
++	de: deMessages,
++	en: enMessages,
++} as const;
++const messages = messagesByLocale[resolvedLocale] ?? enMessages;
+ ---
+ 
+ <!doctype html>
 diff --git a/src/astro/routes/api/auth/oauth/[provider]/callback.ts b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
 index c74994cd35d72db2fe169ce2f2569ac4875d4a05..f056e6bedffcfb206e2f8cf6deb1ed634ce3a4a2 100644
 --- a/src/astro/routes/api/auth/oauth/[provider]/callback.ts
