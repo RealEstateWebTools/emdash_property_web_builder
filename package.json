@@ -28,13 +28,12 @@
 	"dependencies": {
 		"@astrojs/cloudflare": "^13.1.6",
 		"@astrojs/react": "^5.0.0",
-		"@emdash-cms/admin": "0.2.0",
-		"@emdash-cms/cloudflare": "^0.1.0",
-		"@emdash-cms/plugin-forms": "^0.1.0",
-		"@emdash-cms/plugin-webhook-notifier": "^0.1.0",
+		"@emdash-cms/cloudflare": "^0.5.0",
+		"@emdash-cms/plugin-forms": "^0.1.1",
+		"@emdash-cms/plugin-webhook-notifier": "^0.1.2",
 		"astro": "^6.1.2",
 		"better-sqlite3": "^12.8.0",
-		"emdash": "^0.2.0",
+		"emdash": "^0.5.0",
 		"leaflet": "^1.9.4",
 		"pwb-page-parts": "workspace:*",
 		"pwb-properties": "workspace:*",
@@ -60,7 +59,7 @@
 			"better-sqlite3"
 		],
 		"patchedDependencies": {
-			"emdash@0.2.0": "patches/emdash@0.2.0.patch"
+			"emdash@0.5.0": "patches/emdash@0.5.0.patch"
 		}
 	}
 }
