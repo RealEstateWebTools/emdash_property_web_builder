@@ -5,6 +5,7 @@ export const SITE_PROFILE_TAGLINE_KV_KEY = 'settings:tagline'
 export const SITE_PROFILE_OFFICE_ADDRESS_KV_KEY = 'settings:office_address'
 export const SITE_PROFILE_OFFICE_PHONE_KV_KEY = 'settings:office_phone'
 export const SITE_PROFILE_OFFICE_EMAIL_KV_KEY = 'settings:office_email'
+export const SITE_PROFILE_RESPONSE_PLEDGE_KV_KEY = 'settings:response_pledge'
 export const SITE_PROFILE_PROPERTY_CTA_TYPE_KV_KEY = 'settings:property_cta_type'
 export const SITE_PROFILE_PROPERTY_CTA_LABEL_KV_KEY = 'settings:property_cta_label'
 export const SITE_PROFILE_PROPERTY_CTA_BODY_KV_KEY = 'settings:property_cta_body'
@@ -28,6 +29,7 @@ export interface SiteProfileSettings {
   officeAddress: string
   officePhone: string
   officeEmail: string
+  responsePledge: string
   propertyCtaType: PropertyCtaType
   propertyCtaLabel: string
   propertyCtaBody: string
@@ -40,6 +42,7 @@ export const DEFAULT_SITE_PROFILE_SETTINGS: SiteProfileSettings = {
   officeAddress: '127 Harbour Street, East Brunswick, NJ 08816',
   officePhone: '(732) 555-0148',
   officeEmail: 'hello@demorealty.com',
+  responsePledge: 'We respond to all enquiries within one working day.',
   propertyCtaType: 'book_viewing',
   propertyCtaLabel: '',
   propertyCtaBody: '',
@@ -77,6 +80,7 @@ export function sanitizeSiteProfileSettings(
     officeAddress: sanitizeText(input.officeAddress, DEFAULT_SITE_PROFILE_SETTINGS.officeAddress),
     officePhone: sanitizeText(input.officePhone, DEFAULT_SITE_PROFILE_SETTINGS.officePhone),
     officeEmail: sanitizeText(input.officeEmail, DEFAULT_SITE_PROFILE_SETTINGS.officeEmail),
+    responsePledge: sanitizeText(input.responsePledge, DEFAULT_SITE_PROFILE_SETTINGS.responsePledge),
     propertyCtaType: sanitizePropertyCtaType(input.propertyCtaType),
     propertyCtaLabel: sanitizeOptionalText(input.propertyCtaLabel),
     propertyCtaBody: sanitizeOptionalText(input.propertyCtaBody),
@@ -105,6 +109,7 @@ export async function readSiteProfileSettingsFromDb(db: any): Promise<SiteProfil
         `plugin:site-profile:${SITE_PROFILE_OFFICE_ADDRESS_KV_KEY}`,
         `plugin:site-profile:${SITE_PROFILE_OFFICE_PHONE_KV_KEY}`,
         `plugin:site-profile:${SITE_PROFILE_OFFICE_EMAIL_KV_KEY}`,
+        `plugin:site-profile:${SITE_PROFILE_RESPONSE_PLEDGE_KV_KEY}`,
         `plugin:site-profile:${SITE_PROFILE_PROPERTY_CTA_TYPE_KV_KEY}`,
         `plugin:site-profile:${SITE_PROFILE_PROPERTY_CTA_LABEL_KV_KEY}`,
         `plugin:site-profile:${SITE_PROFILE_PROPERTY_CTA_BODY_KV_KEY}`,
@@ -126,6 +131,7 @@ export async function readSiteProfileSettingsFromDb(db: any): Promise<SiteProfil
       officeAddress: rawSettings.office_address,
       officePhone: rawSettings.office_phone,
       officeEmail: rawSettings.office_email,
+      responsePledge: rawSettings.response_pledge,
       propertyCtaType: rawSettings.property_cta_type,
       propertyCtaLabel: rawSettings.property_cta_label,
       propertyCtaBody: rawSettings.property_cta_body,

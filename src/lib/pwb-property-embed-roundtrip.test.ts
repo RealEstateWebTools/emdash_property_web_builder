@@ -140,12 +140,12 @@ describe("EmDash patch workflow", () => {
 		const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
 		expect(packageJson.pnpm?.patchedDependencies).toEqual({
-			"emdash@0.2.0": "patches/emdash@0.2.0.patch",
+			"emdash@0.5.0": "patches/emdash@0.5.0.patch",
 		});
 	});
 
 	it("tracks the editor fix in the patch file", () => {
-		const patchPath = resolve(process.cwd(), "patches/emdash@0.2.0.patch");
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.5.0.patch");
 		const patch = readFileSync(patchPath, "utf8");
 
 		expect(patch).toContain("src/components/InlinePortableTextEditor.tsx");
@@ -155,7 +155,7 @@ describe("EmDash patch workflow", () => {
 	});
 
 	it("tracks the locale-aware RecentPosts widget fix in the patch file", () => {
-		const patchPath = resolve(process.cwd(), "patches/emdash@0.2.0.patch");
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.5.0.patch");
 		const patch = readFileSync(patchPath, "utf8");
 
 		expect(patch).toContain("src/components/widgets/RecentPosts.astro");

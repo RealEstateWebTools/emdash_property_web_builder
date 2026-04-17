@@ -8,9 +8,10 @@ interface Props {
   submitLabel?: string
   intro?: string
   showHeading?: boolean
+  responsePledge?: string
 }
 
-const { propertyId, propertyTitle, heading: headingOverride, submitLabel, intro, showHeading = true } = Astro.props
+const { propertyId, propertyTitle, heading: headingOverride, submitLabel, intro, showHeading = true, responsePledge } = Astro.props
 const formId = `enquiry-form-${propertyId ?? 'general'}`
 const nameId = `${formId}-name`
 const emailId = `${formId}-email`
@@ -64,6 +65,15 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
     <span class="btn-text">{submitText}</span>
     <span class="btn-loading" hidden>{translateLabel(currentLocale, 'Sending...')}</span>
   </button>
+
+  {responsePledge && (
+    <p class="contact-form__pledge">
+      <svg class="contact-form__pledge-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      {responsePledge}
+    </p>
+  )}
 </form>
 
 <script>
@@ -201,5 +211,22 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
     width: 100%;
     justify-content: center;
     margin-top: 0.5rem;
+  }
+
+  .contact-form__pledge {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    margin: 0.75rem 0 0;
+    font-size: var(--text-xs);
+    color: var(--color-text-soft);
+    line-height: 1.5;
+  }
+
+  .contact-form__pledge-icon {
+    flex-shrink: 0;
+    margin-top: 0.05em;
+    color: var(--color-accent);
+    opacity: 0.8;
   }
 </style>
