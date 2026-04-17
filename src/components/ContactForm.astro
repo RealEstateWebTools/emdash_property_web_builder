@@ -9,9 +9,12 @@ interface Props {
   intro?: string
   showHeading?: boolean
   responsePledge?: string
+  pageType?: 'property' | 'contact' | 'general'
+  propertySlug?: string
+  ctaSource?: string
 }
 
-const { propertyId, propertyTitle, heading: headingOverride, submitLabel, intro, showHeading = true, responsePledge } = Astro.props
+const { propertyId, propertyTitle, heading: headingOverride, submitLabel, intro, showHeading = true, responsePledge, pageType, propertySlug, ctaSource } = Astro.props
 const formId = `enquiry-form-${propertyId ?? 'general'}`
 const nameId = `${formId}-name`
 const emailId = `${formId}-email`
@@ -28,6 +31,9 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
   id={formId}
   class="contact-form"
   data-property-id={propertyId}
+  data-page-type={pageType}
+  data-property-slug={propertySlug}
+  data-cta-source={ctaSource}
   data-success-message={translateLabel(currentLocale, 'Your enquiry has been sent!')}
   data-error-message={translateLabel(currentLocale, 'Something went wrong. Please try again.')}
   data-network-error-message={translateLabel(currentLocale, 'Network error. Please try again.')}
@@ -109,6 +115,9 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
       submitBtn.disabled = true
 
       const propertyId = form.dataset.propertyId
+      const pageType = form.dataset.pageType || undefined
+      const propertySlug = form.dataset.propertySlug || undefined
+      const ctaSource = form.dataset.ctaSource || undefined
       const successMessage = form.dataset.successMessage ?? 'Your enquiry has been sent!'
       const errorMessage = form.dataset.errorMessage ?? 'Something went wrong. Please try again.'
       const networkErrorMessage = form.dataset.networkErrorMessage ?? 'Network error. Please try again.'
@@ -123,6 +132,9 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
             phone: data.phone || undefined,
             message: data.message,
             property_id: propertyId ?? undefined,
+            page_type: pageType,
+            property_slug: propertySlug,
+            cta_source: ctaSource,
           }),
         })
 

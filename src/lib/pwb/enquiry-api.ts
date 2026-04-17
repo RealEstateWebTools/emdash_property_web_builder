@@ -5,6 +5,12 @@ export interface EnquirySubmitClient {
   submitEnquiry(input: EnquiryInput): Promise<EnquiryResponse>
 }
 
+export interface EnquiryAttribution {
+  pageType?: string
+  propertySlug?: string
+  ctaSource?: string
+}
+
 interface ErrorBody {
   success: false
   message: string
@@ -17,6 +23,15 @@ function json(body: unknown, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json' },
   })
+}
+
+export function buildAttributionNote(attribution: EnquiryAttribution): string {
+  const parts: string[] = []
+  if (attribution.pageType) parts.push(`Page type: ${attribution.pageType}`)
+  if (attribution.propertySlug) parts.push(`Listing: /properties/${attribution.propertySlug}`)
+  if (attribution.ctaSource) parts.push(`CTA: ${attribution.ctaSource}`)
+  if (parts.length === 0) return ''
+  return `\n\n---\n${parts.join('\n')}`
 }
 
 export async function handleEnquiryRequest(request: Request, client: EnquirySubmitClient): Promise<Response> {
@@ -37,6 +52,12 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
   const phone = payload.phone ? String(payload.phone) : undefined
   const propertyId = payload.property_id ? String(payload.property_id) : undefined
 
+  const attribution: EnquiryAttribution = {
+    pageType: payload.page_type ? String(payload.page_type) : undefined,
+    propertySlug: payload.property_slug ? String(payload.property_slug) : undefined,
+    ctaSource: payload.cta_source ? String(payload.cta_source) : undefined,
+  }
+
   const validation = validateEnquiry({ name, email, message })
   if (!validation.valid) {
     return json({
@@ -50,12 +71,14 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
     } satisfies ErrorBody, 400)
   }
 
+  const attributionNote = buildAttributionNote(attribution)
+
   try {
     const result = await client.submitEnquiry({
       name,
       email,
       phone,
-      message,
+      message: attributionNote ? `${message}${attributionNote}` : message,
       property_id: propertyId,
     })
 

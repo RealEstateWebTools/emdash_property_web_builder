@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { handleEnquiryRequest } from '../../lib/pwb/enquiry-api'
+import { handleEnquiryRequest, buildAttributionNote } from '../../lib/pwb/enquiry-api'
 
 describe('handleEnquiryRequest', () => {
   it('returns success JSON for a valid payload', async () => {
@@ -138,6 +138,108 @@ describe('handleEnquiryRequest', () => {
   })
 })
 
+describe('buildAttributionNote', () => {
+  it('returns empty string when no attribution fields are present', () => {
+    expect(buildAttributionNote({})).toBe('')
+  })
+
+  it('includes page type when provided', () => {
+    const note = buildAttributionNote({ pageType: 'property' })
+    expect(note).toContain('Page type: property')
+  })
+
+  it('includes listing path when propertySlug is provided', () => {
+    const note = buildAttributionNote({ propertySlug: 'luxury-flat-london' })
+    expect(note).toContain('Listing: /properties/luxury-flat-london')
+  })
+
+  it('includes CTA source when provided', () => {
+    const note = buildAttributionNote({ ctaSource: 'book_viewing' })
+    expect(note).toContain('CTA: book_viewing')
+  })
+
+  it('combines all attribution fields with a separator', () => {
+    const note = buildAttributionNote({
+      pageType: 'property',
+      propertySlug: 'luxury-flat-london',
+      ctaSource: 'book_viewing',
+    })
+    expect(note).toContain('---')
+    expect(note).toContain('Page type: property')
+    expect(note).toContain('Listing: /properties/luxury-flat-london')
+    expect(note).toContain('CTA: book_viewing')
+  })
+})
+
+describe('handleEnquiryRequest attribution', () => {
+  it('appends attribution note to message when source fields are present', async () => {
+    const client = { submitEnquiry: vi.fn().mockResolvedValue({ success: true }) }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        message: 'Is this still available?',
+        page_type: 'property',
+        property_slug: 'flat-kensington',
+        cta_source: 'book_viewing',
+      }),
+    })
+
+    await handleEnquiryRequest(request, client)
+
+    const submitted = client.submitEnquiry.mock.calls[0][0]
+    expect(submitted.message).toContain('Is this still available?')
+    expect(submitted.message).toContain('Page type: property')
+    expect(submitted.message).toContain('Listing: /properties/flat-kensington')
+    expect(submitted.message).toContain('CTA: book_viewing')
+  })
+
+  it('does not modify message when no attribution fields are provided', async () => {
+    const client = { submitEnquiry: vi.fn().mockResolvedValue({ success: true }) }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        message: 'General question.',
+      }),
+    })
+
+    await handleEnquiryRequest(request, client)
+
+    const submitted = client.submitEnquiry.mock.calls[0][0]
+    expect(submitted.message).toBe('General question.')
+  })
+
+  it('does not include attribution fields in the PWB payload directly', async () => {
+    const client = { submitEnquiry: vi.fn().mockResolvedValue({ success: true }) }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        message: 'I have a general question about this listing.',
+        page_type: 'contact',
+        cta_source: 'general_enquiry',
+      }),
+    })
+
+    await handleEnquiryRequest(request, client)
+
+    const submitted = client.submitEnquiry.mock.calls[0][0]
+    expect(submitted).not.toHaveProperty('page_type')
+    expect(submitted).not.toHaveProperty('cta_source')
+    expect(submitted).not.toHaveProperty('property_slug')
+  })
+})
+
 describe('ContactForm integration contract', () => {
   it('posts to local /api/enquiries and does not require pwb-api-url meta tag', () => {
     const filePath = resolve(process.cwd(), 'src/components/ContactForm.astro')
@@ -145,5 +247,23 @@ describe('ContactForm integration contract', () => {
 
     expect(source).toMatch(/fetch\(['\"]\/api\/enquiries['\"]/)
     expect(source).not.toContain('meta[name="pwb-api-url"]')
+  })
+
+  it('sends attribution fields in the fetch payload', () => {
+    const filePath = resolve(process.cwd(), 'src/components/ContactForm.astro')
+    const source = readFileSync(filePath, 'utf8')
+
+    expect(source).toContain('page_type')
+    expect(source).toContain('property_slug')
+    expect(source).toContain('cta_source')
+  })
+
+  it('reads attribution from data attributes on the form element', () => {
+    const filePath = resolve(process.cwd(), 'src/components/ContactForm.astro')
+    const source = readFileSync(filePath, 'utf8')
+
+    expect(source).toContain('data-page-type')
+    expect(source).toContain('data-property-slug')
+    expect(source).toContain('data-cta-source')
   })
 })
