@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "emdash-pwb": {
+      "type": "remote",
+      "url": "https://emdash-property-web-builder.etewiah.workers.dev/_emdash/api/mcp",
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:EMDASH_MCP_TOKEN}"
+      }
+    }
+  }
+}

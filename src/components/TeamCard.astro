@@ -1,0 +1,175 @@
+---
+interface SocialLink {
+  platform: string
+  url: string
+}
+
+interface Props {
+  name: string
+  title?: string
+  bio?: unknown
+  photo?: { src: string; alt: string }
+  email?: string
+  phone?: string
+  speciality?: string
+  languages?: string
+  socialLinks?: SocialLink[]
+}
+
+const { name, title, photo, email, phone, speciality, languages, socialLinks } = Astro.props
+
+const platformIcons: Record<string, string> = {
+  linkedin: 'in',
+  twitter: 'X',
+  x: 'X',
+  instagram: 'ig',
+  facebook: 'fb',
+  youtube: 'yt',
+  tiktok: 'tk',
+}
+
+function platformLabel(platform: string) {
+  return platform.charAt(0).toUpperCase() + platform.slice(1)
+}
+---
+
+<div class="team-card">
+  {photo && (
+    <div class="team-card__photo">
+      <img src={photo.src} alt={photo.alt || name} loading="lazy" />
+    </div>
+  )}
+  <div class="team-card__body">
+    <h3 class="team-card__name">{name}</h3>
+    {title && <p class="team-card__title">{title}</p>}
+    {speciality && <p class="team-card__speciality">{speciality}</p>}
+    {languages && <p class="team-card__languages">{languages}</p>}
+    <div class="team-card__contact">
+      {email && (
+        <a href={`mailto:${email}`} class="team-card__contact-link">{email}</a>
+      )}
+      {phone && (
+        <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} class="team-card__contact-link">{phone}</a>
+      )}
+    </div>
+    {socialLinks && socialLinks.length > 0 && (
+      <ul class="team-card__social">
+        {socialLinks.map((link) => (
+          <li>
+            <a
+              href={link.url}
+              class="team-card__social-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={platformLabel(link.platform)}
+            >
+              <span class="team-card__social-icon" aria-hidden="true">
+                {platformIcons[link.platform.toLowerCase()] ?? link.platform.charAt(0).toUpperCase()}
+              </span>
+              <span class="team-card__social-label">{platformLabel(link.platform)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</div>
+
+<style>
+  .team-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .team-card__photo img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+  }
+
+  .team-card__body {
+    padding: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .team-card__name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .team-card__title {
+    font-size: var(--font-size-sm);
+    color: var(--color-accent);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .team-card__speciality,
+  .team-card__languages {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .team-card__contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-2);
+  }
+
+  .team-card__contact-link {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .team-card__contact-link:hover {
+    color: var(--color-accent);
+  }
+
+  .team-card__social {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-2) 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+
+  .team-card__social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+
+  .team-card__social-link:hover {
+    color: var(--color-text);
+    background: var(--color-border);
+  }
+
+  .team-card__social-icon {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+  }
+</style>

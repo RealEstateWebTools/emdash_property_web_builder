@@ -8,8 +8,7 @@ export const GET: APIRoute = ({ url }) => {
     'User-agent: *',
     'Allow: /',
     '',
-    `Sitemap: ${origin}/sitemap-properties.xml`,
-    `Sitemap: ${origin}/sitemap-posts.xml`,
+    `Sitemap: ${origin}/sitemap.xml`,
   ].join('\n')
 
   return new Response(body, {

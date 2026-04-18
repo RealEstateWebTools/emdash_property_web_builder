@@ -65,6 +65,19 @@ const alternateLinks = page
 			<div class:list={['page-layout', { 'page-layout--contact': slug === 'contact' }]}>
 				<div class="page-content">
 				<PortableText value={page.data.content} />
+				{page.data.faqs && page.data.faqs.length > 0 && (
+					<section class="faqs">
+						<h2 class="faqs-title">Frequently Asked Questions</h2>
+						<dl class="faqs-list">
+							{page.data.faqs.map((faq) => (
+								<details class="faq-item">
+									<summary class="faq-question">{faq.question}</summary>
+									<p class="faq-answer">{faq.answer}</p>
+								</details>
+							))}
+						</dl>
+					</section>
+				)}
 				{slug === 'contact' && (
 					<section class="contact-form-panel">
 						<p class="contact-form-panel__eyebrow">{translateLabel(locale, 'Start the conversation')}</p>
@@ -139,8 +152,68 @@ const alternateLinks = page
 )}
 
 <style>
+	.faqs {
+		margin-top: var(--spacing-10);
+		padding-top: var(--spacing-8);
+		border-top: 1px solid var(--color-border-subtle);
+	}
+
+	.faqs-title {
+		font-size: var(--font-size-xl);
+		font-weight: 600;
+		color: var(--color-text);
+		margin-bottom: var(--spacing-4);
+	}
+
+	.faqs-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-2);
+	}
+
+	.faq-item {
+		border: 1px solid var(--color-border-subtle);
+		border-radius: var(--radius);
+		overflow: hidden;
+	}
+
+	.faq-question {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--spacing-4);
+		font-size: var(--font-size-base);
+		font-weight: 500;
+		color: var(--color-text);
+		cursor: pointer;
+		list-style: none;
+		user-select: none;
+	}
+
+	.faq-question::-webkit-details-marker {
+		display: none;
+	}
+
+	.faq-question::after {
+		content: '+';
+		font-size: var(--font-size-lg);
+		color: var(--color-muted);
+		flex-shrink: 0;
+	}
+
+	.faq-item[open] .faq-question::after {
+		content: '−';
+	}
+
+	.faq-answer {
+		padding: 0 var(--spacing-4) var(--spacing-4);
+		font-size: var(--font-size-sm);
+		color: var(--color-text-secondary);
+		line-height: var(--leading-relaxed);
+		margin: 0;
+	}
+
 	.page-article {
-		max-width: 1100px;
 		margin: 0 auto;
 		padding: 4rem 1.5rem;
 	}

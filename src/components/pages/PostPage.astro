@@ -221,6 +221,17 @@ const postLayoutProps = post ? {
 					<TranslationLinks links={alternateLinks} />
 				</header>
 
+				{post.data.key_takeaways && post.data.key_takeaways.length > 0 && (
+					<div class="key-takeaways">
+						<h2 class="key-takeaways-title">Key Takeaways</h2>
+						<ul class="key-takeaways-list">
+							{post.data.key_takeaways.map((item) => (
+								<li class="key-takeaways-item">{item.point}</li>
+							))}
+						</ul>
+					</div>
+				)}
+
 				<div class="article-content">
 					<PortableText value={post.data.content} />
 				</div>
@@ -834,8 +845,49 @@ const postLayoutProps = post ? {
 		border-radius: var(--radius);
 	}
 
-	.article-comments {
-		margin-top: var(--spacing-16);
+	.key-takeaways {
+		margin-bottom: var(--spacing-8);
+		padding: var(--spacing-6);
+		background: var(--color-bg-subtle);
+		border-left: 3px solid var(--color-accent);
+		border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+	}
+
+	.key-takeaways-title {
+		font-size: var(--font-size-sm);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: var(--tracking-wide);
+		color: var(--color-accent);
+		margin-bottom: var(--spacing-3);
+	}
+
+	.key-takeaways-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-2);
+	}
+
+	.key-takeaways-item {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--spacing-2);
+		font-size: var(--font-size-base);
+		color: var(--color-text-secondary);
+		line-height: var(--leading-snug);
+	}
+
+	.key-takeaways-item::before {
+		content: '✓';
+		color: var(--color-accent);
+		font-weight: 600;
+		flex-shrink: 0;
+	}
+
+	.article-comments {		margin-top: var(--spacing-16);
 		padding-top: var(--spacing-10);
 		border-top: 1px solid var(--color-border);
 	}

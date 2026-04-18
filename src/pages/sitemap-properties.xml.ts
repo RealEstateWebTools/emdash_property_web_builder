@@ -30,7 +30,12 @@ export const GET: APIRoute = async ({ url }) => {
 
 			for (const property of results.data) {
 				const loc = `${siteUrl}/properties/${encodeURIComponent(property.slug)}`;
-				urls.push(`  <url><loc>${escapeXml(loc)}</loc></url>`);
+				const lastmod = property.updated_at
+					? `<lastmod>${new Date(property.updated_at).toISOString().split('T')[0]}</lastmod>`
+					: ''
+				urls.push(
+					`  <url><loc>${escapeXml(loc)}</loc>${lastmod}<changefreq>weekly</changefreq><priority>0.8</priority></url>`,
+				)
 			}
 
 			page++;

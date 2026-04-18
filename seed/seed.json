@@ -54,6 +54,14 @@
 					"type": "date"
 				},
 				{
+					"slug": "key_takeaways",
+					"label": "Key Takeaways",
+					"type": "repeater",
+					"fields": [
+						{ "slug": "point", "label": "Point", "type": "string" }
+					]
+				},
+				{
 					"slug": "seo_title",
 					"label": "SEO Title",
 					"type": "string"
@@ -132,6 +140,15 @@
 					"slug": "trust_content",
 					"label": "Homepage Trust Content",
 					"type": "portableText"
+				},
+				{
+					"slug": "faqs",
+					"label": "FAQs",
+					"type": "repeater",
+					"fields": [
+						{ "slug": "question", "label": "Question", "type": "string" },
+						{ "slug": "answer", "label": "Answer", "type": "text" }
+					]
 				},
 				{
 					"slug": "seo_title",
@@ -233,6 +250,15 @@
 					"slug": "languages",
 					"label": "Languages Spoken",
 					"type": "string"
+				},
+				{
+					"slug": "social_links",
+					"label": "Social Links",
+					"type": "repeater",
+					"fields": [
+						{ "slug": "platform", "label": "Platform", "type": "string" },
+						{ "slug": "url", "label": "URL", "type": "string" }
+					]
 				},
 				{
 					"slug": "display_order",
