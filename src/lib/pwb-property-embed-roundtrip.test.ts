@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -114,14 +114,13 @@ describe("PWB property embed plugin config", () => {
 
 	it("registers a property shortlist route for admin quick-picks", async () => {
 		process.env.PWB_API_URL = "https://example.com";
-		const originalFetch = global.fetch;
-		global.fetch = async () =>
+		vi.stubGlobal("fetch", async () =>
 			({
 				ok: true,
 				json: async () => ({
 					data: [{ slug: "villa-marbella", title: "Villa Marbella", formatted_price: null, reference: null }],
 				}),
-			}) as Response;
+			}) as Response);
 
 		try {
 			const plugin = createPlugin();
@@ -129,7 +128,7 @@ describe("PWB property embed plugin config", () => {
 			const result = await plugin.routes?.["properties/list"]?.handler({} as any);
 			expect(result).toEqual({ items: [{ id: "villa-marbella", name: "Villa Marbella" }] });
 		} finally {
-			global.fetch = originalFetch;
+			vi.unstubAllGlobals();
 		}
 	});
 });
