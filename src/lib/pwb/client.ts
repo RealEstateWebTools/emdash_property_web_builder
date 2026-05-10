@@ -9,6 +9,7 @@ import type {
   EnquiryResponse,
   Page,
 } from './types'
+import { PwbApiError } from './errors'
 
 export class PwbClient {
   baseUrl: string
@@ -39,7 +40,9 @@ export class PwbClient {
       })
     }
     const urlStr = url.toString()
-    console.info(`[pwb] GET ${urlStr}`)
+    if (import.meta.env.DEV) {
+      console.info(`[pwb] GET ${urlStr}`)
+    }
     let res: Response
     try {
       res = await fetch(urlStr, {
@@ -47,7 +50,7 @@ export class PwbClient {
       })
     } catch (err) {
       console.error(`[pwb] fetch failed for ${urlStr}: ${err instanceof Error ? err.message : String(err)}`)
-      throw err
+      throw new PwbApiError(`Network failure for ${urlStr}`, { url: urlStr, cause: err })
     }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
@@ -55,7 +58,7 @@ export class PwbClient {
       const server = res.headers.get('server') ?? 'unknown'
       const msg = (body as { error?: string }).error ?? `HTTP ${res.status} ${urlStr}`
       console.error(`[pwb] ${msg} | cf-ray: ${cfRay} | server: ${server}`)
-      throw new Error(msg)
+      throw new PwbApiError(msg, { status: res.status, url: urlStr })
     }
     return res.json() as Promise<T>
   }
@@ -74,11 +77,21 @@ export class PwbClient {
 
   async getProperty(slug: string): Promise<Property> {
     const url = new URL(`${this.localizedApiBase}/properties/${encodeURIComponent(slug)}`)
-    const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } })
-    if (res.status === 404) throw new Error('Property not found')
+    const urlStr = url.toString()
+    let res: Response
+    try {
+      res = await fetch(urlStr, { headers: { Accept: 'application/json' } })
+    } catch (err) {
+      console.error(`[pwb] fetch failed for ${urlStr}: ${err instanceof Error ? err.message : String(err)}`)
+      throw new PwbApiError(`Network failure for ${urlStr}`, { url: urlStr, cause: err })
+    }
+    if (res.status === 404) throw new PwbApiError('Property not found', { status: 404, url: urlStr })
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`)
+      throw new PwbApiError((body as { error?: string }).error ?? `HTTP ${res.status}`, {
+        status: res.status,
+        url: urlStr,
+      })
     }
     return res.json() as Promise<Property>
   }

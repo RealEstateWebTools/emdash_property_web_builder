@@ -17,12 +17,17 @@ import PostCard from "../PostCard.astro";
 import TranslationLinks from "../TranslationLinks.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
+import { logPwbUnexpectedError } from "../../lib/pwb/errors";
 import { getReadingTime } from "../../utils/reading-time";
 import { entrySlug, localePath, translateBrand, translateLabel } from "../../lib/locale";
 
 interface Props {
 	locale: string;
 	slug: string;
+}
+
+interface KeyTakeaway {
+	point: string
 }
 
 const { locale, slug } = Astro.props;
@@ -34,7 +39,8 @@ const { entry: post, cacheHint } = safeSlug
 let site = fallbackSite;
 try {
 	site = await createPwbClient(locale).getSiteDetails();
-} catch {
+} catch (err) {
+	logPwbUnexpectedError(`post chrome locale=${locale} slug=${safeSlug ?? ''}`, err);
 	site = fallbackSite;
 }
 
@@ -95,6 +101,10 @@ const publishDate =
 		month: "long",
 		day: "numeric",
 	}) ?? null;
+const postDataWithKeyTakeaways = post?.data as unknown as { key_takeaways?: unknown }
+const keyTakeaways = Array.isArray(postDataWithKeyTakeaways?.key_takeaways)
+	? (postDataWithKeyTakeaways.key_takeaways as KeyTakeaway[])
+	: [];
 
 const postLayoutProps = post ? {
 	site,
@@ -221,11 +231,11 @@ const postLayoutProps = post ? {
 					<TranslationLinks links={alternateLinks} />
 				</header>
 
-				{post.data.key_takeaways && post.data.key_takeaways.length > 0 && (
+				{keyTakeaways.length > 0 && (
 					<div class="key-takeaways">
 						<h2 class="key-takeaways-title">Key Takeaways</h2>
 						<ul class="key-takeaways-list">
-							{post.data.key_takeaways.map((item) => (
+							{keyTakeaways.map((item) => (
 								<li class="key-takeaways-item">{item.point}</li>
 							))}
 						</ul>

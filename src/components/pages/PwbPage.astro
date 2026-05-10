@@ -3,6 +3,8 @@ import { createPwbClient } from '../../lib/pwb/client'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { localePath, translateLabel } from '../../lib/locale'
+import { isPwbNotFoundError, logPwbUnexpectedError } from '../../lib/pwb/errors'
+import { shouldQueryPwbPageSlug } from '../../lib/pwb/page-slug'
 
 interface Props {
   locale: string
@@ -12,23 +14,44 @@ interface Props {
 const { locale, slug } = Astro.props
 const pageSlug = Array.isArray(slug) ? slug.join('/') : (slug ?? 'home')
 
-const client = createPwbClient(locale)
-
 let page = null
 let site = fallbackSite
-let notFound = false
-try {
-  ;[page, site] = await Promise.all([
-    client.getPageBySlug(pageSlug),
-    client.getSiteDetails(),
-  ])
-} catch {
-  notFound = true
+let loadState: 'ok' | 'not_found' | 'unavailable' = 'ok'
+
+if (!shouldQueryPwbPageSlug(pageSlug)) {
+  loadState = 'not_found'
   Astro.response.status = 404
+} else {
+  try {
+    const client = createPwbClient(locale)
+    ;[page, site] = await Promise.all([
+      client.getPageBySlug(pageSlug),
+      client.getSiteDetails(),
+    ])
+  } catch (err) {
+    if (isPwbNotFoundError(err)) {
+      loadState = 'not_found'
+      Astro.response.status = 404
+    } else {
+      loadState = 'unavailable'
+      Astro.response.status = 502
+      logPwbUnexpectedError(`page slug=${pageSlug}`, err)
+    }
+  }
 }
 ---
 
-{notFound || !page ? (
+{loadState === 'unavailable' ? (
+  <BaseLayout site={site} title={translateLabel(locale, 'Page temporarily unavailable')}>
+    <article class="cms-page">
+      <h1>{translateLabel(locale, 'Page temporarily unavailable')}</h1>
+      <section class="page-content-block">
+        <p>{translateLabel(locale, 'Please try again shortly.')}</p>
+        <p><a href={localePath(locale, '/')}>{translateLabel(locale, 'Go back home')}</a></p>
+      </section>
+    </article>
+  </BaseLayout>
+) : loadState === 'not_found' || !page ? (
   <BaseLayout site={site} title={translateLabel(locale, 'Page not found')}>
     <article class="cms-page">
       <h1>404</h1>

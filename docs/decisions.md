@@ -46,6 +46,12 @@ Using SQLite locally keeps the seed tool and the dev server pointed at the same 
 
 **Important:** This route is defined in `src/pages/[...slug].astro`, which has lower precedence than explicit routes. `/properties/...` and `/index` are matched first.
 
+The route now rejects obvious non-CMS paths before calling PWB: asset-like slugs
+with file extensions, internal `_...` paths, WordPress probe paths, and paths
+owned by explicit app routes such as `/api`, `/properties`, `/posts`, `/pages`,
+`/category`, `/tag`, `/search`, and `/valuation`. Normal PWB slugs such as
+`/about` and nested slugs such as `/areas/marbella` still pass through to PWB.
+
 ---
 
 ## Localized API paths (`/api_public/v1/:locale/...`)

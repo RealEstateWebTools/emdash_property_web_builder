@@ -90,14 +90,14 @@ Preferred development command:
 pnpm dev
 ```
 
-This wrapper starts `npx emdash dev --port 4444` and opens the dev-bypass admin URL
+This wrapper starts `npx emdash dev` and opens the dev-bypass admin URL
 automatically.
 
 Important local URLs:
 
-- site: [http://localhost:4444](http://localhost:4444)
-- admin: [http://localhost:4444/_emdash/admin](http://localhost:4444/_emdash/admin)
-- admin bypass: [http://localhost:4444/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin](http://localhost:4444/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin)
+- site: [http://localhost:4321](http://localhost:4321)
+- admin: [http://localhost:4321/_emdash/admin](http://localhost:4321/_emdash/admin)
+- admin bypass: [http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin](http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin)
 
 If you want the raw EmDash dev server instead of the wrapper, you can also run:
 
@@ -105,12 +105,12 @@ If you want the raw EmDash dev server instead of the wrapper, you can also run:
 npx emdash dev
 ```
 
-That typically runs on port `4321`.
+That runs on port `4321` by default.
 
 ## Common Commands
 
 ```bash
-pnpm dev                  # wrapper around emdash dev on port 4444
+pnpm dev                  # wrapper around emdash dev on port 4321
 npx emdash dev            # direct EmDash dev server
 npx emdash seed seed/seed.json
 npx emdash types

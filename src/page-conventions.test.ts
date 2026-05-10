@@ -117,11 +117,12 @@ describe('property detail page conventions', () => {
     expect(source).toContain('getSiteDetails()')
   })
 
-  it('sets 404 status on any error fetching the property', () => {
+  it('sets 404 only for missing properties and uses 502 for upstream failures', () => {
     const source = readSource('src/components/pages/PropertyDetailPage.astro')
-    // Both the catch block and the null-slug case must set 404
-    const count = (source.match(/Astro\.response\.status = 404/g) ?? []).length
-    expect(count, 'should set 404 in both the catch block and the null-slug guard').toBeGreaterThanOrEqual(2)
+    expect(source).toContain('isPwbNotFoundError')
+    expect(source).toContain('Astro.response.status = 404')
+    expect(source).toContain('Astro.response.status = 502')
+    expect(source).toContain('logPwbUnexpectedError')
   })
 })
 
@@ -136,8 +137,8 @@ describe('search page conventions', () => {
   it('gracefully falls back to fallbackSite on PWB error', () => {
     const source = readSource('src/components/pages/SearchPage.astro')
     expect(source).toMatch(/let site\s*=\s*fallbackSite/)
-    // The catch block must also restore fallbackSite
-    expect(source).toMatch(/catch[\s\S]{0,20}site\s*=\s*fallbackSite/)
+    expect(source).toMatch(/catch[\s\S]*site\s*=\s*fallbackSite/)
+    expect(source).toContain('logPwbUnexpectedError')
   })
 })
 

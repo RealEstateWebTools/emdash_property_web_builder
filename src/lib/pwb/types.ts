@@ -32,6 +32,7 @@ export interface PropertySummary {
   for_rent: boolean
   primary_image_url: string | null
   prop_photos: PropPhoto[]
+  updated_at?: string
 }
 
 export interface Property extends PropertySummary {

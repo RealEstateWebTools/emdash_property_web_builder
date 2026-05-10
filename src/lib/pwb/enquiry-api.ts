@@ -11,6 +11,23 @@ export interface EnquiryAttribution {
   ctaSource?: string
 }
 
+const ALLOWED_PAGE_TYPES = new Set(['property', 'contact', 'general'])
+
+function sanitizeTextField(value: unknown, maxLength: number): string | undefined {
+  if (value === undefined || value === null) return undefined
+  const trimmed = String(value)
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .trim()
+  if (!trimmed) return undefined
+  return trimmed.slice(0, maxLength)
+}
+
+function sanitizePageType(value: unknown): string | undefined {
+  const pageType = sanitizeTextField(value, 30)
+  return pageType && ALLOWED_PAGE_TYPES.has(pageType) ? pageType : undefined
+}
+
 interface ErrorBody {
   success: false
   message: string
@@ -49,13 +66,13 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
   const name = String(payload.name ?? '')
   const email = String(payload.email ?? '')
   const message = String(payload.message ?? '')
-  const phone = payload.phone ? String(payload.phone) : undefined
-  const propertyId = payload.property_id ? String(payload.property_id) : undefined
+  const phone = sanitizeTextField(payload.phone, 30)
+  const propertyId = sanitizeTextField(payload.property_id, 80)
 
   const attribution: EnquiryAttribution = {
-    pageType: payload.page_type ? String(payload.page_type) : undefined,
-    propertySlug: payload.property_slug ? String(payload.property_slug) : undefined,
-    ctaSource: payload.cta_source ? String(payload.cta_source) : undefined,
+    pageType: sanitizePageType(payload.page_type),
+    propertySlug: sanitizeTextField(payload.property_slug, 120),
+    ctaSource: sanitizeTextField(payload.cta_source, 80),
   }
 
   const validation = validateEnquiry({ name, email, message })
@@ -95,7 +112,8 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
       message: result.message ?? 'Your enquiry has been sent!',
       data: result.data,
     })
-  } catch {
+  } catch (err) {
+    console.error(`[pwb] enquiry submission failed: ${err instanceof Error ? err.message : String(err)}`)
     return json({
       success: false,
       message: 'Unable to send enquiry at the moment. Please try again.',

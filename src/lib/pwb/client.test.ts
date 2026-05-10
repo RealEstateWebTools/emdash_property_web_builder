@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { PwbClient, createPwbClient } from './client'
+import { PwbApiError, isPwbNotFoundError } from './errors'
 
 const client = new PwbClient('http://localhost:3001')
 
@@ -45,6 +46,10 @@ describe('PwbClient.getProperty', () => {
 
   it('throws when property is not found', async () => {
     await expect(client.getProperty('nonexistent-slug')).rejects.toThrow('Property not found')
+    await expect(client.getProperty('nonexistent-slug')).rejects.toMatchObject({
+      name: 'PwbApiError',
+      status: 404,
+    })
   })
 })
 
@@ -112,6 +117,13 @@ describe('PwbClient error handling', () => {
     await expect(client.getProperty('unknown-slug')).rejects.toThrow('Property not found')
   })
 
+  it('marks page 404 responses as typed not-found errors', async () => {
+    await expect(client.getPageBySlug('nonexistent')).rejects.toMatchObject({
+      name: 'PwbApiError',
+      status: 404,
+    })
+  })
+
   it('getSiteDetails throws when the PWB backend returns a non-2xx status', async () => {
     const { server } = await import('../../test/mocks/pwb-server')
     const { http, HttpResponse } = await import('msw')
@@ -120,7 +132,11 @@ describe('PwbClient error handling', () => {
         new HttpResponse(null, { status: 521 })
       )
     )
-    await expect(client.getSiteDetails()).rejects.toThrow('HTTP 521')
+    await expect(client.getSiteDetails()).rejects.toMatchObject({
+      name: 'PwbApiError',
+      status: 521,
+      message: 'HTTP 521 http://localhost:3001/api_public/v1/en/site_details',
+    })
   })
 
   it('propagates network failures from getSiteDetails', async () => {
@@ -173,6 +189,14 @@ describe('PwbClient error handling', () => {
     await expect(
       client.submitEnquiry({ name: 'Jane', email: 'jane@example.com', message: 'Is this still available?' })
     ).rejects.toThrow()
+  })
+})
+
+describe('PWB error helpers', () => {
+  it('detects typed 404 errors only', () => {
+    expect(isPwbNotFoundError(new PwbApiError('Missing', { status: 404 }))).toBe(true)
+    expect(isPwbNotFoundError(new PwbApiError('Unavailable', { status: 503 }))).toBe(false)
+    expect(isPwbNotFoundError(new Error('Missing'))).toBe(false)
   })
 })
 

@@ -9,6 +9,7 @@ import PropertyGrid from '../PropertyGrid.astro'
 import MapView from '../MapView.astro'
 import { localePath, translateLabel } from '../../lib/locale'
 import type { SearchConfig, SearchResults, SearchFacets } from '../../lib/pwb/types'
+import { logPwbUnexpectedError } from '../../lib/pwb/errors'
 
 interface Props {
   locale: string
@@ -33,7 +34,8 @@ try {
     Promise.all([client.getSiteDetails(), client.getSearchConfig()]),
     Promise.all([client.searchProperties(searchParams), client.getSearchFacets(mode)]),
   ])
-} catch {
+} catch (err) {
+  logPwbUnexpectedError(`property search locale=${locale}`, err)
   site = fallbackSite
 }
 

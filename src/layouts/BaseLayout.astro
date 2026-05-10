@@ -1,5 +1,6 @@
 ---
 import { buildPageMeta } from '../lib/pwb/site-config'
+import { safeJsonLd } from '../lib/safe-json-ld'
 import SiteHeader from '../components/SiteHeader.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import type { SiteDetails } from '../lib/pwb/types'
@@ -137,11 +138,11 @@ const meta = buildPageMeta(siteWithProfile, { locale: currentLocale, title, desc
     ))}
 
     <!-- JSON-LD: site -->
-    <script type="application/ld+json" set:html={JSON.stringify(meta.jsonLd)} />
+    <script type="application/ld+json" set:html={safeJsonLd(meta.jsonLd)} />
 
     <!-- JSON-LD: BreadcrumbList -->
     {breadcrumbs && breadcrumbs.length > 1 && (
-      <script type="application/ld+json" set:html={JSON.stringify({
+      <script type="application/ld+json" set:html={safeJsonLd({
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: breadcrumbs.map((crumb, i) => ({

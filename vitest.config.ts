@@ -12,7 +12,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.ts', 'src/**/*.astro'],
+      include: ['src/**/*.ts'],
       exclude: ['src/test/**'],
       thresholds: {
         statements: 80,

@@ -10,6 +10,8 @@ import {
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PropertyGrid from '../PropertyGrid.astro'
 import { localePath, translateLabel } from '../../lib/locale'
+import { safeJsonLd } from '../../lib/safe-json-ld'
+import { logPwbUnexpectedError } from '../../lib/pwb/errors'
 
 interface Props {
   locale: string
@@ -37,7 +39,8 @@ try {
     client.getSiteDetails(),
     loadHomepageListingGroups(client, merchandising),
   ])
-} catch {
+} catch (err) {
+  logPwbUnexpectedError(`homepage locale=${locale}`, err)
   site = fallbackSite
   featuredGroups = []
 }
@@ -58,7 +61,7 @@ const organizationJsonLd = {
 ---
 
 <BaseLayout site={site} title={homepage?.data.title}>
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
+  <script slot="head" type="application/ld+json" set:html={safeJsonLd(organizationJsonLd)} />
 
   <section class="hero">
     <div class="hero__image-wrapper">

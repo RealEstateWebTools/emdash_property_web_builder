@@ -86,6 +86,34 @@ describe('handleEnquiryRequest', () => {
     })
   })
 
+  it('trims and length-caps optional PWB fields before forwarding', async () => {
+    const client = {
+      submitEnquiry: vi.fn().mockResolvedValue({ success: true }),
+    }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        phone: `  ${'1'.repeat(40)}  `,
+        message: 'I am interested in this property',
+        property_id: `  ${'p'.repeat(90)}  `,
+      }),
+    })
+
+    await handleEnquiryRequest(request, client)
+
+    expect(client.submitEnquiry).toHaveBeenCalledWith({
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      phone: '1'.repeat(30),
+      message: 'I am interested in this property',
+      property_id: 'p'.repeat(80),
+    })
+  })
+
   it('maps upstream validation failures to a safe error response', async () => {
     const client = {
       submitEnquiry: vi.fn().mockResolvedValue({
@@ -168,6 +196,31 @@ describe('buildAttributionNote', () => {
     expect(note).toContain('Page type: property')
     expect(note).toContain('Listing: /properties/luxury-flat-london')
     expect(note).toContain('CTA: book_viewing')
+  })
+
+  it('omits unsupported page types and caps free-form attribution fields', async () => {
+    const client = { submitEnquiry: vi.fn().mockResolvedValue({ success: true }) }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        message: 'Is this still available?',
+        page_type: 'property\nInjected: yes',
+        property_slug: 's'.repeat(140),
+        cta_source: `${'c'.repeat(40)}\nInjected: yes${'d'.repeat(40)}`,
+      }),
+    })
+
+    await handleEnquiryRequest(request, client)
+
+    const submitted = client.submitEnquiry.mock.calls[0][0]
+    expect(submitted.message).not.toContain('Page type:')
+    expect(submitted.message).toContain(`Listing: /properties/${'s'.repeat(120)}`)
+    expect(submitted.message).toContain(`CTA: ${'c'.repeat(40)} Injected: yes${'d'.repeat(26)}`)
+    expect(submitted.message).not.toContain('\nInjected: yes')
   })
 })
 

@@ -12,11 +12,15 @@
 import { spawn, exec } from 'child_process'
 import http from 'http'
 
-const PORT = process.env.PORT ?? 4444
+const PORT = process.env.PORT ?? 4321
 const BYPASS_URL = `http://localhost:${PORT}/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin`
 
 // Start the dev server, inheriting stdio so its output appears normally.
-const server = spawn('npx', ['emdash', 'dev', '--port', String(PORT)], {
+const args = ['emdash', 'dev']
+if (process.env.PORT) {
+  args.push('--port', String(PORT))
+}
+const server = spawn('npx', args, {
   stdio: 'inherit',
   shell: false,
 })

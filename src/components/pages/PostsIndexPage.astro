@@ -3,6 +3,7 @@ import { getEmDashCollection, getEntryTerms } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
+import { logPwbUnexpectedError } from "../../lib/pwb/errors";
 import { getReadingTime } from "../../utils/reading-time";
 import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
@@ -20,7 +21,8 @@ let site = fallbackSite;
 
 try {
 	site = await createPwbClient(locale).getSiteDetails();
-} catch {
+} catch (err) {
+	logPwbUnexpectedError(`posts index chrome locale=${locale}`, err);
 	site = fallbackSite;
 }
 

@@ -10,6 +10,8 @@ import PropertyDetail from '../PropertyDetail.astro'
 import ContactForm from '../ContactForm.astro'
 import SimilarProperties from '../SimilarProperties.astro'
 import { localePath, translateLabel } from '../../lib/locale'
+import { safeJsonLd } from '../../lib/safe-json-ld'
+import { isPwbNotFoundError, logPwbUnexpectedError } from '../../lib/pwb/errors'
 
 interface Props {
   locale: string
@@ -23,6 +25,7 @@ const client = createPwbClient(locale)
 
 let property = null
 let site = fallbackSite
+let loadState: 'ok' | 'not_found' | 'unavailable' = 'ok'
 const siteProfile = await readSiteProfileSettingsFromDb(Astro.locals.emdash?.db)
 
 if (safeSlug) {
@@ -31,10 +34,18 @@ if (safeSlug) {
       client.getProperty(safeSlug),
       client.getSiteDetails(),
     ])
-  } catch {
-    Astro.response.status = 404
+  } catch (err) {
+    if (isPwbNotFoundError(err)) {
+      loadState = 'not_found'
+      Astro.response.status = 404
+    } else {
+      loadState = 'unavailable'
+      Astro.response.status = 502
+      logPwbUnexpectedError(`property slug=${safeSlug}`, err)
+    }
   }
 } else {
+  loadState = 'not_found'
   Astro.response.status = 404
 }
 
@@ -91,7 +102,7 @@ const propertyJsonLd = detail
     ]}
   >
     {propertyJsonLd && (
-      <script slot="head" type="application/ld+json" set:html={JSON.stringify(propertyJsonLd)} />
+      <script slot="head" type="application/ld+json" set:html={safeJsonLd(propertyJsonLd)} />
     )}
     <div class="property-detail-page">
       <div class="property-detail-page__main">
@@ -238,6 +249,14 @@ const propertyJsonLd = detail
         localStorage.setItem(KEY, JSON.stringify(filtered.slice(0, MAX)))
       } catch {}
     </script>
+  </BaseLayout>
+) : loadState === 'unavailable' ? (
+  <BaseLayout site={site} title={translateLabel(locale, 'Property temporarily unavailable')}>
+    <div class="property-detail-page property-detail-page--empty">
+      <h1>{translateLabel(locale, 'Property temporarily unavailable')}</h1>
+      <p>{translateLabel(locale, 'Please try again shortly.')}</p>
+      <p><a href={localePath(locale, '/properties')}>{translateLabel(locale, 'Browse all properties')}</a></p>
+    </div>
   </BaseLayout>
 ) : (
   <BaseLayout site={site} title={translateLabel(locale, 'Page not found')}>

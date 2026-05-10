@@ -6,12 +6,18 @@ import TranslationLinks from "../TranslationLinks.astro";
 import ContactForm from "../ContactForm.astro";
 import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
+import { logPwbUnexpectedError } from "../../lib/pwb/errors";
 import { readSiteProfileSettingsFromDb } from "../../lib/site-profile";
 import { localePath, translateLabel } from "../../lib/locale";
 
 interface Props {
   locale: string
   slug: string
+}
+
+interface PageFaq {
+	question: string
+	answer: string
 }
 
 const { locale, slug } = Astro.props
@@ -25,7 +31,8 @@ const siteProfile = await readSiteProfileSettingsFromDb(Astro.locals.emdash?.db)
 if (page) {
 	try {
 		site = await createPwbClient(locale).getSiteDetails();
-	} catch {
+	} catch (err) {
+		logPwbUnexpectedError(`cms page chrome locale=${locale} slug=${slug}`, err);
 		site = fallbackSite;
 	}
 	Astro.cache.set(cacheHint);
@@ -48,6 +55,10 @@ const alternateLinks = page
 			).values()
 		)
 	: []
+const pageDataWithFaqs = page?.data as unknown as { faqs?: unknown }
+const faqs = Array.isArray(pageDataWithFaqs?.faqs)
+	? (pageDataWithFaqs.faqs as PageFaq[])
+	: []
 ---
 
 {page ? (
@@ -65,11 +76,11 @@ const alternateLinks = page
 			<div class:list={['page-layout', { 'page-layout--contact': slug === 'contact' }]}>
 				<div class="page-content">
 				<PortableText value={page.data.content} />
-				{page.data.faqs && page.data.faqs.length > 0 && (
+				{faqs.length > 0 && (
 					<section class="faqs">
 						<h2 class="faqs-title">Frequently Asked Questions</h2>
 						<dl class="faqs-list">
-							{page.data.faqs.map((faq) => (
+							{faqs.map((faq) => (
 								<details class="faq-item">
 									<summary class="faq-question">{faq.question}</summary>
 									<p class="faq-answer">{faq.answer}</p>
