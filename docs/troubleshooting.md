@@ -233,7 +233,7 @@ Clicking "Sign in with GitHub" or "Sign in with Google" redirects back to the lo
 
 **Cause:** The emdash OAuth routes used `locals.runtime?.env` to read Cloudflare environment bindings (OAuth client ID/secret). Astro v6 removed `locals.runtime` entirely — accessing it now throws instead of returning `undefined`.
 
-**Fix:** The emdash package is patched in `patches/emdash@0.1.0.patch` to use `import("cloudflare:workers")` in Cloudflare Workers, with a fallback to `import.meta.env` for local dev. Both `[provider].ts` and `[provider]/callback.ts` are patched.
+**Fix:** The emdash package is patched in `patches/emdash@0.10.0.patch` to use `import("cloudflare:workers")` in Cloudflare Workers, with a fallback to `import.meta.env` for local dev. Both `[provider].ts` and `[provider]/callback.ts` are patched.
 
 If this error reappears after upgrading emdash, re-apply the patch:
 1. Open a fresh patch edit dir: `pnpm patch emdash@<new-version>`

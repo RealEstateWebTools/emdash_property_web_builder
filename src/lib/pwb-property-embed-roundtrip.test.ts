@@ -24,23 +24,28 @@ describe("EmDash plugin block attr roundtrip", () => {
 		expect(attrs).toEqual({
 			blockType: "propertyEmbed",
 			blockKey: "embed123",
-			slug: "beautiful-villa-marbella",
-			variant: "compact",
-			ctaLabel: "View Property",
-			showMeta: true,
+			id: "",
+			data: {
+				slug: "beautiful-villa-marbella",
+				variant: "compact",
+				ctaLabel: "View Property",
+				showMeta: true,
+			},
 		});
 
 		const roundtrip = pluginBlockAttrsToPortableTextBlock(attrs, () => "generated-key");
 
-		expect(roundtrip).toEqual(block);
+		expect(roundtrip).toEqual({ ...block, id: "" });
 	});
 
 	it("falls back to a generated key when blockKey is missing", () => {
 		const roundtrip = pluginBlockAttrsToPortableTextBlock(
 			{
 				blockType: "propertyEmbed",
-				slug: "beautiful-villa-marbella",
-				variant: "inline",
+				data: {
+					slug: "beautiful-villa-marbella",
+					variant: "inline",
+				},
 			},
 			() => "generated-key",
 		);
@@ -50,6 +55,7 @@ describe("EmDash plugin block attr roundtrip", () => {
 			_key: "generated-key",
 			slug: "beautiful-villa-marbella",
 			variant: "inline",
+			id: "",
 		});
 	});
 
@@ -66,6 +72,7 @@ describe("EmDash plugin block attr roundtrip", () => {
 			blockType: "propertyEmbed",
 			blockKey: "legacy123",
 			id: "beautiful-villa-marbella",
+			data: {},
 		});
 
 		expect(pluginBlockAttrsToPortableTextBlock(attrs, () => "generated-key")).toEqual(block);
@@ -139,12 +146,12 @@ describe("EmDash patch workflow", () => {
 		const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
 		expect(packageJson.pnpm?.patchedDependencies).toEqual({
-			"emdash@0.5.0": "patches/emdash@0.5.0.patch",
+			"emdash@0.10.0": "patches/emdash@0.10.0.patch",
 		});
 	});
 
 	it("tracks the editor fix in the patch file", () => {
-		const patchPath = resolve(process.cwd(), "patches/emdash@0.5.0.patch");
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.10.0.patch");
 		const patch = readFileSync(patchPath, "utf8");
 
 		expect(patch).toContain("src/components/InlinePortableTextEditor.tsx");
@@ -154,7 +161,7 @@ describe("EmDash patch workflow", () => {
 	});
 
 	it("tracks the locale-aware RecentPosts widget fix in the patch file", () => {
-		const patchPath = resolve(process.cwd(), "patches/emdash@0.5.0.patch");
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.10.0.patch");
 		const patch = readFileSync(patchPath, "utf8");
 
 		expect(patch).toContain("src/components/widgets/RecentPosts.astro");

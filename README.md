@@ -138,12 +138,12 @@ This repo now contains several PWB-related plugin efforts:
 
 ## EmDash Patch Workflow
 
-This repository carries a local `pnpm` patch for `emdash@0.1.0` so Portable Text plugin
-blocks can persist arbitrary attributes during editor roundtrips.
+This repository carries a local `pnpm` patch for `emdash@0.10.0` so Portable Text plugin
+blocks preserve their keys and arbitrary attributes during editor roundtrips.
 
 That patch is tracked here:
 
-- [patches/emdash@0.1.0.patch](patches/emdash@0.1.0.patch)
+- [patches/emdash@0.10.0.patch](patches/emdash@0.10.0.patch)
 
 Background and maintenance notes are documented here:
 
