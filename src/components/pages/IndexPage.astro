@@ -20,7 +20,7 @@ interface Props {
 const { locale } = Astro.props
 
 const { entry: homepage, cacheHint } = await getEmDashEntry('pages', 'homepage', { locale })
-Astro.cache.set(cacheHint)
+Astro.cache?.set(cacheHint)
 const homepageData = (homepage?.data ?? undefined) as Record<string, unknown> | undefined
 const preFeaturedContent = Array.isArray(homepageData?.pre_featured_content) ? homepageData.pre_featured_content : []
 const postFeaturedContent = Array.isArray(homepageData?.post_featured_content)

@@ -45,7 +45,7 @@ try {
 }
 
 if (post) {
-	Astro.cache.set(cacheHint);
+	Astro.cache?.set(cacheHint);
 } else {
 	Astro.response.status = 404;
 }

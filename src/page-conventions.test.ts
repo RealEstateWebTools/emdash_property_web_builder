@@ -63,8 +63,8 @@ describe('PWB resilience pattern', () => {
 
 describe('EmDash cache hints', () => {
   /**
-   * Every page that queries EmDash content must call Astro.cache.set(cacheHint)
-   * so that the Cloudflare Worker can cache the response correctly.
+   * Every page that queries EmDash content must pass cache hints to Astro.cache
+   * when the runtime provides it, without crashing when it is absent locally.
    */
   const emdashContentPages = [
     'src/components/pages/IndexPage.astro',
@@ -73,10 +73,10 @@ describe('EmDash cache hints', () => {
     'src/components/pages/CmsPage.astro',
   ]
 
-  it('calls Astro.cache.set for every EmDash content page', () => {
+  it('applies guarded Astro cache hints for every EmDash content page', () => {
     for (const page of emdashContentPages) {
       const source = readSource(page)
-      expect(source, `${page} should call Astro.cache.set(cacheHint)`).toContain('Astro.cache.set(cacheHint)')
+      expect(source, `${page} should guard Astro.cache before setting cacheHint`).toContain('Astro.cache?.set(cacheHint)')
     }
   })
 })

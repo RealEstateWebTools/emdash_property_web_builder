@@ -132,11 +132,11 @@ describe("searchPosts", () => {
 });
 
 describe("SearchPage conventions", () => {
-	it("applies Astro.cache.set(cacheHint) when querying EmDash posts", () => {
+	it("applies guarded Astro cache hints when querying EmDash posts", () => {
 		const source = readFileSync(
 			resolve(process.cwd(), "src/components/pages/SearchPage.astro"),
 			"utf8",
 		);
-		expect(source).toContain("Astro.cache.set(cacheHint)");
+		expect(source).toContain("Astro.cache?.set(cacheHint)");
 	});
 });
