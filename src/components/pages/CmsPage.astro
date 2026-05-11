@@ -35,7 +35,7 @@ if (page) {
 		logPwbUnexpectedError(`cms page chrome locale=${locale} slug=${slug}`, err);
 		site = fallbackSite;
 	}
-	Astro.cache.set(cacheHint);
+	Astro.cache?.set(cacheHint);
 } else {
 	Astro.response.status = 404;
 }

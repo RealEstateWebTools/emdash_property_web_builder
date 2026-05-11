@@ -1,0 +1,217 @@
+diff --git a/src/astro/routes/api/auth/oauth/[provider]/callback.ts b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
+index f7e7cc311773f779be89e9568abe0de5a59c136f..60338ddf9ef9ed61fb9bd7f1995cdbcea7ed1b63 100644
+--- a/src/astro/routes/api/auth/oauth/[provider]/callback.ts
++++ b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
+@@ -115,11 +115,16 @@ export const GET: APIRoute = async ({ params, request, locals, session, redirect
+ 	}
+ 
+ 	try {
+-		// Get OAuth providers from environment
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
+-		const runtimeLocals = locals as unknown as { runtime?: { env?: Record<string, unknown> } };
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
+-		const env = runtimeLocals.runtime?.env ?? (import.meta.env as Record<string, unknown>);
++		// Astro v6 removed locals.runtime.env. Use cloudflare:workers in CF Workers, import.meta.env in dev.
++		let env: Record<string, unknown>;
++		try {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			const cf = await import("cloudflare:workers");
++			env = cf.env as Record<string, unknown>;
++		} catch {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			env = import.meta.env as Record<string, unknown>;
++		}
+ 		const providers = getOAuthConfig(env);
+ 
+ 		if (!providers[provider]) {
+diff --git a/src/astro/routes/api/auth/oauth/[provider].ts b/src/astro/routes/api/auth/oauth/[provider].ts
+index 0d7d8fa63c3283a966b9e5dc4cae489e3058b183..031fc4f9f8c5556a7f4665cf3abc0c5aa393a75f 100644
+--- a/src/astro/routes/api/auth/oauth/[provider].ts
++++ b/src/astro/routes/api/auth/oauth/[provider].ts
+@@ -93,12 +93,16 @@ export const GET: APIRoute = async ({ params, request, locals, redirect }) => {
+ 	try {
+ 		const url = new URL(request.url);
+ 
+-		// Get OAuth providers from environment
+-		// Access via locals.runtime for Cloudflare, or import.meta.env for Node
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
+-		const runtimeLocals = locals as unknown as { runtime?: { env?: Record<string, unknown> } };
+-		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
+-		const env = runtimeLocals.runtime?.env ?? (import.meta.env as Record<string, unknown>);
++		// Astro v6 removed locals.runtime.env. Use cloudflare:workers in CF Workers, import.meta.env in dev.
++		let env: Record<string, unknown>;
++		try {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			const cf = await import("cloudflare:workers");
++			env = cf.env as Record<string, unknown>;
++		} catch {
++			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			env = import.meta.env as Record<string, unknown>;
++		}
+ 		const providers = getOAuthConfig(env);
+ 
+ 		if (!providers[provider]) {
+diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
+index c191a16a91fa6e18ed5ee36e94b1c31aa3842a15..40a861c83a82da521c71897650454bfa4fee1acb 100644
+--- a/src/components/InlinePortableTextEditor.tsx
++++ b/src/components/InlinePortableTextEditor.tsx
+@@ -26,6 +26,10 @@ import * as React from "react";
+ import { createPortal } from "react-dom";
+ 
+ import { computeThumbnailSize } from "../media/thumbnail.js";
++import {
++	pluginBlockAttrsToPortableTextBlock,
++	portableTextPluginBlockToAttrs,
++} from "./plugin-block-attrs.js";
+ 
+ // ── Portable Text types ────────────────────────────────────────────
+ 
+@@ -202,18 +206,8 @@ function convertPMNode(node: PMNode): PTBlock | PTBlock[] | null {
+ 		}
+ 		case "horizontalRule":
+ 			return { _type: "break", _key: k(), style: "lineBreak" };
+-		case "pluginBlock": {
+-			// Spread the captured data back out so the block round-trips losslessly.
+-			// `data` holds every field except _type / _key / id (which live on
+-			// dedicated attrs).
+-			const { blockType, id, data } = node.attrs ?? {};
+-			return {
+-				...(data && typeof data === "object" ? data : {}),
+-				_type: typeof blockType === "string" ? blockType : "embed",
+-				_key: k(),
+-				id: typeof id === "string" ? id : "",
+-			};
+-		}
++		case "pluginBlock":
++			return pluginBlockAttrsToPortableTextBlock(node.attrs, k);
+ 		default:
+ 			return null;
+ 	}
+@@ -418,23 +412,9 @@ function convertPTBlock(block: PTBlock): JSONContent | null {
+ 			},
+ 		};
+ 	}
+-	// Unknown block types — treat as plugin blocks. Capture every field other
+-	// than the well-known ones into `data` so the block round-trips losslessly,
+-	// even if no plugin currently registers this type. Matches the admin
+-	// editor's behaviour at PortableTextEditor.tsx:572-588.
+-	const { _type, _key, id, url, ...rest } = block as { _type: string; _key: string } & Record<
+-		string,
+-		unknown
+-	>;
+-	// Filter out _-prefixed keys to prevent accumulation across edit cycles.
+-	const data = Object.fromEntries(Object.entries(rest).filter(([key]) => !key.startsWith("_")));
+ 	return {
+ 		type: "pluginBlock",
+-		attrs: {
+-			blockType: typeof _type === "string" ? _type : "embed",
+-			id: typeof id === "string" ? id : typeof url === "string" ? url : "",
+-			data,
+-		},
++		attrs: portableTextPluginBlockToAttrs(block),
+ 	};
+ }
+ 
+@@ -800,6 +780,7 @@ const PluginBlockNode = Node.create({
+ 		const noDom = { rendered: false, parseHTML: () => null };
+ 		return {
+ 			blockType: { default: "", ...noDom },
++			blockKey: { default: "", ...noDom },
+ 			id: { default: "", ...noDom },
+ 			data: { default: {}, ...noDom },
+ 		};
+diff --git a/src/components/plugin-block-attrs.ts b/src/components/plugin-block-attrs.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4834ae362ea5c5d6bd05194cf85dcd3376fc36e1
+--- /dev/null
++++ b/src/components/plugin-block-attrs.ts
+@@ -0,0 +1,53 @@
++export interface PortableTextPluginBlock {
++	_type: string;
++	_key: string;
++	[key: string]: unknown;
++}
++
++export interface PluginBlockAttrs extends Record<string, unknown> {
++	blockType: string;
++	blockKey?: string;
++	id?: string;
++	data?: Record<string, unknown>;
++}
++
++function isPlainObject(value: unknown): value is Record<string, unknown> {
++	return typeof value === "object" && value !== null && !Array.isArray(value);
++}
++
++function omitPrivateKeys(value: Record<string, unknown>): Record<string, unknown> {
++	return Object.fromEntries(Object.entries(value).filter(([key]) => !key.startsWith("_")));
++}
++
++export function portableTextPluginBlockToAttrs(block: PortableTextPluginBlock): PluginBlockAttrs {
++	const { _type, _key, id, url, ...rest } = block;
++	return {
++		blockType: typeof _type === "string" && _type ? _type : "embed",
++		blockKey: _key,
++		id: typeof id === "string" ? id : typeof url === "string" ? url : "",
++		data: omitPrivateKeys(rest),
++	};
++}
++
++export function pluginBlockAttrsToPortableTextBlock(
++	attrs: Record<string, unknown> | undefined,
++	generateKey: () => string,
++): PortableTextPluginBlock {
++	const input = isPlainObject(attrs) ? attrs : {};
++	const { blockType, blockKey, type, id, data, ...rest } = input;
++	const resolvedType =
++		typeof blockType === "string" && blockType
++			? blockType
++			: typeof type === "string" && type
++				? type
++				: "embed";
++	const resolvedKey = typeof blockKey === "string" && blockKey ? blockKey : generateKey();
++
++	return {
++		...(isPlainObject(data) ? data : {}),
++		...omitPrivateKeys(rest),
++		_type: resolvedType,
++		_key: resolvedKey,
++		id: typeof id === "string" ? id : "",
++	};
++}
+diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro
+index cef0090a0aeaf52c8b0b74f6505fdb73b57aa94f..3829d30844384c693358672cdb92b46b3c5590bc 100644
+--- a/src/components/widgets/RecentPosts.astro
++++ b/src/components/widgets/RecentPosts.astro
+@@ -9,7 +9,10 @@ interface Props {
+ 
+ const { count = 5, showThumbnails = false, showDate = true } = Astro.props;
+ 
++const currentLocale = Astro.currentLocale ?? "en";
++
+ const { entries: posts } = await getEmDashCollection("posts", {
++	locale: currentLocale,
+ 	limit: count,
+ 	orderBy: { published_at: "desc" },
+ });
+@@ -19,6 +22,11 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
+ 	const val = data[key];
+ 	return typeof val === "string" ? val : undefined;
+ }
++
++function getPostHref(id: string): string {
++	const prefix = currentLocale === "en" ? "" : `/${currentLocale}`;
++	return `${prefix}/posts/${id}`;
++}
+ ---
+ 
+ <ul class="widget-recent-posts">
+@@ -36,7 +44,7 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
+ 							class="widget-recent-posts__thumbnail"
+ 						/>
+ 					)}
+-					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
++					<a href={getPostHref(post.id)} class="widget-recent-posts__link">
+ 						{title}
+ 					</a>
+ 					{showDate && publishedAt && (

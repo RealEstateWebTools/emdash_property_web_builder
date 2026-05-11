@@ -1,7 +1,10 @@
 # EmDash CLI Device Flow Patch
 
-This repository carries a local patch against `emdash@0.1.0` that fixes the OAuth
-Device Flow login when connecting the CLI to a remote EmDash instance.
+This repository previously carried a local patch against `emdash@0.1.0` that fixed
+the OAuth Device Flow login when connecting the CLI to a remote EmDash instance.
+The project now uses `emdash@0.10.0`, where the `login` command unwraps the
+server's `data` envelope directly, so this fix is no longer part of the active
+patch file.
 
 Without this patch, `npx emdash login --url <remote>` prints `undefined` for both
 the browser URL and the device code, then times out immediately — making it impossible
@@ -80,19 +83,20 @@ The patch currently affects two files inside the `emdash` package:
 
 ## How To Reproduce The Patch
 
-The patch is tracked using pnpm's patched dependency workflow:
+The historical patch was tracked using pnpm's patched dependency workflow:
 
 - patch file: `patches/emdash@0.1.0.patch`
 - package wiring: `package.json` (`pnpm.patchedDependencies`)
 - lockfile wiring: `pnpm-lock.yaml`
 
-A normal `pnpm install` reapplies the patch automatically.
+The active patch wiring is now for `emdash@0.10.0` and covers the editor,
+RecentPosts, and OAuth route fixes.
 
 To regenerate the patch from scratch (e.g. after upgrading emdash):
 
 ```bash
-pnpm patch emdash@0.1.0
-# edit node_modules/.pnpm_patches/emdash@0.1.0/dist/cli/index.mjs
+pnpm patch emdash@<new-version>
+# edit the extracted package's CLI login command if the regression returns
 pnpm patch-commit '/path/shown/above'
 ```
 
@@ -146,5 +150,5 @@ pnpm run deploy
 
 ## Related Docs
 
-- [docs/emdash-plugin-block-attr-patch.md](./emdash-plugin-block-attr-patch.md) — the other active patch against `emdash@0.1.0`
-- [patches/emdash@0.1.0.patch](../patches/emdash@0.1.0.patch)
+- [docs/emdash-plugin-block-attr-patch.md](./emdash-plugin-block-attr-patch.md) — active patch notes for `emdash@0.10.0`
+- [patches/emdash@0.10.0.patch](../patches/emdash@0.10.0.patch)

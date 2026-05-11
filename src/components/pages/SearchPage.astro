@@ -19,7 +19,7 @@ const query = Astro.url.searchParams.get("q")?.trim() || "";
 const SEARCH_RESULT_LIMIT = 50;
 
 const { entries: allPosts, cacheHint } = await getEmDashCollection("posts", { locale });
-Astro.cache.set(cacheHint);
+Astro.cache?.set(cacheHint);
 
 let site = fallbackSite;
 try {

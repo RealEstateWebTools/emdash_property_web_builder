@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -24,23 +24,28 @@ describe("EmDash plugin block attr roundtrip", () => {
 		expect(attrs).toEqual({
 			blockType: "propertyEmbed",
 			blockKey: "embed123",
-			slug: "beautiful-villa-marbella",
-			variant: "compact",
-			ctaLabel: "View Property",
-			showMeta: true,
+			id: "",
+			data: {
+				slug: "beautiful-villa-marbella",
+				variant: "compact",
+				ctaLabel: "View Property",
+				showMeta: true,
+			},
 		});
 
 		const roundtrip = pluginBlockAttrsToPortableTextBlock(attrs, () => "generated-key");
 
-		expect(roundtrip).toEqual(block);
+		expect(roundtrip).toEqual({ ...block, id: "" });
 	});
 
 	it("falls back to a generated key when blockKey is missing", () => {
 		const roundtrip = pluginBlockAttrsToPortableTextBlock(
 			{
 				blockType: "propertyEmbed",
-				slug: "beautiful-villa-marbella",
-				variant: "inline",
+				data: {
+					slug: "beautiful-villa-marbella",
+					variant: "inline",
+				},
 			},
 			() => "generated-key",
 		);
@@ -50,6 +55,7 @@ describe("EmDash plugin block attr roundtrip", () => {
 			_key: "generated-key",
 			slug: "beautiful-villa-marbella",
 			variant: "inline",
+			id: "",
 		});
 	});
 
@@ -66,6 +72,7 @@ describe("EmDash plugin block attr roundtrip", () => {
 			blockType: "propertyEmbed",
 			blockKey: "legacy123",
 			id: "beautiful-villa-marbella",
+			data: {},
 		});
 
 		expect(pluginBlockAttrsToPortableTextBlock(attrs, () => "generated-key")).toEqual(block);
@@ -114,14 +121,13 @@ describe("PWB property embed plugin config", () => {
 
 	it("registers a property shortlist route for admin quick-picks", async () => {
 		process.env.PWB_API_URL = "https://example.com";
-		const originalFetch = global.fetch;
-		global.fetch = async () =>
+		vi.stubGlobal("fetch", async () =>
 			({
 				ok: true,
 				json: async () => ({
 					data: [{ slug: "villa-marbella", title: "Villa Marbella", formatted_price: null, reference: null }],
 				}),
-			}) as Response;
+			}) as Response);
 
 		try {
 			const plugin = createPlugin();
@@ -129,7 +135,7 @@ describe("PWB property embed plugin config", () => {
 			const result = await plugin.routes?.["properties/list"]?.handler({} as any);
 			expect(result).toEqual({ items: [{ id: "villa-marbella", name: "Villa Marbella" }] });
 		} finally {
-			global.fetch = originalFetch;
+			vi.unstubAllGlobals();
 		}
 	});
 });
@@ -140,12 +146,12 @@ describe("EmDash patch workflow", () => {
 		const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
 		expect(packageJson.pnpm?.patchedDependencies).toEqual({
-			"emdash@0.5.0": "patches/emdash@0.5.0.patch",
+			"emdash@0.10.0": "patches/emdash@0.10.0.patch",
 		});
 	});
 
 	it("tracks the editor fix in the patch file", () => {
-		const patchPath = resolve(process.cwd(), "patches/emdash@0.5.0.patch");
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.10.0.patch");
 		const patch = readFileSync(patchPath, "utf8");
 
 		expect(patch).toContain("src/components/InlinePortableTextEditor.tsx");
@@ -155,7 +161,7 @@ describe("EmDash patch workflow", () => {
 	});
 
 	it("tracks the locale-aware RecentPosts widget fix in the patch file", () => {
-		const patchPath = resolve(process.cwd(), "patches/emdash@0.5.0.patch");
+		const patchPath = resolve(process.cwd(), "patches/emdash@0.10.0.patch");
 		const patch = readFileSync(patchPath, "utf8");
 
 		expect(patch).toContain("src/components/widgets/RecentPosts.astro");
