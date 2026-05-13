@@ -54,6 +54,10 @@
 		"wrangler": "^4.90.0"
 	},
 	"pnpm": {
+		"overrides": {
+			"kysely": "0.28.17",
+			"yaml": "2.8.4"
+		},
 		"onlyBuiltDependencies": [
 			"msw",
 			"better-sqlite3"
