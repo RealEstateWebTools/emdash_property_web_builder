@@ -56,7 +56,9 @@
 	"pnpm": {
 		"overrides": {
 			"kysely": "0.28.17",
-			"yaml": "2.8.4"
+			"yaml": "2.8.4",
+			"devalue": "5.8.1",
+			"sanitize-html": "2.17.4"
 		},
 		"onlyBuiltDependencies": [
 			"msw",
