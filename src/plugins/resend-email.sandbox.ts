@@ -1,4 +1,4 @@
-import { definePlugin } from 'emdash'
+import type { SandboxedPlugin } from 'emdash/plugin'
 
 const API_KEY_KV = 'settings:api_key'
 const FROM_ADDRESS_KV = 'settings:from_address'
@@ -38,7 +38,7 @@ function buildSettingsBlocks(fromAddress: string, hasApiKey: boolean) {
   ]
 }
 
-export default definePlugin({
+export default {
   hooks: {
     'plugin:install': {
       handler: async (_event: any, ctx: any) => {
@@ -123,4 +123,4 @@ export default definePlugin({
       },
     },
   },
-})
+} satisfies SandboxedPlugin

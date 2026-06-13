@@ -7,7 +7,6 @@
  *   - POST /_emdash/api/plugins/pwb-valuation/admin   (Block Kit admin UI)
  */
 
-import { definePlugin } from "emdash";
 
 export function buildValuationRows(items) {
   return items.map((item) => ({
@@ -62,7 +61,8 @@ export function buildListBlocks(result) {
   ];
 }
 
-export default definePlugin({
+/** @type {import("emdash/plugin").SandboxedPlugin} */
+export default {
   routes: {
     // Public: called by the injected /valuation page on form submit
     submit: {
@@ -132,4 +132,4 @@ export default definePlugin({
       },
     },
   },
-});
+};

@@ -1,4 +1,4 @@
-import { definePlugin } from 'emdash'
+import type { SandboxedPlugin } from 'emdash/plugin'
 import {
   buildThemePreviewDataUrl,
   DEFAULT_THEME_SETTINGS,
@@ -403,7 +403,7 @@ async function writeThemeSettings(ctx: any, settings: ThemeSettings) {
   ])
 }
 
-export default definePlugin({
+export default {
   hooks: {
     'plugin:install': {
       handler: async (_event: any, ctx: any) => {
@@ -456,4 +456,4 @@ export default definePlugin({
       },
     },
   },
-})
+} satisfies SandboxedPlugin

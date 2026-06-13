@@ -1,4 +1,3 @@
-import { definePlugin } from "emdash";
 
 const SETTINGS_KEY = "settings:pwbApiUrl";
 const DEFAULT_LOCALE = "en";
@@ -492,7 +491,8 @@ async function renderList(ctx, state, error) {
 	}
 }
 
-export default definePlugin({
+/** @type {import("emdash/plugin").SandboxedPlugin} */
+export default {
 	routes: {
 		admin: {
 			handler: async (routeCtx, ctx) => {
@@ -609,4 +609,4 @@ export default definePlugin({
 			},
 		},
 	},
-});
+};

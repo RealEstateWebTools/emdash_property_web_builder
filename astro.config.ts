@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
 import { d1, r2 } from "@emdash-cms/cloudflare";
 import { formsPlugin } from "@emdash-cms/plugin-forms";
-import { webhookNotifierPlugin } from "@emdash-cms/plugin-webhook-notifier";
+import webhookNotifierPlugin from "@emdash-cms/plugin-webhook-notifier";
 import { defineConfig, sessionDrivers } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
@@ -23,7 +23,9 @@ const emdashLocalExcludes = [
 	"emdash/storage/local",
 	"emdash/media/local-runtime",
 ];
-const trustedPlugins = [webhookNotifierPlugin(), pwbPropertiesPlugin(), pwbThemePlugin(), siteProfilePlugin(), resendEmailPlugin()];
+// webhook-notifier >= 0.2.0 ships a PluginDescriptor as its default export
+// instead of a factory function — pass it directly, do not call it.
+const trustedPlugins = [webhookNotifierPlugin, pwbPropertiesPlugin(), pwbThemePlugin(), siteProfilePlugin(), resendEmailPlugin()];
 const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbPagePartsPlugin(), pwbValuationPlugin()];
 
 export default defineConfig({

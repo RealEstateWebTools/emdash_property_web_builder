@@ -6,7 +6,7 @@
  * Accessing it now throws instead of returning undefined, breaking GitHub/Google
  * login in production.
  *
- * The patch in patches/emdash@0.10.0.patch replaces the locals.runtime access
+ * The patch in patches/emdash@0.19.0.patch replaces the locals.runtime access
  * with a dynamic `import("cloudflare:workers")` that falls back to
  * `import.meta.env` for local dev (Node.js).
  *
@@ -24,7 +24,7 @@ import { describe, it, expect } from 'vitest'
 
 const ROOT = resolve(process.cwd())
 
-const PATCH_FILE = resolve(ROOT, 'patches/emdash@0.10.0.patch')
+const PATCH_FILE = resolve(ROOT, 'patches/emdash@0.19.0.patch')
 const PROVIDER_ROUTE = resolve(
   ROOT,
   'node_modules/emdash/src/astro/routes/api/auth/oauth/[provider].ts',
@@ -60,7 +60,7 @@ describe('emdash OAuth patch — installed files', () => {
     const source = readFileSync(PROVIDER_ROUTE, 'utf-8')
     expect(
       source,
-      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route — re-apply patches/emdash@0.10.0.patch',
+      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route — re-apply patches/emdash@0.19.0.patch',
     ).not.toContain('runtimeLocals.runtime?.env')
   })
 
@@ -74,7 +74,7 @@ describe('emdash OAuth patch — installed files', () => {
     const source = readFileSync(CALLBACK_ROUTE, 'utf-8')
     expect(
       source,
-      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route — re-apply patches/emdash@0.10.0.patch',
+      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route — re-apply patches/emdash@0.19.0.patch',
     ).not.toContain('runtimeLocals.runtime?.env')
   })
 

@@ -84,7 +84,7 @@ describe('pwb-theme admin route', () => {
 
     const result = await themePlugin.routes!.admin.handler({ input: {} }, { kv })
 
-    expect(result.blocks[2].fields).toEqual([
+    expect((result.blocks[2] as { fields: unknown[] }).fields).toEqual([
       { label: 'Preset', value: 'Custom' },
       { label: 'Palette', value: 'nordic' },
       { label: 'Density', value: 'spacious' },
@@ -96,10 +96,10 @@ describe('pwb-theme admin route', () => {
     expect(result.blocks[5].type).toBe('section')
     expect(result.blocks[6].type).toBe('actions')
     expect(result.blocks[7].type).toBe('actions')
-    expect(result.blocks[8].fields).toHaveLength(5)
+    expect((result.blocks[8] as { fields: unknown[] }).fields).toHaveLength(5)
     expect(result.blocks[9].type).toBe('image')
-    expect(result.blocks[11].fields).toHaveLength(5)
-    expect(result.blocks[12].fields).toHaveLength(5)
+    expect((result.blocks[11] as { fields: unknown[] }).fields).toHaveLength(5)
+    expect((result.blocks[12] as { fields: unknown[] }).fields).toHaveLength(5)
   })
 
   it('persists the expanded settings set on save', async () => {

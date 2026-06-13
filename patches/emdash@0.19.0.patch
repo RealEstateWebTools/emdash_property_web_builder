@@ -1,58 +1,59 @@
 diff --git a/src/astro/routes/api/auth/oauth/[provider]/callback.ts b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
-index f7e7cc311773f779be89e9568abe0de5a59c136f..60338ddf9ef9ed61fb9bd7f1995cdbcea7ed1b63 100644
+index e49c2acdc30c00c61449ceb4e59b3ef7514f3572..47c1755f719355b512f5830c89856ebcd49e9a74 100644
 --- a/src/astro/routes/api/auth/oauth/[provider]/callback.ts
 +++ b/src/astro/routes/api/auth/oauth/[provider]/callback.ts
-@@ -115,11 +115,16 @@ export const GET: APIRoute = async ({ params, request, locals, session, redirect
- 	}
+@@ -116,10 +116,18 @@ export const GET: APIRoute = async ({ params, request, locals, session, redirect
  
  	try {
--		// Get OAuth providers from environment
--		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
+ 		// Get OAuth providers from environment
+-		// eslint-disable-next-line typescript/no-unsafe-type-assertion -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
 -		const runtimeLocals = locals as unknown as { runtime?: { env?: Record<string, unknown> } };
--		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
+-		// eslint-disable-next-line typescript/no-unsafe-type-assertion -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
 -		const env = runtimeLocals.runtime?.env ?? (import.meta.env as Record<string, unknown>);
-+		// Astro v6 removed locals.runtime.env. Use cloudflare:workers in CF Workers, import.meta.env in dev.
++		// Astro v6 removed locals.runtime.env. Read bindings via cloudflare:workers
++		// on Workers, falling back to import.meta.env in dev (Node).
++		// Local patch — see patches/emdash@0.19.0.patch.
 +		let env: Record<string, unknown>;
 +		try {
-+			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
 +			const cf = await import("cloudflare:workers");
++			// eslint-disable-next-line typescript/no-unsafe-type-assertion
 +			env = cf.env as Record<string, unknown>;
 +		} catch {
-+			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			// eslint-disable-next-line typescript/no-unsafe-type-assertion
 +			env = import.meta.env as Record<string, unknown>;
 +		}
  		const providers = getOAuthConfig(env);
  
  		if (!providers[provider]) {
 diff --git a/src/astro/routes/api/auth/oauth/[provider].ts b/src/astro/routes/api/auth/oauth/[provider].ts
-index 0d7d8fa63c3283a966b9e5dc4cae489e3058b183..031fc4f9f8c5556a7f4665cf3abc0c5aa393a75f 100644
+index a9706888fcac56cafca29ecf43fd5e5e0b04b38b..e9a34981d4c10c3d797a100a68990e1adf6fdf4b 100644
 --- a/src/astro/routes/api/auth/oauth/[provider].ts
 +++ b/src/astro/routes/api/auth/oauth/[provider].ts
-@@ -93,12 +93,16 @@ export const GET: APIRoute = async ({ params, request, locals, redirect }) => {
- 	try {
- 		const url = new URL(request.url);
+@@ -95,10 +95,18 @@ export const GET: APIRoute = async ({ params, request, locals, redirect }) => {
  
--		// Get OAuth providers from environment
--		// Access via locals.runtime for Cloudflare, or import.meta.env for Node
--		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
+ 		// Get OAuth providers from environment
+ 		// Access via locals.runtime for Cloudflare, or import.meta.env for Node
+-		// eslint-disable-next-line typescript/no-unsafe-type-assertion -- locals.runtime is injected by the Cloudflare adapter at runtime; not declared on App.Locals since the adapter is optional
 -		const runtimeLocals = locals as unknown as { runtime?: { env?: Record<string, unknown> } };
--		// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion) -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
+-		// eslint-disable-next-line typescript/no-unsafe-type-assertion -- import.meta.env is typed as ImportMetaEnv but we need Record<string, unknown> for getOAuthConfig
 -		const env = runtimeLocals.runtime?.env ?? (import.meta.env as Record<string, unknown>);
-+		// Astro v6 removed locals.runtime.env. Use cloudflare:workers in CF Workers, import.meta.env in dev.
++		// Astro v6 removed locals.runtime.env. Read bindings via cloudflare:workers
++		// on Workers, falling back to import.meta.env in dev (Node).
++		// Local patch — see patches/emdash@0.19.0.patch.
 +		let env: Record<string, unknown>;
 +		try {
-+			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
 +			const cf = await import("cloudflare:workers");
++			// eslint-disable-next-line typescript/no-unsafe-type-assertion
 +			env = cf.env as Record<string, unknown>;
 +		} catch {
-+			// eslint-disable-next-line typescript-eslint(no-unsafe-type-assertion)
++			// eslint-disable-next-line typescript/no-unsafe-type-assertion
 +			env = import.meta.env as Record<string, unknown>;
 +		}
  		const providers = getOAuthConfig(env);
  
  		if (!providers[provider]) {
 diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
-index c191a16a91fa6e18ed5ee36e94b1c31aa3842a15..40a861c83a82da521c71897650454bfa4fee1acb 100644
+index f4d9efca09e31d131f3a3c9605b94ed227e493f9..35162f7e5498aaf1920c705c772d869923f852e2 100644
 --- a/src/components/InlinePortableTextEditor.tsx
 +++ b/src/components/InlinePortableTextEditor.tsx
 @@ -26,6 +26,10 @@ import * as React from "react";
@@ -63,10 +64,10 @@ index c191a16a91fa6e18ed5ee36e94b1c31aa3842a15..40a861c83a82da521c71897650454bfa
 +	pluginBlockAttrsToPortableTextBlock,
 +	portableTextPluginBlockToAttrs,
 +} from "./plugin-block-attrs.js";
+ import { InlineCodeBlockExtension } from "./inline-code-block.js";
  
  // ── Portable Text types ────────────────────────────────────────────
- 
-@@ -202,18 +206,8 @@ function convertPMNode(node: PMNode): PTBlock | PTBlock[] | null {
+@@ -211,18 +215,8 @@ function convertPMNode(node: PMNode): PTBlock | PTBlock[] | null {
  		}
  		case "horizontalRule":
  			return { _type: "break", _key: k(), style: "lineBreak" };
@@ -87,7 +88,7 @@ index c191a16a91fa6e18ed5ee36e94b1c31aa3842a15..40a861c83a82da521c71897650454bfa
  		default:
  			return null;
  	}
-@@ -418,23 +412,9 @@ function convertPTBlock(block: PTBlock): JSONContent | null {
+@@ -434,23 +428,9 @@ function convertPTBlock(block: PTBlock): JSONContent | null {
  			},
  		};
  	}
@@ -112,7 +113,7 @@ index c191a16a91fa6e18ed5ee36e94b1c31aa3842a15..40a861c83a82da521c71897650454bfa
  	};
  }
  
-@@ -800,6 +780,7 @@ const PluginBlockNode = Node.create({
+@@ -869,6 +849,7 @@ const PluginBlockNode = Node.create({
  		const noDom = { rendered: false, parseHTML: () => null };
  		return {
  			blockType: { default: "", ...noDom },

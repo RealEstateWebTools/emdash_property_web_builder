@@ -33,6 +33,12 @@
 	},
 	// kv_namespaces: wrangler will auto-provision SESSION on first deploy.
 	// After provisioning, wrangler writes the ID to dist/server/wrangler.json (not committed).
+	// Cron Trigger drives EmDash scheduled publishing + plugin cron (emdash >= 0.19).
+	"triggers": {
+		"crons": [
+			"* * * * *",
+		],
+	},
 	"observability": {
 		"enabled": true,
 	},

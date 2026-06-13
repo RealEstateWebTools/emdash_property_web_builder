@@ -1,4 +1,5 @@
-import { definePlugin, extractPlainText, getEmDashEntry, getMenu, getPluginSetting, getSiteSettings } from 'emdash'
+import { extractPlainText, getEmDashEntry, getMenu, getPluginSetting, getSiteSettings } from 'emdash'
+import type { SandboxedPlugin } from 'emdash/plugin'
 import {
   DEFAULT_SITE_PROFILE_SETTINGS,
   SITE_PROFILE_PROPERTY_CTA_BODY_KV_KEY,
@@ -514,7 +515,7 @@ async function buildWebsiteSummary(ctx: any) {
   }
 }
 
-export default definePlugin({
+export default {
   hooks: {
     'plugin:install': {
       handler: async (_event: any, ctx: any) => {
@@ -567,4 +568,4 @@ export default definePlugin({
       },
     },
   },
-})
+} satisfies SandboxedPlugin
