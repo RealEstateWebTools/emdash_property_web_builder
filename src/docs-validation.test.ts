@@ -54,8 +54,8 @@ function extractPnpmCommands(content: string, filePath: string) {
   const results: Array<{ script: string; command: string; file: string; lineNum: number }> = []
   const codeBlockRe = /```(?:bash|sh|shell)?\n([\s\S]*?)```/g
 
-  let match: RegExpExecArray | null
-  while ((match = codeBlockRe.exec(content)) !== null) {
+  let match = codeBlockRe.exec(content)
+  while (match !== null) {
     const blockContent = match[1]
     const blockStart = content.slice(0, match.index).split('\n').length
 
@@ -74,6 +74,8 @@ function extractPnpmCommands(content: string, filePath: string) {
         lineNum: blockStart + i,
       })
     }
+
+    match = codeBlockRe.exec(content)
   }
   return results
 }

@@ -58,6 +58,52 @@ describe('handleEnquiryRequest', () => {
     expect(client.submitEnquiry).not.toHaveBeenCalled()
   })
 
+  it('silently drops submissions with a filled honeypot and never calls the backend', async () => {
+    const client = {
+      submitEnquiry: vi.fn(),
+    }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Spam Bot',
+        email: 'bot@example.com',
+        message: 'Buy cheap watches at example.com',
+        website: 'http://spam.example.com',
+      }),
+    })
+
+    const response = await handleEnquiryRequest(request, client)
+    const body = await response.json() as { success: boolean }
+
+    // Returns a fake success so the bot gets no signal the submission was dropped.
+    expect(response.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(client.submitEnquiry).not.toHaveBeenCalled()
+  })
+
+  it('processes submissions normally when the honeypot is empty', async () => {
+    const client = {
+      submitEnquiry: vi.fn().mockResolvedValue({ success: true }),
+    }
+
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        message: 'I am interested in this property',
+        website: '',
+      }),
+    })
+
+    await handleEnquiryRequest(request, client)
+
+    expect(client.submitEnquiry).toHaveBeenCalledOnce()
+  })
+
   it('forwards valid payload to PWB in the expected shape', async () => {
     const client = {
       submitEnquiry: vi.fn().mockResolvedValue({ success: true }),
@@ -298,7 +344,7 @@ describe('ContactForm integration contract', () => {
     const filePath = resolve(process.cwd(), 'src/components/ContactForm.astro')
     const source = readFileSync(filePath, 'utf8')
 
-    expect(source).toMatch(/fetch\(['\"]\/api\/enquiries['\"]/)
+    expect(source).toMatch(/fetch\(['"]\/api\/enquiries['"]/)
     expect(source).not.toContain('meta[name="pwb-api-url"]')
   })
 

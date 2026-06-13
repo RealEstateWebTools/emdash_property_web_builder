@@ -17,6 +17,7 @@ function sanitizeTextField(value: unknown, maxLength: number): string | undefine
   if (value === undefined || value === null) return undefined
   const trimmed = String(value)
     .replace(/[\r\n\t]+/g, ' ')
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional -- strip control chars from untrusted input
     .replace(/[\u0000-\u001f\u007f]/g, '')
     .trim()
   if (!trimmed) return undefined
@@ -61,6 +62,13 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
       success: false,
       message: 'Invalid JSON payload.',
     } satisfies ErrorBody, 400)
+  }
+
+  // Honeypot: a hidden field real users never fill. Bots that auto-fill every
+  // input will populate it. Silently return success so spammers get no signal
+  // that the submission was dropped, and never touch the backend.
+  if (sanitizeTextField(payload.website, 200)) {
+    return json({ success: true, message: 'Your enquiry has been sent!' })
   }
 
   const name = String(payload.name ?? '')

@@ -11,6 +11,12 @@ import type {
 } from './types'
 import { PwbApiError } from './errors'
 
+// Cap every backend call so a slow or hung PWB instance can't tie up a Worker
+// invocation until Cloudflare's own subrequest limit fires. Pages that call the
+// client already degrade gracefully (see fallbackSite), so an abort surfaces as
+// a normal PwbApiError.
+const DEFAULT_TIMEOUT_MS = 8000
+
 export class PwbClient {
   baseUrl: string
   locale: string
@@ -47,6 +53,7 @@ export class PwbClient {
     try {
       res = await fetch(urlStr, {
         headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
       })
     } catch (err) {
       console.error(`[pwb] fetch failed for ${urlStr}: ${err instanceof Error ? err.message : String(err)}`)
@@ -80,7 +87,10 @@ export class PwbClient {
     const urlStr = url.toString()
     let res: Response
     try {
-      res = await fetch(urlStr, { headers: { Accept: 'application/json' } })
+      res = await fetch(urlStr, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+      })
     } catch (err) {
       console.error(`[pwb] fetch failed for ${urlStr}: ${err instanceof Error ? err.message : String(err)}`)
       throw new PwbApiError(`Network failure for ${urlStr}`, { url: urlStr, cause: err })
@@ -117,9 +127,19 @@ export class PwbClient {
         Accept: 'application/json',
       },
       body: JSON.stringify({ enquiry: input }),
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     })
     // Enquiry endpoint returns 201 on success or 422 on validation failure.
-    // Both return parseable JSON — do not throw on non-ok here.
+    // Both return parseable JSON — do not throw on those statuses. But a 5xx or
+    // an edge/proxy error page may return HTML; guard so res.json() doesn't throw
+    // an opaque SyntaxError. The caller treats a thrown error as a 502.
+    const contentType = res.headers.get('content-type') ?? ''
+    if (!contentType.includes('application/json')) {
+      throw new PwbApiError(`Unexpected ${res.status} response from enquiry endpoint`, {
+        status: res.status,
+        url,
+      })
+    }
     return res.json() as Promise<EnquiryResponse>
   }
 }

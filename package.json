@@ -3,6 +3,10 @@
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",
+	"packageManager": "pnpm@10.28.0",
+	"engines": {
+		"node": ">=22"
+	},
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
 		"seed": "node scripts/seed.mjs",
@@ -23,6 +27,9 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
+		"lint": "biome lint",
+		"lint:fix": "biome lint --write",
+		"format": "biome format --write",
 		"check": "astro check && vitest run"
 	},
 	"dependencies": {
@@ -44,6 +51,7 @@
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.9",
+		"@biomejs/biome": "^2.4.16",
 		"@cloudflare/workers-types": "^4.20260510.1",
 		"@playwright/test": "^1.59.1",
 		"@types/better-sqlite3": "^7.6.13",
@@ -58,7 +66,9 @@
 			"kysely": "0.28.17",
 			"yaml": "2.8.4",
 			"devalue": "5.8.1",
-			"sanitize-html": "2.17.4"
+			"sanitize-html": "2.17.4",
+			"ws": ">=8.20.1",
+			"qs": ">=6.15.2"
 		},
 		"onlyBuiltDependencies": [
 			"msw",

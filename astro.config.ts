@@ -62,7 +62,7 @@ export default defineConfig({
 				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
 			mcp: true,
-			plugins: isDev ? [...bundledPlugins, ...trustedPlugins] : [...bundledPlugins, ...trustedPlugins],
+			plugins: [...bundledPlugins, ...trustedPlugins],
 			sandboxed: [],
 			sandboxRunner: undefined,
 			marketplace: undefined,

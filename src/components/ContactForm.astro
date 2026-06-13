@@ -59,6 +59,12 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
     <input type="tel" id={phoneId} name="phone" autocomplete="tel" />
   </div>
 
+  {/* Honeypot — hidden from users, attractive to bots. Leave empty. */}
+  <div class="contact-form__hp" aria-hidden="true">
+    <label for={`${formId}-website`}>Website</label>
+    <input type="text" id={`${formId}-website`} name="website" tabindex="-1" autocomplete="off" />
+  </div>
+
   <div class="form-group">
     <label for={messageId}>{translateLabel(currentLocale, 'Message *')}</label>
     <textarea id={messageId} name="message" rows="5" required></textarea>
@@ -135,6 +141,7 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
             page_type: pageType,
             property_slug: propertySlug,
             cta_source: ctaSource,
+            website: data.website || undefined,
           }),
         })
 
@@ -191,6 +198,14 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
     margin: 0 0 1.1rem;
     color: var(--color-text-soft);
     line-height: 1.75;
+  }
+
+  .contact-form__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
 
   .form-group {
