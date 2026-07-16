@@ -31,8 +31,9 @@ describe('PWB resilience pattern', () => {
    * This ensures the page renders (with degraded branding) even when the
    * PWB backend is unreachable.
    */
+  // PropertyDetailPage and PwbPage receive `site` via props from
+  // src/lib/page-loaders.ts, which applies the same fallback pattern.
   const pwbBackedPages = [
-    'src/components/pages/PropertyDetailPage.astro',
     'src/components/pages/PropertyIndexPage.astro',
     'src/components/pages/PostPage.astro',
     'src/components/pages/PostsIndexPage.astro',
@@ -105,23 +106,26 @@ describe('property index page conventions', () => {
 // ─── Property detail conventions ─────────────────────────────────────────────
 
 describe('property detail page conventions', () => {
+  // Data loading and status decisions live in the page loader (called from
+  // route frontmatter, where Astro 7 still honours response status) — the
+  // component only renders what it is given.
   it('creates PWB client with locale', () => {
-    const source = readSource('src/components/pages/PropertyDetailPage.astro')
+    const source = readSource('src/lib/page-loaders.ts')
     expect(source).toContain('createPwbClient(locale)')
   })
 
   it('fetches site details and property in parallel', () => {
-    const source = readSource('src/components/pages/PropertyDetailPage.astro')
+    const source = readSource('src/lib/page-loaders.ts')
     expect(source).toContain('Promise.all')
     expect(source).toContain('getProperty(')
     expect(source).toContain('getSiteDetails()')
   })
 
   it('sets 404 only for missing properties and uses 502 for upstream failures', () => {
-    const source = readSource('src/components/pages/PropertyDetailPage.astro')
+    const source = readSource('src/lib/page-loaders.ts')
     expect(source).toContain('isPwbNotFoundError')
-    expect(source).toContain('Astro.response.status = 404')
-    expect(source).toContain('Astro.response.status = 502')
+    expect(source).toContain("if (loadState === 'not_found') return 404")
+    expect(source).toContain("if (loadState === 'unavailable') return 502")
     expect(source).toContain('logPwbUnexpectedError')
   })
 })

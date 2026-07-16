@@ -36,11 +36,36 @@ describe('not-found route conventions', () => {
     }
   })
 
-  it('marks missing content with a direct 404 response', () => {
+  it('marks missing content with a status set in route frontmatter', () => {
+    // Astro 7 fixes the Response status once the page frontmatter finishes,
+    // so the status must be applied in the route itself (via a page loader),
+    // never inside a shared component.
     for (const route of directNotFoundRoutes) {
-		const source = readRouteAndSharedPageSource(route)
+      const source = readSource(route)
 
-      expect(source, `${route} should set a 404 response status`).toContain('Astro.response.status = 404')
+      expect(source, `${route} should load data via a page loader`).toMatch(/from '.*\/lib\/page-loaders'/)
+      expect(source, `${route} should apply the loader status in frontmatter`).toContain(
+        'if (load.status) Astro.response.status = load.status',
+      )
+    }
+  })
+
+  it('never sets a response status inside shared page components', () => {
+    // Component-level Astro.response.status assignments are silently ignored
+    // under Astro 7 streaming — the header has already been flushed. This
+    // regressed 404s to 200s after the Astro 6→7 upgrade; keep status logic
+    // in route frontmatter / page loaders only.
+    for (const route of directNotFoundRoutes) {
+      const routeSource = readSource(route)
+      const sharedPageImport = routeSource.match(/from ['"](.+components\/pages\/.+\.astro)['"]/)?.[1]
+      expect(sharedPageImport, `${route} should render a shared page component`).toBeTruthy()
+
+      const componentPath = resolve(ROOT, dirname(route), sharedPageImport!)
+      const componentSource = readFileSync(componentPath, 'utf8')
+      expect(
+        componentSource,
+        `${sharedPageImport} must not set Astro.response.status (ignored during streaming)`,
+      ).not.toContain('Astro.response.status')
     }
   })
 

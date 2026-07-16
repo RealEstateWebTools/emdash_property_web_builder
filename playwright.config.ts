@@ -15,7 +15,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:4321',
+    // Override with PW_BASE_URL when the dev server runs on another port.
+    baseURL: process.env.PW_BASE_URL ?? 'http://localhost:4321',
     trace: 'on-first-retry',
   },
   projects: [

@@ -63,8 +63,10 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
+      # The E2E specs assume demo content exists (blog.spec.ts expects the
+      # seeded posts; minimal.json seeds no posts at all).
       - name: Seed database
-        run: pnpm seed:minimal
+        run: pnpm seed:demo
         env:
           NODE_ENV: development
 

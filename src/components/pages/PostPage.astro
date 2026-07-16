@@ -1,6 +1,5 @@
 ---
 import {
-	getEmDashEntry,
 	getEmDashCollection,
 	getEntryTerms,
 	getTranslations,
@@ -24,17 +23,17 @@ import { entrySlug, localePath, translateBrand, translateLabel } from "../../lib
 interface Props {
 	locale: string;
 	slug: string;
+	/** Entry loaded by the route via loadPostEntry — the route also owns the 404 status. */
+	post: Awaited<ReturnType<typeof import("../../lib/page-loaders").loadPostEntry>>["post"];
+	cacheHint: Awaited<ReturnType<typeof import("../../lib/page-loaders").loadPostEntry>>["cacheHint"];
 }
 
 interface KeyTakeaway {
 	point: string
 }
 
-const { locale, slug } = Astro.props;
+const { locale, slug, post, cacheHint } = Astro.props;
 const safeSlug = slug ?? null;
-const { entry: post, cacheHint } = safeSlug
-	? await getEmDashEntry("posts", safeSlug, { locale })
-	: { entry: null, cacheHint: undefined };
 
 let site = fallbackSite;
 try {
@@ -44,10 +43,8 @@ try {
 	site = fallbackSite;
 }
 
-if (post) {
+if (post && cacheHint) {
 	Astro.cache?.set(cacheHint);
-} else {
-	Astro.response.status = 404;
 }
 const postPath = localePath(locale, `/posts/${safeSlug}`);
 const canonicalHref = post ? new URL(postPath, Astro.url.origin).href : null;

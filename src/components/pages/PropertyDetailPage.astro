@@ -1,8 +1,6 @@
 ---
-import { createPwbClient } from '../../lib/pwb/client'
 import { formatPropertyDetail } from '../../lib/pwb/detail-formatter'
 import { htmlToMetaDescription } from '../../lib/pwb/formatters'
-import { fallbackSite } from '../../lib/pwb/fallback-site'
 import { buildPropertyCtaModel } from '../../lib/property-cta'
 import { readSiteProfileSettingsFromDb } from '../../lib/site-profile'
 import BaseLayout from '../../layouts/BaseLayout.astro'
@@ -11,43 +9,20 @@ import ContactForm from '../ContactForm.astro'
 import SimilarProperties from '../SimilarProperties.astro'
 import { localePath, translateLabel } from '../../lib/locale'
 import { safeJsonLd } from '../../lib/safe-json-ld'
-import { isPwbNotFoundError, logPwbUnexpectedError } from '../../lib/pwb/errors'
 
 interface Props {
   locale: string
   slug: string
+  /** Data loaded by the route via loadPropertyDetail — the route also owns the 404/502 status. */
+  property: Awaited<ReturnType<typeof import('../../lib/page-loaders').loadPropertyDetail>>['property']
+  site: Awaited<ReturnType<typeof import('../../lib/page-loaders').loadPropertyDetail>>['site']
+  loadState: Awaited<ReturnType<typeof import('../../lib/page-loaders').loadPropertyDetail>>['loadState']
 }
 
-const { locale, slug } = Astro.props
+const { locale, slug, property, site, loadState } = Astro.props
 const safeSlug = slug ?? null
 
-const client = createPwbClient(locale)
-
-let property = null
-let site = fallbackSite
-let loadState: 'ok' | 'not_found' | 'unavailable' = 'ok'
 const siteProfile = await readSiteProfileSettingsFromDb(Astro.locals.emdash?.db)
-
-if (safeSlug) {
-  try {
-    ;[property, site] = await Promise.all([
-      client.getProperty(safeSlug),
-      client.getSiteDetails(),
-    ])
-  } catch (err) {
-    if (isPwbNotFoundError(err)) {
-      loadState = 'not_found'
-      Astro.response.status = 404
-    } else {
-      loadState = 'unavailable'
-      Astro.response.status = 502
-      logPwbUnexpectedError(`property slug=${safeSlug}`, err)
-    }
-  }
-} else {
-  loadState = 'not_found'
-  Astro.response.status = 404
-}
 
 const detail = property ? formatPropertyDetail(property) : null
 const similarListing = property?.page_contents.find(

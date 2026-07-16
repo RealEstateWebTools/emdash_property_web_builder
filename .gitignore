@@ -17,3 +17,5 @@ emdash-lms
 wrangler.prod.jsonc
 .claude/settings.local.json
 coverage/
+playwright-report/
+test-results/

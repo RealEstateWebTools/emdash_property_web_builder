@@ -48,8 +48,9 @@ describe('localized route conventions', () => {
     const root = readSource('src/pages/pages/[slug].astro')
     const localized = readSource('src/pages/[lang]/pages/[slug].astro')
 
-    expect(root).toContain('<CmsPage locale={locale} slug={slug} />')
-    expect(localized).toContain('<CmsPage locale={locale} slug={slug} />')
+    const expected = '<CmsPage locale={locale} slug={slug} page={load.page} cacheHint={load.cacheHint} />'
+    expect(root).toContain(expected)
+    expect(localized).toContain(expected)
   })
 
   it('keeps localized UI text centralized in the locale helper', () => {

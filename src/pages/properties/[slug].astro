@@ -1,9 +1,24 @@
 ---
 import PropertyDetailPage from '../../components/pages/PropertyDetailPage.astro'
 import { DEFAULT_LOCALE } from '../../lib/locale'
+import { loadPropertyDetail } from '../../lib/page-loaders'
 
 const locale = Astro.currentLocale ?? DEFAULT_LOCALE
 const { slug } = Astro.params
+// Status must be set in route frontmatter — Astro 7 fixes the Response
+// status before components render (see src/lib/page-loaders.ts).
+const load = await loadPropertyDetail(locale, slug)
+if (load.status) Astro.response.status = load.status
 ---
 
-{slug ? <PropertyDetailPage locale={locale} slug={slug} /> : null}
+{
+  slug ? (
+    <PropertyDetailPage
+      locale={locale}
+      slug={slug}
+      property={load.property}
+      site={load.site}
+      loadState={load.loadState}
+    />
+  ) : null
+}

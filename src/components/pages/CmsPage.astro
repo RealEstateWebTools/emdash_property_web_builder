@@ -1,5 +1,5 @@
 ---
-import { getEmDashEntry, getTranslations } from "emdash";
+import { getTranslations } from "emdash";
 import { PortableText } from "emdash/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TranslationLinks from "../TranslationLinks.astro";
@@ -13,6 +13,9 @@ import { localePath, translateLabel } from "../../lib/locale";
 interface Props {
   locale: string
   slug: string
+  /** Entry loaded by the route via loadCmsEntry — the route also owns the 404 status. */
+  page: Awaited<ReturnType<typeof import("../../lib/page-loaders").loadCmsEntry>>["page"];
+  cacheHint: Awaited<ReturnType<typeof import("../../lib/page-loaders").loadCmsEntry>>["cacheHint"];
 }
 
 interface PageFaq {
@@ -20,11 +23,7 @@ interface PageFaq {
 	answer: string
 }
 
-const { locale, slug } = Astro.props
-
-const { entry: page, cacheHint } = slug
-	? await getEmDashEntry("pages", slug, { locale })
-	: { entry: null, cacheHint: undefined };
+const { locale, slug, page, cacheHint } = Astro.props
 
 let site = fallbackSite;
 const siteProfile = await readSiteProfileSettingsFromDb(Astro.locals.emdash?.db)
@@ -35,9 +34,9 @@ if (page) {
 		logPwbUnexpectedError(`cms page chrome locale=${locale} slug=${slug}`, err);
 		site = fallbackSite;
 	}
-	Astro.cache?.set(cacheHint);
-} else {
-	Astro.response.status = 404;
+	if (cacheHint) {
+		Astro.cache?.set(cacheHint);
+	}
 }
 
 const pagePath = localePath(locale, `/pages/${slug}`)

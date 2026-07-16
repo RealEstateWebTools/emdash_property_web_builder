@@ -1,9 +1,14 @@
 ---
 import PostPage from '../../../components/pages/PostPage.astro'
+import { loadPostEntry } from '../../../lib/page-loaders'
 import { resolveLocalizedLocale } from '../../../lib/route-locale'
 
 const locale = resolveLocalizedLocale(Astro)
 const { slug } = Astro.params
+// Status must be set in route frontmatter — Astro 7 fixes the Response
+// status before components render (see src/lib/page-loaders.ts).
+const load = await loadPostEntry(locale, slug)
+if (load.status) Astro.response.status = load.status
 ---
 
-{locale && slug ? <PostPage locale={locale} slug={slug} /> : null}
+{locale && slug ? <PostPage locale={locale} slug={slug} post={load.post} cacheHint={load.cacheHint} /> : null}

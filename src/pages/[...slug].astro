@@ -1,9 +1,14 @@
 ---
 import PwbPage from '../components/pages/PwbPage.astro'
 import { DEFAULT_LOCALE } from '../lib/locale'
+import { loadPwbPage } from '../lib/page-loaders'
 
 const locale = Astro.currentLocale ?? DEFAULT_LOCALE
 const { slug } = Astro.params
+// Status must be set in route frontmatter — Astro 7 fixes the Response
+// status before components render (see src/lib/page-loaders.ts).
+const load = await loadPwbPage(locale, slug)
+if (load.status) Astro.response.status = load.status
 ---
 
-<PwbPage locale={locale} slug={slug} />
+<PwbPage locale={locale} page={load.page} site={load.site} loadState={load.loadState} />

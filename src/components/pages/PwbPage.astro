@@ -1,44 +1,16 @@
 ---
-import { createPwbClient } from '../../lib/pwb/client'
-import { fallbackSite } from '../../lib/pwb/fallback-site'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { localePath, translateLabel } from '../../lib/locale'
-import { isPwbNotFoundError, logPwbUnexpectedError } from '../../lib/pwb/errors'
-import { shouldQueryPwbPageSlug } from '../../lib/pwb/page-slug'
 
 interface Props {
   locale: string
-  slug?: string | string[]
+  /** Data loaded by the route via loadPwbPage — the route also owns the 404/502 status. */
+  page: Awaited<ReturnType<typeof import('../../lib/page-loaders').loadPwbPage>>['page']
+  site: Awaited<ReturnType<typeof import('../../lib/page-loaders').loadPwbPage>>['site']
+  loadState: Awaited<ReturnType<typeof import('../../lib/page-loaders').loadPwbPage>>['loadState']
 }
 
-const { locale, slug } = Astro.props
-const pageSlug = Array.isArray(slug) ? slug.join('/') : (slug ?? 'home')
-
-let page = null
-let site = fallbackSite
-let loadState: 'ok' | 'not_found' | 'unavailable' = 'ok'
-
-if (!shouldQueryPwbPageSlug(pageSlug)) {
-  loadState = 'not_found'
-  Astro.response.status = 404
-} else {
-  try {
-    const client = createPwbClient(locale)
-    ;[page, site] = await Promise.all([
-      client.getPageBySlug(pageSlug),
-      client.getSiteDetails(),
-    ])
-  } catch (err) {
-    if (isPwbNotFoundError(err)) {
-      loadState = 'not_found'
-      Astro.response.status = 404
-    } else {
-      loadState = 'unavailable'
-      Astro.response.status = 502
-      logPwbUnexpectedError(`page slug=${pageSlug}`, err)
-    }
-  }
-}
+const { locale, page, site, loadState } = Astro.props
 ---
 
 {loadState === 'unavailable' ? (

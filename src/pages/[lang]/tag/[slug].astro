@@ -1,9 +1,14 @@
 ---
 import TagPage from '../../../components/pages/TagPage.astro'
+import { loadTaxonomyTerm } from '../../../lib/page-loaders'
 import { resolveLocalizedLocale } from '../../../lib/route-locale'
 
 const locale = resolveLocalizedLocale(Astro)
 const { slug } = Astro.params
+// Status must be set in route frontmatter — Astro 7 fixes the Response
+// status before components render (see src/lib/page-loaders.ts).
+const load = await loadTaxonomyTerm('tag', slug)
+if (load.status) Astro.response.status = load.status
 ---
 
-{locale && slug ? <TagPage locale={locale} slug={slug} /> : null}
+{locale && slug ? <TagPage locale={locale} slug={slug} term={load.term} /> : null}

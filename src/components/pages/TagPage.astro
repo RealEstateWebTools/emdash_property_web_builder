@@ -1,5 +1,5 @@
 ---
-import { getTerm, getEmDashCollection, getEntryTerms } from "emdash";
+import { getEmDashCollection, getEntryTerms } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
 import { createPwbClient } from "../../lib/pwb/client";
@@ -11,15 +11,11 @@ import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 interface Props {
   locale: string
   slug: string
+  /** Term loaded by the route via loadTaxonomyTerm — the route also owns the 404 status. */
+  term: Awaited<ReturnType<typeof import("../../lib/page-loaders").loadTaxonomyTerm>>["term"];
 }
 
-const { locale, slug } = Astro.props
-
-const term = slug ? await getTerm("tag", slug) : null;
-
-if (!term) {
-	Astro.response.status = 404;
-}
+const { locale, slug, term } = Astro.props
 
 let site = fallbackSite;
 try {
