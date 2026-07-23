@@ -26,6 +26,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Catches seed-schema drift (e.g. field types removed by an EmDash
+      # upgrade) in the fast job instead of at the E2E seed step.
+      - name: Validate seed profiles
+        run: |
+          npx emdash seed seed/seed.json --validate
+          npx emdash seed seed/profiles/minimal.json --validate
+          npx emdash seed seed/profiles/pre-launch.json --validate
+
       - name: Lint
         run: pnpm lint
 

@@ -51,7 +51,7 @@
 				{
 					"slug": "published_at",
 					"label": "Published Date",
-					"type": "date"
+					"type": "datetime"
 				},
 				{
 					"slug": "key_takeaways",
