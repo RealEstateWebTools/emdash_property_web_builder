@@ -34,9 +34,49 @@ export interface Post {
   terms?: Record<string, TaxonomyTerm[]>;
 }
 
+export interface Team {
+  id: string;
+  slug: string | null;
+  status: string;
+  name: string;
+  title?: string;
+  bio?: PortableTextBlock[];
+  photo?: { id: string; src?: string; alt?: string; width?: number; height?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown> };
+  email?: string;
+  phone?: string;
+  speciality?: string;
+  languages?: string;
+  social_links?: unknown;
+  display_order?: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
+export interface Testimonial {
+  id: string;
+  slug: string | null;
+  status: string;
+  name: string;
+  role?: string;
+  quote: string;
+  rating?: number;
+  property_slug?: string;
+  featured?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
 declare module "emdash" {
   interface EmDashCollections {
     pages: Page;
     posts: Post;
+    team: Team;
+    testimonials: Testimonial;
   }
 }

@@ -1,21 +1,21 @@
 /**
- * Regression tests for the emdash OAuth patch (Astro v6 compatibility).
+ * Regression tests for OAuth Cloudflare env access (Astro v6 compatibility).
  *
  * Astro v6 removed `Astro.locals.runtime.env`. The emdash OAuth routes used
  * that API to read Cloudflare environment bindings (OAuth client ID/secret).
  * Accessing it now throws instead of returning undefined, breaking GitHub/Google
  * login in production.
  *
- * The patch in patches/emdash@0.29.0.patch replaces the locals.runtime access
- * with a dynamic `import("cloudflare:workers")` that falls back to
- * `import.meta.env` for local dev (Node.js).
+ * This project carried a local patch (patches/emdash@0.29.0.patch) working
+ * around the bug with a dynamic `import("cloudflare:workers")`. As of
+ * emdash 0.31.0, upstream fixed the same bug directly via a build-time
+ * virtual module (`virtual:emdash/env`), so the workaround was dropped from
+ * patches/emdash@0.31.1.patch — see PR emdash-cms/emdash#1845.
  *
- * These tests verify:
- *   1. The patch file contains the fix (persisted in git, survives reinstalls).
- *   2. The installed source files reflect the fix (patch was applied correctly).
- *
- * If either group fails after a package update, re-apply the patch — see
- * docs/troubleshooting.md → "OAuth login fails with locals.runtime.env removed".
+ * These tests verify the installed OAuth routes still use the safe env-access
+ * pattern and never regress to the broken `locals.runtime?.env` API. If this
+ * fails after a package update, check whether emdash reintroduced the bug or
+ * changed its fix, and re-evaluate whether a local patch is needed again.
  */
 
 import { readFileSync } from 'node:fs'
@@ -24,7 +24,6 @@ import { describe, it, expect } from 'vitest'
 
 const ROOT = resolve(process.cwd())
 
-const PATCH_FILE = resolve(ROOT, 'patches/emdash@0.29.0.patch')
 const PROVIDER_ROUTE = resolve(
   ROOT,
   'node_modules/emdash/src/astro/routes/api/auth/oauth/[provider].ts',
@@ -34,39 +33,18 @@ const CALLBACK_ROUTE = resolve(
   'node_modules/emdash/src/astro/routes/api/auth/oauth/[provider]/callback.ts',
 )
 
-describe('emdash OAuth patch — patch file', () => {
-  it('patch adds cloudflare:workers import to both OAuth routes', () => {
-    const patch = readFileSync(PATCH_FILE, 'utf-8')
-    // Four occurrences: one added line per file (provider + callback) × 2 files
-    const hits = (patch.match(/cloudflare:workers/g) ?? []).length
-    expect(hits, 'patch must add cloudflare:workers import to both OAuth route files').toBeGreaterThanOrEqual(2)
-  })
-
-  it('patch removes the locals.runtime?.env pattern from both OAuth routes', () => {
-    const patch = readFileSync(PATCH_FILE, 'utf-8')
-    // The removed lines start with "-" and contain the old runtime access
-    expect(patch).toContain('-\t\tconst runtimeLocals = locals as unknown as')
-  })
-
-  it('patch covers both the provider initiation route and the callback route', () => {
-    const patch = readFileSync(PATCH_FILE, 'utf-8')
-    expect(patch).toContain('src/astro/routes/api/auth/oauth/[provider].ts')
-    expect(patch).toContain('src/astro/routes/api/auth/oauth/[provider]/callback.ts')
-  })
-})
-
-describe('emdash OAuth patch — installed files', () => {
+describe('emdash OAuth env access — installed files', () => {
   it('OAuth provider route does not use locals.runtime?.env (Astro v6 removed it)', () => {
     const source = readFileSync(PROVIDER_ROUTE, 'utf-8')
     expect(
       source,
-      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route — re-apply patches/emdash@0.29.0.patch',
+      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route',
     ).not.toContain('runtimeLocals.runtime?.env')
   })
 
-  it('OAuth provider route uses cloudflare:workers with import.meta.env fallback', () => {
+  it('OAuth provider route reads env via virtual:emdash/env with import.meta.env fallback', () => {
     const source = readFileSync(PROVIDER_ROUTE, 'utf-8')
-    expect(source).toContain('cloudflare:workers')
+    expect(source).toContain('virtual:emdash/env')
     expect(source).toContain('import.meta.env')
   })
 
@@ -74,13 +52,13 @@ describe('emdash OAuth patch — installed files', () => {
     const source = readFileSync(CALLBACK_ROUTE, 'utf-8')
     expect(
       source,
-      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route — re-apply patches/emdash@0.29.0.patch',
+      'locals.runtime?.env was removed in Astro v6 and must not appear in the installed route',
     ).not.toContain('runtimeLocals.runtime?.env')
   })
 
-  it('OAuth callback route uses cloudflare:workers with import.meta.env fallback', () => {
+  it('OAuth callback route reads env via virtual:emdash/env with import.meta.env fallback', () => {
     const source = readFileSync(CALLBACK_ROUTE, 'utf-8')
-    expect(source).toContain('cloudflare:workers')
+    expect(source).toContain('virtual:emdash/env')
     expect(source).toContain('import.meta.env')
   })
 })
