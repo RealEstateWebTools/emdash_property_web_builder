@@ -49,11 +49,6 @@
 					"type": "string"
 				},
 				{
-					"slug": "published_at",
-					"label": "Published Date",
-					"type": "datetime"
-				},
-				{
 					"slug": "key_takeaways",
 					"label": "Key Takeaways",
 					"type": "repeater",
