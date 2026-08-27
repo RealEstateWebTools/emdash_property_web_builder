@@ -41,6 +41,15 @@ Agent skills are in `.agents/skills/`. Load them when working on specific tasks:
 
 These rules exist because mistakes here cause real damage — exposed secrets, broken deployments, wasted time on a critical project.
 
+### Stay Inside This Repo
+
+**This directory (`emdash_property_web_builder`) is nested inside `property_web_builder`, a separate Rails app with its own git repo.** They are two different projects that happen to share a filesystem path — sibling directories one level up, or files reached via `../`, belong to that other repo.
+
+- Before editing any file, confirm its path resolves inside this repo's root. If unsure, run `git rev-parse --show-toplevel` and compare.
+- **Never edit a file outside this repo's root without first explicitly telling the user "this file is in a different repo (`property_web_builder`)" and getting confirmation** — even when the instruction was generic (e.g. "update the docs/config if needed") and even when the file looks like the "obviously correct" place for a change.
+- Mentioning the path in an after-the-fact summary does not count as asking. Ask before editing, not after.
+- This applies to config, docs (including the parent repo's own `CLAUDE.md`/`AGENTS.md`), code, seed data — anything.
+
 ### Never Guess Configuration
 
 **If you do not know the exact name of an environment variable, CLI flag, or config key — stop. Look it up first.**
