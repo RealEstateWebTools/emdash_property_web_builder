@@ -41,6 +41,12 @@
 	"vars": {
 		"PWB_API_URL": "",
 	},
+	// Cron Trigger drives EmDash scheduled publishing + plugin cron (emdash >= 0.19).
+	"triggers": {
+		"crons": [
+			"* * * * *",
+		],
+	},
 	"observability": {
 		"enabled": true,
 	},

@@ -10,7 +10,8 @@
  * around the bug with a dynamic `import("cloudflare:workers")`. As of
  * emdash 0.31.0, upstream fixed the same bug directly via a build-time
  * virtual module (`virtual:emdash/env`), so the workaround was dropped from
- * patches/emdash@0.31.1.patch — see PR emdash-cms/emdash#1845.
+ * patches/emdash@0.31.1.patch — see PR emdash-cms/emdash#1845. Still fixed
+ * upstream as of patches/emdash@0.35.0.patch (re-verified on the 0.35.0 bump).
  *
  * These tests verify the installed OAuth routes still use the safe env-access
  * pattern and never regress to the broken `locals.runtime?.env` API. If this

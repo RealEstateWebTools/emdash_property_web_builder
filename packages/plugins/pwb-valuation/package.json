@@ -9,6 +9,6 @@
     "./pages/valuation": "./src/pages/valuation.astro"
   },
   "peerDependencies": {
-    "emdash": "^0.31.1"
+    "emdash": "^0.35.0"
   }
 }

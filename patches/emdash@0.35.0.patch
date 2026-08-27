@@ -1,19 +1,19 @@
 diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
-index 48161c6cc5b868a705a2fc2dad89632b4051af40..61f240cbdc6ffe47f1d35d60d4ba87a75f9841ec 100644
+index 4c44724e578ff620d68f9514fe7373da3f30ac7c..3c3edcd3cc83e5f1b8e7539eae1d371ce59e7d24 100644
 --- a/src/components/InlinePortableTextEditor.tsx
 +++ b/src/components/InlinePortableTextEditor.tsx
-@@ -26,6 +26,10 @@ import * as React from "react";
- import { createPortal } from "react-dom";
- 
+@@ -33,6 +33,10 @@ import {
+ 	readOrderedListMetadata,
+ } from "../content/converters/numbered-list.js";
  import { computeThumbnailSize } from "../media/thumbnail.js";
 +import {
 +	pluginBlockAttrsToPortableTextBlock,
 +	portableTextPluginBlockToAttrs,
 +} from "./plugin-block-attrs.js";
+ import { CodeMarkExtension } from "./code-mark.js";
  import { InlineCodeBlockExtension } from "./inline-code-block.js";
- 
- // ── Portable Text types ────────────────────────────────────────────
-@@ -227,18 +231,8 @@ function convertPMNode(node: PMNode): PTBlock | PTBlock[] | null {
+ import { EmDashOrderedList } from "./ordered-list.js";
+@@ -280,18 +284,8 @@ function convertPMNode(node: PMNode, path: string): PTBlock | PTBlock[] | null {
  		}
  		case "horizontalRule":
  			return { _type: "break", _key: k(), style: "lineBreak" };
@@ -34,7 +34,7 @@ index 48161c6cc5b868a705a2fc2dad89632b4051af40..61f240cbdc6ffe47f1d35d60d4ba87a7
  		default:
  			return null;
  	}
-@@ -509,23 +503,9 @@ function convertPTBlock(block: PTBlock): JSONContent | null {
+@@ -595,23 +589,9 @@ function convertPTBlock(block: PTBlock): PMNode | null {
  			},
  		};
  	}
@@ -59,7 +59,7 @@ index 48161c6cc5b868a705a2fc2dad89632b4051af40..61f240cbdc6ffe47f1d35d60d4ba87a7
  	};
  }
  
-@@ -944,6 +924,7 @@ const PluginBlockNode = Node.create({
+@@ -1125,6 +1105,7 @@ const PluginBlockNode = Node.create({
  		const noDom = { rendered: false, parseHTML: () => null };
  		return {
  			blockType: { default: "", ...noDom },

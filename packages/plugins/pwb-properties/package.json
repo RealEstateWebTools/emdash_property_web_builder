@@ -7,6 +7,6 @@
     "./sandbox": "./src/sandbox-entry.js"
   },
   "peerDependencies": {
-    "emdash": "^0.31.1"
+    "emdash": "^0.35.0"
   }
 }

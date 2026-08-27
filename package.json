@@ -33,14 +33,14 @@
 		"check": "astro check && vitest run"
 	},
 	"dependencies": {
-		"@astrojs/cloudflare": "^14.1.7",
-		"@astrojs/react": "^6.0.2",
-		"@emdash-cms/cloudflare": "^0.31.1",
-		"@emdash-cms/plugin-forms": "^0.2.4",
+		"@astrojs/cloudflare": "^14.2.5",
+		"@astrojs/react": "^6.0.4",
+		"@emdash-cms/cloudflare": "^0.35.0",
+		"@emdash-cms/plugin-forms": "^0.2.5",
 		"@emdash-cms/plugin-webhook-notifier": "^0.2.0",
-		"astro": "^7.1.6",
-		"better-sqlite3": "^12.11.1",
-		"emdash": "^0.31.1",
+		"astro": "^7.2.8",
+		"better-sqlite3": "^13.0.3",
+		"emdash": "^0.35.0",
 		"leaflet": "^1.9.4",
 		"pwb-page-parts": "workspace:*",
 		"pwb-properties": "workspace:*",
@@ -51,15 +51,15 @@
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.10",
-		"@biomejs/biome": "^2.5.6",
-		"@cloudflare/workers-types": "^5.20260731.1",
+		"@biomejs/biome": "^2.5.10",
+		"@cloudflare/workers-types": "^5.20260827.1",
 		"@playwright/test": "^1.62.1",
-		"@types/better-sqlite3": "^7.6.13",
-		"@vitest/coverage-v8": "^4.1.10",
-		"happy-dom": "^20.11.1",
+		"@types/better-sqlite3": "^9.6.0",
+		"@vitest/coverage-v8": "^4.1.11",
+		"happy-dom": "^20.11.8",
 		"msw": "^2.15.0",
-		"vitest": "^4.1.10",
-		"wrangler": "^4.118.0"
+		"vitest": "^4.1.11",
+		"wrangler": "^4.127.0"
 	},
 	"pnpm": {
 		"overrides": {
@@ -75,7 +75,7 @@
 			"better-sqlite3"
 		],
 		"patchedDependencies": {
-			"emdash@0.31.1": "patches/emdash@0.31.1.patch"
+			"emdash@0.35.0": "patches/emdash@0.35.0.patch"
 		}
 	}
 }
