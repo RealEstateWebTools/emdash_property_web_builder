@@ -102,6 +102,45 @@ export interface Post {
   terms?: Record<string, TaxonomyTerm[]>;
 }
 
+export interface Property {
+  id: string;
+  slug: string | null;
+  status: string;
+  title: string;
+  reference?: string;
+  for_sale?: boolean;
+  for_rent?: boolean;
+  highlighted?: boolean;
+  price_sale?: number;
+  price_rent_monthly?: number;
+  currency?: string;
+  property_type?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  garages?: number;
+  constructed_area?: number;
+  plot_area?: number;
+  area_unit?: "sqm" | "sqft";
+  description?: PortableTextBlock[];
+  photos?: unknown;
+  address?: string;
+  city?: string;
+  region?: string;
+  postal_code?: string;
+  country_code?: string;
+  latitude?: number;
+  longitude?: number;
+  source_id?: string;
+  seo_title?: string;
+  seo_description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
 export interface Team {
   id: string;
   slug: string | null;
@@ -148,6 +187,7 @@ declare module "emdash" {
     enquiries: Enquiry;
     pages: Page;
     posts: Post;
+    properties: Property;
     team: Team;
     testimonials: Testimonial;
   }
