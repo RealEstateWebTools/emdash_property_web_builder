@@ -285,6 +285,71 @@
 					"type": "text"
 				}
 			]
+		},
+		{
+			"slug": "enquiries",
+			"label": "Enquiries",
+			"labelSingular": "Enquiry",
+			"description": "Enquiries from the website contact forms (used when no PWB backend is configured). Entries are never published.",
+			"supports": [
+				"search"
+			],
+			"routable": false,
+			"fields": [
+				{
+					"slug": "name",
+					"label": "Name",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "email",
+					"label": "Email",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "phone",
+					"label": "Phone",
+					"type": "string"
+				},
+				{
+					"slug": "message",
+					"label": "Message",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "lead_status",
+					"label": "Lead Status",
+					"type": "select",
+					"defaultValue": "new",
+					"validation": {
+						"options": [
+							"new",
+							"contacted",
+							"closed"
+						]
+					}
+				},
+				{
+					"slug": "property_slug",
+					"label": "Property",
+					"type": "string"
+				},
+				{
+					"slug": "page_type",
+					"label": "Page Type",
+					"type": "string"
+				},
+				{
+					"slug": "cta_source",
+					"label": "CTA Source",
+					"type": "string"
+				}
+			]
 		}
 	],
 

@@ -123,13 +123,18 @@ describe('handleEnquiryRequest', () => {
 
     await handleEnquiryRequest(request, client)
 
-    expect(client.submitEnquiry).toHaveBeenCalledWith({
-      name: 'Jane Doe',
-      email: 'jane@example.com',
-      phone: '1234',
-      message: 'I am interested in this property',
-      property_id: '42',
-    })
+    // The PWB payload (first argument) is unchanged; the second argument
+    // carries the unmerged message + attribution for the EmDash store.
+    expect(client.submitEnquiry).toHaveBeenCalledWith(
+      {
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        phone: '1234',
+        message: 'I am interested in this property',
+        property_id: '42',
+      },
+      { message: 'I am interested in this property', attribution: {} },
+    )
   })
 
   it('trims and length-caps optional PWB fields before forwarding', async () => {
@@ -151,7 +156,7 @@ describe('handleEnquiryRequest', () => {
 
     await handleEnquiryRequest(request, client)
 
-    expect(client.submitEnquiry).toHaveBeenCalledWith({
+    expect(client.submitEnquiry.mock.calls[0][0]).toEqual({
       name: 'Jane Doe',
       email: 'jane@example.com',
       phone: '1'.repeat(30),

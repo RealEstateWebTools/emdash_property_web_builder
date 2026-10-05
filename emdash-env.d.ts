@@ -38,6 +38,26 @@ export interface Area {
   terms?: Record<string, TaxonomyTerm[]>;
 }
 
+export interface Enquiry {
+  id: string;
+  slug: string | null;
+  status: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message?: string;
+  lead_status?: "new" | "contacted" | "closed";
+  property_slug?: string;
+  page_type?: string;
+  cta_source?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
 export interface Page {
   id: string;
   slug: string | null;
@@ -125,6 +145,7 @@ export interface Testimonial {
 declare module "emdash" {
   interface EmDashCollections {
     areas: Area;
+    enquiries: Enquiry;
     pages: Page;
     posts: Post;
     team: Team;

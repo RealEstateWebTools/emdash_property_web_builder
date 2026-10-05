@@ -1,14 +1,24 @@
 import type { EnquiryInput, EnquiryResponse } from './types'
 import { validateEnquiry } from './enquiry-validator'
 
-export interface EnquirySubmitClient {
-  submitEnquiry(input: EnquiryInput): Promise<EnquiryResponse>
-}
-
 export interface EnquiryAttribution {
   pageType?: string
   propertySlug?: string
   ctaSource?: string
+}
+
+/** The visitor's own message and the attribution, kept separate for stores that can record them as fields. */
+export interface EnquiryDetails {
+  message: string
+  attribution: EnquiryAttribution
+}
+
+export interface EnquirySubmitClient {
+  /**
+   * `input.message` carries the attribution note appended (what PWB receives);
+   * `details` has the same information unmerged.
+   */
+  submitEnquiry(input: EnquiryInput, details?: EnquiryDetails): Promise<EnquiryResponse>
 }
 
 const ALLOWED_PAGE_TYPES = new Set(['property', 'contact', 'general'])
@@ -99,13 +109,16 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
   const attributionNote = buildAttributionNote(attribution)
 
   try {
-    const result = await client.submitEnquiry({
-      name,
-      email,
-      phone,
-      message: attributionNote ? `${message}${attributionNote}` : message,
-      property_id: propertyId,
-    })
+    const result = await client.submitEnquiry(
+      {
+        name,
+        email,
+        phone,
+        message: attributionNote ? `${message}${attributionNote}` : message,
+        property_id: propertyId,
+      },
+      { message, attribution },
+    )
 
     if (!result.success) {
       return json({
