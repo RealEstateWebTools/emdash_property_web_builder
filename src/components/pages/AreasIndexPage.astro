@@ -1,12 +1,10 @@
 ---
+import { loadSiteDetails } from '../../lib/site-details'
 import { getEmDashCollection } from 'emdash'
 import { Image } from 'emdash/ui'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { areaPath, readAreaKind, type AreaKind } from '../../lib/areas'
 import { DEFAULT_LOCALE, localePath, translateLabel } from '../../lib/locale'
-import { createPwbClient } from '../../lib/pwb/client'
-import { logPwbUnexpectedError } from '../../lib/pwb/errors'
-import { fallbackSite } from '../../lib/pwb/fallback-site'
 
 interface Props {
   locale: string
@@ -22,12 +20,7 @@ if (entries.length === 0 && locale !== DEFAULT_LOCALE) {
 }
 Astro.cache?.set(cacheHint)
 
-let site = fallbackSite
-try {
-  site = await createPwbClient(locale).getSiteDetails()
-} catch (err) {
-  logPwbUnexpectedError(`areas index chrome locale=${locale}`, err)
-}
+const site = await loadSiteDetails(locale, `areas index locale=${locale}`)
 
 const cards = entries.map((entry) => {
   const data = entry.data as unknown as Record<string, unknown>

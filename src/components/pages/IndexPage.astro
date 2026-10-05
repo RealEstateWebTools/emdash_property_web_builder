@@ -1,7 +1,8 @@
 ---
 import { getEmDashEntry } from 'emdash'
 import { PortableText } from 'emdash/ui'
-import { createPwbClient } from '../../lib/pwb/client'
+import { getListingSource } from '../../lib/listings/source'
+import { loadSiteDetails } from '../../lib/site-details'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
 import {
   loadHomepageListingGroups,
@@ -33,15 +34,11 @@ let site = fallbackSite
 let featuredGroups: Awaited<ReturnType<typeof loadHomepageListingGroups>> = []
 const merchandising = readHomepageMerchandisingConfig(homepageData)
 
+site = await loadSiteDetails(locale, `homepage locale=${locale}`)
 try {
-  const client = createPwbClient(locale)
-  ;[site, featuredGroups] = await Promise.all([
-    client.getSiteDetails(),
-    loadHomepageListingGroups(client, merchandising),
-  ])
+  featuredGroups = await loadHomepageListingGroups(getListingSource(locale), merchandising)
 } catch (err) {
-  logPwbUnexpectedError(`homepage locale=${locale}`, err)
-  site = fallbackSite
+  logPwbUnexpectedError(`homepage listings locale=${locale}`, err)
   featuredGroups = []
 }
 

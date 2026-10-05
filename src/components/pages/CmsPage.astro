@@ -1,12 +1,11 @@
 ---
+import { loadSiteDetails } from "../../lib/site-details";
 import { getTranslations } from "emdash";
 import { PortableText } from "emdash/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TranslationLinks from "../TranslationLinks.astro";
 import ContactForm from "../ContactForm.astro";
-import { createPwbClient } from "../../lib/pwb/client";
 import { fallbackSite } from "../../lib/pwb/fallback-site";
-import { logPwbUnexpectedError } from "../../lib/pwb/errors";
 import { readSiteProfileSettingsFromDb } from "../../lib/site-profile";
 import { localePath, translateLabel } from "../../lib/locale";
 
@@ -28,12 +27,7 @@ const { locale, slug, page, cacheHint } = Astro.props
 let site = fallbackSite;
 const siteProfile = await readSiteProfileSettingsFromDb(Astro.locals.emdash?.db)
 if (page) {
-	try {
-		site = await createPwbClient(locale).getSiteDetails();
-	} catch (err) {
-		logPwbUnexpectedError(`cms page chrome locale=${locale} slug=${slug}`, err);
-		site = fallbackSite;
-	}
+	site = await loadSiteDetails(locale, `cms page locale=${locale} slug=${slug}`);
 	if (cacheHint) {
 		Astro.cache?.set(cacheHint);
 	}

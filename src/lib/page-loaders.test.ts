@@ -17,6 +17,7 @@ import pageFixture from '../test/fixtures/page.json'
 vi.mock('emdash', () => ({
   getEmDashEntry: vi.fn(),
   getTerm: vi.fn(),
+  getSiteSettings: vi.fn(async () => ({ title: 'Settings Brand' })),
 }))
 
 import { getEmDashEntry, getTerm } from 'emdash'
@@ -249,3 +250,22 @@ describe('loadPwbPage', () => {
     expect(load.status).toBe(404)
   })
 })
+
+describe('without PWB configured', () => {
+  beforeEach(() => vi.stubEnv('PWB_API_URL', ''))
+
+  it('PWB page routes return a styled 404 with EmDash branding and no network call', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const load = await loadPwbPage('en', 'about-us')
+    expect(load).toMatchObject({ loadState: 'not_found', status: 404, page: null })
+    expect(load.site.title).toBe('Settings Brand')
+    expect(fetchSpy).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
+
+  it('property detail returns 404 (no listings yet) rather than a 502', async () => {
+    const load = await loadPropertyDetail('en', 'beautiful-villa-marbella')
+    expect(load).toMatchObject({ loadState: 'not_found', status: 404, property: null })
+  })
+})
+

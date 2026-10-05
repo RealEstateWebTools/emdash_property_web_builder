@@ -1,10 +1,8 @@
 ---
+import { loadSiteDetails } from "../../lib/site-details";
 import { getEmDashCollection, getEntryTerms } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
-import { createPwbClient } from "../../lib/pwb/client";
-import { fallbackSite } from "../../lib/pwb/fallback-site";
-import { logPwbUnexpectedError } from "../../lib/pwb/errors";
 import { getReadingTime } from "../../utils/reading-time";
 import { entrySlug, localePath, translateLabel } from "../../lib/locale";
 
@@ -17,13 +15,7 @@ interface Props {
 
 const { locale, slug, term } = Astro.props
 
-let site = fallbackSite;
-try {
-	site = await createPwbClient(locale).getSiteDetails();
-} catch (err) {
-	logPwbUnexpectedError(`tag chrome locale=${locale} slug=${slug}`, err);
-	site = fallbackSite;
-}
+const site = await loadSiteDetails(locale, `tag locale=${locale} slug=${slug}`);
 
 const { entries: posts } = await getEmDashCollection("posts", {
 	locale,

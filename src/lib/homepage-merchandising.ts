@@ -1,4 +1,4 @@
-import type { PwbClient } from './pwb/client'
+import type { ListingSource } from './listings/source'
 import { formatPropertyCard, type PropertyCardData } from './pwb/formatters'
 import type { SearchParams, SearchResults } from './pwb/types'
 
@@ -214,7 +214,7 @@ function mergeResults(primary: SearchResults, fallback: SearchResults | null, li
   return { data: combined.slice(0, limit), usedFallback: combined.length > primary.data.length }
 }
 
-async function loadGroup(client: PwbClient, group: HomepageListingGroupPlan, limit: number): Promise<HomepageListingGroup> {
+async function loadGroup(client: Pick<ListingSource, 'searchProperties'>, group: HomepageListingGroupPlan, limit: number): Promise<HomepageListingGroup> {
   const primary = await client.searchProperties(group.params)
   const minPrimaryItems = Math.min(2, limit)
   let fallback: SearchResults | null = null
@@ -236,7 +236,7 @@ async function loadGroup(client: PwbClient, group: HomepageListingGroupPlan, lim
 }
 
 export async function loadHomepageListingGroups(
-  client: PwbClient,
+  client: Pick<ListingSource, 'searchProperties'>,
   config: HomepageMerchandisingConfig,
 ): Promise<HomepageListingGroup[]> {
   const plan = buildHomepageListingPlan(config)

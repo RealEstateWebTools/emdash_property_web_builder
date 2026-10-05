@@ -1,5 +1,6 @@
 ---
-import { createPwbClient } from '../../lib/pwb/client'
+import { getListingSource } from '../../lib/listings/source'
+import { loadSiteDetails } from '../../lib/site-details'
 import { buildSearchParams } from '../../lib/pwb/search-params'
 import { formatPropertyCard } from '../../lib/pwb/formatters'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
@@ -25,18 +26,16 @@ let facets: SearchFacets | null = null
 const searchParams = buildSearchParams(Astro.url.searchParams)
 const mode = (Astro.url.searchParams.get('mode') ?? 'sale') as 'sale' | 'rental'
 
+site = await loadSiteDetails(locale, `property search locale=${locale}`)
 try {
-  const client = createPwbClient(locale)
-  ;[
-    [site, config],
-    [results, facets],
-  ] = await Promise.all([
-    Promise.all([client.getSiteDetails(), client.getSearchConfig()]),
-    Promise.all([client.searchProperties(searchParams), client.getSearchFacets(mode)]),
+  const source = getListingSource(locale)
+  ;[config, results, facets] = await Promise.all([
+    source.getSearchConfig(),
+    source.searchProperties(searchParams),
+    source.getSearchFacets(mode),
   ])
 } catch (err) {
   logPwbUnexpectedError(`property search locale=${locale}`, err)
-  site = fallbackSite
 }
 
 const cards = results.data.map(formatPropertyCard)

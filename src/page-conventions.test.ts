@@ -25,14 +25,13 @@ function readSource(relativePath: string) {
 
 describe('PWB resilience pattern', () => {
   /**
-   * Every page that calls the PWB API must:
-   *   1. Initialise `site` to `fallbackSite` before any async call
-   *   2. Reset to `fallbackSite` in the catch block
-   * This ensures the page renders (with degraded branding) even when the
-   * PWB backend is unreachable.
+   * PWB is optional. Pages get site details from loadSiteDetails (PWB when
+   * configured, EmDash settings otherwise or when PWB fails) and listings from
+   * getListingSource — never from a PWB client directly — so they render
+   * with or without PWB.
    */
   // PropertyDetailPage and PwbPage receive `site` via props from
-  // src/lib/page-loaders.ts, which applies the same fallback pattern.
+  // src/lib/page-loaders.ts, which uses the same loaders.
   const pwbBackedPages = [
     'src/components/pages/PropertyIndexPage.astro',
     'src/components/pages/PostPage.astro',
@@ -43,14 +42,18 @@ describe('PWB resilience pattern', () => {
     'src/components/pages/CmsPage.astro',
   ]
 
-  it('initialises site to fallbackSite before any async PWB call', () => {
+  it('loads site details through loadSiteDetails, not a PWB client', () => {
     for (const page of pwbBackedPages) {
       const source = readSource(page)
-      expect(source, `${page} should import fallbackSite`).toContain('fallbackSite')
-      expect(source, `${page} should use fallbackSite as the initial site value`).toMatch(
-        /let site\s*=\s*fallbackSite/
-      )
+      expect(source, `${page} should use loadSiteDetails`).toContain('loadSiteDetails(locale')
+      expect(source, `${page} must not call PWB directly`).not.toContain('createPwbClient')
     }
+  })
+
+  it('loadSiteDetails falls back to EmDash settings when PWB is missing or failing', () => {
+    const source = readSource('src/lib/site-details.ts')
+    expect(source).toContain('if (!isPwbConfigured()) return settingsSiteDetails()')
+    expect(source).toMatch(/catch \(err\) \{[\s\S]*return settingsSiteDetails\(\)/)
   })
 
   it('404 page never calls the PWB backend', () => {
@@ -90,16 +93,17 @@ describe('property index page conventions', () => {
     expect(source).toContain('buildSearchParams(Astro.url.searchParams)')
   })
 
-  it('creates PWB client with locale', () => {
+  it('gets listings from the configured listing source', () => {
     const source = readSource('src/components/pages/PropertyIndexPage.astro')
-    expect(source).toContain('createPwbClient(locale)')
+    expect(source).toContain('getListingSource(locale)')
+    expect(source).not.toContain('createPwbClient')
   })
 
-  it('fetches both site details and search config in parallel', () => {
+  it('fetches search config, results and facets in parallel', () => {
     const source = readSource('src/components/pages/PropertyIndexPage.astro')
     expect(source).toContain('Promise.all')
-    expect(source).toContain('getSiteDetails()')
     expect(source).toContain('getSearchConfig()')
+    expect(source).toContain('searchProperties(searchParams)')
   })
 })
 
@@ -109,16 +113,16 @@ describe('property detail page conventions', () => {
   // Data loading and status decisions live in the page loader (called from
   // route frontmatter, where Astro 7 still honours response status) — the
   // component only renders what it is given.
-  it('creates PWB client with locale', () => {
+  it('gets the property from the configured listing source', () => {
     const source = readSource('src/lib/page-loaders.ts')
-    expect(source).toContain('createPwbClient(locale)')
+    expect(source).toContain('getListingSource(locale).getProperty(slug)')
   })
 
   it('fetches site details and property in parallel', () => {
     const source = readSource('src/lib/page-loaders.ts')
     expect(source).toContain('Promise.all')
     expect(source).toContain('getProperty(')
-    expect(source).toContain('getSiteDetails()')
+    expect(source).toContain('loadSiteDetails(locale')
   })
 
   it('sets 404 only for missing properties and uses 502 for upstream failures', () => {
@@ -138,11 +142,9 @@ describe('search page conventions', () => {
     expect(source).toContain('Astro.url.searchParams')
   })
 
-  it('gracefully falls back to fallbackSite on PWB error', () => {
+  it('loads site details through loadSiteDetails (which owns the fallback)', () => {
     const source = readSource('src/components/pages/SearchPage.astro')
-    expect(source).toMatch(/let site\s*=\s*fallbackSite/)
-    expect(source).toMatch(/catch[\s\S]*site\s*=\s*fallbackSite/)
-    expect(source).toContain('logPwbUnexpectedError')
+    expect(source).toContain('loadSiteDetails(locale')
   })
 })
 

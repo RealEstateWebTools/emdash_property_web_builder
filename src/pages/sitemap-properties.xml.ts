@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { createPwbClient } from "../lib/pwb/client";
+import { getListingSource } from "../lib/listings/source";
 import { DEFAULT_LOCALE } from "../lib/locale";
 
 export const prerender = false;
@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ url }) => {
 	const urls: string[] = [];
 
 	try {
-		const client = createPwbClient(DEFAULT_LOCALE);
+		const client = getListingSource(DEFAULT_LOCALE);
 		// Fetch up to 1000 properties for the sitemap (multiple pages if needed)
 		const perPage = 100;
 		let page = 1;
@@ -41,7 +41,7 @@ export const GET: APIRoute = async ({ url }) => {
 			page++;
 		} while (page <= totalPages && page <= 10); // cap at 10 pages = 1000 listings
 	} catch {
-		// If the PWB API is unavailable, return an empty sitemap rather than a 500
+		// If the listing source is unavailable, return an empty sitemap rather than a 500
 	}
 
 	const xml = [

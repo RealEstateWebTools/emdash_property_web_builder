@@ -4,6 +4,7 @@
  * hero → intro → local highlights → curated listings → more content →
  * testimonials → FAQs → CTA. Sections with no content are omitted.
  */
+import { loadSiteDetails } from '../../lib/site-details'
 import { getEmDashCollection, getTranslations } from 'emdash'
 import { Image, PortableText } from 'emdash/ui'
 import { blockComponents } from 'pwb-property-embeds/astro'
@@ -18,8 +19,6 @@ import {
   readAreaKind,
 } from '../../lib/areas'
 import { DEFAULT_LOCALE, localePath, translateLabel } from '../../lib/locale'
-import { createPwbClient } from '../../lib/pwb/client'
-import { logPwbUnexpectedError } from '../../lib/pwb/errors'
 import { fallbackSite } from '../../lib/pwb/fallback-site'
 import { safeJsonLd } from '../../lib/safe-json-ld'
 import type { loadAreaEntry } from '../../lib/page-loaders'
@@ -65,11 +64,7 @@ const pagePath = areaPath(locale, slug)
 if (area) {
   if (cacheHint) Astro.cache?.set(cacheHint)
 
-  try {
-    site = await createPwbClient(locale).getSiteDetails()
-  } catch (err) {
-    logPwbUnexpectedError(`area page chrome locale=${locale} slug=${slug}`, err)
-  }
+  site = await loadSiteDetails(locale, `area page locale=${locale} slug=${slug}`)
 
   // Testimonials are optional: the minimal seed profiles don't define the
   // collection, so a failed query just omits the trust section.

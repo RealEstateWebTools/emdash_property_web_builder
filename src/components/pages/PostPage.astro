@@ -1,4 +1,5 @@
 ---
+import { loadSiteDetails } from "../../lib/site-details";
 import {
 	getEmDashCollection,
 	getEntryTerms,
@@ -13,9 +14,6 @@ import { Comments, CommentForm } from "emdash/ui/comments";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
 import TranslationLinks from "../TranslationLinks.astro";
-import { createPwbClient } from "../../lib/pwb/client";
-import { fallbackSite } from "../../lib/pwb/fallback-site";
-import { logPwbUnexpectedError } from "../../lib/pwb/errors";
 import { getReadingTime } from "../../utils/reading-time";
 import { entrySlug, localePath, translateBrand, translateLabel } from "../../lib/locale";
 
@@ -34,13 +32,7 @@ interface KeyTakeaway {
 const { locale, slug, post, cacheHint } = Astro.props;
 const safeSlug = slug ?? null;
 
-let site = fallbackSite;
-try {
-	site = await createPwbClient(locale).getSiteDetails();
-} catch (err) {
-	logPwbUnexpectedError(`post chrome locale=${locale} slug=${safeSlug ?? ''}`, err);
-	site = fallbackSite;
-}
+const site = await loadSiteDetails(locale, `post locale=${locale} slug=${safeSlug ?? ''}`);
 
 if (post && cacheHint) {
 	Astro.cache?.set(cacheHint);

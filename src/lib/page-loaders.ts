@@ -19,7 +19,10 @@ import { getEmDashEntry, getTerm } from 'emdash'
 import { isPwbNotFoundError, logPwbUnexpectedError } from './pwb/errors'
 import { fallbackSite } from './pwb/fallback-site'
 import { shouldQueryPwbPageSlug } from './pwb/page-slug'
+import { isPwbConfigured } from './backend'
+import { getListingSource } from './listings/source'
 import { createPwbClient } from './pwb/client'
+import { loadSiteDetails } from './site-details'
 import type { Page, Property, SiteDetails } from './pwb/types'
 
 export type PwbLoadState = 'ok' | 'not_found' | 'unavailable'
@@ -82,7 +85,7 @@ export async function loadTaxonomyTerm(taxonomy: 'category' | 'tag', slug: strin
   return { term, status: term ? undefined : 404 }
 }
 
-/** Property detail from the PWB backend. */
+/** Property detail from the configured listing source (PWB or native). */
 export async function loadPropertyDetail(locale: string | null, slug: string | undefined) {
   let property: Property | null = null
   let site: SiteDetails = fallbackSite
@@ -90,8 +93,10 @@ export async function loadPropertyDetail(locale: string | null, slug: string | u
 
   if (locale && slug) {
     try {
-      const client = createPwbClient(locale)
-      ;[property, site] = await Promise.all([client.getProperty(slug), client.getSiteDetails()])
+      ;[property, site] = await Promise.all([
+        getListingSource(locale).getProperty(slug),
+        loadSiteDetails(locale, `property slug=${slug}`),
+      ])
     } catch (err) {
       if (isPwbNotFoundError(err)) {
         loadState = 'not_found'
@@ -116,10 +121,17 @@ export async function loadPwbPage(locale: string | null, slug: string | string[]
 
   if (!locale || !shouldQueryPwbPageSlug(pageSlug)) {
     loadState = 'not_found'
+  } else if (!isPwbConfigured()) {
+    // No PWB: these routes only serve PWB CMS pages, so it's a styled 404
+    // (CMS pages live in EmDash at /pages/<slug>).
+    loadState = 'not_found'
+    site = await loadSiteDetails(locale, `page slug=${pageSlug}`)
   } else {
     try {
-      const client = createPwbClient(locale)
-      ;[page, site] = await Promise.all([client.getPageBySlug(pageSlug), client.getSiteDetails()])
+      ;[page, site] = await Promise.all([
+        createPwbClient(locale).getPageBySlug(pageSlug),
+        loadSiteDetails(locale, `page slug=${pageSlug}`),
+      ])
     } catch (err) {
       if (isPwbNotFoundError(err)) {
         loadState = 'not_found'
