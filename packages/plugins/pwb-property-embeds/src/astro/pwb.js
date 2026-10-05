@@ -10,6 +10,9 @@ const EMBED_TRANSLATIONS = {
 		"Property slug is invalid": "El slug de la propiedad no es valido",
 		bed: "hab.",
 		bath: "bano",
+		"View all listings": "Ver todas las propiedades",
+		"No listings to show right now.": "No hay propiedades para mostrar en este momento.",
+		"Listings are temporarily unavailable.": "Las propiedades no estan disponibles temporalmente.",
 	},
 	fr: {
 		"View Property": "Voir le bien",
@@ -19,6 +22,9 @@ const EMBED_TRANSLATIONS = {
 		"Property slug is invalid": "Slug du bien invalide",
 		bed: "ch.",
 		bath: "sdb",
+		"View all listings": "Voir tous les biens",
+		"No listings to show right now.": "Aucun bien a afficher pour le moment.",
+		"Listings are temporarily unavailable.": "Les biens sont temporairement indisponibles.",
 	},
 };
 

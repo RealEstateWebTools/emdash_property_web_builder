@@ -22,7 +22,7 @@ const KEY_PAGES = [
   '/properties',
   '/properties/beautiful-villa-marbella', // fixture property
   '/posts',
-  '/posts/making-an-offer', // seeded post
+  '/posts/choosing-the-right-neighbourhood', // seeded post with a listing collection
   '/pages/about', // seeded CMS page
   '/about', // PWB page (fixture)
 ] as const

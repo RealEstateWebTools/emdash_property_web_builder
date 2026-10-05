@@ -1244,6 +1244,14 @@
 									"text": "A neighbourhood at 10am on a Tuesday looks very different from the same street on a Friday evening or a Sunday morning. Visit at multiple times before committing. Talk to people who live there. No amount of online research replaces time spent on the ground."
 								}
 							]
+						},
+						{
+							"_type": "listingCollection",
+							"heading": "Homes available now",
+							"intro": "A few of the listings our team is showing this week.",
+							"source": "newest",
+							"saleOrRental": "sale",
+							"limit": "3"
 						}
 					]
 				},

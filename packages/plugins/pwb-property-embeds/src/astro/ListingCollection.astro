@@ -1,0 +1,235 @@
+---
+import {
+	buildCollectionViewAllHref,
+	fetchListingCollection,
+	readListingCollectionConfig,
+} from "./collection.js";
+import { getPropertyUrl, getPwbApiBase, normalizeLocale, translateEmbedLabel } from "./pwb.js";
+
+const { node } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+const config = readListingCollectionConfig(node);
+const viewAllHref = buildCollectionViewAllHref(config, locale);
+const viewAllLabel = config.viewAllLabel || translateEmbedLabel(locale, "View all listings");
+
+// Deduplicate identical collections within one request (e.g. a preview and
+// the page rendering the same block).
+function getRequestCache(locals) {
+	if (!locals || typeof locals !== "object") return new Map();
+	if (!(locals.__pwbListingCollectionCache instanceof Map)) {
+		locals.__pwbListingCollectionCache = new Map();
+	}
+	return locals.__pwbListingCollectionCache;
+}
+
+let listings = [];
+let unavailable = false;
+const canLoad = config.source !== "handpicked" || config.slugs.length > 0;
+
+if (canLoad) {
+	try {
+		const cache = getRequestCache(Astro.locals);
+		const key = `${locale}:${JSON.stringify(config)}`;
+		let pending = cache.get(key);
+		if (!pending) {
+			pending = fetchListingCollection(fetch, getPwbApiBase(), config, locale);
+			cache.set(key, pending);
+		}
+		listings = await pending;
+	} catch (err) {
+		unavailable = true;
+		console.error("[pwb-property-embeds] listing collection failed:", err);
+	}
+}
+
+const cards = listings.map((property) => {
+	const beds = property.count_bedrooms != null ? `${property.count_bedrooms} ${translateEmbedLabel(locale, "bed")}` : null;
+	const baths = property.count_bathrooms != null ? `${property.count_bathrooms} ${translateEmbedLabel(locale, "bath")}` : null;
+	const location = [property.city, property.region].filter(Boolean).join(", ");
+	return {
+		slug: property.slug,
+		href: getPropertyUrl(property.slug, locale),
+		title: property.title,
+		price: property.formatted_price ?? null,
+		image: property.primary_image_url ?? property.prop_photos?.[0]?.url ?? null,
+		meta: [beds, baths, location].filter(Boolean).join(" · "),
+	};
+});
+---
+
+<section class="listing-collection" data-source={config.source}>
+	{(config.heading || config.intro) && (
+		<header class="listing-collection__header">
+			<div>
+				{config.heading && <h2 class="listing-collection__heading">{config.heading}</h2>}
+				{config.intro && <p class="listing-collection__intro">{config.intro}</p>}
+			</div>
+			{viewAllHref && cards.length > 0 && (
+				<a class="listing-collection__view-all" href={viewAllHref}>{viewAllLabel}</a>
+			)}
+		</header>
+	)}
+
+	{cards.length > 0 ? (
+		<ul class="listing-collection__grid">
+			{cards.map((card) => (
+				<li class="listing-collection__item">
+					<a class="listing-collection__card" href={card.href}>
+						<div class="listing-collection__media">
+							{card.image ? <img src={card.image} alt={card.title} loading="lazy" /> : null}
+						</div>
+						<div class="listing-collection__body">
+							{card.price && <p class="listing-collection__price">{card.price}</p>}
+							<h3 class="listing-collection__title">{card.title}</h3>
+							{card.meta && <p class="listing-collection__meta">{card.meta}</p>}
+						</div>
+					</a>
+				</li>
+			))}
+		</ul>
+	) : (
+		<p class="listing-collection__empty">
+			{translateEmbedLabel(locale, unavailable ? "Listings are temporarily unavailable." : "No listings to show right now.")}
+		</p>
+	)}
+
+	{viewAllHref && cards.length > 0 && !(config.heading || config.intro) && (
+		<p class="listing-collection__footer">
+			<a class="listing-collection__view-all" href={viewAllHref}>{viewAllLabel}</a>
+		</p>
+	)}
+</section>
+
+<style>
+	.listing-collection {
+		margin: 2.5rem 0;
+		color: var(--color-text, #1d1b18);
+	}
+
+	.listing-collection .listing-collection__header {
+		display: flex;
+		align-items: end;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.listing-collection .listing-collection__heading {
+		margin: 0;
+		scroll-margin-top: 0;
+		font-family: var(--font-heading, Georgia, serif);
+		font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+		line-height: 1.15;
+	}
+
+	.listing-collection .listing-collection__intro {
+		margin: 0.5rem 0 0;
+		max-width: 60ch;
+		color: var(--color-text-soft, #51606c);
+	}
+
+	.listing-collection .listing-collection__view-all {
+		flex-shrink: 0;
+		color: var(--color-accent-text, #735630);
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.listing-collection .listing-collection__view-all:hover {
+		text-decoration: underline;
+	}
+
+	.listing-collection .listing-collection__item {
+		margin: 0;
+	}
+
+	.listing-collection .listing-collection__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+		gap: 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.listing-collection .listing-collection__card,
+	.listing-collection .listing-collection__card:hover {
+		text-decoration: none;
+	}
+
+	.listing-collection .listing-collection__card {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow: hidden;
+		border: 1px solid var(--color-border, rgba(22, 53, 76, 0.12));
+		border-radius: var(--radius-md, 1rem);
+		background: var(--color-surface-strong, #fffdfa);
+		color: inherit;
+		text-decoration: none;
+		box-shadow: var(--shadow-sm, 0 10px 22px rgba(9, 26, 39, 0.08));
+		transition: transform var(--transition-base, 220ms ease), box-shadow var(--transition-base, 220ms ease);
+	}
+
+	.listing-collection .listing-collection__card:hover,
+	.listing-collection .listing-collection__card:focus-visible {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md, 0 16px 38px rgba(9, 26, 39, 0.1));
+	}
+
+	.listing-collection .listing-collection__media {
+		aspect-ratio: 4 / 3;
+		background: var(--color-bg-soft, #f4eee4);
+	}
+
+	.listing-collection .listing-collection__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		margin: 0;
+		border-radius: 0;
+	}
+
+	.listing-collection .listing-collection__body {
+		padding: 1rem 1.1rem 1.2rem;
+	}
+
+	.listing-collection .listing-collection__price {
+		margin: 0;
+		font-weight: 700;
+		color: var(--color-accent-text, #735630);
+	}
+
+	.listing-collection .listing-collection__title {
+		margin: 0.35rem 0 0;
+		color: var(--color-text, #1d1b18);
+		font-size: 1.1rem;
+		line-height: 1.3;
+	}
+
+	.listing-collection .listing-collection__meta {
+		margin: 0.5rem 0 0;
+		font-size: 0.9rem;
+		color: var(--color-text-muted, #5f6a75);
+	}
+
+	.listing-collection .listing-collection__empty {
+		margin: 0;
+		padding: 1.25rem;
+		border: 1px dashed var(--color-border, rgba(22, 53, 76, 0.2));
+		border-radius: var(--radius-md, 1rem);
+		color: var(--color-text-soft, #51606c);
+	}
+
+	.listing-collection .listing-collection__footer {
+		margin: 1rem 0 0;
+	}
+
+	@media (max-width: 640px) {
+	.listing-collection .listing-collection__header {
+			flex-direction: column;
+			align-items: start;
+		}
+	}
+</style>
