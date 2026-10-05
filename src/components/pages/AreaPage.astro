@@ -1,0 +1,431 @@
+---
+/**
+ * Area / lifestyle landing page. One fixed template for every `areas` entry:
+ * hero → intro → local highlights → curated listings → more content →
+ * testimonials → FAQs → CTA. Sections with no content are omitted.
+ */
+import { getEmDashCollection, getTranslations } from 'emdash'
+import { Image, PortableText } from 'emdash/ui'
+import { blockComponents } from 'pwb-property-embeds/astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import TranslationLinks from '../TranslationLinks.astro'
+import {
+  areaPath,
+  buildAreaListingNode,
+  readAreaCta,
+  readAreaFaqs,
+  readAreaHighlights,
+  readAreaKind,
+} from '../../lib/areas'
+import { DEFAULT_LOCALE, localePath, translateLabel } from '../../lib/locale'
+import { createPwbClient } from '../../lib/pwb/client'
+import { logPwbUnexpectedError } from '../../lib/pwb/errors'
+import { fallbackSite } from '../../lib/pwb/fallback-site'
+import { safeJsonLd } from '../../lib/safe-json-ld'
+import type { loadAreaEntry } from '../../lib/page-loaders'
+
+type AreaLoad = Awaited<ReturnType<typeof loadAreaEntry>>
+
+interface Props {
+  locale: string
+  slug: string
+  /** Entry loaded by the route via loadAreaEntry — the route also owns the 404 status. */
+  area: AreaLoad['area']
+  cacheHint: AreaLoad['cacheHint']
+  /** True when showing the default-locale entry because no translation exists. */
+  isFallback: boolean
+}
+
+interface Testimonial {
+  name: string
+  role: string
+  quote: string
+}
+
+const { locale, slug, area, cacheHint, isFallback } = Astro.props
+const ListingCollection = blockComponents.listingCollection
+
+let site = fallbackSite
+let testimonials: Testimonial[] = []
+let alternateLinks: Array<{ locale: string; href: string }> = []
+
+const data = (area?.data ?? {}) as unknown as Record<string, unknown>
+const kind = readAreaKind(data)
+const highlights = readAreaHighlights(data)
+const faqs = readAreaFaqs(data)
+const listingNode = buildAreaListingNode(data)
+const cta = readAreaCta(data, locale, {
+  heading: translateLabel(locale, 'Thinking about a move here?'),
+  label: translateLabel(locale, 'Talk to a local expert'),
+})
+const title = typeof data.title === 'string' ? data.title : ''
+const tagline = typeof data.tagline === 'string' ? data.tagline : ''
+const pagePath = areaPath(locale, slug)
+
+if (area) {
+  if (cacheHint) Astro.cache?.set(cacheHint)
+
+  try {
+    site = await createPwbClient(locale).getSiteDetails()
+  } catch (err) {
+    logPwbUnexpectedError(`area page chrome locale=${locale} slug=${slug}`, err)
+  }
+
+  // Testimonials are optional: the minimal seed profiles don't define the
+  // collection, so a failed query just omits the trust section.
+  if (data.show_testimonials !== false) {
+    try {
+      const { entries } = await getEmDashCollection('testimonials', { locale: DEFAULT_LOCALE, limit: 12 })
+      testimonials = entries
+        .map((entry) => entry.data as unknown as Record<string, unknown>)
+        .filter((t) => t.featured !== false && typeof t.quote === 'string' && typeof t.name === 'string')
+        .slice(0, 3)
+        .map((t) => ({ name: String(t.name), role: typeof t.role === 'string' ? t.role : '', quote: String(t.quote) }))
+    } catch (err) {
+      console.warn('[areas] testimonials unavailable:', err)
+    }
+  }
+
+  alternateLinks = isFallback
+    ? []
+    : Array.from(
+        new Map(
+          [
+            { locale, href: new URL(pagePath, Astro.url.origin).href },
+            ...(await getTranslations('areas', area.data.id)).translations
+              .filter((translation) => translation.slug)
+              .map((translation) => ({
+                locale: translation.locale,
+                href: new URL(areaPath(translation.locale, translation.slug as string), Astro.url.origin).href,
+              })),
+          ].map((link) => [link.locale, link]),
+        ).values(),
+      )
+}
+
+const faqJsonLd =
+  faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+        })),
+      }
+    : null
+---
+
+{area ? (
+  <BaseLayout
+    site={site}
+    title={(typeof data.seo_title === 'string' && data.seo_title) || title}
+    description={(typeof data.seo_description === 'string' && data.seo_description) || tagline || undefined}
+    canonical={new URL(isFallback ? areaPath(DEFAULT_LOCALE, slug) : pagePath, Astro.url.origin).href}
+    alternateLinks={alternateLinks}
+    breadcrumbs={[
+      { name: translateLabel(locale, 'Home'), url: localePath(locale, '/') },
+      { name: translateLabel(locale, 'Areas & lifestyle'), url: localePath(locale, '/areas') },
+      { name: title, url: pagePath },
+    ]}
+  >
+    {faqJsonLd && <script slot="head" type="application/ld+json" set:html={safeJsonLd(faqJsonLd)} />}
+
+    <article class:list={['area-page', `area-page--${kind}`]}>
+      <header class:list={['area-hero', { 'area-hero--with-image': Boolean(data.hero_image) }]}>
+        {data.hero_image ? (
+          <div class="area-hero__media">
+            <Image image={data.hero_image as never} />
+          </div>
+        ) : null}
+        <div class="area-hero__copy">
+          <p class="area-hero__eyebrow">
+            {translateLabel(locale, kind === 'lifestyle' ? 'Lifestyle' : 'Area guide')}
+          </p>
+          <h1 class="area-hero__title" {...area.edit.title}>{title}</h1>
+          {tagline && <p class="area-hero__tagline">{tagline}</p>}
+        </div>
+      </header>
+
+      {isFallback && (
+        <p class="area-page__notice">{translateLabel(locale, 'This page is not yet available in your language.')}</p>
+      )}
+
+      <TranslationLinks links={alternateLinks} />
+
+      {Array.isArray(data.intro) && data.intro.length > 0 && (
+        <section class="area-section area-intro">
+          <PortableText value={data.intro as never} />
+        </section>
+      )}
+
+      {highlights.length > 0 && (
+        <section class="area-section area-highlights" aria-labelledby="area-highlights-heading">
+          <h2 id="area-highlights-heading" class="area-section__heading">{translateLabel(locale, 'Local highlights')}</h2>
+          <dl class="area-highlights__grid">
+            {highlights.map((item) => (
+              <div class="area-highlights__item">
+                <dt>{item.label}</dt>
+                <dd>{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      {listingNode && (
+        <section class="area-section area-listings">
+          <ListingCollection node={listingNode} />
+        </section>
+      )}
+
+      {Array.isArray(data.body) && data.body.length > 0 && (
+        <section class="area-section area-body">
+          <PortableText value={data.body as never} />
+        </section>
+      )}
+
+      {testimonials.length > 0 && (
+        <section class="area-section area-testimonials" aria-labelledby="area-testimonials-heading">
+          <h2 id="area-testimonials-heading" class="area-section__heading">{translateLabel(locale, 'What our clients say')}</h2>
+          <ul class="area-testimonials__grid">
+            {testimonials.map((t) => (
+              <li class="area-testimonials__card">
+                <blockquote>{t.quote}</blockquote>
+                <p class="area-testimonials__name">{t.name}{t.role && <span>, {t.role}</span>}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {faqs.length > 0 && (
+        <section class="area-section area-faqs" aria-labelledby="area-faqs-heading">
+          <h2 id="area-faqs-heading" class="area-section__heading">{translateLabel(locale, 'Frequently asked questions')}</h2>
+          {faqs.map((faq) => (
+            <details class="area-faqs__item">
+              <summary>{faq.question}</summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))}
+        </section>
+      )}
+
+      <section class="area-cta">
+        <div>
+          <h2 class="area-cta__heading">{cta.heading}</h2>
+          {cta.text && <p class="area-cta__text">{cta.text}</p>}
+        </div>
+        <a class="area-cta__button" href={cta.href}>{cta.label}</a>
+      </section>
+    </article>
+  </BaseLayout>
+) : null}
+
+<style>
+  .area-page {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    padding: var(--space-section-sm, 3rem) var(--spacing-page, 1.25rem) var(--space-section-md, 5.5rem);
+  }
+
+  .area-hero {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .area-hero--with-image {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+
+  .area-hero__media {
+    overflow: hidden;
+    border-radius: var(--radius-lg, 1.5rem);
+    aspect-ratio: 4 / 3;
+    background: var(--color-bg-soft, #f4eee4);
+  }
+
+  .area-hero__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .area-hero__eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wider, 0.16em);
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  .area-hero__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 5vw, var(--text-4xl, 2.8rem));
+    line-height: var(--leading-tight, 1.05);
+    color: var(--color-primary);
+  }
+
+  .area-hero__tagline {
+    margin: 1rem 0 0;
+    font-size: var(--text-lg, 1.125rem);
+    color: var(--color-text-soft);
+    max-width: 40ch;
+  }
+
+  .area-page__notice {
+    margin: 0 0 1.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface, #f8f3eb);
+    color: var(--color-text-soft);
+  }
+
+  .area-section {
+    margin-top: 3rem;
+  }
+
+  .area-section__heading {
+    margin: 0 0 1.25rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    color: var(--color-text);
+  }
+
+  .area-intro,
+  .area-body {
+    max-width: var(--content-width, 680px);
+    font-size: var(--text-lg, 1.125rem);
+    line-height: var(--leading-relaxed, 1.78);
+  }
+
+  .area-intro :global(p),
+  .area-body :global(p) {
+    margin: 0 0 1em;
+  }
+
+  .area-highlights__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .area-highlights__item {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface-strong);
+  }
+
+  .area-highlights__item dt {
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wide, 0.08em);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .area-highlights__item dd {
+    margin: 0.4rem 0 0;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .area-testimonials__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .area-testimonials__card {
+    padding: 1.25rem;
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface-strong);
+    border: 1px solid var(--color-border);
+  }
+
+  .area-testimonials__card blockquote {
+    margin: 0;
+    color: var(--color-text);
+    line-height: var(--leading-normal, 1.6);
+  }
+
+  .area-testimonials__name {
+    margin: 0.9rem 0 0;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .area-testimonials__name span {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .area-faqs__item {
+    max-width: var(--content-width, 680px);
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 0;
+  }
+
+  .area-faqs__item summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .area-faqs__item p {
+    margin: 0.75rem 0 0;
+    color: var(--color-text-soft);
+  }
+
+  .area-cta {
+    margin-top: 3.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.75rem 2rem;
+    border-radius: var(--radius-lg, 1.5rem);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  .area-cta__heading {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    color: var(--color-on-primary);
+  }
+
+  .area-cta__text {
+    margin: 0.5rem 0 0;
+    max-width: 52ch;
+    color: var(--color-on-primary);
+  }
+
+  .area-cta__button {
+    padding: 0.85rem 1.4rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (max-width: 860px) {
+    .area-hero--with-image {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

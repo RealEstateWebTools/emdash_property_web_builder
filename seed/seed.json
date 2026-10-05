@@ -262,6 +262,177 @@
 					"defaultValue": 99
 				}
 			]
+		},
+		{
+			"slug": "areas",
+			"label": "Areas & Lifestyle",
+			"labelSingular": "Area or Lifestyle Page",
+			"description": "Location-led and lifestyle landing pages: intro, local highlights, curated listings, trust and CTA.",
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
+			"urlPattern": "/areas/{slug}",
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "kind",
+					"label": "Page Type",
+					"type": "select",
+					"defaultValue": "area",
+					"validation": {
+						"options": [
+							"area",
+							"lifestyle"
+						]
+					}
+				},
+				{
+					"slug": "tagline",
+					"label": "Tagline",
+					"type": "string"
+				},
+				{
+					"slug": "hero_image",
+					"label": "Hero Image",
+					"type": "image"
+				},
+				{
+					"slug": "intro",
+					"label": "Introduction",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "highlights",
+					"label": "Local Highlights",
+					"type": "repeater",
+					"fields": [
+						{
+							"slug": "label",
+							"label": "Label",
+							"type": "string"
+						},
+						{
+							"slug": "value",
+							"label": "Value",
+							"type": "string"
+						}
+					]
+				},
+				{
+					"slug": "listings_heading",
+					"label": "Listings Heading",
+					"type": "string"
+				},
+				{
+					"slug": "listings_source",
+					"label": "Listings Source",
+					"type": "select",
+					"defaultValue": "featured",
+					"validation": {
+						"options": [
+							"featured",
+							"newest",
+							"handpicked"
+						]
+					}
+				},
+				{
+					"slug": "listings_slugs",
+					"label": "Hand-picked Properties (slugs or URLs, comma-separated)",
+					"type": "text"
+				},
+				{
+					"slug": "listings_sale_or_rental",
+					"label": "Listings: For Sale or Rent",
+					"type": "select",
+					"defaultValue": "sale",
+					"validation": {
+						"options": [
+							"sale",
+							"rental"
+						]
+					}
+				},
+				{
+					"slug": "listings_property_type",
+					"label": "Listings: Property Type",
+					"type": "string"
+				},
+				{
+					"slug": "listings_limit",
+					"label": "Listings: How Many",
+					"type": "integer",
+					"defaultValue": 6
+				},
+				{
+					"slug": "body",
+					"label": "More Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "show_testimonials",
+					"label": "Show Client Testimonials",
+					"type": "boolean",
+					"defaultValue": true
+				},
+				{
+					"slug": "faqs",
+					"label": "Local FAQs",
+					"type": "repeater",
+					"fields": [
+						{
+							"slug": "question",
+							"label": "Question",
+							"type": "string"
+						},
+						{
+							"slug": "answer",
+							"label": "Answer",
+							"type": "text"
+						}
+					]
+				},
+				{
+					"slug": "cta_heading",
+					"label": "CTA Heading",
+					"type": "string"
+				},
+				{
+					"slug": "cta_text",
+					"label": "CTA Text",
+					"type": "text"
+				},
+				{
+					"slug": "cta_label",
+					"label": "CTA Button Label",
+					"type": "string"
+				},
+				{
+					"slug": "cta_href",
+					"label": "CTA Button Link",
+					"type": "string"
+				},
+				{
+					"slug": "seo_title",
+					"label": "SEO Title",
+					"type": "string"
+				},
+				{
+					"slug": "seo_description",
+					"label": "SEO Description",
+					"type": "text"
+				}
+			]
 		}
 	],
 
@@ -419,6 +590,133 @@
 	],
 
 	"content": {
+		"areas": [
+			{
+				"id": "area-east-brunswick",
+				"slug": "east-brunswick",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"title": "Living in East Brunswick",
+					"kind": "area",
+					"tagline": "Leafy streets, strong schools, and an easy run into the city.",
+					"intro": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "East Brunswick suits buyers who want space without giving up the commute. Most homes sit on quiet, tree-lined streets within a short drive of the Turnpike and the bus routes into Manhattan."
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "We have sold and let homes here for years. Below is what we tell clients who are weighing the area up, and the listings we are showing right now."
+								}
+							]
+						}
+					],
+					"highlights": [
+						{
+							"label": "Into Manhattan",
+							"value": "About 50 minutes by express bus"
+						},
+						{
+							"label": "Schools",
+							"value": "Well-regarded public district"
+						},
+						{
+							"label": "Typical home",
+							"value": "3–4 bed single-family"
+						},
+						{
+							"label": "Green space",
+							"value": "Several parks and the Farrington Lake trail"
+						}
+					],
+					"listings_heading": "Homes for sale in and around East Brunswick",
+					"listings_source": "newest",
+					"listings_sale_or_rental": "sale",
+					"listings_limit": 3,
+					"show_testimonials": true,
+					"faqs": [
+						{
+							"question": "Is East Brunswick good for commuters?",
+							"answer": "Yes. Express buses run to Port Authority, and the Turnpike and Route 18 make driving straightforward outside peak hours."
+						},
+						{
+							"question": "What sells fastest here?",
+							"answer": "Well-kept three- and four-bedroom homes close to the schools tend to attract the most interest."
+						}
+					],
+					"cta_heading": "Thinking about a move to East Brunswick?",
+					"cta_text": "Tell us what you need and we will put together a shortlist of homes worth seeing.",
+					"cta_label": "Talk to a local expert",
+					"cta_href": "/pages/contact",
+					"seo_title": "Living in East Brunswick: homes, schools and commute",
+					"seo_description": "What it is like to live in East Brunswick, with local highlights and homes for sale."
+				}
+			},
+			{
+				"id": "area-first-homes",
+				"slug": "first-homes",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"title": "First homes",
+					"kind": "lifestyle",
+					"tagline": "Starter homes that are ready to move into, without the guesswork.",
+					"hero_image": {
+						"$media": {
+							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
+							"alt": "House keys beside a small model house",
+							"filename": "lifestyle-first-homes.jpg"
+						}
+					},
+					"intro": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Buying your first home is a big step. These listings are ones we would happily show a first-time buyer: sensible prices, few surprises, and room to grow."
+								}
+							]
+						}
+					],
+					"highlights": [
+						{
+							"label": "Who it suits",
+							"value": "First-time buyers and young families"
+						},
+						{
+							"label": "What we look for",
+							"value": "Move-in ready, realistic running costs"
+						},
+						{
+							"label": "Next step",
+							"value": "A free 20-minute buying plan"
+						}
+					],
+					"listings_heading": "Starter homes we like right now",
+					"listings_source": "featured",
+					"listings_sale_or_rental": "sale",
+					"listings_limit": 3,
+					"show_testimonials": true,
+					"cta_heading": "Not sure where to start?",
+					"cta_text": "We will walk you through deposits, offers and timelines in plain language.",
+					"cta_label": "Book a buying plan",
+					"cta_href": "/pages/contact"
+				}
+			}
+		],
 		"testimonials": [
 			{
 				"id": "testimonial-amelia",
@@ -935,7 +1233,7 @@
 					"featured_image": {
 						"$media": {
 							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
-							"alt": "Front door of a residential property",
+							"alt": "House keys beside a small model house",
 							"filename": "first-time-buyer.jpg"
 						}
 					},
@@ -1009,7 +1307,7 @@
 					"featured_image": {
 						"$media": {
 							"url": "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop",
-							"alt": "A bright, well-presented living room",
+							"alt": "A bright, modern kitchen ready for viewings",
 							"filename": "prepare-home-for-sale.jpg"
 						}
 					},
@@ -1072,8 +1370,8 @@
 					"excerpt": "Local market conditions drive the value of your home. Here's what to look for and how to make sense of the numbers.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1611095564985-9c3e43e07f4a?w=1200&h=800&fit=crop",
-							"alt": "Aerial view of a residential neighbourhood",
+							"url": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop",
+							"alt": "Apartment towers against a blue sky",
 							"filename": "property-market.jpg"
 						}
 					},
@@ -1135,9 +1433,9 @@
 					"excerpt": "Whether you're a new landlord or an experienced investor, getting the basics right protects your investment and your tenants.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&h=800&fit=crop",
-							"alt": "Keys to a rental property",
-							"filename": "landlord-guide.jpg"
+							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
+							"alt": "House keys beside a small model house",
+							"filename": "landlord-keys.jpg"
 						}
 					},
 					"content": [
@@ -1197,13 +1495,6 @@
 				"data": {
 					"title": "How to Choose the Right Neighbourhood",
 					"excerpt": "The right home in the wrong location can be a costly mistake. Here's how to find both.",
-					"featured_image": {
-						"$media": {
-							"url": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&h=800&fit=crop",
-							"alt": "A tree-lined residential street",
-							"filename": "neighbourhood.jpg"
-						}
-					},
 					"content": [
 						{
 							"_type": "block",
@@ -1270,9 +1561,9 @@
 					"excerpt": "Make the most of every viewing with the right questions and a clear checklist.",
 					"featured_image": {
 						"$media": {
-							"url": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop",
-							"alt": "Interior of a bright property",
-							"filename": "property-viewing.jpg"
+							"url": "https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&h=800&fit=crop",
+							"alt": "A bright, well-presented living room",
+							"filename": "viewing-living-room.jpg"
 						}
 					},
 					"content": [
@@ -1399,7 +1690,7 @@
 					"featured_image": {
 						"$media": {
 							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
-							"alt": "Puerta de entrada de una vivienda",
+							"alt": "Llaves junto a una pequeña maqueta de casa",
 							"filename": "first-time-buyer-es.jpg"
 						}
 					},
@@ -1464,7 +1755,7 @@
 					"featured_image": {
 						"$media": {
 							"url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop",
-							"alt": "Entree d'une maison",
+							"alt": "Clés à côté d'une petite maquette de maison",
 							"filename": "first-time-buyer-fr.jpg"
 						}
 					},

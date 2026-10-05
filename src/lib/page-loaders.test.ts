@@ -9,7 +9,10 @@
  * down the loader status decisions and the fallback-site behaviour.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { http, HttpResponse } from 'msw'
 import { fallbackSite } from './pwb/fallback-site'
+import { server } from '../test/mocks/pwb-server'
+import pageFixture from '../test/fixtures/page.json'
 
 vi.mock('emdash', () => ({
   getEmDashEntry: vi.fn(),
@@ -18,6 +21,8 @@ vi.mock('emdash', () => ({
 
 import { getEmDashEntry, getTerm } from 'emdash'
 import {
+  loadAreaEntry,
+  loadAreaRoute,
   loadCmsEntry,
   loadPostEntry,
   loadPropertyDetail,
@@ -77,6 +82,75 @@ describe('loadCmsEntry', () => {
     expect(load.page).toBeNull()
     expect(load.status).toBe(404)
     expect(mockedGetEntry).toHaveBeenCalledWith('pages', 'no-such-page', { locale: 'en' })
+  })
+})
+
+describe('loadAreaEntry', () => {
+  const area = { id: 'east-brunswick', data: { title: 'Living in East Brunswick' } }
+
+  it('returns the requested-locale entry when it exists', async () => {
+    mockedGetEntry.mockResolvedValue({ entry: area, cacheHint: { tags: [] } } as never)
+
+    const load = await loadAreaEntry('es', 'east-brunswick')
+    expect(load).toMatchObject({ area, isFallback: false, status: undefined })
+    expect(mockedGetEntry).toHaveBeenCalledTimes(1)
+    expect(mockedGetEntry).toHaveBeenCalledWith('areas', 'east-brunswick', { locale: 'es' })
+  })
+
+  it('flags entries EmDash served from a fallback locale', async () => {
+    mockedGetEntry.mockResolvedValue({ entry: area, cacheHint: { tags: [] }, fallbackLocale: 'en' } as never)
+
+    const load = await loadAreaEntry('fr', 'east-brunswick')
+    expect(load).toMatchObject({ area, isFallback: true, status: undefined })
+  })
+
+  it('returns 404 when the entry exists in no locale', async () => {
+    mockedGetEntry.mockResolvedValue({ entry: null, cacheHint: undefined } as never)
+
+    const load = await loadAreaEntry('es', 'nowhere')
+    expect(load).toMatchObject({ area: null, isFallback: false, status: 404 })
+  })
+
+  it('returns 404 without querying when slug or locale is missing', async () => {
+    expect((await loadAreaEntry('en', undefined)).status).toBe(404)
+    expect((await loadAreaEntry(null, 'x')).status).toBe(404)
+    expect(mockedGetEntry).not.toHaveBeenCalled()
+  })
+})
+
+describe('loadAreaRoute', () => {
+  it('serves the EmDash area without touching PWB when it exists', async () => {
+    const area = { id: 'east-brunswick', data: {} }
+    mockedGetEntry.mockResolvedValue({ entry: area, cacheHint: undefined } as never)
+
+    const load = await loadAreaRoute('en', 'east-brunswick')
+    expect(load.area.area).toBe(area)
+    expect(load.pwb).toBeNull()
+    expect(load.status).toBeUndefined()
+  })
+
+  it('falls back to a PWB page under areas/ that the static route would otherwise shadow', async () => {
+    mockedGetEntry.mockResolvedValue({ entry: null, cacheHint: undefined } as never)
+    let requestedSlug = ''
+    server.use(
+      http.get('http://localhost:3001/api_public/v1/:locale/localized_page/by_slug/:slug', ({ params }) => {
+        requestedSlug = decodeURIComponent(String(params.slug))
+        return HttpResponse.json(pageFixture)
+      }),
+    )
+
+    const load = await loadAreaRoute('en', 'marbella')
+    expect(requestedSlug).toBe('areas/marbella')
+    expect(load.pwb?.loadState).toBe('ok')
+    expect(load.status).toBeUndefined()
+  })
+
+  it('returns a PWB-styled 404 when neither EmDash nor PWB has the page', async () => {
+    mockedGetEntry.mockResolvedValue({ entry: null, cacheHint: undefined } as never)
+
+    const load = await loadAreaRoute('en', 'nowhere')
+    expect(load.pwb?.loadState).toBe('not_found')
+    expect(load.status).toBe(404)
   })
 })
 

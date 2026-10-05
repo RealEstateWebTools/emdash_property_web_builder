@@ -5,6 +5,39 @@
 
 import type { BylineSummary, ContentBylineCredit, TaxonomyTerm, PortableTextBlock } from "emdash";
 
+export interface Area {
+  id: string;
+  slug: string | null;
+  status: string;
+  title: string;
+  kind?: "area" | "lifestyle";
+  tagline?: string;
+  hero_image?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; focalX?: number; focalY?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown>; darkVariant?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; focalX?: number; focalY?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown> } };
+  intro?: PortableTextBlock[];
+  highlights?: unknown;
+  listings_heading?: string;
+  listings_source?: "featured" | "newest" | "handpicked";
+  listings_slugs?: string;
+  listings_sale_or_rental?: "sale" | "rental";
+  listings_property_type?: string;
+  listings_limit?: number;
+  body?: PortableTextBlock[];
+  show_testimonials?: boolean;
+  faqs?: unknown;
+  cta_heading?: string;
+  cta_text?: string;
+  cta_label?: string;
+  cta_href?: string;
+  seo_title?: string;
+  seo_description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  byline?: BylineSummary | null;
+  bylines?: ContentBylineCredit[];
+  terms?: Record<string, TaxonomyTerm[]>;
+}
+
 export interface Page {
   id: string;
   slug: string | null;
@@ -91,6 +124,7 @@ export interface Testimonial {
 
 declare module "emdash" {
   interface EmDashCollections {
+    areas: Area;
     pages: Page;
     posts: Post;
     team: Team;

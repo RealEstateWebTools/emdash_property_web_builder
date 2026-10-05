@@ -18,6 +18,8 @@ describe('localized route conventions', () => {
     'src/pages/[lang]/properties/[slug].astro',
     'src/pages/[lang]/category/[slug].astro',
     'src/pages/[lang]/tag/[slug].astro',
+    'src/pages/[lang]/areas/index.astro',
+    'src/pages/[lang]/areas/[slug].astro',
   ]
 
   it('guards every localized route wrapper with shared locale bootstrap helper', () => {

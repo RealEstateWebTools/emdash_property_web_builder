@@ -114,6 +114,177 @@
 					"type": "portableText"
 				}
 			]
+		},
+		{
+			"slug": "areas",
+			"label": "Areas & Lifestyle",
+			"labelSingular": "Area or Lifestyle Page",
+			"description": "Location-led and lifestyle landing pages: intro, local highlights, curated listings, trust and CTA.",
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
+			"urlPattern": "/areas/{slug}",
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "kind",
+					"label": "Page Type",
+					"type": "select",
+					"defaultValue": "area",
+					"validation": {
+						"options": [
+							"area",
+							"lifestyle"
+						]
+					}
+				},
+				{
+					"slug": "tagline",
+					"label": "Tagline",
+					"type": "string"
+				},
+				{
+					"slug": "hero_image",
+					"label": "Hero Image",
+					"type": "image"
+				},
+				{
+					"slug": "intro",
+					"label": "Introduction",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "highlights",
+					"label": "Local Highlights",
+					"type": "repeater",
+					"fields": [
+						{
+							"slug": "label",
+							"label": "Label",
+							"type": "string"
+						},
+						{
+							"slug": "value",
+							"label": "Value",
+							"type": "string"
+						}
+					]
+				},
+				{
+					"slug": "listings_heading",
+					"label": "Listings Heading",
+					"type": "string"
+				},
+				{
+					"slug": "listings_source",
+					"label": "Listings Source",
+					"type": "select",
+					"defaultValue": "featured",
+					"validation": {
+						"options": [
+							"featured",
+							"newest",
+							"handpicked"
+						]
+					}
+				},
+				{
+					"slug": "listings_slugs",
+					"label": "Hand-picked Properties (slugs or URLs, comma-separated)",
+					"type": "text"
+				},
+				{
+					"slug": "listings_sale_or_rental",
+					"label": "Listings: For Sale or Rent",
+					"type": "select",
+					"defaultValue": "sale",
+					"validation": {
+						"options": [
+							"sale",
+							"rental"
+						]
+					}
+				},
+				{
+					"slug": "listings_property_type",
+					"label": "Listings: Property Type",
+					"type": "string"
+				},
+				{
+					"slug": "listings_limit",
+					"label": "Listings: How Many",
+					"type": "integer",
+					"defaultValue": 6
+				},
+				{
+					"slug": "body",
+					"label": "More Content",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "show_testimonials",
+					"label": "Show Client Testimonials",
+					"type": "boolean",
+					"defaultValue": true
+				},
+				{
+					"slug": "faqs",
+					"label": "Local FAQs",
+					"type": "repeater",
+					"fields": [
+						{
+							"slug": "question",
+							"label": "Question",
+							"type": "string"
+						},
+						{
+							"slug": "answer",
+							"label": "Answer",
+							"type": "text"
+						}
+					]
+				},
+				{
+					"slug": "cta_heading",
+					"label": "CTA Heading",
+					"type": "string"
+				},
+				{
+					"slug": "cta_text",
+					"label": "CTA Text",
+					"type": "text"
+				},
+				{
+					"slug": "cta_label",
+					"label": "CTA Button Label",
+					"type": "string"
+				},
+				{
+					"slug": "cta_href",
+					"label": "CTA Button Link",
+					"type": "string"
+				},
+				{
+					"slug": "seo_title",
+					"label": "SEO Title",
+					"type": "string"
+				},
+				{
+					"slug": "seo_description",
+					"label": "SEO Description",
+					"type": "text"
+				}
+			]
 		}
 	],
 

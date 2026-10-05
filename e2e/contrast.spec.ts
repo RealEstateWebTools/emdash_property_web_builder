@@ -25,6 +25,8 @@ const KEY_PAGES = [
   '/posts/choosing-the-right-neighbourhood', // seeded post with a listing collection
   '/pages/about', // seeded CMS page
   '/about', // PWB page (fixture)
+  '/areas', // area & lifestyle index
+  '/areas/east-brunswick', // seeded area page
 ] as const
 
 interface ContrastFailure {

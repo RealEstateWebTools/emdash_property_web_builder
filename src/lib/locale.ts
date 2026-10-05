@@ -68,6 +68,18 @@ export function entrySlug(entryId: string): string {
 
 const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
   es: {
+    // Area & lifestyle pages
+    'Areas & lifestyle': 'Zonas y estilo de vida',
+    'Area guide': 'Guía de zona',
+    'Lifestyle': 'Estilo de vida',
+    'Local highlights': 'Lo más destacado de la zona',
+    'What our clients say': 'Lo que dicen nuestros clientes',
+    'Frequently asked questions': 'Preguntas frecuentes',
+    'Talk to a local expert': 'Hable con un experto local',
+    'Thinking about a move here?': '¿Está pensando en mudarse aquí?',
+    'Area guides and lifestyle collections from our local team.': 'Guías de zona y colecciones de estilo de vida de nuestro equipo local.',
+    'No area guides yet.': 'Todavía no hay guías de zona.',
+    'This page is not yet available in your language.': 'Esta página aún no está disponible en su idioma.',
     'Thoughts, stories, and ideas.': 'Ideas, historias y contexto del mercado inmobiliario.',
     'RSS Feed': 'Canal RSS',
     'article': 'artículo',
@@ -168,6 +180,18 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     'Close gallery': 'Cerrar galeria',
   },
   fr: {
+    // Area & lifestyle pages
+    'Areas & lifestyle': 'Quartiers et art de vivre',
+    'Area guide': 'Guide de quartier',
+    'Lifestyle': 'Art de vivre',
+    'Local highlights': 'Les atouts du quartier',
+    'What our clients say': 'Ce que disent nos clients',
+    'Frequently asked questions': 'Questions fréquentes',
+    'Talk to a local expert': 'Parler à un expert local',
+    'Thinking about a move here?': 'Vous envisagez de vous installer ici ?',
+    'Area guides and lifestyle collections from our local team.': 'Guides de quartier et sélections art de vivre de notre équipe locale.',
+    'No area guides yet.': 'Aucun guide de quartier pour l\'instant.',
+    'This page is not yet available in your language.': 'Cette page n\'est pas encore disponible dans votre langue.',
     'Thoughts, stories, and ideas.': 'Idees, analyses et histoires autour de l\'immobilier.',
     'RSS Feed': 'Flux RSS',
     'article': 'article',

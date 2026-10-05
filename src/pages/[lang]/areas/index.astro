@@ -1,0 +1,8 @@
+---
+import AreasIndexPage from '../../../components/pages/AreasIndexPage.astro'
+import { resolveLocalizedLocale } from '../../../lib/route-locale'
+
+const locale = resolveLocalizedLocale(Astro)
+---
+
+{locale ? <AreasIndexPage locale={locale} /> : null}

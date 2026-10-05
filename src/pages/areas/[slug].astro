@@ -1,0 +1,19 @@
+---
+import AreaPage from '../../components/pages/AreaPage.astro'
+import PwbPage from '../../components/pages/PwbPage.astro'
+import { loadAreaRoute } from '../../lib/page-loaders'
+import { resolveDefaultLocale } from '../../lib/route-locale'
+
+const locale = resolveDefaultLocale(Astro.currentLocale)
+const { slug } = Astro.params
+// Status must be set in route frontmatter — Astro 7 fixes the Response
+// status before components render (see src/lib/page-loaders.ts).
+const load = await loadAreaRoute(locale, slug)
+if (load.status) Astro.response.status = load.status
+---
+
+{slug ? load.pwb ? (
+  <PwbPage locale={locale} page={load.pwb.page} site={load.pwb.site} loadState={load.pwb.loadState} />
+) : (
+  <AreaPage locale={locale} slug={slug} area={load.area.area} cacheHint={load.area.cacheHint} isFallback={load.area.isFallback} />
+) : null}

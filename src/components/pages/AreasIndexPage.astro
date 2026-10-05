@@ -1,0 +1,176 @@
+---
+import { getEmDashCollection } from 'emdash'
+import { Image } from 'emdash/ui'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { areaPath, readAreaKind, type AreaKind } from '../../lib/areas'
+import { DEFAULT_LOCALE, localePath, translateLabel } from '../../lib/locale'
+import { createPwbClient } from '../../lib/pwb/client'
+import { logPwbUnexpectedError } from '../../lib/pwb/errors'
+import { fallbackSite } from '../../lib/pwb/fallback-site'
+
+interface Props {
+  locale: string
+}
+
+const { locale } = Astro.props
+
+// Collection queries don't walk the i18n fallback chain the way single
+// entries do, so show the default-locale entries when the locale has none.
+let { entries, cacheHint } = await getEmDashCollection('areas', { locale })
+if (entries.length === 0 && locale !== DEFAULT_LOCALE) {
+  ;({ entries, cacheHint } = await getEmDashCollection('areas', { locale: DEFAULT_LOCALE }))
+}
+Astro.cache?.set(cacheHint)
+
+let site = fallbackSite
+try {
+  site = await createPwbClient(locale).getSiteDetails()
+} catch (err) {
+  logPwbUnexpectedError(`areas index chrome locale=${locale}`, err)
+}
+
+const cards = entries.map((entry) => {
+  const data = entry.data as unknown as Record<string, unknown>
+  return {
+    id: entry.id,
+    kind: readAreaKind(data),
+    title: typeof data.title === 'string' ? data.title : entry.id,
+    tagline: typeof data.tagline === 'string' ? data.tagline : '',
+    image: data.hero_image ?? null,
+    href: areaPath(locale, entry.id),
+  }
+})
+
+const groups: Array<{ kind: AreaKind; label: string }> = [
+  { kind: 'area', label: translateLabel(locale, 'Area guide') },
+  { kind: 'lifestyle', label: translateLabel(locale, 'Lifestyle') },
+]
+const title = translateLabel(locale, 'Areas & lifestyle')
+---
+
+<BaseLayout
+  site={site}
+  title={title}
+  description={translateLabel(locale, 'Area guides and lifestyle collections from our local team.')}
+  breadcrumbs={[
+    { name: translateLabel(locale, 'Home'), url: localePath(locale, '/') },
+    { name: title, url: localePath(locale, '/areas') },
+  ]}
+>
+  <div class="areas-index">
+    <header class="areas-index__header">
+      <h1 class="areas-index__title">{title}</h1>
+      <p class="areas-index__intro">{translateLabel(locale, 'Area guides and lifestyle collections from our local team.')}</p>
+    </header>
+
+    {cards.length === 0 && <p class="areas-index__empty">{translateLabel(locale, 'No area guides yet.')}</p>}
+
+    {groups.map((group) => {
+      const items = cards.filter((card) => card.kind === group.kind)
+      return items.length > 0 && (
+        <section class="areas-index__group">
+          <h2 class="areas-index__group-title">{group.label}</h2>
+          <ul class="areas-index__grid">
+            {items.map((card) => (
+              <li>
+                <a class="areas-index__card" href={card.href}>
+                  <div class="areas-index__media">
+                    {card.image ? <Image image={card.image as never} /> : null}
+                  </div>
+                  <div class="areas-index__body">
+                    <h3 class="areas-index__card-title">{card.title}</h3>
+                    {card.tagline && <p class="areas-index__tagline">{card.tagline}</p>}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    })}
+  </div>
+</BaseLayout>
+
+<style>
+  .areas-index {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    padding: var(--space-section-sm, 3rem) var(--spacing-page, 1.25rem) var(--space-section-md, 5.5rem);
+  }
+
+  .areas-index__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 5vw, var(--text-4xl, 2.8rem));
+    color: var(--color-primary);
+  }
+
+  .areas-index__intro,
+  .areas-index__empty {
+    margin: 0.75rem 0 0;
+    color: var(--color-text-soft);
+    max-width: 52ch;
+  }
+
+  .areas-index__group {
+    margin-top: 3rem;
+  }
+
+  .areas-index__group-title {
+    margin: 0 0 1.25rem;
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wider, 0.16em);
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  .areas-index__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .areas-index__card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface-strong);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .areas-index__media {
+    aspect-ratio: 16 / 10;
+    background: var(--color-bg-soft);
+  }
+
+  .areas-index__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .areas-index__body {
+    padding: 1rem 1.2rem 1.3rem;
+  }
+
+  .areas-index__card-title {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--color-text);
+  }
+
+  .areas-index__tagline {
+    margin: 0.45rem 0 0;
+    color: var(--color-text-soft);
+  }
+</style>

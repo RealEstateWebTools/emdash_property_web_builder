@@ -26,6 +26,8 @@ describe('not-found route conventions', () => {
     'src/pages/posts/[slug].astro',
     'src/pages/category/[slug].astro',
     'src/pages/tag/[slug].astro',
+    'src/pages/areas/[slug].astro',
+    'src/pages/[lang]/areas/[slug].astro',
   ]
 
   it('does not redirect missing content to /404 from dynamic routes', () => {

@@ -48,6 +48,34 @@ export async function loadCmsEntry(locale: string | null, slug: string | undefin
   return { page: entry, cacheHint, status: entry ? undefined : 404 }
 }
 
+/**
+ * Area / lifestyle landing page (EmDash `areas` collection). EmDash itself
+ * walks the i18n fallback chain (es/fr → en) when a translation is missing
+ * and reports it as `fallbackLocale`; `isFallback` lets the page say so and
+ * point its canonical at the original.
+ */
+export async function loadAreaEntry(locale: string | null, slug: string | undefined) {
+  if (!locale || !slug) return { area: null, cacheHint: undefined, isFallback: false, status: 404 }
+
+  const { entry, cacheHint, fallbackLocale } = await getEmDashEntry('areas', slug, { locale })
+  return { area: entry, cacheHint, isFallback: Boolean(entry && fallbackLocale), status: entry ? undefined : 404 }
+}
+
+/**
+ * Route loader for /areas/[slug]. The static `areas` route shadows any PWB
+ * CMS page under `areas/…` that the [lang] catch-all used to serve, so when
+ * no EmDash area exists, fall back to the PWB page `areas/<slug>` (or the
+ * PWB-styled 404).
+ */
+export async function loadAreaRoute(locale: string | null, slug: string | undefined) {
+  const area = await loadAreaEntry(locale, slug)
+  if (area.area || !locale || !slug) return { area, pwb: null, status: area.status }
+
+  // PwbPage also renders the styled 404 when neither exists.
+  const pwb = await loadPwbPage(locale, `areas/${slug}`)
+  return { area, pwb, status: pwb.status }
+}
+
 /** Taxonomy term listing (category/tag archive pages). */
 export async function loadTaxonomyTerm(taxonomy: 'category' | 'tag', slug: string | undefined) {
   const term = slug ? await getTerm(taxonomy, slug) : null
