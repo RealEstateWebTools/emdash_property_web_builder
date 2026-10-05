@@ -59,7 +59,8 @@ if (Astro.request.method === "POST") {
         return Astro.redirect(`${config.basePath}/valuation?sent=1`);
       } else {
         const json = await res.json().catch(() => ({}));
-        errorMessage = json.error ?? "Submission failed. Please try again.";
+        // EmDash API errors are { success: false, error: { code, message } }.
+        errorMessage = json.error?.message ?? "Submission failed. Please try again.";
       }
     } catch {
       errorMessage = "Network error. Please try again.";

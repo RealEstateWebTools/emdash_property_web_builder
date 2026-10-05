@@ -15,7 +15,7 @@ const PORT = Number(process.env.VISUAL_PORT ?? 4330)
 
 export default defineConfig({
   testDir: './e2e',
-  testMatch: ['visual-regression.spec.ts', 'contrast.spec.ts', 'listing-collection.spec.ts', 'areas.spec.ts'],
+  testMatch: ['visual-regression.spec.ts', 'contrast.spec.ts', 'listing-collection.spec.ts', 'areas.spec.ts', 'lead-reports.spec.ts'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

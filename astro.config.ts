@@ -13,6 +13,7 @@ import { pwbPropertiesPlugin } from "pwb-properties";
 import { pwbValuationPlugin } from "pwb-valuation";
 import { pwbValuationIntegration } from "pwb-valuation/integration";
 import { pwbThemePlugin } from "./src/plugins/pwb-theme.js";
+import { leadReportsPlugin } from "./src/plugins/lead-reports.js";
 import { resendEmailPlugin } from "./src/plugins/resend-email.js";
 import { siteProfilePlugin } from "./src/plugins/site-profile.js";
 
@@ -29,7 +30,7 @@ const emdashLocalExcludes = [
 ];
 // webhook-notifier >= 0.2.0 ships a PluginDescriptor as its default export
 // instead of a factory function — pass it directly, do not call it.
-const trustedPlugins = [webhookNotifierPlugin, pwbPropertiesPlugin(), pwbThemePlugin(), siteProfilePlugin(), resendEmailPlugin()];
+const trustedPlugins = [webhookNotifierPlugin, pwbPropertiesPlugin(), pwbThemePlugin(), siteProfilePlugin(), resendEmailPlugin(), leadReportsPlugin()];
 const bundledPlugins = [formsPlugin(), pwbPropertyEmbedsPlugin(), pwbPagePartsPlugin(), pwbValuationPlugin()];
 
 export default defineConfig({
@@ -134,6 +135,8 @@ export default defineConfig({
 				"./src/plugins/site-profile.sandbox.js",
 				"./src/plugins/resend-email.js",
 				"./src/plugins/resend-email.sandbox.js",
+				"./src/plugins/lead-reports.js",
+				"./src/plugins/lead-reports.sandbox.js",
 			],
 		},
 	},

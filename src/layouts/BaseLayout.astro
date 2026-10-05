@@ -195,6 +195,11 @@ const meta = buildPageMeta(siteWithProfile, { locale: currentLocale, title, desc
       <slot />
     </main>
     <SiteFooter siteTitle={localizedSiteTitle} siteProfile={siteProfile} />
+    <script>
+      // Lead & CTA reporting (lead-reports plugin): data-cta clicks + enquiries.
+      import { initLeadTracking } from '../lib/lead-tracking'
+      initLeadTracking()
+    </script>
   </body>
 </html>
 

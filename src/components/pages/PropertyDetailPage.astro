@@ -111,13 +111,14 @@ const propertyJsonLd = detail
               <a
                 href={propertyCta.primaryHref}
                 class="btn btn-primary property-detail-page__cta-button"
+                data-cta={propertyCta.type}
                 target={propertyCta.type === 'whatsapp_chat' ? '_blank' : undefined}
                 rel={propertyCta.type === 'whatsapp_chat' ? 'noreferrer' : undefined}
               >
                 {propertyCta.primaryLabel}
               </a>
               {propertyCta.secondaryLabel && propertyCta.secondaryHref && (
-                <a href={propertyCta.secondaryHref} class="btn property-detail-page__cta-secondary">
+                <a href={propertyCta.secondaryHref} class="btn property-detail-page__cta-secondary" data-cta={`${propertyCta.type}_secondary`}>
                   {propertyCta.secondaryLabel}
                 </a>
               )}
@@ -174,6 +175,7 @@ const propertyJsonLd = detail
         <a
           href={propertyCta.primaryHref}
           class="btn btn-primary property-detail-page__mobile-cta-button"
+          data-cta={propertyCta.type}
           target={propertyCta.type === 'whatsapp_chat' ? '_blank' : undefined}
           rel={propertyCta.type === 'whatsapp_chat' ? 'noreferrer' : undefined}
         >

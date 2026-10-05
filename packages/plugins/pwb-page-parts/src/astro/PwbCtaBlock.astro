@@ -17,7 +17,7 @@ const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim(
     <p>{text}</p>
   </div>
   <div class="pwb-cta__actions">
-    <a class="pwb-cta__button" href={buttonHref}>{buttonLabel}</a>
+    <a class="pwb-cta__button" href={buttonHref} data-cta="pwb_cta">{buttonLabel}</a>
   </div>
 </section>
 

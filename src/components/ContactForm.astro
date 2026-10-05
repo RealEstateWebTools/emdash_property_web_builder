@@ -154,6 +154,10 @@ const submitText = submitLabel ?? translateLabel(currentLocale, 'Send Enquiry')
         const status = form.querySelector('.form-status')!
 
         if (result.success) {
+          // Recorded by the lead-reports tracker (src/lib/lead-tracking.ts).
+          document.dispatchEvent(
+            new CustomEvent('pwb:enquiry-sent', { detail: { pageType, ctaSource, propertySlug } }),
+          )
           form.reset()
           status.textContent = result.message ?? successMessage
           status.className = 'form-status success'

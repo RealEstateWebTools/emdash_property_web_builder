@@ -7,6 +7,8 @@
  *   - POST /_emdash/api/plugins/pwb-valuation/admin   (Block Kit admin UI)
  */
 
+import { PluginRouteError } from "emdash";
+
 
 export function buildValuationRows(items) {
   return items.map((item) => ({
@@ -82,10 +84,9 @@ export default {
         const notes = typeof body.notes === "string" ? body.notes.trim() : "";
 
         if (!name || !email || !address) {
-          throw new Response(
-            JSON.stringify({ error: "name, email, and address are required" }),
-            { status: 422, headers: { "Content-Type": "application/json" } },
-          );
+          // PluginRouteError carries the status through EmDash's route
+          // dispatcher; a thrown Response is reported as a 500.
+          throw new PluginRouteError("VALIDATION_ERROR", "name, email, and address are required", 422);
         }
 
         const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;

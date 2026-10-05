@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { PluginRouteError } from 'emdash'
 import plugin, { buildValuationRows, buildListBlocks } from './sandbox-entry.js'
 
 // ---------------------------------------------------------------------------
@@ -21,14 +22,16 @@ function makeRouteCtx(input) {
   return { input }
 }
 
+// EmDash maps a thrown PluginRouteError to its HTTP status; a thrown Response
+// is reported as a generic 500, so handlers must use PluginRouteError.
 async function expectThrowsResponse(fn, expectedStatus) {
   try {
     await fn()
-    expect.fail('Expected handler to throw a Response')
+    expect.fail('Expected handler to throw a PluginRouteError')
   } catch (err) {
-    expect(err).toBeInstanceOf(Response)
+    expect(err).toBeInstanceOf(PluginRouteError)
     expect(err.status).toBe(expectedStatus)
-    return err.json()
+    return { error: err.message }
   }
 }
 
