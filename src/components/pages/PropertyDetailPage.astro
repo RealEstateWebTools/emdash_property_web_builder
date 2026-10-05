@@ -267,7 +267,8 @@ const propertyJsonLd = detail
     padding: 0.55rem 1rem;
     border: 1px solid rgba(22, 53, 76, 0.14);
     border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.7);
+    /* --chip-bg: palettes with dark surfaces (e.g. luxury) override it. */
+    background: var(--chip-bg, rgba(255, 255, 255, 0.7));
     color: var(--color-primary);
     font-size: var(--text-sm);
     font-weight: 600;
@@ -303,7 +304,7 @@ const propertyJsonLd = detail
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .property-detail-page__panel h2 {
@@ -356,7 +357,7 @@ const propertyJsonLd = detail
   .property-detail-page__trust-points li svg {
     flex-shrink: 0;
     margin-top: 0.1em;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     opacity: 0.8;
   }
 
@@ -364,7 +365,7 @@ const propertyJsonLd = detail
     display: inline-block;
     font-size: var(--text-xs);
     font-weight: 700;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
     letter-spacing: 0.04em;
   }

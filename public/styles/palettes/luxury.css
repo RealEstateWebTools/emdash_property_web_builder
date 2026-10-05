@@ -22,12 +22,14 @@
   --header-bg:            rgba(15, 14, 12, 0.92);
   --header-border:        1px solid #2c2a26;
   --pwb-panel-bg:         var(--color-surface-strong);
-  --search-chip-bg:       var(--color-surface-strong);
+  --chip-bg:       var(--color-surface-strong);
 
   /* Gold fills are light, so text on them is dark ink, not cream/white. */
   --color-on-primary:     #0f0e0c;
   --color-on-accent:      #0f0e0c;
   --color-accent-contrast:#0f0e0c;
+  /* Gold reads on the dark surfaces as-is; don't darken it. */
+  --color-accent-text:    var(--color-accent);
 
   --font-sans:  'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   --font-serif: 'Cormorant Garamond', Georgia, serif;

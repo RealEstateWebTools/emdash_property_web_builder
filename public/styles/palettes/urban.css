@@ -4,9 +4,11 @@
   --color-primary:       #1e293b;
   --color-primary-light: #334155;
   --color-primary-dark:  #0f172a;
-  --color-accent:        #6366f1;
+  --color-accent:        #5558e8;
+  /* Indigo is too dark for dark ink: white text on accent fills. */
+  --color-on-accent:     #ffffff;
   --color-text:          #0f172a;
-  --color-text-muted:    #64748b;
+  --color-text-muted:    #5b6a7e;
   --color-bg:            #ffffff;
   --color-bg-soft:       #f8fafc;
   --color-border:        #e2e8f0;
@@ -143,11 +145,15 @@ html.theme-urban .search-page__map-copy h2 {
   letter-spacing: -0.05em;
 }
 
-html.theme-urban .hero__eyebrow,
 html.theme-urban .section-heading__eyebrow,
 html.theme-urban .inventory-group__eyebrow,
 html.theme-urban .search-page__eyebrow {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+/* The urban hero is solid navy: light indigo reads there, the accent doesn't. */
+html.theme-urban .hero__eyebrow {
+  color: #a5b4fc;
 }
 
 html.theme-urban .hero__search,

@@ -8,7 +8,7 @@
   --color-gold: #d8bb89;
   --color-text: #183042;
   --color-text-soft: #516577;
-  --color-text-muted: #6d7a86;
+  --color-text-muted: #5f6a75;
   --color-bg: #fcfaf7;
   --color-bg-soft: #f4eee4;
   --color-surface: #f8f3eb;
@@ -17,6 +17,11 @@
   --color-success: #1f8f6d;
   --color-error: #c84f43;
   --color-on-accent: #091a27;
+  /* Accent as text on light surfaces: mid-tone accents fail WCAG AA as text,
+     so darken them. Dark palettes (luxury) set it back to the plain accent. */
+  --color-accent-text: color-mix(in srgb, var(--color-accent) 62%, black);
+  /* Text on accent fills (buttons, badges). */
+  --color-accent-contrast: var(--color-on-accent);
   --color-on-dark: #f6f2eb;
   /* Text on --color-primary fills. Palettes with a light primary (luxury gold) set a dark ink. */
   --color-on-primary: var(--color-on-dark);

@@ -181,7 +181,7 @@ const summaryItems = [
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .search-bar__intro h2 {
@@ -207,8 +207,8 @@ const summaryItems = [
     gap: 0.45rem;
     padding: 0.55rem 0.85rem;
     border-radius: 999px;
-    /* --search-chip-bg: palettes with dark surfaces (e.g. luxury) override it. */
-    background: var(--search-chip-bg, rgba(255, 255, 255, 0.72));
+    /* --chip-bg: palettes with dark surfaces (e.g. luxury) override it. */
+    background: var(--chip-bg, rgba(255, 255, 255, 0.72));
     border: 1px solid rgba(22, 53, 76, 0.08);
     color: var(--color-text-soft);
     font-size: var(--text-sm);
@@ -396,7 +396,7 @@ const summaryItems = [
 
     .search-bar__filters-summary::after {
       content: '+';
-      color: var(--color-accent);
+      color: var(--color-accent-text);
       font-size: 1.1rem;
       line-height: 1;
       flex: 0 0 auto;
