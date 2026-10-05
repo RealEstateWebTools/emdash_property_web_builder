@@ -96,7 +96,8 @@ const testimonials = [readItem(1), readItem(2), readItem(3)];
   .pwb-testimonials-block__card {
     padding: 1.25rem;
     border-radius: 1rem;
-    background: linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(252, 250, 247, 0.98));
+    /* --pwb-panel-bg: palettes with dark surfaces (e.g. luxury) override it. */
+    background: var(--pwb-panel-bg, linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(252, 250, 247, 0.98)));
     border: 1px solid rgba(22, 53, 76, 0.08);
     box-shadow: var(--shadow-md, 0 12px 28px rgba(0, 0, 0, 0.08));
   }

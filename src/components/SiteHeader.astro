@@ -171,7 +171,7 @@ const combinedNavItems = [
 
   .site-header__topbar {
     background: var(--color-primary);
-    color: var(--color-on-dark);
+    color: var(--color-on-primary);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -196,11 +196,11 @@ const combinedNavItems = [
     font-size: var(--text-xs);
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(246, 242, 235, 0.82);
+    color: color-mix(in srgb, var(--color-on-primary) 82%, transparent);
   }
 
   .site-header__main {
-    background: rgba(255, 252, 247, 0.9);
+    background: var(--header-bg);
     backdrop-filter: blur(18px);
     border-bottom: var(--header-border);
   }
@@ -291,7 +291,7 @@ const combinedNavItems = [
   .site-header__locale {
     text-decoration: none;
     font-size: 0.68rem;
-    color: rgba(246, 242, 235, 0.72);
+    color: color-mix(in srgb, var(--color-on-primary) 72%, transparent);
     padding: 0.3rem 0.6rem;
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 999px;
@@ -302,7 +302,7 @@ const combinedNavItems = [
 
   .site-header__locale:hover {
     border-color: rgba(255, 255, 255, 0.4);
-    color: var(--color-on-dark);
+    color: var(--color-on-primary);
   }
 
   .site-header__locale--active {

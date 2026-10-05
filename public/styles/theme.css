@@ -18,6 +18,8 @@
   --color-error: #c84f43;
   --color-on-accent: #091a27;
   --color-on-dark: #f6f2eb;
+  /* Text on --color-primary fills. Palettes with a light primary (luxury gold) set a dark ink. */
+  --color-on-primary: var(--color-on-dark);
   --color-nav-link: var(--color-primary);
 
   --font-sans: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;

@@ -68,7 +68,8 @@ const points = [readPoint(1), readPoint(2), readPoint(3)];
 
   .pwb-local-expertise__copy {
     padding: 1.35rem;
-    background: linear-gradient(160deg, rgba(255, 248, 240, 0.96), rgba(250, 247, 241, 0.98));
+    /* --pwb-panel-bg: palettes with dark surfaces (e.g. luxury) override it. */
+    background: var(--pwb-panel-bg, linear-gradient(160deg, rgba(255, 248, 240, 0.96), rgba(250, 247, 241, 0.98)));
   }
 
   .pwb-local-expertise__copy p {

@@ -13,6 +13,22 @@
   --color-success:       #4caf82;
   --color-error:         #e05252;
 
+  /* Dark surfaces throughout. The base theme's surfaces and header are light,
+     which put gold and cream text on cream (contrast ~1.1–2.2:1). */
+  --color-text-soft:      #c9c1b3;
+  --color-surface:        #1a1916;
+  --color-surface-strong: #211f1b;
+  --color-border-subtle:  #24221e;
+  --header-bg:            rgba(15, 14, 12, 0.92);
+  --header-border:        1px solid #2c2a26;
+  --pwb-panel-bg:         var(--color-surface-strong);
+  --search-chip-bg:       var(--color-surface-strong);
+
+  /* Gold fills are light, so text on them is dark ink, not cream/white. */
+  --color-on-primary:     #0f0e0c;
+  --color-on-accent:      #0f0e0c;
+  --color-accent-contrast:#0f0e0c;
+
   --font-sans:  'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   --font-serif: 'Cormorant Garamond', Georgia, serif;
 
