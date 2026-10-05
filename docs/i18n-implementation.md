@@ -100,7 +100,6 @@ These are the main files that now define the shipped i18n behavior.
 - Non-default locale wrappers under `src/pages/[lang]/**`
 
 ### Shared shell and navigation
-- `src/layouts/Base.astro`
 - `src/layouts/BaseLayout.astro`
 - `src/components/SiteHeader.astro`
 - `src/components/SiteFooter.astro`
@@ -489,15 +488,10 @@ const localizedBrand = translateBrand(currentLocale, site.company_display_name ?
 The header locale switcher intentionally links to each locale homepage (`/`, `/es/`, `/fr/`).
 The repo does not currently implement per-entry translation navigation for posts or pages.
 
-### `src/layouts/Base.astro` and `src/layouts/BaseLayout.astro`
+### `src/layouts/BaseLayout.astro`
 
-The current app has two layout paths:
-
-- `src/layouts/Base.astro` is used by the blog/CMS pages today.
-- `src/layouts/BaseLayout.astro` is used by the property-site shell.
-
-That means locale-aware head tags for posts and CMS entries belong in `Base.astro` first. If
-property pages also need shared `hreflang` output, mirror the same pattern in `BaseLayout.astro`.
+Every page uses `src/layouts/BaseLayout.astro` (the older `Base.astro` was removed), so
+locale-aware head tags such as `hreflang` alternates belong there.
 
 Two changes:
 

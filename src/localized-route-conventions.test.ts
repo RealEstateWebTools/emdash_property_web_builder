@@ -74,12 +74,10 @@ describe('localized route conventions', () => {
     const baseLayout = readSource('src/layouts/BaseLayout.astro')
     const siteHeader = readSource('src/components/SiteHeader.astro')
     const siteFooter = readSource('src/components/SiteFooter.astro')
-    const blogBase = readSource('src/layouts/Base.astro')
 
     expect(baseLayout).toContain('translateBrand(currentLocale, site.company_display_name ?? site.title)')
     expect(siteHeader).toContain('const localizedBrand = translateBrand(currentLocale, site.company_display_name ?? site.title)')
     expect(siteFooter).toContain('const localizedSiteTitle = translateBrand(currentLocale, siteTitle)')
-    expect(blogBase).toContain('const siteTitle = translateBrand(currentLocale, "My Blog")')
     expect(readSource('src/components/pages/PostPage.astro')).toContain('siteTitle: translateBrand(locale, "My Blog")')
   })
 

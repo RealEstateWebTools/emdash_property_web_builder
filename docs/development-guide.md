@@ -267,14 +267,9 @@ Then re-seed: `npx emdash seed seed/seed.json`
 
 ## Layout conventions
 
-There are two layouts:
+Every page uses one layout, `BaseLayout.astro`, with `SiteHeader.astro` (property-site style, logo + nav from PWB site data). The earlier blog-style `Base.astro` was removed once no page used it.
 
-| Layout | Used by | Header |
-|---|---|---|
-| `BaseLayout.astro` | Home, properties, and CMS pages | `SiteHeader.astro` — property-site style, logo + nav from PWB site data |
-| `Base.astro` | Posts and EmDash blog content | Blog-style nav with search, theme switcher, admin link |
-
-**CMS pages (`/pages/[slug]`) use `BaseLayout.astro`** so the header is consistent with the rest of the site. They still use EmDash's `getEmDashEntry` for content and support visual editing attributes — they just don't include the EmDash admin toolbar overlay.
+CMS pages and posts still use EmDash's `getEmDashEntry` for content and support visual editing attributes. `BaseLayout.astro` does not render EmDash's page wiring (`EmDashHead` / `EmDashBodyStart` / `EmDashBodyEnd` via `createPublicPageContext`), so the EmDash admin toolbar overlay and plugin page fragments are not output. No current plugin injects page fragments; add that wiring to `BaseLayout.astro` before relying on one that does.
 
 If you add a new page type that should match the property-site look, use `BaseLayout.astro` and fetch `site` via `createPwbClient().getSiteDetails()`.
 

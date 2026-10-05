@@ -1,7 +1,8 @@
 import { readFileSync } from "fs";
 import { expect, test, describe } from "vitest";
 
-const css = readFileSync("src/styles/theme.css", "utf-8");
+// The stylesheet BaseLayout actually loads (/styles/theme.css).
+const css = readFileSync("public/styles/theme.css", "utf-8");
 
 describe("theme.css token conventions", () => {
   describe("font tokens", () => {
