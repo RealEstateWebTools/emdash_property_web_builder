@@ -6,7 +6,7 @@
  *   - Submitting with missing email shows a client-side validation error
  *   - Submitting a complete, valid form reaches the server (200 or redirect)
  *
- * Requires a running dev server: npx emdash dev
+ * Requires a running dev server: pnpm dev
  */
 
 import { test, expect } from '@playwright/test'

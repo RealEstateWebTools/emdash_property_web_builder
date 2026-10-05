@@ -1,8 +1,18 @@
 ---
 import IndexPage from '../../components/pages/IndexPage.astro'
-import { resolveLocalizedLocale } from '../../lib/route-locale'
+import PwbPage from '../../components/pages/PwbPage.astro'
+import { loadPwbPage } from '../../lib/page-loaders'
+import { resolvePwbPageRoute } from '../../lib/route-locale'
 
-const locale = resolveLocalizedLocale(Astro)
+// `/es` is the Spanish homepage; a non-locale segment like `/about-us` is a
+// default-locale PWB page (this route matches before the root catch-all).
+const { locale, slug, isDefaultLocale } = resolvePwbPageRoute(Astro.params)
+const load = isDefaultLocale ? await loadPwbPage(locale, slug) : null
+if (load?.status) Astro.response.status = load.status
 ---
 
-{locale ? <IndexPage locale={locale} /> : null}
+{load ? (
+  <PwbPage locale={locale} page={load.page} site={load.site} loadState={load.loadState} />
+) : (
+  <IndexPage locale={locale} />
+)}

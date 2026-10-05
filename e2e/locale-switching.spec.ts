@@ -6,7 +6,7 @@
  *   - Language switcher links are present and navigate correctly
  *   - No locale gives a 500 error
  *
- * Requires a running dev server: npx emdash dev
+ * Requires a running dev server: pnpm dev
  */
 
 import { test, expect } from '@playwright/test'
@@ -65,5 +65,25 @@ test.describe('Locale switching', () => {
     await page.goto('/es/')
     const lang = await page.locator('html').getAttribute('lang')
     expect(lang).toBe('es')
+  })
+})
+
+// /[lang] and /[lang]/[...slug] outrank the root catch-all, so default-locale
+// PWB pages reach them with lang = first path segment. They must render the
+// site's page shell (PWB page or its styled 404) — never an empty 404 body.
+test.describe('Default-locale PWB pages under localized routes', () => {
+  for (const path of ['/e2e-missing-page', '/e2e-missing-page/nested']) {
+    test(`${path} renders the styled 404 page, not an empty response`, async ({ page }) => {
+      const response = await page.goto(path)
+      expect(response?.status()).toBe(404)
+      await expect(page.locator('h1')).toHaveText('404')
+      await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    })
+  }
+
+  test('a bare locale prefix still serves that locale homepage', async ({ page }) => {
+    const response = await page.goto('/es')
+    expect(response?.status()).toBe(200)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es')
   })
 })

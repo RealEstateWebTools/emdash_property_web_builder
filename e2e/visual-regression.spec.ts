@@ -7,7 +7,7 @@
  * To update snapshots after an intentional design change:
  *   npx playwright test e2e/visual-regression.spec.ts --update-snapshots
  *
- * Requires a running dev server: npx emdash dev
+ * Requires a running dev server: pnpm dev
  *
  * Each palette is injected via a query param (?palette=<name>) that the
  * BaseLayout reads and applies in preference to the PUBLIC_PALETTE env var

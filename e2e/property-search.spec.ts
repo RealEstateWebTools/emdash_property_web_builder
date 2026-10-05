@@ -1,7 +1,7 @@
 /**
  * E2E: Property search → detail golden path.
  *
- * Requires a running dev server: npx emdash dev
+ * Requires a running dev server: pnpm dev
  * In CI, the server is started automatically by playwright.config.ts.
  *
  * The PWB API calls hit the live PWB_API_URL configured in the environment.

@@ -2,7 +2,7 @@
  * E2E: Contact/enquiry form golden path.
  *
  * Tests form validation (inline errors) and submission (success/error state).
- * Requires a running dev server: npx emdash dev
+ * Requires a running dev server: pnpm dev
  */
 
 import { test, expect } from '@playwright/test'

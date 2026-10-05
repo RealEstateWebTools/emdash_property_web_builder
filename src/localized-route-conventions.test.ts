@@ -10,9 +10,7 @@ function readSource(relativePath: string) {
 
 describe('localized route conventions', () => {
   const localizedRouteWrappers = [
-    'src/pages/[lang]/index.astro',
     'src/pages/[lang]/search.astro',
-    'src/pages/[lang]/[...slug].astro',
     'src/pages/[lang]/pages/[slug].astro',
     'src/pages/[lang]/posts/index.astro',
     'src/pages/[lang]/posts/[slug].astro',
@@ -32,6 +30,16 @@ describe('localized route conventions', () => {
     const helper = readSource('src/lib/route-locale.ts')
     expect(helper).toContain('validateLocale(ctx.params.lang)')
     expect(helper).toContain('ctx.response.status = 404')
+  })
+
+  it('lets /[lang] and /[lang]/[...slug] fall back to default-locale PWB pages', () => {
+    // These two routes outrank the root [...slug] catch-all, so they must not
+    // 404 a non-locale first segment (e.g. /about-us) — see route-locale.ts.
+    for (const route of ['src/pages/[lang]/index.astro', 'src/pages/[lang]/[...slug].astro']) {
+      const source = readSource(route)
+      expect(source, `${route} should resolve PWB page fallbacks`).toContain('resolvePwbPageRoute(Astro.params)')
+      expect(source, `${route} must not hard-404 non-locale segments`).not.toContain('resolveLocalizedLocale(Astro)')
+    }
   })
 
   it('keeps root and localized index wrappers aligned on the same page component', () => {

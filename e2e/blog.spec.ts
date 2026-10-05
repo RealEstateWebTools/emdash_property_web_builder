@@ -1,7 +1,7 @@
 /**
  * E2E: Blog listing → post detail golden path.
  *
- * Requires a running dev server: npx emdash dev
+ * Requires a running dev server: pnpm dev
  */
 
 import { test, expect } from '@playwright/test'
