@@ -1,6 +1,7 @@
 const DEFAULT_LOCALE = "en";
 const SUPPORTED_LOCALES = new Set(["es", "fr"]);
-const PROPERTY_SLUG_PATTERN = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+// PWB slugs use hyphens and underscores (e.g. "country_house-south-brunswick-re-s1-13").
+const PROPERTY_SLUG_PATTERN = /^[A-Za-z0-9]+(?:[-_][A-Za-z0-9]+)*$/;
 const EMBED_TRANSLATIONS = {
 	es: {
 		"View Property": "Ver propiedad",
@@ -28,9 +29,6 @@ const EMBED_TRANSLATIONS = {
 	},
 };
 
-function trimTrailingSlash(value) {
-	return value.replace(/\/+$/, "");
-}
 
 export function normalizeLocale(locale) {
 	return SUPPORTED_LOCALES.has(locale) ? locale : DEFAULT_LOCALE;
@@ -93,23 +91,8 @@ export function getPropertiesPath(locale = DEFAULT_LOCALE) {
 	return normalizedLocale === DEFAULT_LOCALE ? "/properties" : `/${normalizedLocale}/properties`;
 }
 
-export function getPwbApiBase() {
-	const url = import.meta.env.PWB_API_URL;
-	if (!url) {
-		throw new Error("PWB_API_URL environment variable is not set");
-	}
-	return trimTrailingSlash(url);
-}
-
-function buildPropertyOptionsUrl(apiBase, locale = DEFAULT_LOCALE, params = {}) {
-	const normalizedLocale = normalizeLocale(locale);
-	const url = new URL(`${trimTrailingSlash(apiBase)}/api_public/v1/${normalizedLocale}/properties`);
-	for (const [key, value] of Object.entries(params)) {
-		if (value !== undefined && value !== null && value !== "") {
-			url.searchParams.set(key, String(value));
-		}
-	}
-	return url;
+function isNotFound(error) {
+	return Boolean(error) && typeof error === "object" && error.status === 404;
 }
 
 function formatPropertyOptionName(property) {
@@ -117,26 +100,14 @@ function formatPropertyOptionName(property) {
 	return meta ? `${property.title} (${meta})` : property.title;
 }
 
-async function requestPropertyOptions(fetchImpl, url) {
-	const res = await fetchImpl(url.toString(), {
-		headers: { Accept: "application/json" },
-	});
-
-	if (!res.ok) {
-		throw new Error(`Failed to load PWB property shortlist: ${res.status}`);
-	}
-
-	const body = await res.json();
-	return Array.isArray(body?.data) ? body.data : [];
-}
-
-export async function fetchPropertyOptions(fetchImpl, apiBase, locale = DEFAULT_LOCALE) {
-	const featuredUrl = buildPropertyOptionsUrl(apiBase, locale, { featured: "true", per_page: 12 });
-	let properties = await requestPropertyOptions(fetchImpl, featuredUrl);
-
+/**
+ * Editor quick-pick options: featured listings, or the newest when none are
+ * featured. `source` is the host listing source (PWB or native EmDash).
+ */
+export async function fetchPropertyOptions(source) {
+	let properties = (await source.searchProperties({ featured: "true", per_page: 12 })).data ?? [];
 	if (properties.length === 0) {
-		const fallbackUrl = buildPropertyOptionsUrl(apiBase, locale, { per_page: 12 });
-		properties = await requestPropertyOptions(fetchImpl, fallbackUrl);
+		properties = (await source.searchProperties({ per_page: 12 })).data ?? [];
 	}
 
 	return properties
@@ -147,33 +118,25 @@ export async function fetchPropertyOptions(fetchImpl, apiBase, locale = DEFAULT_
 		}));
 }
 
-export async function fetchPropertyBySlug(fetchImpl, apiBase, slug, locale = DEFAULT_LOCALE) {
+/**
+ * Load one property for an embed, falling back to the default locale when the
+ * localized listing doesn't exist. Returns null when it exists in neither;
+ * other failures propagate.
+ *
+ * @param {(locale: string) => { getProperty(slug: string): Promise<any> }} getSource
+ */
+export async function fetchPropertyBySlug(getSource, slug, locale = DEFAULT_LOCALE) {
 	const requestedLocale = normalizeLocale(locale);
 	const localesToTry = requestedLocale === DEFAULT_LOCALE ? [DEFAULT_LOCALE] : [requestedLocale, DEFAULT_LOCALE];
 
 	for (const currentLocale of localesToTry) {
-		const url = `${trimTrailingSlash(apiBase)}/api_public/v1/${currentLocale}/properties/${encodeURIComponent(slug)}`;
-		const res = await fetchImpl(url, {
-			headers: { Accept: "application/json" },
-		});
-
-		if (res.status === 404) {
-			continue;
+		try {
+			return await getSource(currentLocale).getProperty(slug);
+		} catch (error) {
+			if (!isNotFound(error)) throw error;
 		}
-
-		if (!res.ok) {
-			throw new Error(`Failed to load PWB property ${slug}: ${res.status}`);
-		}
-
-		return res.json();
 	}
-
 	return null;
-}
-
-export async function getPropertyBySlug(slug, locale = DEFAULT_LOCALE) {
-	const apiBase = getPwbApiBase();
-	return fetchPropertyBySlug(fetch, apiBase, normalizePropertySlug(slug), locale);
 }
 
 export function getPropertyUrl(slug, locale = DEFAULT_LOCALE) {

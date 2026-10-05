@@ -1,7 +1,8 @@
 ---
+import { getListingSource } from "pwb-host-listing-source";
 import {
+	fetchPropertyBySlug,
 	getPropertiesPath,
-	getPropertyBySlug,
 	getPropertySlugValidationError,
 	getPropertyUrl,
 	normalizeLocale,
@@ -49,7 +50,7 @@ if (!slugError && slug) {
 		let propertyPromise = requestCache.get(cacheKey);
 
 		if (!propertyPromise) {
-			propertyPromise = getPropertyBySlug(slug, locale);
+			propertyPromise = fetchPropertyBySlug(getListingSource, slug, locale);
 			requestCache.set(cacheKey, propertyPromise);
 		}
 

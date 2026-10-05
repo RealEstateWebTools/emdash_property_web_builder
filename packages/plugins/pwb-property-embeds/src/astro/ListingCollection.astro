@@ -4,7 +4,8 @@ import {
 	fetchListingCollection,
 	readListingCollectionConfig,
 } from "./collection.js";
-import { getPropertyUrl, getPwbApiBase, normalizeLocale, translateEmbedLabel } from "./pwb.js";
+import { getListingSource } from "pwb-host-listing-source";
+import { getPropertyUrl, normalizeLocale, translateEmbedLabel } from "./pwb.js";
 
 const { node } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
@@ -32,7 +33,7 @@ if (canLoad) {
 		const key = `${locale}:${JSON.stringify(config)}`;
 		let pending = cache.get(key);
 		if (!pending) {
-			pending = fetchListingCollection(fetch, getPwbApiBase(), config, locale);
+			pending = fetchListingCollection(getListingSource(locale), config);
 			cache.set(key, pending);
 		}
 		listings = await pending;

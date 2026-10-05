@@ -1,6 +1,16 @@
 import { definePlugin } from "emdash";
 import { fetchPropertyTypeOptions } from "./astro/collection.js";
-import { fetchPropertyOptions, getPwbApiBase } from "./astro/pwb.js";
+import { fetchPropertyOptions } from "./astro/pwb.js";
+
+/**
+ * The host site's listing source (PWB or native EmDash listings), provided by
+ * the `pwb-host-listing-source` alias in astro.config.ts. Imported lazily:
+ * astro.config itself imports this module, before aliases exist.
+ */
+async function hostListingSource(locale) {
+	const { getListingSource } = await import("pwb-host-listing-source");
+	return getListingSource(locale);
+}
 
 const PORTABLE_TEXT_BLOCKS = [
 	{
@@ -139,7 +149,7 @@ export function createPlugin() {
 			"properties/types": {
 				handler: async () => {
 					try {
-						return { items: await fetchPropertyTypeOptions(fetch, getPwbApiBase(), "en") };
+						return { items: await fetchPropertyTypeOptions(await hostListingSource("en")) };
 					} catch {
 						return { items: [] };
 					}
@@ -148,8 +158,7 @@ export function createPlugin() {
 			"properties/list": {
 				handler: async () => {
 					try {
-						const apiBase = getPwbApiBase();
-						const items = await fetchPropertyOptions(fetch, apiBase, "en");
+						const items = await fetchPropertyOptions(await hostListingSource("en"));
 						return { items };
 					} catch {
 						return { items: [] };

@@ -55,83 +55,51 @@ describe("PWB property embed locale helpers", () => {
 	});
 
 	it("falls back to the default locale when a localized property is missing", async () => {
-		const fetchImpl = vi
+		const notFound = Object.assign(new Error("not found"), { status: 404 });
+		const getProperty = vi
 			.fn()
-			.mockResolvedValueOnce({ status: 404, ok: false })
-			.mockResolvedValueOnce({
-				status: 200,
-				ok: true,
-				json: async () => ({ slug: "villa-marbella", title: "Villa Marbella" }),
-			});
+			.mockRejectedValueOnce(notFound)
+			.mockResolvedValueOnce({ slug: "villa-marbella", title: "Villa Marbella" });
+		const getSource = vi.fn((_locale: string) => ({ getProperty }));
 
-		const property = await fetchPropertyBySlug(fetchImpl, "https://example.com", "villa-marbella", "es");
+		const property = await fetchPropertyBySlug(getSource, "villa-marbella", "es");
 
-		expect(fetchImpl).toHaveBeenCalledTimes(2);
-		expect(fetchImpl).toHaveBeenNthCalledWith(
-			1,
-			"https://example.com/api_public/v1/es/properties/villa-marbella",
-			{ headers: { Accept: "application/json" } },
-		);
-		expect(fetchImpl).toHaveBeenNthCalledWith(
-			2,
-			"https://example.com/api_public/v1/en/properties/villa-marbella",
-			{ headers: { Accept: "application/json" } },
-		);
+		expect(getSource.mock.calls.map(([locale]) => locale)).toEqual(["es", "en"]);
 		expect(property).toEqual({ slug: "villa-marbella", title: "Villa Marbella" });
 	});
 
-	it("does not mask non-404 upstream failures", async () => {
-		const fetchImpl = vi.fn().mockResolvedValue({ status: 500, ok: false });
+	it("returns null when the property exists in no locale", async () => {
+		const notFound = Object.assign(new Error("not found"), { status: 404 });
+		const getSource = () => ({ getProperty: vi.fn().mockRejectedValue(notFound) });
+		await expect(fetchPropertyBySlug(getSource, "gone", "fr")).resolves.toBeNull();
+	});
 
-		await expect(fetchPropertyBySlug(fetchImpl, "https://example.com", "villa-marbella", "fr")).rejects.toThrow(
-			"Failed to load PWB property villa-marbella: 500",
-		);
-		expect(fetchImpl).toHaveBeenCalledTimes(1);
+	it("does not mask non-404 upstream failures", async () => {
+		const getProperty = vi.fn().mockRejectedValue(Object.assign(new Error("upstream 500"), { status: 500 }));
+		const getSource = vi.fn(() => ({ getProperty }));
+
+		await expect(fetchPropertyBySlug(getSource, "villa-marbella", "fr")).rejects.toThrow("upstream 500");
+		expect(getProperty).toHaveBeenCalledTimes(1);
 	});
 
 	it("builds a featured property shortlist for editor quick-picks", async () => {
-		const fetchImpl = vi.fn().mockResolvedValue({
-			ok: true,
-			json: async () => ({
-				data: [
-					{
-						slug: "villa-marbella",
-						title: "Villa Marbella",
-						formatted_price: "€2,450,000",
-						reference: "PWB-42",
-					},
-				],
-			}),
+		const searchProperties = vi.fn().mockResolvedValue({
+			data: [{ slug: "villa-marbella", title: "Villa Marbella", formatted_price: "€2,450,000", reference: "PWB-42" }],
 		});
 
-		await expect(fetchPropertyOptions(fetchImpl, "https://example.com", "es")).resolves.toEqual([
+		await expect(fetchPropertyOptions({ searchProperties })).resolves.toEqual([
 			{ id: "villa-marbella", name: "Villa Marbella (€2,450,000 • PWB-42)" },
 		]);
-		expect(fetchImpl).toHaveBeenCalledWith(
-			expect.stringContaining("https://example.com/api_public/v1/es/properties?featured=true&per_page=12"),
-			{ headers: { Accept: "application/json" } },
-		);
+		expect(searchProperties).toHaveBeenCalledWith({ featured: "true", per_page: 12 });
 	});
 
 	it("falls back to a general property list when no featured shortlist is available", async () => {
-		const fetchImpl = vi
+		const searchProperties = vi
 			.fn()
-			.mockResolvedValueOnce({ ok: true, json: async () => ({ data: [] }) })
-			.mockResolvedValueOnce({
-				ok: true,
-				json: async () => ({
-					data: [{ slug: "casa-nueva", title: "Casa Nueva", formatted_price: null, reference: null }],
-				}),
-			});
+			.mockResolvedValueOnce({ data: [] })
+			.mockResolvedValueOnce({ data: [{ slug: "casa-nueva", title: "Casa Nueva", formatted_price: null, reference: null }] });
 
-		await expect(fetchPropertyOptions(fetchImpl, "https://example.com", "fr")).resolves.toEqual([
-			{ id: "casa-nueva", name: "Casa Nueva" },
-		]);
-		expect(fetchImpl).toHaveBeenCalledTimes(2);
-		expect(fetchImpl).toHaveBeenNthCalledWith(
-			2,
-			expect.stringContaining("https://example.com/api_public/v1/fr/properties?per_page=12"),
-			{ headers: { Accept: "application/json" } },
-		);
+		await expect(fetchPropertyOptions({ searchProperties })).resolves.toEqual([{ id: "casa-nueva", name: "Casa Nueva" }]);
+		expect(searchProperties).toHaveBeenNthCalledWith(2, { per_page: 12 });
 	});
 });

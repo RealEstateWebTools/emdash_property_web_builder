@@ -1,6 +1,13 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      // Mirrors astro.config.ts: the host listing source for workspace plugins.
+      'pwb-host-listing-source': fileURLToPath(new URL('./src/lib/listings/source.ts', import.meta.url)),
+    },
+  },
   test: {
     environment: 'happy-dom',
     globals: true,

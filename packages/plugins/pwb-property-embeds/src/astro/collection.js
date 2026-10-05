@@ -13,7 +13,7 @@
  * location fields and has no location filter, so area pages select listings
  * by hand-picking them.
  */
-import { getPropertiesPath, normalizeLocale, normalizePropertySlug } from "./pwb.js";
+import { getPropertiesPath, normalizePropertySlug } from "./pwb.js";
 
 export const COLLECTION_SOURCES = ["featured", "newest", "handpicked"];
 export const COLLECTION_LIMITS = [3, 6, 9, 12];
@@ -80,46 +80,40 @@ export function buildCollectionViewAllHref(config, locale) {
 	return query ? `${path}?${query}` : path;
 }
 
-function listUrl(apiBase, locale, params) {
-	const url = new URL(`${apiBase}/api_public/v1/${normalizeLocale(locale)}/properties`);
-	for (const [key, value] of Object.entries(params)) url.searchParams.set(key, String(value));
-	return url.toString();
-}
-
-async function searchListings(fetchImpl, apiBase, locale, params) {
-	const res = await fetchImpl(listUrl(apiBase, locale, params), { headers: { Accept: "application/json" } });
-	if (!res.ok) throw new Error(`Failed to load PWB listings: ${res.status}`);
-	const body = await res.json();
-	return Array.isArray(body?.data) ? body.data : [];
-}
-
-async function fetchDetail(fetchImpl, apiBase, locale, slug) {
-	const url = `${apiBase}/api_public/v1/${normalizeLocale(locale)}/properties/${encodeURIComponent(slug)}`;
-	const res = await fetchImpl(url, { headers: { Accept: "application/json" } });
-	if (res.status === 404) return null;
-	if (!res.ok) throw new Error(`Failed to load PWB property ${slug}: ${res.status}`);
-	return res.json();
+function isNotFound(error) {
+	return Boolean(error) && typeof error === "object" && error.status === 404;
 }
 
 /**
- * Load the listings for a collection. Hand-picked slugs keep their order and
- * silently drop listings that no longer exist; a featured set with fewer than
- * two results is topped up with the newest matching listings.
+ * Load the listings for a collection from a listing source — the host site's
+ * PWB or native EmDash source (`pwb-host-listing-source`). Hand-picked slugs
+ * keep their order and silently drop listings that no longer exist; a
+ * featured set with fewer than two results is topped up with the newest
+ * matching listings.
+ *
+ * @param {{ searchProperties(params: object): Promise<{ data: any[] }>, getProperty(slug: string): Promise<any> }} source
  */
-export async function fetchListingCollection(fetchImpl, apiBase, config, locale) {
+export async function fetchListingCollection(source, config) {
 	if (config.source === "handpicked") {
-		const results = await Promise.all(config.slugs.map((slug) => fetchDetail(fetchImpl, apiBase, locale, slug)));
+		const results = await Promise.all(
+			config.slugs.map((slug) =>
+				source.getProperty(slug).catch((error) => {
+					if (isNotFound(error)) return null;
+					throw error;
+				}),
+			),
+		);
 		return results.filter(Boolean);
 	}
 
 	const params = buildCollectionSearchParams(config);
-	const primary = await searchListings(fetchImpl, apiBase, locale, params);
+	const primary = (await source.searchProperties(params)).data ?? [];
 	if (config.source !== "featured" || primary.length >= Math.min(2, config.limit)) {
 		return primary.slice(0, config.limit);
 	}
 
 	const { featured: _featured, ...fallbackParams } = params;
-	const fallback = await searchListings(fetchImpl, apiBase, locale, fallbackParams);
+	const fallback = (await source.searchProperties(fallbackParams)).data ?? [];
 	const seen = new Set(primary.map((item) => item.slug));
 	const combined = [...primary];
 	for (const item of fallback) {
@@ -132,15 +126,8 @@ export async function fetchListingCollection(fetchImpl, apiBase, config, locale)
 	return combined;
 }
 
-/** Admin dropdown options from the site's own property-type facets. */
-export async function fetchPropertyTypeOptions(fetchImpl, apiBase, locale = "en") {
-	const url = `${apiBase}/api_public/v1/${normalizeLocale(locale)}/search/facets`;
-	const res = await fetchImpl(url, { headers: { Accept: "application/json" } });
-	if (!res.ok) throw new Error(`Failed to load PWB property types: ${res.status}`);
-	const body = await res.json();
-	const types = body?.property_types && typeof body.property_types === "object" ? body.property_types : {};
-	return Object.keys(types).map((key) => {
-		const label = key.replace(/^types\./, "").replace(/[_-]+/g, " ");
-		return { id: key, name: label.charAt(0).toUpperCase() + label.slice(1) };
-	});
+/** Admin dropdown options from the listing source's property types. */
+export async function fetchPropertyTypeOptions(source) {
+	const config = await source.getSearchConfig();
+	return (config?.property_types ?? []).map((type) => ({ id: type.key, name: type.label }));
 }

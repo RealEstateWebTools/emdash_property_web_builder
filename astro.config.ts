@@ -88,6 +88,9 @@ export default defineConfig({
 				"use-sync-external-store/shim/with-selector.js": fileURLToPath(
 					new URL("./src/shims/use-sync-external-store-with-selector-shim.js", import.meta.url),
 				),
+				// The host site's listing source (PWB or native EmDash listings) for
+				// workspace plugins such as pwb-property-embeds.
+				"pwb-host-listing-source": fileURLToPath(new URL("./src/lib/listings/source.ts", import.meta.url)),
 			},
 		},
 		ssr: {

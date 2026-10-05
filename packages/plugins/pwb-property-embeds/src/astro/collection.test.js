@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
 	buildCollectionSearchParams,
 	buildCollectionViewAllHref,
@@ -8,28 +8,11 @@ import {
 	readListingCollectionConfig,
 } from "./collection.js";
 
-const API = "https://pwb.example";
 
 function listing(slug) {
 	return { slug, title: slug, formatted_price: "€1", count_bedrooms: 2, count_bathrooms: 1 };
 }
 
-/** fetch stub routing by URL; records every requested URL. */
-function stubFetch(routes) {
-	const calls = [];
-	const impl = vi.fn(async (input) => {
-		const url = new URL(String(input));
-		calls.push(url);
-		for (const [match, respond] of routes) {
-			if (match(url)) {
-				const { status = 200, body } = respond(url);
-				return { ok: status < 400, status, json: async () => body };
-			}
-		}
-		return { ok: false, status: 404, json: async () => ({}) };
-	});
-	return { impl, calls };
-}
 
 describe("readListingCollectionConfig", () => {
 	it("defaults to six featured listings for sale", () => {
@@ -99,57 +82,72 @@ describe("search params and view-all link", () => {
 });
 
 describe("fetchListingCollection", () => {
-	it("returns featured listings when there are enough", async () => {
-		const { impl, calls } = stubFetch([[(u) => u.pathname.endsWith("/properties"), () => ({ body: { data: [listing("a"), listing("b")] } })]]);
-		const config = readListingCollectionConfig({ source: "featured", limit: "3" });
+	/** A listing source whose search answers by `featured` and records params. */
+	function stubSource({ featured = [], all = [], details = {}, error } = {}) {
+		const searches = [];
+		return {
+			searches,
+			async searchProperties(params) {
+				if (error) throw error;
+				searches.push(params);
+				return { data: params.featured === "true" ? featured : all };
+			},
+			async getProperty(slug) {
+				if (error) throw error;
+				if (details[slug]) return details[slug];
+				throw Object.assign(new Error("not found"), { status: 404 });
+			},
+		};
+	}
 
-		const result = await fetchListingCollection(impl, API, config, "en");
+	it("returns featured listings when there are enough", async () => {
+		const source = stubSource({ featured: [listing("a"), listing("b")] });
+		const result = await fetchListingCollection(source, readListingCollectionConfig({ source: "featured", limit: "3" }));
 
 		expect(result.map((l) => l.slug)).toEqual(["a", "b"]);
-		expect(calls).toHaveLength(1);
-		expect(calls[0].searchParams.get("featured")).toBe("true");
+		expect(source.searches).toEqual([{ sale_or_rental: "sale", per_page: 3, featured: "true" }]);
 	});
 
 	it("tops up a sparse featured set with newest listings, without duplicates", async () => {
-		const { impl, calls } = stubFetch([
-			[(u) => u.searchParams.get("featured") === "true", () => ({ body: { data: [listing("a")] } })],
-			[(u) => u.pathname.endsWith("/properties"), () => ({ body: { data: [listing("a"), listing("b"), listing("c"), listing("d")] } })],
-		]);
+		const source = stubSource({
+			featured: [listing("a")],
+			all: [listing("a"), listing("b"), listing("c"), listing("d")],
+		});
 		const config = readListingCollectionConfig({ source: "featured", limit: "3", saleOrRental: "rental" });
 
-		const result = await fetchListingCollection(impl, API, config, "en");
+		const result = await fetchListingCollection(source, config);
 
 		expect(result.map((l) => l.slug)).toEqual(["a", "b", "c"]);
-		expect(calls[1].searchParams.get("featured")).toBeNull();
-		expect(calls[1].searchParams.get("sale_or_rental")).toBe("rental");
+		expect(source.searches[1]).toEqual({ sale_or_rental: "rental", per_page: 3 });
 	});
 
 	it("loads hand-picked listings in order and drops missing ones", async () => {
-		const { impl } = stubFetch([
-			[(u) => u.pathname.endsWith("/properties/one"), () => ({ body: listing("one") })],
-			[(u) => u.pathname.endsWith("/properties/three"), () => ({ body: listing("three") })],
-		]);
+		const source = stubSource({ details: { one: listing("one"), three: listing("three") } });
 		const config = readListingCollectionConfig({ source: "handpicked", slugs: "three, gone, one" });
 
-		const result = await fetchListingCollection(impl, API, config, "fr");
+		const result = await fetchListingCollection(source, config);
 
 		expect(result.map((l) => l.slug)).toEqual(["three", "one"]);
-		expect(impl.mock.calls[0][0]).toContain("/api_public/v1/fr/properties/three");
 	});
 
-	it("surfaces PWB errors so the block can show an unavailable state", async () => {
-		const { impl } = stubFetch([[() => true, () => ({ status: 503, body: {} })]]);
-		await expect(fetchListingCollection(impl, API, readListingCollectionConfig({}), "en")).rejects.toThrow("503");
+	it("surfaces source errors so the block can show an unavailable state", async () => {
+		const source = stubSource({ error: Object.assign(new Error("upstream 503"), { status: 503 }) });
+		await expect(fetchListingCollection(source, readListingCollectionConfig({}))).rejects.toThrow("503");
+		await expect(
+			fetchListingCollection(source, readListingCollectionConfig({ source: "handpicked", slugs: "x" })),
+		).rejects.toThrow("503");
 	});
 });
 
 describe("fetchPropertyTypeOptions", () => {
-	it("turns facet keys into labelled options, keeping the raw key as the value", async () => {
-		const { impl } = stubFetch([
-			[(u) => u.pathname.endsWith("/search/facets"), () => ({ body: { property_types: { "types.country_house": 1, villa: 2 } } })],
-		]);
+	it("lists the source's property types, keeping the raw key as the value", async () => {
+		const source = {
+			async getSearchConfig() {
+				return { property_types: [{ key: "types.country_house", label: "Country house" }, { key: "villa", label: "Villa" }] };
+			},
+		};
 
-		expect(await fetchPropertyTypeOptions(impl, API)).toEqual([
+		expect(await fetchPropertyTypeOptions(source)).toEqual([
 			{ id: "types.country_house", name: "Country house" },
 			{ id: "villa", name: "Villa" },
 		]);
