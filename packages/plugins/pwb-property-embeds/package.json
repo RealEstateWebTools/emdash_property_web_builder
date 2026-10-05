@@ -7,6 +7,6 @@
     "./astro": "./src/astro/index.js"
   },
   "peerDependencies": {
-    "emdash": "^0.35.0"
+    "emdash": "^1.1.0"
   }
 }

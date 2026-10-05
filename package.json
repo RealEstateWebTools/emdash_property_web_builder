@@ -33,49 +33,54 @@
 		"check": "astro check && vitest run"
 	},
 	"dependencies": {
-		"@astrojs/cloudflare": "^14.2.5",
-		"@astrojs/react": "^6.0.4",
-		"@emdash-cms/cloudflare": "^0.35.0",
-		"@emdash-cms/plugin-forms": "^0.2.5",
-		"@emdash-cms/plugin-webhook-notifier": "^0.2.0",
-		"astro": "^7.2.8",
+		"@astrojs/cloudflare": "^14.3.3",
+		"@astrojs/react": "^6.0.6",
+		"@emdash-cms/cloudflare": "^1.1.0",
+		"@emdash-cms/plugin-forms": "^0.2.9",
+		"@emdash-cms/plugin-webhook-notifier": "^0.2.2",
+		"astro": "^7.3.5",
 		"better-sqlite3": "^13.0.3",
-		"emdash": "^0.35.0",
+		"emdash": "^1.1.0",
 		"leaflet": "^1.9.4",
 		"pwb-page-parts": "workspace:*",
 		"pwb-properties": "workspace:*",
 		"pwb-property-embeds": "workspace:*",
 		"pwb-valuation": "workspace:*",
-		"react": "^19.2.8",
-		"react-dom": "^19.2.8"
+		"react": "^19.3.0",
+		"react-dom": "^19.3.0"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.10",
-		"@biomejs/biome": "^2.5.10",
-		"@cloudflare/workers-types": "^5.20260827.1",
-		"@playwright/test": "^1.62.1",
+		"@biomejs/biome": "^2.5.15",
+		"@cloudflare/workers-types": "^5.20261005.1",
+		"@playwright/test": "^1.63.0",
 		"@types/better-sqlite3": "^9.6.0",
 		"@vitest/coverage-v8": "^4.1.11",
-		"happy-dom": "^20.11.8",
+		"happy-dom": "^20.14.5",
 		"msw": "^2.15.0",
 		"vitest": "^4.1.11",
-		"wrangler": "^4.127.0"
+		"wrangler": "^4.147.0"
 	},
 	"pnpm": {
 		"overrides": {
 			"kysely": "0.29.2",
 			"yaml": "2.8.4",
-			"devalue": "5.8.1",
+			"devalue": "^5.9.3",
 			"sanitize-html": "2.17.4",
 			"ws": ">=8.20.1",
-			"qs": ">=6.15.2"
+			"qs": ">=6.15.2",
+			"hono": "^4.12.25",
+			"fast-uri": "^3.1.7",
+			"ip-address": "^10.3.1",
+			"smol-toml": "^1.7.1",
+			"nanoid": "^3.3.18"
 		},
 		"onlyBuiltDependencies": [
 			"msw",
 			"better-sqlite3"
 		],
 		"patchedDependencies": {
-			"emdash@0.35.0": "patches/emdash@0.35.0.patch"
+			"emdash@1.1.0": "patches/emdash@1.1.0.patch"
 		}
 	}
 }

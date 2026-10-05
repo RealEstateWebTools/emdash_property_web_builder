@@ -224,16 +224,16 @@ describe('docs validation', () => {
     expect(existsSync(sandboxPath), 'src/plugins/resend-email.sandbox.ts must exist').toBe(true)
   })
 
-  it('resend-email descriptor declares email:provide capability', () => {
+  it('resend-email descriptor declares the email transport hook capability', () => {
     const descriptorPath = join(ROOT, 'src/plugins/resend-email.ts')
     const descriptor = readFileSync(descriptorPath, 'utf-8')
-    expect(descriptor).toMatch(/email:provide/)
+    expect(descriptor).toMatch(/hooks\.email-transport:register/)
   })
 
-  it('resend-email descriptor declares network:fetch capability', () => {
+  it('resend-email descriptor declares network:request capability', () => {
     const descriptorPath = join(ROOT, 'src/plugins/resend-email.ts')
     const descriptor = readFileSync(descriptorPath, 'utf-8')
-    expect(descriptor).toMatch(/network:fetch/)
+    expect(descriptor).toMatch(/'network:request'/)
   })
 
   it('resend-email descriptor restricts allowedHosts to api.resend.com', () => {

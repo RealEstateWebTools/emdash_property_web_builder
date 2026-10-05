@@ -8,7 +8,7 @@ export function resendEmailPlugin(): PluginDescriptor {
     format: 'standard',
     entrypoint: fileURLToPath(new URL('./resend-email.sandbox.js', import.meta.url)),
     options: {},
-    capabilities: ['email:provide', 'network:fetch'],
+    capabilities: ['hooks.email-transport:register', 'network:request'],
     allowedHosts: ['api.resend.com'],
     adminPages: [{ path: '/settings', label: 'Resend Email', icon: 'mail' }],
   }

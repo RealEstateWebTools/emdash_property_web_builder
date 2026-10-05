@@ -24,7 +24,7 @@ None — this plugin is admin-UI-only and does not hook into the content pipelin
 
 ## Capabilities required
 
-- `network:fetch:any` — fetches property data from the PWB public API
+- `network:request:unrestricted` — fetches property data from the PWB public API
 
 ## Registration
 

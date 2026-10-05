@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 /**
  * E2E tests run against the dev server.
- * Start it with: npx emdash dev
+ * Start it with: pnpm dev
  *
  * In CI, the server is started automatically via the `webServer` block below.
  * Locally, start the server first and run: npx playwright test
@@ -27,7 +27,7 @@ export default defineConfig({
   ],
   webServer: process.env.CI
     ? {
-        command: 'npx emdash dev',
+        command: 'npx astro dev',
         url: 'http://localhost:4321',
         reuseExistingServer: false,
         timeout: 120_000,

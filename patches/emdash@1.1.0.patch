@@ -1,8 +1,8 @@
 diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
-index 4c44724e578ff620d68f9514fe7373da3f30ac7c..3c3edcd3cc83e5f1b8e7539eae1d371ce59e7d24 100644
+index 07d40bd6a65d969c740ba572ba85a79388430495..e7851fe5fd5666e9575bc0934adae5f0f92bf459 100644
 --- a/src/components/InlinePortableTextEditor.tsx
 +++ b/src/components/InlinePortableTextEditor.tsx
-@@ -33,6 +33,10 @@ import {
+@@ -36,6 +36,10 @@ import {
  	readOrderedListMetadata,
  } from "../content/converters/numbered-list.js";
  import { computeThumbnailSize } from "../media/thumbnail.js";
@@ -13,20 +13,21 @@ index 4c44724e578ff620d68f9514fe7373da3f30ac7c..3c3edcd3cc83e5f1b8e7539eae1d371c
  import { CodeMarkExtension } from "./code-mark.js";
  import { InlineCodeBlockExtension } from "./inline-code-block.js";
  import { EmDashOrderedList } from "./ordered-list.js";
-@@ -280,18 +284,8 @@ function convertPMNode(node: PMNode, path: string): PTBlock | PTBlock[] | null {
+@@ -309,19 +313,8 @@ function convertPMNode(node: PMNode, path: string): PTBlock | PTBlock[] | null {
+ 			if (isPTTableBlock(rawTable)) return rawTable;
+ 			return null;
  		}
- 		case "horizontalRule":
- 			return { _type: "break", _key: k(), style: "lineBreak" };
 -		case "pluginBlock": {
 -			// Spread the captured data back out so the block round-trips losslessly.
--			// `data` holds every field except _type / _key / id (which live on
--			// dedicated attrs).
--			const { blockType, id, data } = node.attrs ?? {};
+-			// `data` holds every field except _type / _key and the identity field
+-			// (`id` or `url`, named by `identityField`), which live on dedicated attrs.
+-			const { blockType, id, identityField, data } = node.attrs ?? {};
+-			const field = identityField === "url" || identityField === "" ? identityField : "id";
 -			return {
 -				...(data && typeof data === "object" ? data : {}),
 -				_type: typeof blockType === "string" ? blockType : "embed",
 -				_key: k(),
--				id: typeof id === "string" ? id : "",
+-				...(field ? { [field]: typeof id === "string" ? id : "" } : {}),
 -			};
 -		}
 +		case "pluginBlock":
@@ -34,55 +35,56 @@ index 4c44724e578ff620d68f9514fe7373da3f30ac7c..3c3edcd3cc83e5f1b8e7539eae1d371c
  		default:
  			return null;
  	}
-@@ -595,23 +589,9 @@ function convertPTBlock(block: PTBlock): PMNode | null {
- 			},
- 		};
- 	}
--	// Unknown block types — treat as plugin blocks. Capture every field other
--	// than the well-known ones into `data` so the block round-trips losslessly,
--	// even if no plugin currently registers this type. Matches the admin
--	// editor's behaviour at PortableTextEditor.tsx:572-588.
--	const { _type, _key, id, url, ...rest } = block as { _type: string; _key: string } & Record<
--		string,
--		unknown
--	>;
+@@ -638,21 +631,9 @@ function convertPTBlock(block: PTBlock): PMNode | null {
+ 	// editor's `convertCustomBlock`.
+ 	// The identity lives under whichever of `id` / `url` the block arrived with,
+ 	// so the PM → PT direction can write it back under the same key.
+-	const identityField =
+-		typeof block.id === "string" ? "id" : typeof block.url === "string" ? "url" : "";
+-	const identity = identityField ? block[identityField] : undefined;
 -	// Filter out _-prefixed keys to prevent accumulation across edit cycles.
--	const data = Object.fromEntries(Object.entries(rest).filter(([key]) => !key.startsWith("_")));
+-	const data = Object.fromEntries(
+-		Object.entries(block).filter(([key]) => !key.startsWith("_") && key !== identityField),
+-	);
  	return {
  		type: "pluginBlock",
 -		attrs: {
--			blockType: typeof _type === "string" ? _type : "embed",
--			id: typeof id === "string" ? id : typeof url === "string" ? url : "",
+-			blockType: typeof block._type === "string" ? block._type : "embed",
+-			id: typeof identity === "string" ? identity : "",
+-			identityField,
 -			data,
 -		},
-+		attrs: portableTextPluginBlockToAttrs(block),
++		attrs: portableTextPluginBlockToAttrs(block as { _type: string; _key: string }),
  	};
  }
  
-@@ -1125,6 +1105,7 @@ const PluginBlockNode = Node.create({
+@@ -1239,6 +1220,7 @@ const PluginBlockNode = Node.create({
  		const noDom = { rendered: false, parseHTML: () => null };
  		return {
  			blockType: { default: "", ...noDom },
 +			blockKey: { default: "", ...noDom },
  			id: { default: "", ...noDom },
+ 			identityField: { default: "id", ...noDom },
  			data: { default: {}, ...noDom },
- 		};
 diff --git a/src/components/plugin-block-attrs.ts b/src/components/plugin-block-attrs.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..4834ae362ea5c5d6bd05194cf85dcd3376fc36e1
+index 0000000000000000000000000000000000000000..c654365ff7149ac1859f66aa9b258592b354371f
 --- /dev/null
 +++ b/src/components/plugin-block-attrs.ts
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,72 @@
 +export interface PortableTextPluginBlock {
 +	_type: string;
 +	_key: string;
 +	[key: string]: unknown;
 +}
 +
++export type PluginBlockIdentityField = "id" | "url" | "";
++
 +export interface PluginBlockAttrs extends Record<string, unknown> {
 +	blockType: string;
 +	blockKey?: string;
 +	id?: string;
++	identityField?: PluginBlockIdentityField;
 +	data?: Record<string, unknown>;
 +}
 +
@@ -94,22 +96,37 @@ index 0000000000000000000000000000000000000000..4834ae362ea5c5d6bd05194cf85dcd33
 +	return Object.fromEntries(Object.entries(value).filter(([key]) => !key.startsWith("_")));
 +}
 +
++/**
++ * PT → PM. Mirrors upstream's identity handling (the identity lives under
++ * whichever of `id` / `url` the block arrived with) and additionally keeps the
++ * block's `_key` in `blockKey` so it survives the round-trip.
++ */
 +export function portableTextPluginBlockToAttrs(block: PortableTextPluginBlock): PluginBlockAttrs {
-+	const { _type, _key, id, url, ...rest } = block;
++	const identityField: PluginBlockIdentityField =
++		typeof block.id === "string" ? "id" : typeof block.url === "string" ? "url" : "";
++	const identity = identityField ? block[identityField] : undefined;
++	const { _type, _key, ...rest } = block;
++	if (identityField) delete rest[identityField];
 +	return {
 +		blockType: typeof _type === "string" && _type ? _type : "embed",
 +		blockKey: _key,
-+		id: typeof id === "string" ? id : typeof url === "string" ? url : "",
++		id: typeof identity === "string" ? identity : "",
++		identityField,
 +		data: omitPrivateKeys(rest),
 +	};
 +}
 +
++/**
++ * PM → PT. Restores the original `_key` when present (falling back to a fresh
++ * key) and writes the identity back under the field it arrived with. Attrs
++ * without `identityField` (written before EmDash 1.x) default to `id`.
++ */
 +export function pluginBlockAttrsToPortableTextBlock(
 +	attrs: Record<string, unknown> | undefined,
 +	generateKey: () => string,
 +): PortableTextPluginBlock {
 +	const input = isPlainObject(attrs) ? attrs : {};
-+	const { blockType, blockKey, type, id, data, ...rest } = input;
++	const { blockType, blockKey, type, id, identityField, data, ...rest } = input;
 +	const resolvedType =
 +		typeof blockType === "string" && blockType
 +			? blockType
@@ -117,13 +134,14 @@ index 0000000000000000000000000000000000000000..4834ae362ea5c5d6bd05194cf85dcd33
 +				? type
 +				: "embed";
 +	const resolvedKey = typeof blockKey === "string" && blockKey ? blockKey : generateKey();
++	const field = identityField === "url" || identityField === "" ? identityField : "id";
 +
 +	return {
 +		...(isPlainObject(data) ? data : {}),
 +		...omitPrivateKeys(rest),
 +		_type: resolvedType,
 +		_key: resolvedKey,
-+		id: typeof id === "string" ? id : "",
++		...(field ? { [field]: typeof id === "string" ? id : "" } : {}),
 +	};
 +}
 diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro

@@ -37,7 +37,7 @@ Two improvements to make to it:
 The posts collection is in EmDash. Replace the hand-rolled file with a reference to the native
 endpoint, or simply delete the file and point robots.txt at the native URL.
 
-Native endpoint (once confirmed via `npx emdash dev`):
+Native endpoint (once confirmed via `pnpm dev`):
 ```
 /_emdash/api/sitemap/posts.xml
 ```

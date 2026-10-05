@@ -20,3 +20,6 @@ wrangler.prod.jsonc
 coverage/
 playwright-report/
 test-results/
+
+# EmDash 1.x build output (migration manifest written on every build)
+.emdash/

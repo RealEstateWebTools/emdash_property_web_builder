@@ -4,11 +4,11 @@
 
 **Symptom:** You run `npx emdash seed seed/seed.json`, it reports success, but the new entries don't show up in `/_emdash/admin`.
 
-**Cause:** The dev server was started with `pnpm astro dev` (or similar) instead of `npx emdash dev`, OR you were previously using the Cloudflare adapter in dev which reads from Wrangler's D1 emulation (`.wrangler/state/v3/d1/`) instead of `data.db`.
+**Cause:** The dev server is reading a different database than the one you seeded — usually because the Cloudflare adapter was enabled in dev, which reads from Wrangler's D1 emulation (`.wrangler/state/v3/d1/`) instead of `data.db`.
 
 **Fix:**
 1. Make sure `astro.config.mjs` is using the SQLite adapter in dev (it should be — check that `isDev = process.env.NODE_ENV !== 'production'`).
-2. Use `npx emdash dev` to start the server (not `pnpm dev`).
+2. Start the server with `pnpm dev`.
 3. Hard-refresh the admin (`Cmd+Shift+R`).
 
 To verify what's actually in the database:
@@ -48,7 +48,7 @@ If you change the API paths in `client.ts`, update the MSW mock paths in `src/te
 
 ## Astro types error: `Cannot find module 'astro:content'`
 
-Run `npx emdash dev` once to generate types, then the TypeScript errors should clear. The `emdash-env.d.ts` file is auto-generated on dev server start.
+Run `pnpm dev` once to generate types, then the TypeScript errors should clear. The `emdash-env.d.ts` file is auto-generated on dev server start.
 
 ---
 

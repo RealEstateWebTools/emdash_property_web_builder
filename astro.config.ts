@@ -21,7 +21,7 @@ const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
 const emdashLocalExcludes = [
 	"emdash/db/sqlite",
 	"emdash/storage/local",
-	"emdash/media/local-runtime",
+	"emdash/internal/media/local-runtime",
 ];
 // webhook-notifier >= 0.2.0 ships a PluginDescriptor as its default export
 // instead of a factory function — pass it directly, do not call it.
@@ -110,11 +110,11 @@ export default defineConfig({
 				...emdashLocalExcludes,
 				...nativeSsrExcludes,
 				"emdash/middleware",
-				"emdash/middleware/redirect",
-				"emdash/middleware/setup",
-				"emdash/middleware/auth",
-				"emdash/middleware/request-context",
-				"emdash/media/local-runtime",
+				"emdash/internal/middleware/redirect",
+				"emdash/internal/middleware/setup",
+				"emdash/internal/middleware/auth",
+				"emdash/internal/middleware/request-context",
+				"emdash/internal/media/local-runtime",
 				"@emdash-cms/cloudflare",
 				"@emdash-cms/cloudflare/db/d1",
 				"@emdash-cms/cloudflare/storage/r2",

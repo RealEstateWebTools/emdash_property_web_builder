@@ -5,7 +5,7 @@ export function pwbPropertiesPlugin() {
 		format: "standard",
 		entrypoint: "pwb-properties/sandbox",
 		options: {},
-		capabilities: ["network:fetch:any"],
+		capabilities: ["network:request:unrestricted"],
 		adminPages: [
 			{ path: "/", label: "Properties", icon: "list" },
 			{ path: "/settings", label: "Search & Listings", icon: "settings" },

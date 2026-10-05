@@ -90,7 +90,7 @@ Preferred development command:
 pnpm dev
 ```
 
-This wrapper starts `npx emdash dev` and opens the dev-bypass admin URL
+This wrapper starts `astro dev` and opens the dev-bypass admin URL
 automatically.
 
 Important local URLs:
@@ -99,10 +99,10 @@ Important local URLs:
 - admin: [http://localhost:4321/_emdash/admin](http://localhost:4321/_emdash/admin)
 - admin bypass: [http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin](http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin)
 
-If you want the raw EmDash dev server instead of the wrapper, you can also run:
+If you want the plain Astro dev server without the wrapper, you can also run:
 
 ```bash
-npx emdash dev
+npx astro dev
 ```
 
 That runs on port `4321` by default.
@@ -110,10 +110,9 @@ That runs on port `4321` by default.
 ## Common Commands
 
 ```bash
-pnpm dev                  # wrapper around emdash dev on port 4321
-npx emdash dev            # direct EmDash dev server
+pnpm dev                  # wrapper around astro dev on port 4321
+npx astro dev             # plain dev server (no browser auto-open)
 npx emdash seed seed/seed.json
-npx emdash types
 pnpm export:d1-sql
 pnpm sync:prod-db
 pnpm reset:admin-access
@@ -225,7 +224,6 @@ For production deploys, also review:
 
 ## Notes
 
-- `pnpm dev` and `npx emdash dev` are not identical in this repo.
 - changes to plugin registration or `astro.config.mjs` usually require a full dev server restart
 - `emdash-env.d.ts` is generated
 - PWB must be reachable for live property pages and property embeds to resolve fully

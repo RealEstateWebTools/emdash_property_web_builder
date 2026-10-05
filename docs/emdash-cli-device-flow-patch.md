@@ -126,19 +126,11 @@ npx emdash whoami
 
 ## Prerequisites
 
-The production Worker must have `EMDASH_AUTH_SECRET` set as an environment variable.
-Without it, the server's device flow endpoint cannot issue or verify tokens.
-
-```bash
-# Generate a secret
-npx emdash auth secret
-
-# Deploy it to Cloudflare
-npx wrangler secret put EMDASH_AUTH_SECRET
-
-# Redeploy the Worker
-pnpm run deploy
-```
+Since EmDash 1.0, `EMDASH_AUTH_SECRET` is no longer required, and the
+`emdash auth secret` command has been removed. EmDash now only reads the variable as a
+legacy fallback for the commenter-IP hash salt, so if the production Worker already has
+it set, keep the existing value to keep those hashes stable. New deployments don't need
+it.
 
 ## Known Constraints
 
@@ -150,5 +142,5 @@ pnpm run deploy
 
 ## Related Docs
 
-- [docs/emdash-plugin-block-attr-patch.md](./emdash-plugin-block-attr-patch.md) — active patch notes for `emdash@0.10.0`
-- [patches/emdash@0.10.0.patch](../patches/emdash@0.10.0.patch)
+- [docs/emdash-plugin-block-attr-patch.md](./emdash-plugin-block-attr-patch.md) — active patch notes for `emdash@1.1.0`
+- [patches/emdash@1.1.0.patch](../patches/emdash@1.1.0.patch)

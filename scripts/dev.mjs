@@ -2,7 +2,7 @@
 /**
  * Dev server launcher.
  *
- * Starts `emdash dev` and, once the server is accepting connections,
+ * Starts `astro dev` and, once the server is accepting connections,
  * opens the dev-bypass URL in the default browser so the EmDash admin
  * session is established automatically. No manual visit required.
  *
@@ -16,7 +16,7 @@ const PORT = process.env.PORT ?? 4321
 const BYPASS_URL = `http://localhost:${PORT}/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin`
 
 // Start the dev server, inheriting stdio so its output appears normally.
-const args = ['emdash', 'dev']
+const args = ['astro', 'dev']
 if (process.env.PORT) {
   args.push('--port', String(PORT))
 }

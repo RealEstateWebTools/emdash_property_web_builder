@@ -73,8 +73,8 @@ Structured summary bullets for blog posts, rendered above the body or in a sideb
 ## Implementation Steps
 
 1. Add repeater fields to `seed/seed.json` under the relevant collections
-2. Run `npx emdash dev` — migrations apply automatically on startup
-3. Run `npx emdash types` to regenerate `emdash-env.d.ts`
+2. Run `pnpm dev` — migrations apply automatically on startup
+3. Restart `pnpm dev` so it regenerates `emdash-env.d.ts`
 4. Update Astro page templates to render the new fields:
    - `src/pages/[lang]/posts/[slug].astro` — key takeaways
    - Team member partials — social links
