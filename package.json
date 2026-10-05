@@ -13,6 +13,7 @@
 		"seed:demo": "node scripts/seed.mjs full",
 		"seed:minimal": "node scripts/seed.mjs minimal",
 		"seed:pre-launch": "node scripts/seed.mjs pre-launch",
+		"import:pwb-listings": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/import-pwb-listings.mjs",
 		"reset": "node scripts/reset.mjs",
 		"export:d1-sql": "node scripts/export-sqlite-for-d1.mjs",
 		"sync:prod-db": "node scripts/push-local-db-to-d1.mjs",
