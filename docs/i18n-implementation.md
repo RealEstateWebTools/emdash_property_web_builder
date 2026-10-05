@@ -787,10 +787,10 @@ In `seed/seed.json`, the source-locale entry must appear before its translations
 an orphaned entry. Keep source entries at the top of each collection array.
 
 ### EmDash content vs PWB pages
-`src/pages/[...slug].astro` handles PWB Rails pages (content from the Rails backend, not
-EmDash). This page calls `client.getPageBySlug(slug)`, which already uses `this.locale`.
-Update it to pass `Astro.currentLocale` to `createPwbClient()`. The `[lang]/[...slug].astro`
-locale variant follows the same pattern.
+PWB Rails pages (content from the Rails backend, not EmDash) are served by
+`src/pages/[lang]/index.astro` and `src/pages/[lang]/[...slug].astro`. Astro ranks these above a root catch-all, so they handle both
+`/es/about-us` and default-locale `/about-us`: `resolvePwbPageRoute` in
+`src/lib/route-locale.ts` treats a non-locale first segment as part of an English page slug.
 
 ### Content fallback is a product decision, not an automatic i18n feature
 Astro route fallback and EmDash translation lookup are separate concerns. If `/es/posts/foo`

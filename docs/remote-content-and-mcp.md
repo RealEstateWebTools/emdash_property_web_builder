@@ -123,7 +123,7 @@ The catch-all route uses the PWB client:
 client.getPageBySlug(pageSlug)
 ```
 
-This route lives in `src/pages/[...slug].astro`, so generic pages that look like CMS pages are currently being resolved from the PWB backend, not the EmDash `pages` collection.
+These routes live in `src/pages/[lang]/index.astro` and `src/pages/[lang]/[...slug].astro`, so generic pages that look like CMS pages are currently being resolved from the PWB backend, not the EmDash `pages` collection.
 
 That explains why creating or seeding EmDash `pages/about` and `pages/contact` entries does not automatically make `/pages/about` or `/pages/contact` appear on the deployed site if the route is being satisfied elsewhere.
 
@@ -521,7 +521,7 @@ The browser automation approach used in the initial session should be treated as
 - `docs/mcp-post-payloads.json`
 - `src/pages/index.astro`
 - `src/pages/posts/index.astro`
-- `src/pages/[...slug].astro`
+- `src/pages/[lang]/[...slug].astro`
 - `seed/seed.json`
 - `docs/development-guide.md`
 - `docs/troubleshooting.md`

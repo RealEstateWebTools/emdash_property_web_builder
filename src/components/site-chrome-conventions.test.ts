@@ -95,3 +95,25 @@ describe("IndexPage.astro section spacing conventions (U5 scope)", () => {
     }
   });
 });
+
+describe("contact links", () => {
+  // A bare /contact resolves as a PWB page slug, which PWB sites need not
+  // have (the demo uses contact-us) — it 404'd from the header, hero and
+  // footer. The contact page every seed profile ships is the EmDash
+  // `pages/contact` entry, which also renders the contact form.
+  const sources = {
+    "SiteHeader.astro": header,
+    "SiteFooter.astro": footer,
+    "IndexPage.astro": indexPage,
+    "PwbCtaBlock.astro": readFileSync("packages/plugins/pwb-page-parts/src/astro/PwbCtaBlock.astro", "utf-8"),
+    "PwbLocalExpertiseBlock.astro": readFileSync(
+      "packages/plugins/pwb-page-parts/src/astro/PwbLocalExpertiseBlock.astro",
+      "utf-8",
+    ),
+  };
+
+  test.each(Object.entries(sources))("%s links to /pages/contact, not a bare /contact", (_name, source) => {
+    expect(source).not.toMatch(/['"`]\/contact['"`]/);
+    expect(source).toContain("/pages/contact");
+  });
+});

@@ -434,7 +434,7 @@ Remote EmDash editing currently has the highest impact on:
 - the homepage hero entry in the EmDash `pages` collection
 - blog posts in the EmDash `posts` collection
 
-Do not assume that every CMS-like page is backed by EmDash. The catch-all route in `src/pages/[...slug].astro` currently loads page content from the PWB backend, so generic pages such as About or Contact may not be controlled by EmDash on the live deployment.
+Do not assume that every CMS-like page is backed by EmDash. The catch-all routes `src/pages/[lang]/index.astro` and `src/pages/[lang]/[...slug].astro` load page content from the PWB backend, so generic pages such as About or Contact may not be controlled by EmDash on the live deployment.
 
 ### Authentication
 

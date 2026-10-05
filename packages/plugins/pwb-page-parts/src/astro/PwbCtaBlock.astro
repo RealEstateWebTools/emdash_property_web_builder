@@ -8,7 +8,7 @@ const title = typeof node?.title === "string" && node.title.trim() ? node.title 
 const text = typeof node?.text === "string" && node.text.trim() ? node.text : t(locale, "ctaText");
 const buttonLabel =
   typeof node?.buttonLabel === "string" && node.buttonLabel.trim() ? node.buttonLabel : t(locale, "ctaButton");
-const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim() ? node.buttonHref : "/contact";
+const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim() ? node.buttonHref : "/pages/contact";
 ---
 
 <section class="pwb-cta">

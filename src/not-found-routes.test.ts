@@ -20,7 +20,7 @@ function readRouteAndSharedPageSource(relativePath: string) {
 
 describe('not-found route conventions', () => {
   const directNotFoundRoutes = [
-    'src/pages/[...slug].astro',
+    'src/pages/[lang]/[...slug].astro', // serves default-locale PWB pages too
     'src/pages/pages/[slug].astro',
     'src/pages/properties/[slug].astro',
     'src/pages/posts/[slug].astro',

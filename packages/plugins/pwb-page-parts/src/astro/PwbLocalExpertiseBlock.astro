@@ -11,7 +11,7 @@ const heading =
 const body = typeof node?.body === "string" && node.body.trim() ? node.body.trim() : t(locale, "localBody");
 const buttonLabel =
   typeof node?.buttonLabel === "string" && node.buttonLabel.trim() ? node.buttonLabel.trim() : t(locale, "localButton");
-const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim() ? node.buttonHref.trim() : "/contact";
+const buttonHref = typeof node?.buttonHref === "string" && node.buttonHref.trim() ? node.buttonHref.trim() : "/pages/contact";
 
 function readPoint(index) {
   const labelKey = `point${index}Label`;
