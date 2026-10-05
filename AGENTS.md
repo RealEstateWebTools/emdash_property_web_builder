@@ -72,5 +72,5 @@ These rules exist because mistakes here cause real damage — exposed secrets, b
 
 - **Before writing any deployment docs**, read `package.json` and document the script as `pnpm run deploy`, not the raw underlying command. Note: in a pnpm workspace, `pnpm deploy` is a reserved built-in — always use `pnpm run <script>` to invoke scripts unambiguously.
 - **Never use `wrangler pages` commands in docs.** This project deploys as a Cloudflare Worker (`wrangler deploy`). Using Pages commands will cause the wrong deployment type.
-- **Docs must pass `pnpm run test:run -- src/docs-validation.test.ts`.** This test validates that all `pnpm <script>` commands in docs exist in `package.json` and that no `wrangler pages` commands appear. Run it after editing docs.
+- **Docs must pass `pnpm run test:run src/docs-validation.test.ts`.** This test validates that all `pnpm <script>` commands in docs exist in `package.json` and that no `wrangler pages` commands appear. Run it after editing docs.
 - When you add a new `pnpm` script to `package.json`, you can reference it in docs. If you remove or rename a script, update any docs that reference it — the test will catch mismatches.

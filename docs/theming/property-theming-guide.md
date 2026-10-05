@@ -567,7 +567,7 @@ values win over `theme.css` defaults.
 
 1. Create `public/styles/palettes/<name>.css` overriding any `:root` variables.
 2. Add `'<name>'` to the `VALID_PALETTES` array in `src/plugins/pwb-theme.ts` (the descriptor) and `src/plugins/pwb-theme.sandbox.ts` (the admin Block Kit handler).
-3. Run `pnpm run test:run -- src/docs-validation.test.ts` — the test will catch any
+3. Run `pnpm run test:run src/docs-validation.test.ts` — the test will catch any
    mismatch between the arrays and files on disk.
 
 ---

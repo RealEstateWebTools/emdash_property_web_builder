@@ -103,13 +103,13 @@ Run before any UI milestone:
 ```bash
 pnpm run test:run
 pnpm run typecheck
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```
 
 During UI work, use:
 
 ```bash
-pnpm run test:run -- <targeted-test-file>
+pnpm run test:run <targeted-test-file>
 pnpm run typecheck
 ```
 
@@ -426,5 +426,5 @@ UI modernization is complete when:
 ```bash
 pnpm run test:run
 pnpm run typecheck
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```

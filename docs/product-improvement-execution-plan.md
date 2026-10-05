@@ -617,7 +617,7 @@ pnpm run typecheck
 If docs changed, also run:
 
 ```bash
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```
 
 If frontend/admin behavior changed materially, also perform browser verification on

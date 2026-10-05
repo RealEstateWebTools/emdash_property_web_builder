@@ -32,7 +32,7 @@ For every milestone:
 Use this standard command sequence:
 
 ```bash
-pnpm run test:run -- <targeted-test-file>
+pnpm run test:run <targeted-test-file>
 pnpm run test:run
 pnpm run typecheck
 ```
@@ -40,7 +40,7 @@ pnpm run typecheck
 If you change docs, also run:
 
 ```bash
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```
 
 ### Detailed Red -> Green -> Refactor Protocol
@@ -104,7 +104,7 @@ pnpm run typecheck
 If docs changed, also run:
 
 ```bash
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```
 
 Only move to the next milestone when all gates are green.
@@ -131,7 +131,7 @@ Examples:
 When stuck, follow this order:
 
 1. Re-read the failing assertion and expected behavior.
-2. Re-run only the single failing test with `pnpm run test:run -- <file>`.
+2. Re-run only the single failing test with `pnpm run test:run <file>`.
 3. Confirm fixture and mock setup is correct.
 4. Check for locale-sensitive behavior (`en`, `es`, `fr`).
 5. Check for cache behavior when EmDash queries are involved.
@@ -171,7 +171,7 @@ Run these once before making changes:
 ```bash
 pnpm run test:run
 pnpm run typecheck
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```
 
 Expected result:
@@ -266,8 +266,8 @@ After tests are green:
 ### Test Commands
 
 ```bash
-pnpm run test:run -- src/lib/pwb/enquiry-validator.test.ts
-pnpm run test:run -- src/pages/api/enquiries.test.ts
+pnpm run test:run src/lib/pwb/enquiry-validator.test.ts
+pnpm run test:run src/pages/api/enquiries.test.ts
 pnpm run test:run
 pnpm run typecheck
 ```
@@ -343,7 +343,7 @@ the existing path safer and more scalable, not to redesign search infrastructure
 ### Test Commands
 
 ```bash
-pnpm run test:run -- src/lib/search/post-search.test.ts
+pnpm run test:run src/lib/search/post-search.test.ts
 pnpm run test:run
 pnpm run typecheck
 ```
@@ -422,7 +422,7 @@ Keep scope tight. This milestone is about correctness, not a full search redesig
 ### Test Commands
 
 ```bash
-pnpm run test:run -- src/lib/pwb/search-params.test.ts
+pnpm run test:run src/lib/pwb/search-params.test.ts
 pnpm run test:run
 pnpm run typecheck
 ```
@@ -500,7 +500,7 @@ Implement:
 ### Test Commands
 
 ```bash
-pnpm run test:run -- src/lib/locale.test.ts
+pnpm run test:run src/lib/locale.test.ts
 pnpm run test:run
 pnpm run typecheck
 ```
@@ -567,8 +567,8 @@ clearer conventions, not a clever abstraction.
 ### Test Commands
 
 ```bash
-pnpm run test:run -- src/localized-route-conventions.test.ts
-pnpm run test:run -- src/page-conventions.test.ts
+pnpm run test:run src/localized-route-conventions.test.ts
+pnpm run test:run src/page-conventions.test.ts
 pnpm run test:run
 pnpm run typecheck
 ```
@@ -672,7 +672,7 @@ The work is complete when all of the following are true:
 - map and form accessibility improvements are in place
 - the full test suite passes
 - `pnpm run typecheck` passes
-- `pnpm run test:run -- src/docs-validation.test.ts` passes if this doc or any other docs changed
+- `pnpm run test:run src/docs-validation.test.ts` passes if this doc or any other docs changed
 
 ---
 
@@ -683,7 +683,7 @@ Run:
 ```bash
 pnpm run test:run
 pnpm run typecheck
-pnpm run test:run -- src/docs-validation.test.ts
+pnpm run test:run src/docs-validation.test.ts
 ```
 
 Then manually verify:

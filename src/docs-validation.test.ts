@@ -136,6 +136,31 @@ describe('docs validation', () => {
     expect(hits, `\nDocs contain "wrangler pages" commands, but this project deploys as a Worker (wrangler deploy):\n${hits.join('\n')}\n\nFix: use "pnpm run deploy" (which runs wrangler deploy --provision).`).toHaveLength(0)
   })
 
+  it('pnpm script invocations do not forward arguments with a bare "--"', () => {
+    // pnpm passes a literal "--" through to the script, and both Vitest and
+    // Playwright then ignore the arguments after it: `pnpm test:run -- file`
+    // runs the whole suite, and `pnpm test:e2e -- --grep-invert X` never
+    // filtered anything (which hid failing visual tests in CI). Pass the
+    // arguments directly instead: `pnpm test:run file`.
+    const files = [
+      ...mdFiles,
+      join(ROOT, 'AGENTS.md'),
+      join(ROOT, 'README.md'),
+      ...readdirSync(join(ROOT, '.github/workflows')).map((f) => join(ROOT, '.github/workflows', f)),
+    ]
+    const hits: string[] = []
+
+    for (const file of files) {
+      for (const [i, line] of readFileSync(file, 'utf-8').split('\n').entries()) {
+        if (/\bpnpm\s+(?:run\s+)?[a-z][a-z0-9:_-]*\s+--(?:\s|$)/.test(line)) {
+          hits.push(`  "${line.trim()}" in ${file.replace(ROOT + '/', '')}:${i + 1}`)
+        }
+      }
+    }
+
+    expect(hits, `\nCommands forward arguments after a bare "--", which pnpm passes through and the tool ignores:\n${hits.join('\n')}\n\nFix: drop the "--", e.g. "pnpm test:run src/foo.test.ts".`).toHaveLength(0)
+  })
+
   it('all palette names referenced in docs have a corresponding CSS file', () => {
     const VALID_PALETTES = ['default', 'luxury', 'mediterranean', 'coastal', 'countryside', 'urban', 'nordic']
     const PALETTES_DIR = join(ROOT, 'public/styles/palettes')
