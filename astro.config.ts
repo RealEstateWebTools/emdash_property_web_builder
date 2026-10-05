@@ -17,6 +17,10 @@ import { resendEmailPlugin } from "./src/plugins/resend-email.js";
 import { siteProfilePlugin } from "./src/plugins/site-profile.js";
 
 const isDev = process.env.NODE_ENV !== "production";
+// Local SQLite + uploads locations. Overridable so the visual regression suite
+// (scripts/visual-test-server.mjs) can run against its own freshly seeded copy.
+const localDbFile = process.env.LOCAL_DB_FILE ?? "./data.db";
+const localUploadsDir = process.env.LOCAL_UPLOADS_DIR ?? "./uploads";
 const nativeSsrExcludes = ["better-sqlite3", "bindings", "file-uri-to-path"];
 const emdashLocalExcludes = [
 	"emdash/db/sqlite",
@@ -58,10 +62,10 @@ export default defineConfig({
 			// Local dev: SQLite (seeded with `npx emdash seed`)
 			// Production: Cloudflare D1 + R2
 			database: isDev
-				? sqlite({ url: "file:./data.db" })
+				? sqlite({ url: `file:${localDbFile}` })
 				: d1({ binding: "DB", session: "auto" }),
 			storage: isDev
-				? local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" })
+				? local({ directory: localUploadsDir, baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
 			mcp: true,
 			plugins: [...bundledPlugins, ...trustedPlugins],

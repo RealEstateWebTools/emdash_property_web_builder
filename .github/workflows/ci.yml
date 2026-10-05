@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      update_visual_baselines:
+        description: 'Regenerate visual regression baselines and upload them as an artifact'
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -78,13 +84,9 @@ jobs:
         env:
           NODE_ENV: development
 
-      # Visual regression is excluded here: its committed baselines were
-      # generated outside real CI (Docker approximation) and don't match
-      # this environment's rendering for pages backed by live PWB data.
-      # Run it manually/locally until baselines are regenerated from a
-      # real CI run. See git history on e2e/visual-regression.spec.ts.
+      # Visual regression runs in its own job below (mocked PWB backend).
       - name: Run E2E tests
-        run: pnpm test:e2e -- --grep-invert "Visual regression"
+        run: pnpm test:e2e
         env:
           CI: true
 
@@ -95,3 +97,63 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  visual:
+    name: Visual regression (Playwright)
+    runs-on: ubuntu-latest
+    # Needs no secrets: scripts/visual-test-server.mjs seeds its own database
+    # and serves PWB fixtures from a local mock, so this runs on fork PRs too.
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm version comes from the packageManager field in package.json —
+      # passing one here too makes action-setup@v4 hard-error on the conflict.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run visual regression tests
+        if: ${{ !inputs.update_visual_baselines }}
+        run: pnpm test:visual
+        env:
+          CI: true
+          NODE_ENV: development
+
+      # Baselines are platform-specific, so they are generated here rather
+      # than on a laptop. Download the artifact and commit its PNGs into
+      # e2e/visual-regression.spec.ts-snapshots/.
+      - name: Regenerate visual baselines
+        if: ${{ inputs.update_visual_baselines }}
+        run: pnpm test:visual --update-snapshots
+        env:
+          CI: true
+          NODE_ENV: development
+
+      - name: Upload regenerated baselines
+        if: ${{ inputs.update_visual_baselines }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: e2e/visual-regression.spec.ts-snapshots/*-linux.png
+          retention-days: 7
+
+      - name: Upload visual report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-report
+          path: |
+            playwright-report/visual/
+            test-results/
+          retention-days: 7
+

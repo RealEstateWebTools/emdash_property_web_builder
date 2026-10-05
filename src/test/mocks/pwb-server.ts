@@ -1,47 +1,20 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
-import siteDetails from '../fixtures/site-details.json'
-import property from '../fixtures/property.json'
-import searchResults from '../fixtures/search-results.json'
-import searchFacets from '../fixtures/search-facets.json'
-import searchConfig from '../fixtures/search-config.json'
-import page from '../fixtures/page.json'
+import { PWB_API_PREFIX, resolvePwbFixture } from './pwb-fixture-routes.mjs'
 
-const BASE = 'http://localhost:3001/api_public/v1'
+const ORIGIN = 'http://localhost:3001'
+const BASE = `${ORIGIN}${PWB_API_PREFIX}`
 
-export const handlers = [
-  // Localized endpoints (new path structure with locale prefix)
-  http.get(`${BASE}/:locale/site_details`, () => HttpResponse.json(siteDetails)),
+// Routes live in pwb-fixture-routes.mjs so the visual-regression mock server
+// (scripts/mock-pwb-server.mjs) serves exactly the same data. Returning
+// undefined lets unmatched requests fall through to onUnhandledRequest.
+async function fromFixtures({ request }: { request: Request }) {
+  const pathname = new URL(request.url).pathname.slice(PWB_API_PREFIX.length)
+  const body = request.method === 'POST' ? await request.clone().json().catch(() => null) : null
+  const result = resolvePwbFixture(request.method, pathname, body)
+  return result ? HttpResponse.json(result.body, { status: result.status }) : undefined
+}
 
-  http.get(`${BASE}/:locale/properties`, () => HttpResponse.json(searchResults)),
-
-  http.get(`${BASE}/:locale/properties/:slug`, ({ params }) => {
-    if (params.slug === property.slug) return HttpResponse.json(property)
-    return HttpResponse.json({ error: 'Not Found' }, { status: 404 })
-  }),
-
-  http.get(`${BASE}/:locale/search/facets`, () => HttpResponse.json(searchFacets)),
-
-  http.get(`${BASE}/:locale/search/config`, () => HttpResponse.json(searchConfig)),
-
-  http.get(`${BASE}/:locale/localized_page/by_slug/:slug`, ({ params }) => {
-    if (params.slug === 'about') return HttpResponse.json(page)
-    return HttpResponse.json({ error: 'Not Found' }, { status: 404 })
-  }),
-
-  http.post(`${BASE}/enquiries`, async ({ request }) => {
-    const body = await request.json() as { enquiry: { email?: string } }
-    if (!body.enquiry?.email) {
-      return HttpResponse.json(
-        { success: false, errors: ['Email is required'] },
-        { status: 422 }
-      )
-    }
-    return HttpResponse.json(
-      { success: true, message: 'Enquiry sent', data: { contact_id: 1, message_id: 1 } },
-      { status: 201 }
-    )
-  }),
-]
+export const handlers = [http.get(`${BASE}/*`, fromFixtures), http.post(`${BASE}/*`, fromFixtures)]
 
 export const server = setupServer(...handlers)

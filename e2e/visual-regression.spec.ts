@@ -4,10 +4,13 @@
  * Takes full-page screenshots of key pages for each palette so regressions
  * in theme CSS are caught as snapshot diffs.
  *
- * To update snapshots after an intentional design change:
- *   npx playwright test e2e/visual-regression.spec.ts --update-snapshots
+ * Run with `pnpm test:visual` (playwright.visual.config.ts). That config
+ * starts its own server against a freshly seeded database and a mock PWB API
+ * serving the unit-test fixtures, so content is identical on every run.
  *
- * Requires a running dev server: pnpm dev
+ * To update snapshots after an intentional design change (on Linux — the
+ * baselines are `-chromium-linux.png`):
+ *   pnpm test:visual --update-snapshots
  *
  * Each palette is injected via a query param (?palette=<name>) that the
  * BaseLayout reads and applies in preference to the PUBLIC_PALETTE env var
@@ -31,43 +34,55 @@ const PALETTES = [
 // Key pages to screenshot — covers the main consumer-facing surfaces
 const KEY_PAGES = ['/', '/properties', '/posts'] as const
 
-// Pages that require network data from PWB. Skip them rather than fail if the
-// backend is not available — the palette tokens still need to be tested on the
-// static pages.
-async function isPageAvailable(page: import('@playwright/test').Page, url: string): Promise<boolean> {
-  try {
-    const res = await page.goto(url, { timeout: 10_000 })
-    return (res?.status() ?? 0) < 500
-  } catch {
-    return false
-  }
-}
+// 1x1 light-grey PNG used for every off-site image (fixture listings point at
+// example.com), so screenshots don't depend on third-party hosts.
+const PLACEHOLDER_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN4+/7tfwAJagPXBCdF1wAAAABJRU5ErkJggg==',
+  'base64',
+)
+
+test.beforeEach(async ({ page, baseURL }) => {
+  const siteOrigin = new URL(baseURL ?? 'http://localhost').origin
+  await page.route('**/*', (route) => {
+    const request = route.request()
+    if (request.resourceType() === 'image' && new URL(request.url()).origin !== siteOrigin) {
+      return route.fulfill({ status: 200, contentType: 'image/png', body: PLACEHOLDER_PNG })
+    }
+    return route.continue()
+  })
+})
 
 test.describe('Visual regression — theme palettes', () => {
   for (const palette of PALETTES) {
     for (const path of KEY_PAGES) {
       test(`${palette} palette — ${path}`, async ({ page }) => {
-        const url = `${path}?palette=${palette}`
-        const available = await isPageAvailable(page, url)
-        if (!available) {
-          test.skip()
-          return
-        }
+        const response = await page.goto(`${path}?palette=${palette}`)
+        // The backend is mocked, so every key page must render.
+        expect(response?.status()).toBe(200)
 
-        // Wait for the layout to settle (fonts, lazy images)
+        // Load lazy images and fonts before capturing the full page.
+        await page.evaluate(async () => {
+          for (const img of Array.from(document.images)) img.loading = 'eager'
+          const pending = Array.from(document.images)
+            .filter((img) => !img.complete)
+            .map(
+              (img) =>
+                new Promise((done) => {
+                  img.addEventListener('load', done, { once: true })
+                  img.addEventListener('error', done, { once: true })
+                }),
+            )
+          await Promise.race([Promise.all(pending), new Promise((done) => setTimeout(done, 10_000))])
+          await document.fonts.ready
+        })
         await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {
           // networkidle can time out on pages with long-polling — continue anyway
         })
 
-        // Mask dynamic content (dates, prices from live API) so snapshots are stable
         await expect(page).toHaveScreenshot(`${palette}${path.replace(/\//g, '-')}.png`, {
           fullPage: true,
-          mask: [
-            // Live date/time strings rendered into the page
-            page.locator('time'),
-            // Price figures from the PWB backend (change when seeded differently)
-            page.locator('.property-price, .prop-price, [data-price]'),
-          ],
+          // Dates are rendered relative to "now" by some components.
+          mask: [page.locator('time')],
           // Allow a small pixel tolerance for sub-pixel font rendering differences
           maxDiffPixelRatio: 0.02,
         })

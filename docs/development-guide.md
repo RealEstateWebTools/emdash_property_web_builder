@@ -51,6 +51,17 @@ pnpm test:coverage   # with coverage report
 
 Tests use [Vitest](https://vitest.dev/) + [MSW](https://mswjs.io/). The MSW mock server intercepts all `fetch()` calls made by `PwbClient` — no real PWB backend is needed to run the test suite.
 
+### End-to-end and visual regression tests
+
+```bash
+pnpm test:e2e        # Playwright against a running dev server (real PWB API)
+pnpm test:visual     # palette screenshots — starts its own server
+```
+
+`pnpm test:visual` (config: `playwright.visual.config.ts`) seeds a fresh database from `seed/seed.json` into `.visual/` and serves the unit-test fixtures from a mock PWB API (`scripts/mock-pwb-server.mjs`, sharing routes with the MSW handlers via `src/test/mocks/pwb-fixture-routes.mjs`). Screenshots therefore change only when the UI changes, never because live listings did. It does not touch your `data.db` and can run alongside `pnpm dev`.
+
+Baselines are platform-specific. The committed ones are `-chromium-linux.png`, generated in CI: run the **CI** workflow manually with **update_visual_baselines** checked, download the `visual-baselines` artifact, and commit the PNGs into `e2e/visual-regression.spec.ts-snapshots/`. Locally on macOS, `pnpm test:visual --update-snapshots` writes `-darwin.png` baselines for your own use; those are gitignored.
+
 ---
 
 ## Local database

@@ -27,6 +27,7 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
+		"test:visual": "playwright test -c playwright.visual.config.ts",
 		"lint": "biome lint",
 		"lint:fix": "biome lint --write",
 		"format": "biome format --write",

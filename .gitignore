@@ -23,3 +23,9 @@ test-results/
 
 # EmDash 1.x build output (migration manifest written on every build)
 .emdash/
+
+# Visual regression suite working copy (seeded DB + uploads)
+.visual/
+
+# Visual baselines are generated in CI (Linux); local macOS ones stay local
+e2e/visual-regression.spec.ts-snapshots/*-darwin.png
