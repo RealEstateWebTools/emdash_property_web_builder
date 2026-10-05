@@ -1,7 +1,7 @@
 import type { Property, PropPhoto } from './types'
 
 export interface PropertyDetailData {
-  id: number
+  id: number | string
   slug: string
   title: string
   description: string | null

@@ -10,7 +10,7 @@ export function htmlToMetaDescription(html: string | null | undefined, maxLength
 }
 
 export interface PropertyCardData {
-  id: number
+  id: number | string
   slug: string
   title: string
   price: string | null

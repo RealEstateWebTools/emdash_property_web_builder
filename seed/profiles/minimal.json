@@ -350,6 +350,183 @@
 					"type": "string"
 				}
 			]
+		},
+		{
+			"slug": "properties",
+			"label": "Properties",
+			"labelSingular": "Property",
+			"description": "Listings stored in EmDash. Used when no PWB backend is configured; import from PWB with `pnpm import:pwb-listings`.",
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
+			"urlPattern": "/properties/{slug}",
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "reference",
+					"label": "Reference",
+					"type": "string",
+					"searchable": true
+				},
+				{
+					"slug": "for_sale",
+					"label": "For Sale",
+					"type": "boolean",
+					"defaultValue": true
+				},
+				{
+					"slug": "for_rent",
+					"label": "For Rent",
+					"type": "boolean",
+					"defaultValue": false
+				},
+				{
+					"slug": "highlighted",
+					"label": "Featured",
+					"type": "boolean",
+					"defaultValue": false
+				},
+				{
+					"slug": "price_sale",
+					"label": "Sale Price",
+					"type": "number"
+				},
+				{
+					"slug": "price_rent_monthly",
+					"label": "Monthly Rent",
+					"type": "number"
+				},
+				{
+					"slug": "currency",
+					"label": "Currency (ISO code, e.g. EUR)",
+					"type": "string",
+					"defaultValue": "EUR"
+				},
+				{
+					"slug": "property_type",
+					"label": "Property Type",
+					"type": "string"
+				},
+				{
+					"slug": "bedrooms",
+					"label": "Bedrooms",
+					"type": "integer"
+				},
+				{
+					"slug": "bathrooms",
+					"label": "Bathrooms",
+					"type": "number"
+				},
+				{
+					"slug": "garages",
+					"label": "Garages",
+					"type": "integer"
+				},
+				{
+					"slug": "constructed_area",
+					"label": "Built Area",
+					"type": "number"
+				},
+				{
+					"slug": "plot_area",
+					"label": "Plot Area",
+					"type": "number"
+				},
+				{
+					"slug": "area_unit",
+					"label": "Area Unit",
+					"type": "select",
+					"defaultValue": "sqm",
+					"validation": {
+						"options": [
+							"sqm",
+							"sqft"
+						]
+					}
+				},
+				{
+					"slug": "description",
+					"label": "Description",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "photos",
+					"label": "Photos",
+					"type": "repeater",
+					"fields": [
+						{
+							"slug": "image",
+							"label": "Image",
+							"type": "image"
+						},
+						{
+							"slug": "caption",
+							"label": "Caption",
+							"type": "string"
+						}
+					]
+				},
+				{
+					"slug": "address",
+					"label": "Address",
+					"type": "string"
+				},
+				{
+					"slug": "city",
+					"label": "City",
+					"type": "string",
+					"searchable": true
+				},
+				{
+					"slug": "region",
+					"label": "Region",
+					"type": "string"
+				},
+				{
+					"slug": "postal_code",
+					"label": "Postal Code",
+					"type": "string"
+				},
+				{
+					"slug": "country_code",
+					"label": "Country Code",
+					"type": "string"
+				},
+				{
+					"slug": "latitude",
+					"label": "Latitude",
+					"type": "number"
+				},
+				{
+					"slug": "longitude",
+					"label": "Longitude",
+					"type": "number"
+				},
+				{
+					"slug": "source_id",
+					"label": "Imported From (source ID)",
+					"type": "string"
+				},
+				{
+					"slug": "seo_title",
+					"label": "SEO Title",
+					"type": "string"
+				},
+				{
+					"slug": "seo_description",
+					"label": "SEO Description",
+					"type": "text"
+				}
+			]
 		}
 	],
 

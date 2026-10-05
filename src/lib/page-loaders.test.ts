@@ -18,6 +18,7 @@ vi.mock('emdash', () => ({
   getEmDashEntry: vi.fn(),
   getTerm: vi.fn(),
   getSiteSettings: vi.fn(async () => ({ title: 'Settings Brand' })),
+  getEmDashCollection: vi.fn(async () => ({ entries: [], cacheHint: undefined })),
 }))
 
 import { getEmDashEntry, getTerm } from 'emdash'
@@ -263,7 +264,7 @@ describe('without PWB configured', () => {
     fetchSpy.mockRestore()
   })
 
-  it('property detail returns 404 (no listings yet) rather than a 502', async () => {
+  it('property detail returns 404 for a slug that is not a native listing', async () => {
     const load = await loadPropertyDetail('en', 'beautiful-villa-marbella')
     expect(load).toMatchObject({ loadState: 'not_found', status: 404, property: null })
   })

@@ -14,7 +14,8 @@ export interface PropPhoto {
 }
 
 export interface PropertySummary {
-  id: number
+  /** PWB numeric id, or the EmDash entry id (ULID) for native listings. */
+  id: number | string
   slug: string
   reference: string | null
   title: string
@@ -53,7 +54,7 @@ export interface Property extends PropertySummary {
 // ─── Search ───────────────────────────────────────────────────────────────────
 
 export interface MapMarker {
-  id: number
+  id: number | string
   slug: string
   lat: number
   lng: number
