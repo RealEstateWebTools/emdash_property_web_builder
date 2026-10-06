@@ -27,11 +27,15 @@ skipped.
 
 ## Area pages and location
 
-The PWB list endpoint returns no location fields and has no location filter
-(`app/controllers/api_public/v1/properties_controller.rb` in the Rails app), so a
-collection cannot select "all listings in Marbella" automatically. For
-location-led pages, use **Hand-picked** listings. A city/locality filter on the
-PWB search API would allow automatic area collections later.
+Collections have no location filter yet, so for location-led pages use
+**Hand-picked** listings. With PWB it can't be added on this side: the PWB list
+endpoint returns no location fields and has no location filter
+(`app/controllers/api_public/v1/properties_controller.rb` in the Rails app). Native
+EmDash listings do store city and region ([pwb-optional.md](pwb-optional.md)), so an
+automatic area filter is possible for sites without PWB.
+
+Collections load listings through the host site's listing source, so they work with
+PWB or native EmDash listings alike.
 
 ## Implementation
 

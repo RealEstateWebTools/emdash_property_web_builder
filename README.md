@@ -70,11 +70,15 @@ pnpm install
 cp .env.example .env
 ```
 
-Set `PWB_API_URL` in `.env`, for example:
+To use a PWB backend for listings, set `PWB_API_URL` in `.env`, for example:
 
 ```bash
 PWB_API_URL=http://localhost:3000
 ```
+
+Without it, the site runs entirely on EmDash: listings come from the Properties
+collection (import them from PWB with `pnpm import:pwb-listings`). See
+[docs/pwb-optional.md](docs/pwb-optional.md).
 
 Seed the local database:
 
@@ -226,4 +230,4 @@ For production deploys, also review:
 
 - changes to plugin registration or `astro.config.mjs` usually require a full dev server restart
 - `emdash-env.d.ts` is generated
-- PWB must be reachable for live property pages and property embeds to resolve fully
+- with `PWB_API_URL` set, PWB must be reachable for live property pages and property embeds to resolve fully; without it, listings come from EmDash (docs/pwb-optional.md)

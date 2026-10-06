@@ -357,7 +357,7 @@ The PWB Rails app (`config/initializers/cors.rb`) is already configured to allow
 
 | Variable | Where | Purpose |
 |---|---|---|
-| `PWB_API_URL` | `.env` (dev), Cloudflare dashboard (prod) | Base URL of the PWB Rails backend, no trailing slash |
+| `PWB_API_URL` | `.env` (dev), Cloudflare dashboard (prod) | Base URL of the PWB Rails backend, no trailing slash. Optional: unset means listings, site details and enquiries come from EmDash ([pwb-optional.md](pwb-optional.md)) |
 | `NODE_ENV` | Set by runtime | `production` switches to D1/R2; anything else uses SQLite/local |
 | `EMFRONT_ORIGIN` | PWB server `.env` | Allows the production EmDash domain in PWB's CORS config |
 

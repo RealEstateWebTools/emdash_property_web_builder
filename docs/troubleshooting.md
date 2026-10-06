@@ -28,15 +28,17 @@ Once you switch to SQLite-in-dev mode, the manually created page won't appear (i
 
 ---
 
-## `PWB_API_URL` is not set error
+## No listings appear
 
-**Symptom:** Page throws `Error: PWB_API_URL environment variable is not set`.
+**Cause:** `PWB_API_URL` is optional. Without it the site reads listings from the
+EmDash Properties collection, which starts empty.
 
-**Fix:** Copy `.env.example` to `.env` and set the URL:
+**Fix:** either set `PWB_API_URL` in `.env` to use a PWB backend, or import listings
+into EmDash:
 ```bash
-cp .env.example .env
-# Edit .env: PWB_API_URL=http://localhost:3000
+pnpm import:pwb-listings --url https://your-pwb-site.example
 ```
+See [pwb-optional.md](pwb-optional.md).
 
 ---
 

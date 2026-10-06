@@ -44,6 +44,12 @@ route. Consequences worth knowing:
 To track another CTA, add `data-cta="<id>"` (letters, digits, `_ . : -`) to the link
 or button. Nothing else is needed.
 
+## Enquiries on sites without PWB
+
+The same plugin stores enquiries in EmDash when there is no PWB backend: its public
+`enquiries` route saves an unpublished entry in the **Enquiries** collection and emails
+the office. See [pwb-optional.md](pwb-optional.md#enquiries-without-pwb).
+
 ## Implementation
 
 - Plugin: `src/plugins/lead-reports.ts` (storage `events`, indexed by `kind` and
