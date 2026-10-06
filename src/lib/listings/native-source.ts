@@ -66,6 +66,21 @@ export function formatPrice(amount: number | null, currency: string, locale: str
   }
 }
 
+/**
+ * Canonical property type key. Types are free text in the admin, so "Villa",
+ * "villa" and PWB's "types.villa" must be one type (one filter, one facet).
+ */
+export function propertyTypeKey(value: unknown): string | null {
+  const raw = str(value)
+  if (!raw) return null
+  const slug = raw
+    .replace(/^types\./i, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '_')
+    .replace(/^_+|_+$/g, '')
+  return slug ? `types.${slug}` : null
+}
+
 /** Human label for a property type key ("types.country_house" → "Country house"). */
 export function propertyTypeLabel(key: string): string {
   const words = key.replace(/^types\./, '').replace(/[_-]+/g, ' ').trim()
@@ -74,8 +89,11 @@ export function propertyTypeLabel(key: string): string {
 
 export function entryToProperty(entry: PropertyEntry, locale: string): Property {
   const d = entry.data
-  const forSale = d.for_sale !== false
   const forRent = d.for_rent === true
+  // EmDash doesn't apply defaults to optional fields, so a listing created in
+  // the admin has no for_sale unless the toggle was touched: unset means for
+  // sale, unless it's a rental.
+  const forSale = d.for_sale == null ? !forRent : d.for_sale !== false
   const currency = str(d.currency) ?? DEFAULT_SEARCH_CONFIG.currency
   const sale = num(d.price_sale)
   const rent = num(d.price_rent_monthly)
@@ -118,7 +136,7 @@ export function entryToProperty(entry: PropertyEntry, locale: string): Property 
     country_code: str(d.country_code),
     latitude: num(d.latitude),
     longitude: num(d.longitude),
-    prop_type_key: str(d.property_type),
+    prop_type_key: propertyTypeKey(d.property_type),
     plot_area: num(d.plot_area),
     created_at: dateString(d.createdAt),
     updated_at: dateString(d.updatedAt),
@@ -138,11 +156,12 @@ export function searchListings(properties: Property[], params: SearchParams): Se
   const priceTo = num(mode === 'rental' ? params.for_rent_price_till : params.for_sale_price_till)
   const bedrooms = num(params.bedrooms_from)
   const bathrooms = num(params.bathrooms_from)
+  const propertyType = propertyTypeKey(params.property_type)
 
   const matches = properties.filter((p) => {
     if (mode === 'rental' ? !p.for_rent : !p.for_sale) return false
     if (params.featured === 'true' && !p.highlighted) return false
-    if (params.property_type && p.prop_type_key !== params.property_type) return false
+    if (propertyType && p.prop_type_key !== propertyType) return false
     if (bedrooms != null && (p.count_bedrooms ?? 0) < bedrooms) return false
     if (bathrooms != null && (p.count_bathrooms ?? 0) < bathrooms) return false
     const price = priceFor(p, mode)

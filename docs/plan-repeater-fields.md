@@ -6,6 +6,11 @@ The `repeater` field type (added in EmDash 0.2.0) allows structured, ordered lis
 within a single content entry. Unlike Portable Text, a repeater produces a typed array that's easy
 to query and render without a block renderer.
 
+> **Sub-fields go in `validation.subFields`, not `fields`.** The admin renders a repeater's rows
+> from `validation.subFields`. A seed that uses `fields` passes `emdash seed --validate` and seeds
+> without error, but every row is an empty box in the admin. `src/seed-schema.test.ts` guards the
+> seed files. Sub-field types: string, text, url, number, integer, boolean, datetime, select, image.
+
 ## Current Collections
 
 | Collection   | Candidate for Repeater |
@@ -28,10 +33,12 @@ Replace the single `string` fields for social profiles with a typed repeater:
   "slug": "social_links",
   "label": "Social Links",
   "type": "repeater",
-  "fields": [
-    { "slug": "platform", "label": "Platform", "type": "string" },
-    { "slug": "url",      "label": "URL",      "type": "string" }
-  ]
+  "validation": {
+    "subFields": [
+      { "slug": "platform", "label": "Platform", "type": "string" },
+      { "slug": "url",      "label": "URL",      "type": "string" }
+    ]
+  }
 }
 ```
 
@@ -46,10 +53,12 @@ Add structured FAQs to any page (homepage, about, area guides):
   "slug": "faqs",
   "label": "FAQs",
   "type": "repeater",
-  "fields": [
-    { "slug": "question", "label": "Question", "type": "string" },
-    { "slug": "answer",   "label": "Answer",   "type": "text"   }
-  ]
+  "validation": {
+    "subFields": [
+      { "slug": "question", "label": "Question", "type": "string" },
+      { "slug": "answer",   "label": "Answer",   "type": "text"   }
+    ]
+  }
 }
 ```
 
@@ -64,16 +73,19 @@ Structured summary bullets for blog posts, rendered above the body or in a sideb
   "slug": "key_takeaways",
   "label": "Key Takeaways",
   "type": "repeater",
-  "fields": [
-    { "slug": "point", "label": "Point", "type": "string" }
-  ]
+  "validation": {
+    "subFields": [
+      { "slug": "point", "label": "Point", "type": "string" }
+    ]
+  }
 }
 ```
 
 ## Implementation Steps
 
 1. Add repeater fields to `seed/seed.json` under the relevant collections
-2. Run `pnpm dev` — migrations apply automatically on startup
+2. Run `pnpm seed:schema` — `pnpm seed` skips fields that already exist, so changed field
+   definitions only reach an existing database this way
 3. Restart `pnpm dev` so it regenerates `emdash-env.d.ts`
 4. Update Astro page templates to render the new fields:
    - `src/pages/[lang]/posts/[slug].astro` — key takeaways

@@ -11,6 +11,7 @@ import {
   entryToProperty,
   formatPrice,
   imageUrl,
+  propertyTypeKey,
   propertyTypeLabel,
   searchListings,
 } from './native-source'
@@ -72,6 +73,22 @@ describe('entryToProperty', () => {
   it('formats the rent for rental-only listings', () => {
     expect(all[2].formatted_price).toBe('€1,200')
   })
+
+  // The admin omits toggles the editor never touched (EmDash doesn't apply
+  // defaults to optional fields), so for_sale is often missing.
+  it('treats a missing for_sale as for sale unless the listing is for rent', () => {
+    const adminSale = entryToProperty(entry('admin-sale', { price_sale: 300000 }), 'en')
+    const adminRental = entryToProperty(entry('admin-rental', { for_rent: true, price_rent_monthly: 900 }), 'en')
+    expect([adminSale.for_sale, adminSale.for_rent]).toEqual([true, false])
+    expect([adminRental.for_sale, adminRental.for_rent]).toEqual([false, true])
+    expect(adminRental.formatted_price).toBe('€900')
+    expect(searchListings([adminSale, adminRental], {}).data.map((p) => p.slug)).toEqual(['admin-sale'])
+  })
+
+  it('keeps an explicit for_sale alongside for_rent', () => {
+    const both = entryToProperty(entry('both', { for_sale: true, for_rent: true }), 'en')
+    expect([both.for_sale, both.for_rent]).toEqual([true, true])
+  })
 })
 
 describe('searchListings', () => {
@@ -117,6 +134,18 @@ describe('facets and search config', () => {
     expect(buildFacets(all, 'rental').property_types).toEqual({ 'types.flat': 1 })
   })
 
+  it('merges property types typed differently in the admin', () => {
+    const typed = [
+      entry('a', { property_type: 'Country House' }),
+      entry('b', { property_type: 'country house' }),
+      entry('c', { property_type: 'types.country_house' }),
+    ].map((e) => entryToProperty(e, 'en'))
+    expect(buildSearchConfig(typed).property_types).toEqual([
+      { key: 'types.country_house', label: 'Country house', count: 3 },
+    ])
+    expect(searchListings(typed, { property_type: 'Country house' }).meta.total).toBe(3)
+  })
+
   it('derives property types and currency from the listings', () => {
     const config = buildSearchConfig(all)
     expect(config.property_types).toEqual([
@@ -141,6 +170,9 @@ describe('helpers', () => {
     expect(formatPrice(0, 'USD', 'en')).toBeNull()
     expect(formatPrice(10, 'NOTACURRENCY', 'en')).toBe('10 NOTACURRENCY')
     expect(propertyTypeLabel('types.country_house')).toBe('Country house')
+    expect(propertyTypeKey(' Ático dúplex ')).toBe('types.ático_dúplex')
+    expect(propertyTypeKey('TYPES.Villa')).toBe('types.villa')
+    expect(propertyTypeKey(' - ')).toBeNull()
   })
 })
 

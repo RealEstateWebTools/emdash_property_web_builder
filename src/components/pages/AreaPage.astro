@@ -11,8 +11,10 @@ import { blockComponents } from 'pwb-property-embeds/astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import TranslationLinks from '../TranslationLinks.astro'
 import {
+  type AreaTestimonial,
   areaPath,
   buildAreaListingNode,
+  pickAreaTestimonials,
   readAreaCta,
   readAreaFaqs,
   readAreaHighlights,
@@ -35,17 +37,12 @@ interface Props {
   isFallback: boolean
 }
 
-interface Testimonial {
-  name: string
-  role: string
-  quote: string
-}
 
 const { locale, slug, area, cacheHint, isFallback } = Astro.props
 const ListingCollection = blockComponents.listingCollection
 
 let site = fallbackSite
-let testimonials: Testimonial[] = []
+let testimonials: AreaTestimonial[] = []
 let alternateLinks: Array<{ locale: string; href: string }> = []
 
 const data = (area?.data ?? {}) as unknown as Record<string, unknown>
@@ -71,11 +68,7 @@ if (area) {
   if (data.show_testimonials !== false) {
     try {
       const { entries } = await getEmDashCollection('testimonials', { locale: DEFAULT_LOCALE, limit: 12 })
-      testimonials = entries
-        .map((entry) => entry.data as unknown as Record<string, unknown>)
-        .filter((t) => t.featured !== false && typeof t.quote === 'string' && typeof t.name === 'string')
-        .slice(0, 3)
-        .map((t) => ({ name: String(t.name), role: typeof t.role === 'string' ? t.role : '', quote: String(t.quote) }))
+      testimonials = pickAreaTestimonials(entries.map((entry) => entry.data as unknown as Record<string, unknown>))
     } catch (err) {
       console.warn('[areas] testimonials unavailable:', err)
     }

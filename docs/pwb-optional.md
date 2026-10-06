@@ -50,15 +50,24 @@ enquiries; the imported listings stay in EmDash, unused.
 
 ## Listings in EmDash
 
-Listings live in the **Properties** collection and can be edited (or, later, created)
-in the admin: title, sale/rent and prices, featured flag, type, rooms, areas, address
-and coordinates, ordered photos, description and SEO fields.
+Listings live in the **Properties** collection and are created and edited in the admin:
+title, sale/rent and prices, featured flag, type, rooms, areas, address and coordinates,
+photos, description and SEO fields.
+
+- **Photos:** add a row per photo, then upload an image or pick one from the media
+  library, with an optional caption. Drag rows to reorder; the first photo is the cover.
+- **New listings:** a listing is for sale unless you switch on **For Rent** (switch
+  both on for a listing that is both). On save, unset toggles, currency (EUR) and area
+  unit (sqm) are filled in — EmDash itself doesn't apply field defaults to optional
+  fields (`property-listings` plugin, `src/lib/listings/new-listing-defaults.ts`).
+- **Property type** is free text: "Villa", "villa" and "types.villa" are the same type.
 
 - Search, filters (sale/rent, type, bedrooms, bathrooms, price), sorting, map markers
   and facet counts run in memory over the published listings — up to 1,000
   (`MAX_LISTINGS` in `src/lib/listings/native-source.ts`), comfortable for an
   agency's inventory.
-- Property types come from the listings themselves (`types.villa` → "Villa").
+- Property types come from the listings themselves (`types.villa` → "Villa"), so the
+  type filter only offers types in use.
 - A language without its own listings shows the default-language ones.
 
 ## Enquiries without PWB

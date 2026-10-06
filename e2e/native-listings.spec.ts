@@ -87,4 +87,38 @@ test.describe('Native listings (no PWB)', () => {
       data: { name: 'Native Buyer', property_slug: 'harbour-view-villa', cta_source: 'book_viewing', lead_status: 'new' },
     })
   })
+
+  // EmDash's admin leaves untouched optional fields (here For Sale) out of the
+  // saved data; this posts exactly what it sends for a new rental.
+  test('a rental created in the admin is listed for rent only', async ({ page }) => {
+    const slug = `admin-rental-${Date.now()}`
+    await page.goto('/_emdash/api/setup/dev-bypass?redirect=/')
+    const headers = { 'X-EmDash-Request': '1' }
+    const created = await page.request.post('/_emdash/api/content/properties', {
+      headers,
+      data: {
+        data: { title: 'Admin Rental', for_rent: true, price_rent_monthly: 950, property_type: 'Studio' },
+        slug,
+        bylines: [],
+        locale: 'en',
+      },
+    })
+    expect(created.status()).toBe(201)
+    const { item } = (await created.json()).data
+    // property-listings plugin: defaults filled on create (this API returns
+    // booleans as stored, 0/1)
+    expect(item.data).toMatchObject({ currency: 'EUR', area_unit: 'sqm' })
+    expect([Boolean(item.data.for_sale), Boolean(item.data.for_rent)]).toEqual([false, true])
+
+    const published = await page.request.post(`/_emdash/api/content/properties/${item.id}/publish?locale=en`, {
+      headers,
+      data: {},
+    })
+    expect(published.status()).toBe(200)
+
+    await page.goto('/properties?mode=rental&type=types.studio')
+    await expect(page.locator(`a[href="/properties/${slug}"]`).first()).toBeVisible()
+    await page.goto('/properties')
+    await expect(page.locator(`a[href="/properties/${slug}"]`)).toHaveCount(0)
+  })
 })

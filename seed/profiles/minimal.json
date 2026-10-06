@@ -166,18 +166,20 @@
 					"slug": "highlights",
 					"label": "Local Highlights",
 					"type": "repeater",
-					"fields": [
-						{
-							"slug": "label",
-							"label": "Label",
-							"type": "string"
-						},
-						{
-							"slug": "value",
-							"label": "Value",
-							"type": "string"
-						}
-					]
+					"validation": {
+						"subFields": [
+							{
+								"slug": "label",
+								"label": "Label",
+								"type": "string"
+							},
+							{
+								"slug": "value",
+								"label": "Value",
+								"type": "string"
+							}
+						]
+					}
 				},
 				{
 					"slug": "listings_heading",
@@ -241,18 +243,20 @@
 					"slug": "faqs",
 					"label": "Local FAQs",
 					"type": "repeater",
-					"fields": [
-						{
-							"slug": "question",
-							"label": "Question",
-							"type": "string"
-						},
-						{
-							"slug": "answer",
-							"label": "Answer",
-							"type": "text"
-						}
-					]
+					"validation": {
+						"subFields": [
+							{
+								"slug": "question",
+								"label": "Question",
+								"type": "string"
+							},
+							{
+								"slug": "answer",
+								"label": "Answer",
+								"type": "text"
+							}
+						]
+					}
 				},
 				{
 					"slug": "cta_heading",
@@ -462,18 +466,20 @@
 					"slug": "photos",
 					"label": "Photos",
 					"type": "repeater",
-					"fields": [
-						{
-							"slug": "image",
-							"label": "Image",
-							"type": "image"
-						},
-						{
-							"slug": "caption",
-							"label": "Caption",
-							"type": "string"
-						}
-					]
+					"validation": {
+						"subFields": [
+							{
+								"slug": "image",
+								"label": "Image",
+								"type": "image"
+							},
+							{
+								"slug": "caption",
+								"label": "Caption",
+								"type": "string"
+							}
+						]
+					}
 				},
 				{
 					"slug": "address",

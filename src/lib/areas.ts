@@ -53,6 +53,24 @@ export function readAreaFaqs(data: AreaData): AreaFaq[] {
     .filter((row) => row.question && row.answer)
 }
 
+export interface AreaTestimonial {
+  name: string
+  role: string
+  quote: string
+}
+
+/**
+ * Up to three testimonials marked "Show on Homepage". The flag is opt-in
+ * (default off), and a testimonial created in the admin has no value until
+ * the toggle is touched — so only an explicit `true` counts.
+ */
+export function pickAreaTestimonials(entries: AreaData[]): AreaTestimonial[] {
+  return entries
+    .filter((t) => t.featured === true && text(t.quote) && text(t.name))
+    .slice(0, 3)
+    .map((t) => ({ name: text(t.name), role: text(t.role), quote: text(t.quote) }))
+}
+
 /**
  * The entry's listing settings as a `listingCollection` block node, so the
  * area template renders listings with the same component editors place in

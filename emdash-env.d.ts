@@ -14,7 +14,7 @@ export interface Area {
   tagline?: string;
   hero_image?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; focalX?: number; focalY?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown>; darkVariant?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; focalX?: number; focalY?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown> } };
   intro?: PortableTextBlock[];
-  highlights?: unknown;
+  highlights?: { "label"?: string | null; "value"?: string | null }[];
   listings_heading?: string;
   listings_source?: "featured" | "newest" | "handpicked";
   listings_slugs?: string;
@@ -23,7 +23,7 @@ export interface Area {
   listings_limit?: number;
   body?: PortableTextBlock[];
   show_testimonials?: boolean;
-  faqs?: unknown;
+  faqs?: { "question"?: string | null; "answer"?: string | null }[];
   cta_heading?: string;
   cta_text?: string;
   cta_label?: string;
@@ -71,7 +71,7 @@ export interface Page {
   pre_featured_content?: PortableTextBlock[];
   post_featured_content?: PortableTextBlock[];
   trust_content?: PortableTextBlock[];
-  faqs?: unknown;
+  faqs?: { "question"?: string | null; "answer"?: string | null }[];
   seo_title?: string;
   seo_description?: string;
   createdAt: Date;
@@ -91,7 +91,7 @@ export interface Post {
   content?: PortableTextBlock[];
   excerpt?: string;
   author?: string;
-  key_takeaways?: unknown;
+  key_takeaways?: { "point"?: string | null }[];
   seo_title?: string;
   seo_description?: string;
   createdAt: Date;
@@ -122,7 +122,7 @@ export interface Property {
   plot_area?: number;
   area_unit?: "sqm" | "sqft";
   description?: PortableTextBlock[];
-  photos?: unknown;
+  photos?: { "image"?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; focalX?: number; focalY?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown>; darkVariant?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; focalX?: number; focalY?: number; provider?: string; previewUrl?: string; meta?: Record<string, unknown> } } | null; "caption"?: string | null }[];
   address?: string;
   city?: string;
   region?: string;
@@ -153,7 +153,7 @@ export interface Team {
   phone?: string;
   speciality?: string;
   languages?: string;
-  social_links?: unknown;
+  social_links?: { "platform"?: string | null; "url"?: string | null }[];
   display_order?: number;
   createdAt: Date;
   updatedAt: Date;

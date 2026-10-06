@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   areaPath,
   buildAreaListingNode,
+  pickAreaTestimonials,
   readAreaCta,
   readAreaFaqs,
   readAreaHighlights,
@@ -87,5 +88,25 @@ describe('areaPath', () => {
   it('builds locale-prefixed area URLs', () => {
     expect(areaPath('en', 'east-brunswick')).toBe('/areas/east-brunswick')
     expect(areaPath('es', 'east-brunswick')).toBe('/es/areas/east-brunswick')
+  })
+})
+
+describe('pickAreaTestimonials', () => {
+  const t = (name: string, featured?: boolean) => ({ name, quote: `Quote from ${name}`, role: 'Buyer', featured })
+
+  // "Show on Homepage" is opt-in; a testimonial created in the admin has no
+  // value until the toggle is touched.
+  it('only shows testimonials explicitly marked to show', () => {
+    expect(pickAreaTestimonials([t('Shown', true), t('Untouched'), t('Hidden', false)]).map((x) => x.name)).toEqual([
+      'Shown',
+    ])
+  })
+
+  it('needs a name and quote and caps at three', () => {
+    const rows = [{ name: 'No quote', featured: true }, t('A', true), t('B', true), t('C', true), t('D', true)]
+    expect(pickAreaTestimonials(rows).map((x) => x.name)).toEqual(['A', 'B', 'C'])
+    expect(pickAreaTestimonials([{ name: 'Ann', quote: 'Great', featured: true }])).toEqual([
+      { name: 'Ann', role: '', quote: 'Great' },
+    ])
   })
 })
