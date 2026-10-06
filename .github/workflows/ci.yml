@@ -129,6 +129,15 @@ jobs:
           CI: true
           NODE_ENV: development
 
+      # The site without PWB: native EmDash listings, settings-based site
+      # details, enquiries stored in EmDash.
+      - name: Run native listings tests
+        if: ${{ !inputs.update_visual_baselines }}
+        run: pnpm test:native
+        env:
+          CI: true
+          NODE_ENV: development
+
       # Baselines are platform-specific, so they are generated here rather
       # than on a laptop. Download the artifact and commit its PNGs into
       # e2e/visual-regression.spec.ts-snapshots/.
@@ -154,6 +163,7 @@ jobs:
           name: visual-report
           path: |
             playwright-report/visual/
+            playwright-report/native/
             test-results/
           retention-days: 7
 

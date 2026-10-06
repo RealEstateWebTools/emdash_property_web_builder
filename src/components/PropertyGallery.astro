@@ -202,6 +202,22 @@ const galleryId = `property-gallery-${detail.id}`
   </section>
 )}
 
+{/* Without photos, title, price and status still need a home (they otherwise
+    live on the gallery overlay). */}
+{detail.photos.length === 0 && (
+  <section class="property-detail__hero property-detail__hero--no-photos">
+    <div class="property-gallery__plain-header">
+      <div class="property-gallery__badges">
+        <span class="property-gallery__status">{statusLabel}</span>
+        {detail.featured && <span class="property-gallery__featured">{translateLabel(currentLocale, 'Featured')}</span>}
+      </div>
+      <h1 class="property-gallery__plain-title">{detail.title}</h1>
+      {detail.fullAddress && <p class="property-gallery__plain-address">{detail.fullAddress}</p>}
+      {detail.price && <p class="property-gallery__plain-price">{detail.price}</p>}
+    </div>
+  </section>
+)}
+
 <script is:inline>
   document.querySelectorAll('[data-gallery]').forEach((galleryEl) => {
     const gallery = galleryEl;
@@ -486,12 +502,46 @@ const galleryId = `property-gallery-${detail.id}`
 
   .property-gallery__featured {
     background: rgba(216, 187, 137, 0.88);
-    color: var(--color-primary);
+    /* The gold badge is the same in every palette, so its text is fixed dark
+       ink rather than the palette primary (which failed contrast on it). */
+    color: #1d1b18;
   }
 
   .property-gallery__meta {
     display: grid;
     gap: 0.7rem;
+  }
+
+  .property-gallery__plain-header {
+    padding: 2rem;
+    border-radius: var(--radius-lg, 1.5rem);
+    background: var(--color-surface-strong);
+    border: 1px solid var(--color-border);
+  }
+
+  .property-gallery__plain-header .property-gallery__badges {
+    position: static;
+    margin-bottom: 1rem;
+  }
+
+  .property-gallery__plain-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: var(--leading-tight, 1.05);
+    color: var(--color-text);
+  }
+
+  .property-gallery__plain-address {
+    margin: 0.75rem 0 0;
+    color: var(--color-text-soft);
+  }
+
+  .property-gallery__plain-price {
+    margin: 0.75rem 0 0;
+    font-size: var(--text-2xl, 1.6rem);
+    font-weight: 700;
+    color: var(--color-accent-text);
   }
 
   .property-gallery__title {

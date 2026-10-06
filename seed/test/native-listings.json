@@ -1,0 +1,123 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "Native listings test data",
+		"description": "Listings for the native-mode e2e suite (scripts/visual-test-server.mjs with LISTINGS=native).",
+		"author": "e2e"
+	},
+	"content": {
+		"properties": [
+			{
+				"id": "test-property-harbour-villa",
+				"slug": "harbour-view-villa",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"title": "Harbour View Villa",
+					"reference": "NT-1",
+					"for_sale": true,
+					"for_rent": false,
+					"highlighted": true,
+					"price_sale": 875000,
+					"currency": "EUR",
+					"property_type": "types.villa",
+					"bedrooms": 4,
+					"bathrooms": 3,
+					"garages": 2,
+					"constructed_area": 240,
+					"plot_area": 800,
+					"area_unit": "sqm",
+					"city": "Marbella",
+					"region": "Malaga",
+					"country_code": "ES",
+					"latitude": 36.51,
+					"longitude": -4.88,
+					"description": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "A bright villa with sea views and a large garden."
+								}
+							],
+							"markDefs": []
+						}
+					]
+				}
+			},
+			{
+				"id": "test-property-old-town-flat",
+				"slug": "old-town-flat",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"title": "Old Town Flat",
+					"reference": "NT-2",
+					"for_sale": true,
+					"for_rent": false,
+					"highlighted": false,
+					"price_sale": 240000,
+					"currency": "EUR",
+					"property_type": "types.flat",
+					"bedrooms": 2,
+					"bathrooms": 1,
+					"constructed_area": 85,
+					"area_unit": "sqm",
+					"city": "Malaga",
+					"region": "Malaga",
+					"country_code": "ES",
+					"description": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "A characterful flat a short walk from the cathedral."
+								}
+							],
+							"markDefs": []
+						}
+					]
+				}
+			},
+			{
+				"id": "test-property-garden-rental",
+				"slug": "garden-apartment-to-let",
+				"locale": "en",
+				"status": "published",
+				"data": {
+					"title": "Garden Apartment to Let",
+					"reference": "NT-3",
+					"for_sale": false,
+					"for_rent": true,
+					"highlighted": false,
+					"price_rent_monthly": 1450,
+					"currency": "EUR",
+					"property_type": "types.apartment",
+					"bedrooms": 2,
+					"bathrooms": 2,
+					"city": "Estepona",
+					"region": "Malaga",
+					"country_code": "ES",
+					"description": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Ground-floor apartment with a private garden."
+								}
+							],
+							"markDefs": []
+						}
+					]
+				}
+			}
+		]
+	}
+}

@@ -10,6 +10,9 @@
  *
  * Usage: node scripts/visual-test-server.mjs   (normally started by Playwright)
  * Ports: VISUAL_PORT (default 4330), MOCK_PWB_PORT (default 3011)
+ *
+ * LISTINGS=native runs without PWB instead (no mock, PWB_API_URL blank) and
+ * also seeds seed/test/native-listings.json — used by playwright.native.config.ts.
  */
 
 import { spawn } from 'node:child_process'
@@ -23,7 +26,8 @@ process.chdir(projectRoot)
 
 const VISUAL_PORT = String(process.env.VISUAL_PORT ?? 4330)
 const MOCK_PWB_PORT = Number(process.env.MOCK_PWB_PORT ?? 3011)
-const WORK_DIR = resolve(projectRoot, '.visual')
+const NATIVE = process.env.LISTINGS === 'native'
+const WORK_DIR = resolve(projectRoot, NATIVE ? '.visual-native' : '.visual')
 const DB_FILE = resolve(WORK_DIR, 'data.db')
 const UPLOADS_DIR = resolve(WORK_DIR, 'uploads')
 
@@ -39,11 +43,20 @@ function run(cmd, args, env) {
 rmSync(WORK_DIR, { recursive: true, force: true })
 mkdirSync(UPLOADS_DIR, { recursive: true })
 await run('npx', ['emdash', 'seed', 'seed/seed.json', '--database', DB_FILE, '--uploads-dir', UPLOADS_DIR], process.env)
+if (NATIVE) {
+  await run(
+    'npx',
+    ['emdash', 'seed', 'seed/test/native-listings.json', '--database', DB_FILE, '--uploads-dir', UPLOADS_DIR],
+    process.env,
+  )
+}
 
-// 2. Mock PWB API.
-const mock = createMockPwbServer()
-await new Promise((resolvePromise) => mock.listen(MOCK_PWB_PORT, resolvePromise))
-console.log(`Mock PWB API on http://localhost:${MOCK_PWB_PORT}`)
+// 2. Mock PWB API (PWB mode only).
+const mock = NATIVE ? null : createMockPwbServer()
+if (mock) {
+  await new Promise((resolvePromise) => mock.listen(MOCK_PWB_PORT, resolvePromise))
+  console.log(`Mock PWB API on http://localhost:${MOCK_PWB_PORT}`)
+}
 
 // 3. Dev server. --ignore-lock keeps it in the foreground (Astro otherwise
 // auto-backgrounds under coding agents) and lets it run alongside a normal
@@ -52,7 +65,7 @@ const astro = spawn('npx', ['astro', 'dev', '--port', VISUAL_PORT, '--ignore-loc
   stdio: 'inherit',
   env: {
     ...process.env,
-    PWB_API_URL: `http://localhost:${MOCK_PWB_PORT}`,
+    PWB_API_URL: NATIVE ? '' : `http://localhost:${MOCK_PWB_PORT}`,
     LOCAL_DB_FILE: DB_FILE,
     LOCAL_UPLOADS_DIR: UPLOADS_DIR,
     // Screenshots choose palettes via ?palette=; ignore any local default.
@@ -62,11 +75,11 @@ const astro = spawn('npx', ['astro', 'dev', '--port', VISUAL_PORT, '--ignore-loc
 
 function shutdown(signal) {
   astro.kill(signal)
-  mock.close()
+  mock?.close()
 }
 process.on('SIGINT', () => shutdown('SIGINT'))
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 astro.on('exit', (code) => {
-  mock.close()
+  mock?.close()
   process.exit(code ?? 0)
 })
