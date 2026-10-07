@@ -1,5 +1,12 @@
 # PWB Properties Plugin — Revised Implementation Guide
 
+For the current package, registry preparation commands, and verified limitations,
+read [the package README](../packages/plugins/pwb-properties/README.md) and
+[release readiness](./plugin-release-readiness.md). This implementation guide
+contains earlier design examples; the current registry workflow uses the pinned
+plugin CLI and an explicit manifest. The admin API setting does not configure
+public website listings or fall back to an environment variable.
+
 This document describes a coherent way to build a `pwb-properties` EmDash plugin for this
 repo.
 

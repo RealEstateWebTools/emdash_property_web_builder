@@ -30,7 +30,17 @@ emdash({
 })
 ```
 
-This plugin runs in `native` format. Register it in the `bundledPlugins` array in `astro.config.ts`.
+This plugin runs in `native` format under `emdash({ plugins: [...] })`.
+`bundledPlugins` is only this site's local grouping. Distribution is through npm,
+not the EmDash registry. Supports EmDash `^1.1.0`; it is not yet prepared for
+standalone release. See the [readiness report](../../../docs/plugin-release-readiness.md).
+
+The host must supply the Vite alias `pwb-host-listing-source`, exporting
+`getListingSource(locale)`. See this site's `src/lib/listings/source.ts` for the
+contract: `getProperty(slug)`, `searchProperties(params)`, and `getSearchFacets()`.
+The renderer uses localized `/properties` links. Registering only the descriptor
+on another site is insufficient. Test rich blocks against unpatched EmDash;
+the local patch preserves block keys, while upstream 1.1 already preserves attrs.
 
 ## Astro renderer
 

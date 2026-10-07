@@ -49,6 +49,10 @@ jobs:
       - name: Unit tests with coverage
         run: pnpm test:coverage
 
+      # Offline fixture metadata only; no login, publishing, or real identity.
+      - name: Verify properties plugin bundle
+        run: pnpm run plugin:pwb-properties:verify
+
   e2e:
     name: E2E tests (Playwright)
     runs-on: ubuntu-latest
@@ -166,4 +170,3 @@ jobs:
             playwright-report/native/
             test-results/
           retention-days: 7
-

@@ -4,9 +4,32 @@
   "type": "module",
   "exports": {
     ".": "./src/index.js",
-    "./sandbox": "./src/sandbox-entry.js"
+    "./sandbox": "./src/sandbox-entry.js",
+    "./descriptor": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
   },
   "peerDependencies": {
     "emdash": "^1.1.0"
-  }
+  },
+  "description": "Browse PropertyWebBuilder listings from the EmDash admin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RealEstateWebTools/emdash_property_web_builder.git",
+    "directory": "packages/plugins/pwb-properties"
+  },
+  "keywords": [
+    "emdash",
+    "emdash-plugin",
+    "property",
+    "real-estate"
+  ],
+  "files": [
+    "src/index.js",
+    "src/sandbox-entry.js",
+    "dist/*.mjs",
+    "dist/*.mts",
+    "README.md"
+  ]
 }

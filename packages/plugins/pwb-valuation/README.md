@@ -32,7 +32,7 @@ EmDash plugin — property valuation request form with admin review UI.
 
 ## PortableText block
 
-This plugin registers the **`pwb-valuation-cta`** block type (via `pwb-page-parts`) for use in page content. The block renders a styled valuation CTA with configurable heading, body copy, and button label, linking to the `/valuation` page.
+The separate **`pwb-page-parts`** plugin registers the **`pwb-valuation-cta`** block type for use in page content. The block renders a styled valuation CTA with configurable heading, body copy, and button label, linking to the `/valuation` page.
 
 ## Registration
 
@@ -53,7 +53,19 @@ emdash({
 })
 ```
 
-This plugin runs in `bundled` format. Register it in the `bundledPlugins` array in `astro.config.ts`.
+The backend descriptor uses `standard` format and runs in this site's trusted
+`emdash({ plugins: [...] })` array. `bundledPlugins` is only a local variable.
+Supports EmDash `^1.1.0`. A future registry release must separate the sandboxed
+backend from the native Astro integration: registry installation cannot inject
+the `/valuation` page. The integration requires a host layout accepting `site`
+and `title`, and a module exporting `createPwbClient()` whose client supplies
+`getSiteDetails()`. No standalone release has been verified.
+
+Known release gaps: input validation currently checks only nonempty name/email/
+address, submissions lack plugin-level spam controls, the admin table stops at
+50 records, and the JSON list stops at 100 with no cursor. Status updates and
+deletion/retention workflows remain unimplemented. Submission logs include email.
+See the [readiness report](../../../docs/plugin-release-readiness.md).
 
 ## Seed example
 

@@ -29,7 +29,11 @@ emdash({
 })
 ```
 
-This plugin runs in `native` format (co-deployed with the site). Register it in the `bundledPlugins` array in `astro.config.ts`.
+This plugin runs in `native` format, installed with the host site and registered in
+`emdash({ plugins: [...] })`. The `bundledPlugins` variable is only this site's local grouping. Native rendering components distribute through npm, not the
+EmDash registry. Supports EmDash `^1.1.0`; licensing, release packaging, and
+unpatched host/editor verification remain pending. See the
+[readiness report](../../../docs/plugin-release-readiness.md).
 
 ## Astro renderer
 

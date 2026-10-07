@@ -1,5 +1,10 @@
 # pwb-valuation Plugin
 
+Release status and known limits are recorded in
+[plugin release readiness](./plugin-release-readiness.md). The current admin view
+shows at most 50 requests; the JSON list reads at most 100 and has no cursor.
+A registry backend release requires a separate native frontend companion.
+
 A property valuation request feature delivered as an EmDash plugin + Astro integration pair.
 It demonstrates the **route injection** pattern described in [emdash-lms-patterns.md](./emdash-lms-patterns.md).
 
@@ -9,8 +14,8 @@ It demonstrates the **route injection** pattern described in [emdash-lms-pattern
 |---|---|
 | `/valuation` page | Server-rendered form injected by the Astro integration — no file in `src/pages/` needed |
 | `/_emdash/api/plugins/pwb-valuation/submit` | Public API route that stores form submissions |
-| `/_emdash/api/plugins/pwb-valuation/list` | Admin-only JSON list of all submissions |
-| Admin UI | Block Kit page under EmDash admin showing all valuation requests |
+| `/_emdash/api/plugins/pwb-valuation/list` | Admin-only JSON list of up to 100 submissions |
+| Admin UI | Block Kit page under EmDash admin showing up to 50 valuation requests |
 
 ## Registration
 

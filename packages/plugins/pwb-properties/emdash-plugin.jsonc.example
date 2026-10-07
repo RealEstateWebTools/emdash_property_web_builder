@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../node_modules/@emdash-cms/plugin-cli/schemas/emdash-plugin.schema.json",
+  "slug": "pwb-properties",
+  // Required owner decisions. Copy to emdash-plugin.jsonc and replace nulls.
+  // This template deliberately cannot pass release validation.
+  "publisher": null,
+  "license": null,
+  "author": null,
+  "security": null,
+  "name": "PWB Properties",
+  "description": "Browse and filter PropertyWebBuilder listings from the EmDash admin.",
+  "keywords": ["property", "real-estate", "pwb"],
+  "repo": "https://github.com/RealEstateWebTools/emdash_property_web_builder",
+  "capabilities": ["network:request:unrestricted"],
+  "allowedHosts": [],
+  "storage": {},
+  "admin": {
+    "pages": [
+      { "path": "/properties", "label": "Properties", "icon": "list" },
+      { "path": "/settings", "label": "Search & Listings", "icon": "settings" }
+    ]
+  },
+  "release": { "requires": { "env:emdash": "^1.1.0" } }
+}

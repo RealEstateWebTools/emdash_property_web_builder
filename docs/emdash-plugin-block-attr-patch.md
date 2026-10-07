@@ -1,17 +1,11 @@
 # EmDash Plugin Block Attr Patch
 
-This repository carries a local patch against `emdash@1.1.0` so Portable Text plugin
-blocks can persist arbitrary attributes through the editor roundtrip.
-
-This is not an optional implementation detail. The patch is required for rich
-`propertyEmbed` blocks to retain fields like:
-
-- `slug`
-- `variant`
-- `ctaLabel`
-
-Without the patch, EmDash collapses custom plugin blocks to a narrower stored shape and
-those additional fields are lost during edit/save cycles.
+This repository carries a local patch against `emdash@1.1.0` to preserve Portable
+Text plugin block keys through inline-editor roundtrips. Upstream 1.1 already
+preserves arbitrary custom attributes, including `slug`, `variant`, and `ctaLabel`.
+The patch also fixes locale-aware recent-post links. Earlier versions needed
+broader attribute-persistence fixes; the historical motivation below explains
+those earlier limitations rather than claiming they still apply to upstream 1.1.
 
 ## Why This Patch Exists
 

@@ -37,6 +37,8 @@ function collectMarkdownFiles(dir: string): string[] {
   const files: string[] = []
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry)
+    // Git-ignored local concept notes are not distributed documentation.
+    if (full === join(DOCS_DIR, 'concept')) continue
     if (statSync(full).isDirectory()) {
       files.push(...collectMarkdownFiles(full))
     } else if (entry.endsWith('.md')) {
@@ -61,11 +63,11 @@ function extractPnpmCommands(content: string, filePath: string) {
 
     for (const [i, raw] of blockContent.split('\n').entries()) {
       const line = raw.trim().replace(/^#.*/, '').trim() // strip inline comments
-      const pnpmMatch = line.match(/^pnpm\s+([a-z][a-z0-9:_-]*)/)
+      const pnpmMatch = line.match(/^pnpm\s+(?:(run)\s+)?([a-z][a-z0-9:_-]*)/)
       if (!pnpmMatch) continue
 
-      const script = pnpmMatch[1]
-      if (PNPM_BUILTINS.has(script)) continue
+      const script = pnpmMatch[2]
+      if (!pnpmMatch[1] && PNPM_BUILTINS.has(script)) continue
 
       results.push({
         script,
@@ -100,7 +102,18 @@ function extractWranglerPagesCommands(content: string, filePath: string) {
 
 describe('docs validation', () => {
   const scripts = readPackageJson()
-  const mdFiles = collectMarkdownFiles(DOCS_DIR)
+  const mdFiles = [
+    ...collectMarkdownFiles(DOCS_DIR),
+    join(ROOT, 'README.md'),
+    ...readdirSync(join(ROOT, 'packages/plugins'))
+      .map((name) => join(ROOT, 'packages/plugins', name, 'README.md'))
+      .filter(existsSync),
+  ]
+
+  it('deployment script references use explicit pnpm run', () => {
+    const hits = mdFiles.filter((file) => /(?:^|\n)\s*pnpm\s+deploy(?:\s|$)/.test(readFileSync(file, 'utf-8')))
+    expect(hits).toEqual([])
+  })
 
   it('finds markdown files to validate', () => {
     expect(mdFiles.length).toBeGreaterThan(0)

@@ -5,7 +5,7 @@
 	"type": "module",
 	"packageManager": "pnpm@10.28.0",
 	"engines": {
-		"node": ">=22"
+		"node": ">=22.12.0"
 	},
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
@@ -34,7 +34,11 @@
 		"lint": "biome lint",
 		"lint:fix": "biome lint --write",
 		"format": "biome format --write",
-		"check": "astro check && vitest run"
+		"check": "astro check && vitest run",
+		"plugin:pwb-properties:verify": "node scripts/verify-pwb-properties.mjs",
+		"plugin:pwb-properties:validate": "emdash-plugin validate packages/plugins/pwb-properties",
+		"plugin:pwb-properties:build": "emdash-plugin build --dir packages/plugins/pwb-properties",
+		"plugin:pwb-properties:bundle": "emdash-plugin bundle --dir packages/plugins/pwb-properties"
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "^14.3.3",
@@ -57,6 +61,7 @@
 		"@astrojs/check": "^0.9.10",
 		"@biomejs/biome": "^2.5.15",
 		"@cloudflare/workers-types": "^5.20261005.1",
+		"@emdash-cms/plugin-cli": "0.13.3",
 		"@playwright/test": "^1.63.0",
 		"@types/better-sqlite3": "^9.6.0",
 		"@vitest/coverage-v8": "^4.1.11",

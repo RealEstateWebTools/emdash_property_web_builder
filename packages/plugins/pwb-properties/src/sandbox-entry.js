@@ -122,7 +122,7 @@ function buildSettingsBlocks(currentUrl, error) {
 		{ type: "header", text: "Search & Listings" },
 		{
 			type: "context",
-			text: "Connect the public property search and listing pages to your PWB Rails backend. This setting affects inventory pages, search results, and property detail views.",
+			text: "Connect this admin browser to your PWB public API. Public website listings are configured separately by the host site.",
 		},
 	];
 
@@ -162,7 +162,7 @@ function buildSettingsBlocks(currentUrl, error) {
 
 	blocks.push({
 		type: "context",
-		text: "Use this screen when listings are missing, property search feels stale, or you are switching the site to a different PWB backend.",
+		text: "Use this screen to choose the PWB backend shown in the Properties admin page.",
 	});
 
 	return blocks;
@@ -335,10 +335,10 @@ function buildDetailBlocks(property, apiUrl, state) {
 
 async function getConfiguredApiUrl(ctx) {
 	const stored = await ctx.kv.get(SETTINGS_KEY);
-	const value = typeof stored === "string" ? trimTrailingSlash(stored.trim()) : "";
+	const validation = validateApiUrl(stored);
+	const value = validation.ok ? validation.value : "";
 	logInfo(ctx, "loaded configured API URL", {
 		hasValue: Boolean(value),
-		value,
 	});
 	return value;
 }
@@ -375,6 +375,9 @@ function validateApiUrl(input) {
 	if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
 		return { ok: false, error: "PWB API URL must use http or https." };
 	}
+	if (parsed.username || parsed.password || parsed.search || parsed.hash) {
+		return { ok: false, error: "PWB API URL must not include credentials, a query string, or a fragment." };
+	}
 
 	return { ok: true, value: trimTrailingSlash(parsed.toString()) };
 }
@@ -384,16 +387,16 @@ async function fetchJson(ctx, url) {
 		logError(ctx, "HTTP client unavailable");
 		throw new Error("Plugin HTTP client is not available.");
 	}
-	logInfo(ctx, "fetching PWB API", { url });
+	logInfo(ctx, "fetching PWB API");
 	const res = await ctx.http.fetch(url, {
 		headers: { Accept: "application/json" },
 	});
-	logInfo(ctx, "received PWB API response", { url, status: res.status, ok: res.ok });
+	logInfo(ctx, "received PWB API response", { status: res.status, ok: res.ok });
 	if (!res.ok) {
 		const body = await res.json().catch(() => ({}));
 		const message =
 			typeof body?.error === "string" ? body.error : `PWB API request failed with ${res.status}.`;
-		logError(ctx, "PWB API request failed", { url, status: res.status, message });
+		logError(ctx, "PWB API request failed", { status: res.status });
 		throw new Error(message);
 	}
 	return res.json();
@@ -508,24 +511,20 @@ export default {
 
 				if (interaction.action_id === "save_settings") {
 					const candidateUrl = getSettingValue(interaction, "pwbApiUrl");
-					logInfo(ctx, "processing settings save", {
-						rawValue: safeString(candidateUrl).trim(),
-					});
+					logInfo(ctx, "processing settings save");
 					const validation = validateApiUrl(candidateUrl);
 					if (!validation.ok) {
 						logWarn(ctx, "settings save rejected", {
-							rawValue: safeString(candidateUrl).trim(),
 							error: validation.error,
 						});
 						return {
-							blocks: buildSettingsBlocks(safeString(candidateUrl).trim(), validation.error),
+							blocks: buildSettingsBlocks("", validation.error),
 							toast: { message: validation.error, type: "error" },
 						};
 					}
 					await ctx.kv.set(SETTINGS_KEY, validation.value);
 					logInfo(ctx, "settings saved", {
 						key: SETTINGS_KEY,
-						value: validation.value,
 					});
 					return {
 						blocks: buildSettingsBlocks(validation.value),

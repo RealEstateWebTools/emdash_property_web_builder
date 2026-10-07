@@ -59,9 +59,9 @@ The split is intentional:
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm 10+
-- a running PWB backend
+- Node.js 22.12.0+ (use a maintained release satisfying dependency engine requirements)
+- pnpm 10.28.0 (the version pinned in `package.json`)
+- optionally, a running PWB backend; native EmDash listings work without it
 
 ### Setup
 
@@ -123,12 +123,15 @@ pnpm reset:admin-access
 pnpm test
 pnpm test:run
 pnpm build
-pnpm deploy
+pnpm run deploy
 ```
 
 ## Current Plugin Work
 
 This repo now contains several PWB-related plugin efforts:
+
+- [docs/plugin-release-readiness.md](docs/plugin-release-readiness.md)
+  Directory eligibility, release blockers, verification evidence, and preparation plan.
 
 - [docs/pwb-properties-plugin.md](docs/pwb-properties-plugin.md)
   Read-only PWB properties admin plugin.
@@ -141,12 +144,13 @@ This repo now contains several PWB-related plugin efforts:
 
 ## EmDash Patch Workflow
 
-This repository carries a local `pnpm` patch for `emdash@0.10.0` so Portable Text plugin
-blocks preserve their keys and arbitrary attributes during editor roundtrips.
+This repository carries a local `pnpm` patch for `emdash@1.1.0` to preserve Portable Text
+plugin block keys during inline-editor roundtrips. Upstream 1.1 already preserves custom
+attributes; the patch also fixes locale-aware recent-post links.
 
 That patch is tracked here:
 
-- [patches/emdash@0.10.0.patch](patches/emdash@0.10.0.patch)
+- [patches/emdash@1.1.0.patch](patches/emdash@1.1.0.patch)
 
 Background and maintenance notes are documented here:
 
@@ -171,7 +175,7 @@ You will also need to configure your real D1 and R2 resources in
 
 ```bash
 pnpm build
-pnpm deploy
+pnpm run deploy
 ```
 
 If you need to push the local SQLite CMS database into remote D1, use the repo script:
