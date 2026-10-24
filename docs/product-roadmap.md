@@ -1,5 +1,11 @@
 # Product Roadmap
 
+For the October 2026 TerraSuite comparison and the proposed next work on native
+listing completeness and database search, see
+[TerraSuite comparison and native search plan](terrasuite-comparison-and-native-search-plan.md).
+The PWB-only architecture statements below describe the earlier roadmap; the
+current site also supports native EmDash listings through `ListingSource`.
+
 This document turns the current product direction into a practical roadmap for
 `emdash_property_web_builder`.
 
