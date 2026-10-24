@@ -10,6 +10,14 @@ export default defineConfig({
   },
   test: {
     environment: 'happy-dom',
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          // Server-side API clients use MSW fixtures without browser CORS preflights.
+          fetch: { disableSameOriginPolicy: true },
+        },
+      },
+    },
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     include: [

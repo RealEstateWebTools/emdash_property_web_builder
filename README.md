@@ -59,7 +59,7 @@ The split is intentional:
 
 ### Prerequisites
 
-- Node.js 22.12.0+ (use a maintained release satisfying dependency engine requirements)
+- Node.js 22.23.4+ (use a maintained release satisfying dependency engine requirements)
 - pnpm 10.28.0 (the version pinned in `package.json`)
 - optionally, a running PWB backend; native EmDash listings work without it
 
@@ -144,13 +144,13 @@ This repo now contains several PWB-related plugin efforts:
 
 ## EmDash Patch Workflow
 
-This repository carries a local `pnpm` patch for `emdash@1.1.0` to preserve Portable Text
+This repository carries a local `pnpm` patch for `emdash@1.3.1` to preserve Portable Text
 plugin block keys during inline-editor roundtrips. Upstream 1.1 already preserves custom
 attributes; the patch also fixes locale-aware recent-post links.
 
 That patch is tracked here:
 
-- [patches/emdash@1.1.0.patch](patches/emdash@1.1.0.patch)
+- [patches/emdash@1.3.1.patch](patches/emdash@1.3.1.patch)
 
 Background and maintenance notes are documented here:
 

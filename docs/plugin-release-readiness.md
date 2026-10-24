@@ -76,7 +76,7 @@ that the admin setting configures public inventory were incorrect.
 
 ### Editor patch: correction to the initial review
 
-The tracked patch is `patches/emdash@1.1.0.patch`. Upstream 1.1 already stores
+The tracked patch is `patches/emdash@1.3.1.patch`. Upstream 1.1 already stores
 custom plugin-block attributes and the identity field. The patch preserves
 `_key` during inline-editor saves and also fixes recent-post locale links.
 Do not claim that upstream 1.1 necessarily loses all rich block attributes.

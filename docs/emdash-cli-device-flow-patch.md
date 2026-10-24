@@ -89,8 +89,8 @@ The historical patch was tracked using pnpm's patched dependency workflow:
 - package wiring: `package.json` (`pnpm.patchedDependencies`)
 - lockfile wiring: `pnpm-lock.yaml`
 
-The active patch wiring is now for `emdash@0.10.0` and covers the editor,
-RecentPosts, and OAuth route fixes.
+The active patch wiring is for `emdash@1.3.1` and covers inline-editor block keys
+and locale-aware RecentPosts links. OAuth route fixes are now upstream.
 
 To regenerate the patch from scratch (e.g. after upgrading emdash):
 
@@ -142,5 +142,5 @@ it.
 
 ## Related Docs
 
-- [docs/emdash-plugin-block-attr-patch.md](./emdash-plugin-block-attr-patch.md) — active patch notes for `emdash@1.1.0`
-- [patches/emdash@1.1.0.patch](../patches/emdash@1.1.0.patch)
+- [docs/emdash-plugin-block-attr-patch.md](./emdash-plugin-block-attr-patch.md) — active patch notes for `emdash@1.3.1`
+- [patches/emdash@1.3.1.patch](../patches/emdash@1.3.1.patch)

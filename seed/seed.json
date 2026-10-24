@@ -768,7 +768,7 @@
 					"type": "component",
 					"componentId": "core:recent-posts",
 					"title": "Latest Articles",
-					"settings": {
+					"props": {
 						"count": 5,
 						"showDate": true
 					}

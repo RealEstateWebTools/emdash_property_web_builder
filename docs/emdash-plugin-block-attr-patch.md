@@ -1,6 +1,6 @@
 # EmDash Plugin Block Attr Patch
 
-This repository carries a local patch against `emdash@1.1.0` to preserve Portable
+This repository carries a local patch against `emdash@1.3.1` to preserve Portable
 Text plugin block keys through inline-editor roundtrips. Upstream 1.1 already
 preserves arbitrary custom attributes, including `slug`, `variant`, and `ctaLabel`.
 The patch also fixes locale-aware recent-post links. Earlier versions needed
@@ -62,6 +62,11 @@ every inline-editor save. The patch's remaining job is that `_key` preservation 
 `blockKey` attr), and its helpers follow upstream's `identityField` rules so a block that
 arrived without an `id` is not given an empty `id: ""`.
 
+The patch was rebased against EmDash 1.3.1. Its recent-post fix preserves upstream's
+URL-template support and date formatting, explicitly queries the current locale,
+and places the locale before `/posts`. It strips the loader's locale prefix from
+the slug so Spanish links resolve as `/es/posts/slug`.
+
 Those paths are inside the patched `emdash` package, not this repo's own `src/`.
 
 ## Reproducible Patch Workflow
@@ -70,7 +75,7 @@ This repository does **not** rely on hand-edited `node_modules` as the source of
 
 The patch is tracked using pnpm's patched dependency workflow:
 
-- patch file: [patches/emdash@1.1.0.patch](../patches/emdash@1.1.0.patch)
+- patch file: [patches/emdash@1.3.1.patch](../patches/emdash@1.3.1.patch)
 - package wiring: [package.json](../package.json)
 - lockfile wiring: [pnpm-lock.yaml](../pnpm-lock.yaml)
 
@@ -80,7 +85,7 @@ The patch is tracked using pnpm's patched dependency workflow:
 {
   "pnpm": {
     "patchedDependencies": {
-      "emdash@1.1.0": "patches/emdash@1.1.0.patch"
+      "emdash@1.3.1": "patches/emdash@1.3.1.patch"
     }
   }
 }
@@ -93,7 +98,7 @@ That means a normal `pnpm install` will reapply the patch automatically.
 The patch was generated with pnpm's native patch commands:
 
 ```bash
-pnpm patch emdash@1.1.0 --edit-dir /tmp/emdash-patch
+pnpm patch emdash@1.3.1 --edit-dir /tmp/emdash-patch
 pnpm patch-commit /tmp/emdash-patch --patches-dir patches
 ```
 
@@ -108,12 +113,12 @@ This approach is preferable to force-adding files from `node_modules` because:
 
 If you need to change the EmDash editor behavior again:
 
-1. Run `pnpm patch emdash@1.1.0 --edit-dir /tmp/emdash-patch`
+1. Run `pnpm patch emdash@1.3.1 --edit-dir /tmp/emdash-patch`
 2. Update the extracted package files in `/tmp/emdash-patch`
 3. Run tests in this repository before committing
 4. Run `pnpm patch-commit /tmp/emdash-patch --patches-dir patches`
 5. Review changes in:
-   - [patches/emdash@1.1.0.patch](../patches/emdash@1.1.0.patch)
+   - [patches/emdash@1.3.1.patch](../patches/emdash@1.3.1.patch)
    - [package.json](../package.json)
    - [pnpm-lock.yaml](../pnpm-lock.yaml)
 
@@ -151,4 +156,4 @@ For manual verification:
 ## Related Docs
 
 - [docs/pwb-properties-content-embedding.md](pwb-properties-content-embedding.md)
-- [patches/emdash@1.1.0.patch](../patches/emdash@1.1.0.patch)
+- [patches/emdash@1.3.1.patch](../patches/emdash@1.3.1.patch)

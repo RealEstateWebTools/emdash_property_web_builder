@@ -1,19 +1,16 @@
 diff --git a/src/components/InlinePortableTextEditor.tsx b/src/components/InlinePortableTextEditor.tsx
-index 07d40bd6a65d969c740ba572ba85a79388430495..e7851fe5fd5666e9575bc0934adae5f0f92bf459 100644
+index 03b9f0dc65b5053ffa1dfc496a36942ea5ad8052..d651a94e7a781b85e7ebe3b6e3bfb576cea5038d 100644
 --- a/src/components/InlinePortableTextEditor.tsx
 +++ b/src/components/InlinePortableTextEditor.tsx
-@@ -36,6 +36,10 @@ import {
+@@ -41,6 +41,7 @@ import {
  	readOrderedListMetadata,
  } from "../content/converters/numbered-list.js";
- import { computeThumbnailSize } from "../media/thumbnail.js";
-+import {
-+	pluginBlockAttrsToPortableTextBlock,
-+	portableTextPluginBlockToAttrs,
-+} from "./plugin-block-attrs.js";
+ import type { ProseMirrorDocument } from "../content/converters/types.js";
++import { pluginBlockAttrsToPortableTextBlock, portableTextPluginBlockToAttrs } from "./plugin-block-attrs.js";
  import { CodeMarkExtension } from "./code-mark.js";
+ import { InlineBubbleMenu } from "./inline-bubble-menu.js";
  import { InlineCodeBlockExtension } from "./inline-code-block.js";
- import { EmDashOrderedList } from "./ordered-list.js";
-@@ -309,19 +313,8 @@ function convertPMNode(node: PMNode, path: string): PTBlock | PTBlock[] | null {
+@@ -344,19 +345,8 @@ function convertPMNode(node: PMNode, path: string): PTBlock | PTBlock[] | null {
  			if (isPTTableBlock(rawTable)) return rawTable;
  			return null;
  		}
@@ -35,7 +32,7 @@ index 07d40bd6a65d969c740ba572ba85a79388430495..e7851fe5fd5666e9575bc0934adae5f0
  		default:
  			return null;
  	}
-@@ -638,21 +631,9 @@ function convertPTBlock(block: PTBlock): PMNode | null {
+@@ -679,21 +669,9 @@ function convertPTBlock(block: PTBlock): PMNode | null {
  	// editor's `convertCustomBlock`.
  	// The identity lives under whichever of `id` / `url` the block arrived with,
  	// so the PM → PT direction can write it back under the same key.
@@ -58,7 +55,7 @@ index 07d40bd6a65d969c740ba572ba85a79388430495..e7851fe5fd5666e9575bc0934adae5f0
  	};
  }
  
-@@ -1239,6 +1220,7 @@ const PluginBlockNode = Node.create({
+@@ -1014,6 +992,7 @@ const PluginBlockNode = Node.create({
  		const noDom = { rendered: false, parseHTML: () => null };
  		return {
  			blockType: { default: "", ...noDom },
@@ -145,38 +142,54 @@ index 0000000000000000000000000000000000000000..c654365ff7149ac1859f66aa9b258592
 +	};
 +}
 diff --git a/src/components/widgets/RecentPosts.astro b/src/components/widgets/RecentPosts.astro
-index cef0090a0aeaf52c8b0b74f6505fdb73b57aa94f..3829d30844384c693358672cdb92b46b3c5590bc 100644
+index a51e7ee8e56bca986d162817f4e0c7faa19078c8..ab65555a47c2cf7cbd107844f44558056299bec8 100644
 --- a/src/components/widgets/RecentPosts.astro
 +++ b/src/components/widgets/RecentPosts.astro
-@@ -9,7 +9,10 @@ interface Props {
+@@ -21,8 +21,11 @@ interface Props {
  
- const { count = 5, showThumbnails = false, showDate = true } = Astro.props;
+ const { count = 5, showThumbnails = false, showDate = true, urlTemplate } = Astro.props;
  
-+const currentLocale = Astro.currentLocale ?? "en";
++const currentLocale = Astro.currentLocale ?? getI18nConfig()?.defaultLocale ?? "en";
 +
- const { entries: posts } = await getEmDashCollection("posts", {
-+	locale: currentLocale,
- 	limit: count,
- 	orderBy: { published_at: "desc" },
+ const [{ entries: posts }, settings] = await Promise.all([
+ 	getEmDashCollection("posts", {
++		locale: currentLocale,
+ 		limit: count,
+ 		orderBy: { published_at: "desc" },
+ 	}),
+@@ -34,6 +37,14 @@ const dateFormatter = createPublishedDateFormatter({
+ 	timezone: settings?.timezone,
  });
-@@ -19,6 +22,11 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
- 	const val = data[key];
- 	return typeof val === "string" ? val : undefined;
- }
-+
-+function getPostHref(id: string): string {
-+	const prefix = currentLocale === "en" ? "" : `/${currentLocale}`;
-+	return `${prefix}/posts/${id}`;
-+}
- ---
  
- <ul class="widget-recent-posts">
-@@ -36,7 +44,7 @@ function getString(data: Record<string, unknown>, key: string): string | undefin
- 							class="widget-recent-posts__thumbnail"
- 						/>
- 					)}
--					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
-+					<a href={getPostHref(post.id)} class="widget-recent-posts__link">
- 						{title}
- 					</a>
- 					{showDate && publishedAt && (
++function getPostHref(id: string): string {
++	const i18n = getI18nConfig();
++	const prefix = i18n && (currentLocale !== i18n.defaultLocale || i18n.prefixDefaultLocale)
++		? `/${currentLocale}` : "";
++	const slug = id.startsWith(`${currentLocale}/`) ? id.slice(currentLocale.length + 1) : id;
++	return `${prefix}/posts/${slug}`;
++}
++
+ function getTitle(data: Record<string, unknown>): string | undefined {
+ 	return typeof data.title === "string" ? data.title : undefined;
+ }
+@@ -45,9 +56,8 @@ function getTitle(data: Record<string, unknown>): string | undefined {
+ 			const title = getTitle(post.data);
+ 			const publishedAt = toPublishedDate(post.data.publishedAt);
+ 			const featuredImage = post.data.featured_image;
+-			// Without a template, keep the widget's long-standing default:
+-			// `post.id` is the loader's slug (or `locale/slug` with i18n
+-			// prefixing), so the locale prefix is preserved. With a template,
++			// Place the locale before /posts, stripping any loader locale prefix
++			// from the slug. With a template,
+ 			// use the same token semantics as LiveSearch's routeMap — `:id`
+ 			// is the content ULID (`data.id`), `:slug` the bare slug.
+ 			const href = urlTemplate
+@@ -61,7 +71,7 @@ function getTitle(data: Record<string, unknown>): string | undefined {
+ 							{ posts: urlTemplate },
+ 						),
+ 					)
+-				: `/posts/${post.id}`;
++				: getPostHref(post.id);
+ 			return (
+ 				<li>
+ 					{showThumbnails && isThumbnailImage(featuredImage) && (
