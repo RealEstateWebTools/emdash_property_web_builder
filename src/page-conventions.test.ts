@@ -95,7 +95,7 @@ describe('property index page conventions', () => {
 
   it('gets listings from the configured listing source', () => {
     const source = readSource('src/components/pages/PropertyIndexPage.astro')
-    expect(source).toContain('getListingSource(locale)')
+    expect(source).toContain('getListingSource(locale,')
     expect(source).not.toContain('createPwbClient')
   })
 
@@ -115,7 +115,7 @@ describe('property detail page conventions', () => {
   // component only renders what it is given.
   it('gets the property from the configured listing source', () => {
     const source = readSource('src/lib/page-loaders.ts')
-    expect(source).toContain('getListingSource(locale).getProperty(slug)')
+    expect(source).toContain('getListingSource(locale, onCacheHint).getProperty(slug)')
   })
 
   it('fetches site details and property in parallel', () => {

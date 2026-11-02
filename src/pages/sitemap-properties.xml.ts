@@ -13,12 +13,12 @@ function escapeXml(str: string): string {
 		.replace(/'/g, "&apos;");
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, cache }) => {
 	const siteUrl = url.origin;
 	const urls: string[] = [];
 
 	try {
-		const client = getListingSource(DEFAULT_LOCALE);
+		const client = getListingSource(DEFAULT_LOCALE, (hint) => cache?.set(hint));
 		// Search defaults to sale listings, so walk both modes; a listing can be
 		// in both, hence the de-duplication. Cap at 10 pages (1000) per mode.
 		const perPage = 100;

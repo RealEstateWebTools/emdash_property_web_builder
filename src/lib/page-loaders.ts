@@ -21,6 +21,7 @@ import { fallbackSite } from './pwb/fallback-site'
 import { shouldQueryPwbPageSlug } from './pwb/page-slug'
 import { isPwbConfigured } from './backend'
 import { getListingSource } from './listings/source'
+import type { OnListingCacheHint } from './listings/native-query'
 import { createPwbClient } from './pwb/client'
 import { loadSiteDetails } from './site-details'
 import type { Page, Property, SiteDetails } from './pwb/types'
@@ -86,7 +87,7 @@ export async function loadTaxonomyTerm(taxonomy: 'category' | 'tag', slug: strin
 }
 
 /** Property detail from the configured listing source (PWB or native). */
-export async function loadPropertyDetail(locale: string | null, slug: string | undefined) {
+export async function loadPropertyDetail(locale: string | null, slug: string | undefined, onCacheHint?: OnListingCacheHint) {
   let property: Property | null = null
   let site: SiteDetails = fallbackSite
   let loadState: PwbLoadState = 'ok'
@@ -94,7 +95,7 @@ export async function loadPropertyDetail(locale: string | null, slug: string | u
   if (locale && slug) {
     try {
       ;[property, site] = await Promise.all([
-        getListingSource(locale).getProperty(slug),
+        getListingSource(locale, onCacheHint).getProperty(slug),
         loadSiteDetails(locale, `property slug=${slug}`),
       ])
     } catch (err) {

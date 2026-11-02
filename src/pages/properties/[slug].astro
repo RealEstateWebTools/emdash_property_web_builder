@@ -7,7 +7,7 @@ const locale = Astro.currentLocale ?? DEFAULT_LOCALE
 const { slug } = Astro.params
 // Status must be set in route frontmatter — Astro 7 fixes the Response
 // status before components render (see src/lib/page-loaders.ts).
-const load = await loadPropertyDetail(locale, slug)
+const load = await loadPropertyDetail(locale, slug, (hint) => Astro.cache?.set(hint))
 if (load.status) Astro.response.status = load.status
 ---
 

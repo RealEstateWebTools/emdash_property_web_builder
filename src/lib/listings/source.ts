@@ -11,7 +11,8 @@ import { createPwbClient } from '../pwb/client'
 import { ListingSourceError } from '../pwb/errors'
 import type { Property, SearchConfig, SearchFacets, SearchParams, SearchResults } from '../pwb/types'
 import { DEFAULT_SEARCH_CONFIG, emptySearchFacets, emptySearchResults } from './defaults'
-import { createNativeListingSource } from './native-source'
+import { createNativeListingSource } from './native-query'
+import type { OnListingCacheHint } from './native-query'
 
 export { DEFAULT_SEARCH_CONFIG, emptySearchFacets, emptySearchResults }
 
@@ -41,7 +42,7 @@ export const emptyListingSource: ListingSource = {
   },
 }
 
-export function getListingSource(locale: string): ListingSource {
+export function getListingSource(locale: string, onCacheHint?: OnListingCacheHint): ListingSource {
   if (isPwbConfigured()) {
     const client = createPwbClient(locale)
     return {
@@ -52,5 +53,5 @@ export function getListingSource(locale: string): ListingSource {
       getSearchConfig: () => client.getSearchConfig(),
     }
   }
-  return createNativeListingSource(locale)
+  return createNativeListingSource(locale, onCacheHint)
 }

@@ -33,7 +33,7 @@ if (canLoad) {
 		const key = `${locale}:${JSON.stringify(config)}`;
 		let pending = cache.get(key);
 		if (!pending) {
-			pending = fetchListingCollection(getListingSource(locale), config);
+			pending = fetchListingCollection(getListingSource(locale, (hint) => Astro.cache?.set(hint)), config);
 			cache.set(key, pending);
 		}
 		listings = await pending;

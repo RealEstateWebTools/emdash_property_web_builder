@@ -28,7 +28,7 @@ const mode = (Astro.url.searchParams.get('mode') ?? 'sale') as 'sale' | 'rental'
 
 site = await loadSiteDetails(locale, `property search locale=${locale}`)
 try {
-  const source = getListingSource(locale)
+  const source = getListingSource(locale, (hint) => Astro.cache?.set(hint))
   ;[config, results, facets] = await Promise.all([
     source.getSearchConfig(),
     source.searchProperties(searchParams),

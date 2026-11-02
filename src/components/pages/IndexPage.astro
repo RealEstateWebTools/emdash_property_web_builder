@@ -36,7 +36,7 @@ const merchandising = readHomepageMerchandisingConfig(homepageData)
 
 site = await loadSiteDetails(locale, `homepage locale=${locale}`)
 try {
-  featuredGroups = await loadHomepageListingGroups(getListingSource(locale), merchandising)
+  featuredGroups = await loadHomepageListingGroups(getListingSource(locale, (hint) => Astro.cache?.set(hint)), merchandising)
 } catch (err) {
   logPwbUnexpectedError(`homepage listings locale=${locale}`, err)
   featuredGroups = []

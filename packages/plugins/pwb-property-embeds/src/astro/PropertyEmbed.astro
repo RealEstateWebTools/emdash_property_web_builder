@@ -50,7 +50,7 @@ if (!slugError && slug) {
 		let propertyPromise = requestCache.get(cacheKey);
 
 		if (!propertyPromise) {
-			propertyPromise = fetchPropertyBySlug(getListingSource, slug, locale);
+			propertyPromise = fetchPropertyBySlug((locale) => getListingSource(locale, (hint) => Astro.cache?.set(hint)), slug, locale);
 			requestCache.set(cacheKey, propertyPromise);
 		}
 

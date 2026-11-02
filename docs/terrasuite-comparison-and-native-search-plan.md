@@ -1,7 +1,9 @@
 # TerraSuite comparison and native listing search plan
 
-Recorded: 2026-10-10. Status: source review and proposed work; implementation has
-not started as part of this review.
+Recorded: 2026-10-10. The comparison below captures the source at review time.
+Native listing completeness and database-backed search were implemented locally
+on 2026-10-27; see [Native listing search](native-listing-search.md) for current
+behaviour, verification, measurements and remaining limits.
 
 This project has broader agency functionality. TerraSuite has a smaller template
 and a stronger database-backed native search implementation. The recommended next
@@ -160,8 +162,9 @@ pnpm run typecheck
 pnpm run build
 ```
 
-Steps 1–3 form the next focused implementation change. They are proposed work,
-not completed features or measured improvements.
+Steps 1–3 defined the focused implementation change. See the
+[implementation notes](native-listing-search.md) for the completed local work.
+Remote D1 performance and production cache invalidation still need measurement.
 
 ### 4. Add richer filters after correctness
 
@@ -176,7 +179,7 @@ repo's safety rules.
 
 ## Direction
 
-Retain the broader agency platform and its optional PWB backend. Prioritise native
-listing completeness and database search before expanding filter count. This plan
+Retain the broader agency platform and its optional PWB backend. Native listing completeness and database search now have a local implementation;
+verify production behaviour before expanding filter count. This plan
 supplements the older [product roadmap](product-roadmap.md); it does not imply that
 the other roadmap initiatives have been completed.

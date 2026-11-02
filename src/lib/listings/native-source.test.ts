@@ -1,13 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-vi.mock('emdash', () => ({ getEmDashCollection: vi.fn() }))
-
-import { getEmDashCollection } from 'emdash'
-import { isPwbNotFoundError } from '../pwb/errors'
 import {
   buildFacets,
   buildSearchConfig,
-  createNativeListingSource,
   entryToProperty,
   formatPrice,
   imageUrl,
@@ -15,8 +10,6 @@ import {
   propertyTypeLabel,
   searchListings,
 } from './native-source'
-
-const mockedCollection = vi.mocked(getEmDashCollection)
 
 function entry(slug: string, data: Record<string, unknown>) {
   return { id: slug, data: { id: `ulid-${slug}`, title: slug, createdAt: '2026-01-01T00:00:00Z', ...data } }
@@ -173,32 +166,5 @@ describe('helpers', () => {
     expect(propertyTypeKey(' Ático dúplex ')).toBe('types.ático_dúplex')
     expect(propertyTypeKey('TYPES.Villa')).toBe('types.villa')
     expect(propertyTypeKey(' - ')).toBeNull()
-  })
-})
-
-describe('createNativeListingSource', () => {
-  beforeEach(() => mockedCollection.mockReset())
-
-  it('queries published properties once per source and serves search + detail', async () => {
-    mockedCollection.mockResolvedValue({ entries: [villa, flat], cacheHint: {} } as never)
-    const source = createNativeListingSource('en')
-
-    expect((await source.searchProperties({})).meta.total).toBe(2)
-    expect((await source.getProperty('flat')).title).toBe('flat')
-    expect(mockedCollection).toHaveBeenCalledTimes(1)
-    expect(mockedCollection).toHaveBeenCalledWith('properties', { locale: 'en', limit: 1000 })
-  })
-
-  it('throws a not-found error for unknown slugs', async () => {
-    mockedCollection.mockResolvedValue({ entries: [villa], cacheHint: {} } as never)
-    await expect(createNativeListingSource('en').getProperty('nope')).rejects.toSatisfy(isPwbNotFoundError)
-  })
-
-  it('falls back to default-locale listings when the locale has none', async () => {
-    mockedCollection
-      .mockResolvedValueOnce({ entries: [], cacheHint: {} } as never)
-      .mockResolvedValueOnce({ entries: [villa], cacheHint: {} } as never)
-    expect((await createNativeListingSource('es').searchProperties({})).meta.total).toBe(1)
-    expect(mockedCollection).toHaveBeenLastCalledWith('properties', { locale: 'en', limit: 1000 })
   })
 })
