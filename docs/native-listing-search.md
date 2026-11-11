@@ -109,4 +109,79 @@ were checked for the expected listing title.
 These are local observations, not latency targets or production D1 benchmarks.
 The synthetic inventory excludes the cost of large galleries and all-match map
 payloads. D1 result equivalence is tested separately; remote D1 latency and
-production route-cache invalidation have not been measured here.
+production route-cache invalidation were not measured in that local run. Remote
+preview measurements follow below.
+
+## Remote preview verification — 2026-11-02
+
+Commit `2a51a60` passed all 519 unit tests, typechecking (zero errors, two existing
+hints), the Worker build and all 12 native browser tests with one worker, using
+Node 24.21.0. The build retains its existing large-client-chunk warning.
+
+A native-mode Worker version was uploaded for preview, without routing production
+traffic to it. Its alias is `native-search` on the existing Worker. Dedicated
+preview resources are named `emdash-native-search-preview` (D1),
+`emdash-native-search-preview-media` (R2) and
+`emdash-native-search-preview-session` (KV). The database contains the default
+seed, the three native listing fixtures and synthetic scale listings. Property
+fixtures have no gallery images; seeded blog media files were not copied to R2.
+Preview configuration and raw results are local, gitignored files under
+`.tmp/native-search-preview/`; they are not deployment defaults.
+
+Remote checks against the three listing fixtures confirmed sale/rental selection,
+type and minimum-price filters, property title and description hydration,
+independent missing-slug HTTP 404, and sale/rental sitemap inclusion.
+
+Two localized requests, `/es/properties` and
+`/fr/properties/harbour-view-villa`, rendered the expected English inventory but
+returned **HTTP 302 with no Location header**. This is an unresolved release
+issue: rendered fallback content alone is not a successful locale HTTP check.
+
+### Remote scale observations
+
+The isolated remote D1 database was grown incrementally to 1,000, 5,000 and
+20,000 synthetic published English sale listings, retaining the three original
+fixtures. Synthetic rows have prices, types, room counts and town/region fields,
+but no photos or coordinates. Only existing EmDash indexes were used.
+
+| Synthetic listings | Total published listings | Price-page SQL median | Full search HTTP median |
+| --- | --- | --- | --- |
+| 1,000 | 1,003 | 0.65 ms | 601 ms |
+| 5,000 | 5,003 | 1.89 ms | 643 ms |
+| 20,000 | 20,003 | 8.35 ms | 883 ms |
+
+SQL medians use D1's reported execution duration for five twelve-slug,
+price-ascending page queries. HTTP medians use five complete response-body reads
+after a warm-up, from the development machine to the preview Worker at
+`/properties?sort=price_asc`. They include network time, counts, facets, entry
+hydration and server rendering. The final numbered sale page and the detail URL
+for the last synthetic listing returned HTTP 200 with expected content at every
+size. These measurements are observations, not latency targets; large galleries
+and large all-match marker payloads remain unmeasured.
+
+### Release prerequisites and setup findings
+
+- The existing production D1 database has **no `ec_properties` table**. Production
+  currently uses PWB. Native mode requires a deliberate properties-schema and
+  content rollout before switching backends; no production data was changed in
+  this verification.
+- The current Astro configuration has no route-cache provider. Search and detail
+  responses exposed no cache-control or cache-tag headers. The sitemap exposed
+  its existing `public, max-age=3600` header but no cache tags. Publish/edit/delete
+  route-cache invalidation therefore remains unverified; forwarding hints alone
+  does not establish a working cache-purge path.
+- Resolve the localized HTTP 302 responses before native-mode release.
+- A shell `PWB_API_URL` override alone did not produce a native Worker build:
+  the Cloudflare adapter reloads Wrangler/local environment values during setup.
+  The successful preview used a separate Astro configuration pointing the
+  adapter at a dedicated Wrangler build config, with an empty `PWB_API_URL` and
+  no adjacent local environment file. The compiled backend selector was checked
+  before upload.
+- The existing full SQLite export failed on empty D1 with
+  `no such table: main.media_folders`: inserts preceded referenced table creation.
+  For this fixture import, all schema statements were placed before data, with
+  foreign-key checks deferred until transaction completion as described in
+  [Cloudflare's foreign-key documentation](https://developers.cloudflare.com/d1/sql-api/foreign-keys/).
+  The shared export utility has not been changed and needs a separate fix before
+  relying on it to initialize a fresh production database.
+- The sitemap's separate 1,000-listing limit per sale/rental mode remains.

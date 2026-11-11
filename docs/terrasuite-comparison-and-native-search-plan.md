@@ -164,7 +164,8 @@ pnpm run build
 
 Steps 1–3 defined the focused implementation change. See the
 [implementation notes](native-listing-search.md) for the completed local work.
-Remote D1 performance and production cache invalidation still need measurement.
+Remote preview D1 measurements are now recorded there. Production cache
+invalidation and the native-mode release prerequisites remain outstanding.
 
 ### 4. Add richer filters after correctness
 
