@@ -59,7 +59,7 @@ The split is intentional:
 
 ### Prerequisites
 
-- Node.js 22.23.4+ (use a maintained release satisfying dependency engine requirements)
+- Node.js 26.8.1+ (pinned in `.tool-versions`; asdf and CI both read it)
 - pnpm 10.28.0 (the version pinned in `package.json`)
 - optionally, a running PWB backend; native EmDash listings work without it
 

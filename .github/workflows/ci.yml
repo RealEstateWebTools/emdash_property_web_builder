@@ -26,7 +26,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          # Same Node as local development (asdf reads it too).
+          node-version-file: '.tool-versions'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -72,7 +73,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          # Same Node as local development (asdf reads it too).
+          node-version-file: '.tool-versions'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -117,7 +119,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          # Same Node as local development (asdf reads it too).
+          node-version-file: '.tool-versions'
           cache: 'pnpm'
 
       - name: Install dependencies
