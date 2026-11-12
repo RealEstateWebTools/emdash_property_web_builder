@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../lib/listings/source', () => ({ getListingSource: vi.fn() }))
 
 import { getListingSource } from '../lib/listings/source'
+import type { SearchOptions } from '../lib/listings/source'
 import type { SearchParams } from '../lib/pwb/types'
 import { GET } from './sitemap-properties.xml'
 
@@ -15,18 +16,20 @@ afterEach(() => vi.unstubAllEnvs())
 describe('GET /sitemap-properties.xml', () => {
   it('lists sale and rental listings once each', async () => {
     vi.stubEnv('PWB_API_URL', '') // native listings
-    vi.mocked(getListingSource).mockReturnValue({
-      searchProperties: async ({ sale_or_rental }: SearchParams) => ({
-        data: (sale_or_rental === 'rental' ? ['to-let', 'both'] : ['for-sale', 'both']).map((slug) => ({ slug })),
-        meta: { total_pages: 1 },
-      }),
-    } as never)
+    const searchProperties = vi.fn(async ({ sale_or_rental }: SearchParams, _options?: SearchOptions) => ({
+      data: (sale_or_rental === 'rental' ? ['to-let', 'both'] : ['for-sale', 'both']).map((slug) => ({ slug })),
+      meta: { total_pages: 1 },
+    }))
+    vi.mocked(getListingSource).mockReturnValue({ searchProperties } as never)
 
     const res = await GET({ url: new URL('https://agency.test/sitemap-properties.xml') } as never)
     const xml = await res.text()
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
 
     expect(res.headers.get('Content-Type')).toContain('application/xml')
+    // The sitemap draws no map; it must not ask for every listing's marker.
+    expect(searchProperties).toHaveBeenCalledTimes(2)
+    for (const call of searchProperties.mock.calls) expect(call[1]).toEqual({ markers: false })
     expect(locs.sort()).toEqual([
       'https://agency.test/properties/both',
       'https://agency.test/properties/for-sale',

@@ -1,10 +1,6 @@
 import type { APIRoute } from "astro";
+import { inviteAliasRedirect } from "../../../../lib/invite-aliases";
 
 export const prerender = false;
 
-export const GET: APIRoute = ({ request }) => {
-	const incoming = new URL(request.url);
-	const target = new URL("/_emdash/api/auth/invite/accept", incoming);
-	target.search = incoming.search;
-	return fetch(new Request(target, request));
-};
+export const GET: APIRoute = ({ request }) => inviteAliasRedirect(request, "/_emdash/api/auth/invite/accept");

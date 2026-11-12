@@ -16,9 +16,17 @@ import type { OnListingCacheHint } from './native-query'
 
 export { DEFAULT_SEARCH_CONFIG, emptySearchFacets, emptySearchResults }
 
+export interface SearchOptions {
+  /**
+   * false: callers that don't draw a map (sitemap, homepage, embeds) skip the
+   * all-matches marker query. PWB always returns markers; it is ignored there.
+   */
+  markers?: boolean
+}
+
 export interface ListingSource {
   readonly kind: 'pwb' | 'native'
-  searchProperties(params: SearchParams): Promise<SearchResults>
+  searchProperties(params: SearchParams, options?: SearchOptions): Promise<SearchResults>
   /** Throws ListingSourceError with status 404 when the listing doesn't exist. */
   getProperty(slug: string): Promise<Property>
   getSearchFacets(saleOrRental?: 'sale' | 'rental'): Promise<SearchFacets>

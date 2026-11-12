@@ -111,7 +111,7 @@ export function createNativeListingSource(
       if (!property) throw new ListingSourceError(`Property not found: ${slug}`, { status: 404 })
       return property
     },
-    async searchProperties(params) {
+    async searchProperties(params, options) {
       const connection = await db()
       const where = await filter(params)
       const perPage = pageNumber(params.per_page, 12, 100)
@@ -125,7 +125,7 @@ export function createNativeListingSource(
         sql<{ slug: string }>`SELECT slug FROM ec_properties WHERE ${where} ORDER BY ${order}
           LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`.execute(connection),
         // Preserve all-match markers, independently of numbered result pages.
-        sql<Row>`SELECT id, slug, title, for_sale, for_rent, currency, price_sale, price_rent_monthly,
+        options?.markers === false ? { rows: [] as Row[] } : sql<Row>`SELECT id, slug, title, for_sale, for_rent, currency, price_sale, price_rent_monthly,
           latitude, longitude, photos FROM ec_properties WHERE ${where}
           AND latitude IS NOT NULL AND longitude IS NOT NULL ORDER BY ${order}`.execute(connection),
       ])

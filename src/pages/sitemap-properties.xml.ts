@@ -36,7 +36,7 @@ export const GET: APIRoute = async ({ url, cache }) => {
 			let page = 1;
 			let totalPages = 1;
 			do {
-				const results = await client.searchProperties({ sale_or_rental: mode, page, per_page: perPage });
+				const results = await client.searchProperties({ sale_or_rental: mode, page, per_page: perPage }, { markers: false });
 				totalPages = results.meta.total_pages;
 
 				for (const property of results.data) {

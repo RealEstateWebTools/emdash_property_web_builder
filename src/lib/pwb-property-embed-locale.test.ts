@@ -90,7 +90,7 @@ describe("PWB property embed locale helpers", () => {
 		await expect(fetchPropertyOptions({ searchProperties })).resolves.toEqual([
 			{ id: "villa-marbella", name: "Villa Marbella (€2,450,000 • PWB-42)" },
 		]);
-		expect(searchProperties).toHaveBeenCalledWith({ featured: "true", per_page: 12 });
+		expect(searchProperties).toHaveBeenCalledWith({ featured: "true", per_page: 12 }, { markers: false });
 	});
 
 	it("falls back to a general property list when no featured shortlist is available", async () => {
@@ -100,6 +100,6 @@ describe("PWB property embed locale helpers", () => {
 			.mockResolvedValueOnce({ data: [{ slug: "casa-nueva", title: "Casa Nueva", formatted_price: null, reference: null }] });
 
 		await expect(fetchPropertyOptions({ searchProperties })).resolves.toEqual([{ id: "casa-nueva", name: "Casa Nueva" }]);
-		expect(searchProperties).toHaveBeenNthCalledWith(2, { per_page: 12 });
+		expect(searchProperties).toHaveBeenNthCalledWith(2, { per_page: 12 }, { markers: false });
 	});
 });

@@ -120,6 +120,17 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     "The page you're looking for doesn't exist.": 'La pagina que buscas no existe.',
     "The category you're looking for doesn't exist.": 'La categoria que buscas no existe.',
     "The tag you're looking for doesn't exist.": 'La etiqueta que buscas no existe.',
+    // Category and tag archives ({term} is the term's label)
+    'Category': 'Categoria',
+    'Tag': 'Etiqueta',
+    'post': 'articulo',
+    'posts': 'articulos',
+    '{term} posts': 'Articulos de {term}',
+    'All posts in {term}': 'Todos los articulos de {term}',
+    'Posts tagged "{term}"': 'Articulos con la etiqueta "{term}"',
+    'All posts tagged with {term}': 'Todos los articulos con la etiqueta {term}',
+    'No posts in this category yet.': 'Todavia no hay articulos en esta categoria.',
+    'No posts with this tag yet.': 'Todavia no hay articulos con esta etiqueta.',
     "The post you're looking for doesn't exist.": 'El articulo que buscas no existe.',
     'Browse all posts': 'Ver todos los articulos',
     "The property you're looking for doesn't exist.": 'La propiedad que buscas no existe.',
@@ -232,6 +243,17 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     "The page you're looking for doesn't exist.": 'La page recherchee n\'existe pas.',
     "The category you're looking for doesn't exist.": 'La categorie recherchee n\'existe pas.',
     "The tag you're looking for doesn't exist.": 'L\'etiquette recherchee n\'existe pas.',
+    // Category and tag archives ({term} is the term's label)
+    'Category': 'Categorie',
+    'Tag': 'Etiquette',
+    'post': 'article',
+    'posts': 'articles',
+    '{term} posts': 'Articles : {term}',
+    'All posts in {term}': 'Tous les articles de {term}',
+    'Posts tagged "{term}"': 'Articles avec l\'etiquette "{term}"',
+    'All posts tagged with {term}': 'Tous les articles avec l\'etiquette {term}',
+    'No posts in this category yet.': 'Aucun article dans cette categorie pour le moment.',
+    'No posts with this tag yet.': 'Aucun article avec cette etiquette pour le moment.',
     "The post you're looking for doesn't exist.": 'L\'article recherche n\'existe pas.',
     'Browse all posts': 'Voir tous les articles',
     "The property you're looking for doesn't exist.": 'Le bien recherche n\'existe pas.',
@@ -306,6 +328,11 @@ const BRAND_TRANSLATIONS: Record<string, Record<string, string>> = {
 
 export function translateLabel(locale: string, text: string): string {
   return UI_TRANSLATIONS[locale]?.[text] ?? text
+}
+
+/** translateLabel for a label with a `{term}` placeholder. */
+export function translateTermLabel(locale: string, text: string, term: string): string {
+  return translateLabel(locale, text).replaceAll('{term}', term)
 }
 
 export function translateBrand(locale: string, text: string): string {

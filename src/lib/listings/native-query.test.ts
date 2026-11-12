@@ -74,6 +74,24 @@ it('searches, counts, facets and maps inventory beyond 1,000 without hydrating e
   expect(statements.some((s) => s.includes('LIMIT ? OFFSET ?'))).toBe(true)
 })
 
+// The sitemap, homepage and embeds never draw a map, but every search used to
+// read the coordinates of all matching listings.
+it('skips the all-matches marker query when markers are not wanted', async () => {
+  insert('mapped', { for_sale: 1, latitude: 36.5, longitude: -4.9 })
+  insert('unmapped', { for_sale: 1 })
+
+  const withMarkers = await source().searchProperties({ per_page: 1 })
+  expect(withMarkers.map_markers.map((m) => m.slug)).toEqual(['mapped'])
+  expect(statements.filter((s) => s.includes('latitude IS NOT NULL'))).toHaveLength(1)
+
+  statements.length = 0
+  const without = await source().searchProperties({ per_page: 1 }, { markers: false })
+  expect(without.map_markers).toEqual([])
+  expect(without.meta.total).toBe(2)
+  expect(without.data).toHaveLength(1)
+  expect(statements.some((s) => s.includes('latitude IS NOT NULL'))).toBe(false)
+})
+
 it('resolves an independent detail slug with no full collection scan', async () => {
   insert('beyond-old-cap')
   const onHint = vi.fn()

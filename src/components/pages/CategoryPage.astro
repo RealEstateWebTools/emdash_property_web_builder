@@ -4,7 +4,7 @@ import { getEmDashCollection, getEntryTerms } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../PostCard.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { entrySlug, localePath, translateLabel } from "../../lib/locale";
+import { entrySlug, localePath, translateLabel, translateTermLabel } from "../../lib/locale";
 
 interface Props {
   locale: string
@@ -37,20 +37,24 @@ const filteredPosts = await Promise.all(
 ---
 
 {term ? (
-	<BaseLayout site={site} title={`${term.label} posts`} description={`All posts in ${term.label}`}>
+	<BaseLayout
+		site={site}
+		title={translateTermLabel(locale, "{term} posts", term.label)}
+		description={translateTermLabel(locale, "All posts in {term}", term.label)}
+	>
 		<section class="archive-section">
 			<header class="archive-header">
-				<span class="archive-label">Category</span>
+				<span class="archive-label">{translateLabel(locale, "Category")}</span>
 				<h1 class="archive-title">{term.label}</h1>
 				<p class="archive-count">
 					{filteredPosts.length}
-					{filteredPosts.length === 1 ? "post" : "posts"}
+					{translateLabel(locale, filteredPosts.length === 1 ? "post" : "posts")}
 				</p>
 			</header>
 
 			{
 				filteredPosts.length === 0 ? (
-					<p class="no-posts">No posts in this category yet.</p>
+					<p class="no-posts">{translateLabel(locale, "No posts in this category yet.")}</p>
 				) : (
 					<div class="posts-grid">
 						{filteredPosts.map(({ post, tags }) => (

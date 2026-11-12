@@ -215,12 +215,13 @@ function mergeResults(primary: SearchResults, fallback: SearchResults | null, li
 }
 
 async function loadGroup(client: Pick<ListingSource, 'searchProperties'>, group: HomepageListingGroupPlan, limit: number): Promise<HomepageListingGroup> {
-  const primary = await client.searchProperties(group.params)
+  // No map on the homepage: skip the all-matches marker query.
+  const primary = await client.searchProperties(group.params, { markers: false })
   const minPrimaryItems = Math.min(2, limit)
   let fallback: SearchResults | null = null
 
   if (group.fallbackParams && primary.data.length < minPrimaryItems) {
-    fallback = await client.searchProperties(group.fallbackParams)
+    fallback = await client.searchProperties(group.fallbackParams, { markers: false })
   }
 
   const merged = mergeResults(primary, fallback, limit)

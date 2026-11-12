@@ -8,6 +8,7 @@ import {
   localePath,
   translateBrand,
   translateLabel,
+  translateTermLabel,
   validateLocale,
 } from './locale'
 
@@ -22,7 +23,23 @@ describe('locale helpers', () => {
     'Your enquiry has been sent!',
     'Something went wrong. Please try again.',
     'Network error. Please try again.',
+    // Category and tag archives
+    'Category',
+    'Tag',
+    'post',
+    'posts',
+    '{term} posts',
+    'All posts in {term}',
+    'Posts tagged "{term}"',
+    'All posts tagged with {term}',
+    'No posts in this category yet.',
+    'No posts with this tag yet.',
   ] as const
+
+  it('fills {term} placeholders in translated archive labels', () => {
+    expect(translateTermLabel('es', 'Posts tagged "{term}"', 'Playa')).toBe('Articulos con la etiqueta "Playa"')
+    expect(translateTermLabel('en', '{term} posts', 'Guides')).toBe('Guides posts')
+  })
 
   it('keeps locale constants aligned with the expected default and supported locales', () => {
     expect(DEFAULT_LOCALE).toBe('en')

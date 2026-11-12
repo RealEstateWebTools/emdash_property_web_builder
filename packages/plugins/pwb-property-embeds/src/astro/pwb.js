@@ -105,9 +105,9 @@ function formatPropertyOptionName(property) {
  * featured. `source` is the host listing source (PWB or native EmDash).
  */
 export async function fetchPropertyOptions(source) {
-	let properties = (await source.searchProperties({ featured: "true", per_page: 12 })).data ?? [];
+	let properties = (await source.searchProperties({ featured: "true", per_page: 12 }, { markers: false })).data ?? [];
 	if (properties.length === 0) {
-		properties = (await source.searchProperties({ per_page: 12 })).data ?? [];
+		properties = (await source.searchProperties({ per_page: 12 }, { markers: false })).data ?? [];
 	}
 
 	return properties

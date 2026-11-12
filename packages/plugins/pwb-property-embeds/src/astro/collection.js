@@ -91,8 +91,10 @@ function isNotFound(error) {
  * featured set with fewer than two results is topped up with the newest
  * matching listings.
  *
- * @param {{ searchProperties(params: object): Promise<{ data: any[] }>, getProperty(slug: string): Promise<any> }} source
+ * @param {{ searchProperties(params: object, options?: { markers?: boolean }): Promise<{ data: any[] }>, getProperty(slug: string): Promise<any> }} source
  */
+const NO_MARKERS = { markers: false };
+
 export async function fetchListingCollection(source, config) {
 	if (config.source === "handpicked") {
 		const results = await Promise.all(
@@ -107,13 +109,14 @@ export async function fetchListingCollection(source, config) {
 	}
 
 	const params = buildCollectionSearchParams(config);
-	const primary = (await source.searchProperties(params)).data ?? [];
+	// Cards only: no map, so skip the host's marker query (ignored by PWB).
+	const primary = (await source.searchProperties(params, NO_MARKERS)).data ?? [];
 	if (config.source !== "featured" || primary.length >= Math.min(2, config.limit)) {
 		return primary.slice(0, config.limit);
 	}
 
 	const { featured: _featured, ...fallbackParams } = params;
-	const fallback = (await source.searchProperties(fallbackParams)).data ?? [];
+	const fallback = (await source.searchProperties(fallbackParams, NO_MARKERS)).data ?? [];
 	const seen = new Set(primary.map((item) => item.slug));
 	const combined = [...primary];
 	for (const item of fallback) {
