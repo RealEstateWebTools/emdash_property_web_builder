@@ -162,11 +162,10 @@ Background and maintenance notes are documented here:
 
 Use the Cloudflare deploy button above.
 
-After deployment, configure the PWB backend URL:
-
-```bash
-wrangler secret put PWB_API_URL
-```
+To use a PWB backend, set `PWB_API_URL` in the `vars` of your Wrangler config
+and rebuild. Leave it empty for native EmDash listings. The value is read at
+build time and compiled into the Worker, so a runtime
+`wrangler secret put PWB_API_URL` does not switch the backend.
 
 You will also need to configure your real D1 and R2 resources in
 [wrangler.jsonc](wrangler.jsonc).

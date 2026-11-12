@@ -2,8 +2,25 @@ import { describe, it, expect, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { handleEnquiryRequest, buildAttributionNote } from '../../lib/pwb/enquiry-api'
+import { EnquiryRateLimitedError } from '../../lib/enquiries/emdash-store'
 
 describe('handleEnquiryRequest', () => {
+  it('answers 429 with a visitor-facing message when the visitor is rate limited', async () => {
+    const client = { submitEnquiry: vi.fn().mockRejectedValue(new EnquiryRateLimitedError()) }
+    const request = new Request('http://localhost/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Jane Doe', email: 'jane@example.com', message: 'I am interested in this property' }),
+    })
+
+    const response = await handleEnquiryRequest(request, client)
+    const body = await response.json() as { success: boolean; message: string }
+
+    expect(response.status).toBe(429)
+    expect(body.success).toBe(false)
+    expect(body.message).toMatch(/too many enquiries/i)
+  })
+
   it('returns success JSON for a valid payload', async () => {
     const client = {
       submitEnquiry: vi.fn().mockResolvedValue({

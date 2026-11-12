@@ -5,7 +5,7 @@
  * When adding a new locale:
  *   1. Add it to i18n.locales in astro.config.ts
  *   2. Add it to SUPPORTED_LOCALES here
- *   3. Add a fallback in i18n.fallback if needed
+ *   3. Do NOT add i18n.fallback: it redirects localized 404s (see astro.config.ts)
  */
 
 export const DEFAULT_LOCALE = 'en'

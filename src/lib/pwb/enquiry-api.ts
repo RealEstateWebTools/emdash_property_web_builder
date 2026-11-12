@@ -1,5 +1,6 @@
 import type { EnquiryInput, EnquiryResponse } from './types'
 import { validateEnquiry } from './enquiry-validator'
+import { EnquiryRateLimitedError } from '../enquiries/emdash-store'
 
 export interface EnquiryAttribution {
   pageType?: string
@@ -134,6 +135,12 @@ export async function handleEnquiryRequest(request: Request, client: EnquirySubm
       data: result.data,
     })
   } catch (err) {
+    if (err instanceof EnquiryRateLimitedError) {
+      return json({
+        success: false,
+        message: 'Too many enquiries from this connection. Please try again in a few minutes.',
+      } satisfies ErrorBody, 429)
+    }
     console.error(`[pwb] enquiry submission failed: ${err instanceof Error ? err.message : String(err)}`)
     return json({
       success: false,

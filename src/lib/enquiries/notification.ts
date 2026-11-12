@@ -1,6 +1,6 @@
 /**
  * Email notification for a new enquiry stored in EmDash (no-PWB sites).
- * Sent by the lead-reports plugin's content:afterSave hook to the office
+ * Sent by the lead-reports plugin's public `enquiries` route to the office
  * email from the site-profile settings, with Reply-To set to the enquirer.
  */
 export interface EnquiryNotification {

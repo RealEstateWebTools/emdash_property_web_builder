@@ -11,6 +11,7 @@
 import type { EnquiryDetails, EnquirySubmitClient } from '../pwb/enquiry-api'
 import { validateEnquiry } from '../pwb/enquiry-validator'
 import type { EnquiryInput, EnquiryResponse } from '../pwb/types'
+import { CLIENT_IP_HEADER } from '../rate-limit'
 
 export const ENQUIRIES_COLLECTION = 'enquiries'
 export const ENQUIRY_PLUGIN_ID = 'lead-reports'
@@ -83,15 +84,35 @@ interface PublicPluginRouteCaller {
   ): Promise<{ success: boolean; error?: { code: string; message: string } }>
 }
 
-export function createEmDashEnquiryClient(emdash: PublicPluginRouteCaller, origin: string): EnquirySubmitClient {
+/** The visitor has sent too many enquiries; /api/enquiries answers 429. */
+export class EnquiryRateLimitedError extends Error {
+  constructor() {
+    super('Too many enquiries from this connection')
+    this.name = 'EnquiryRateLimitedError'
+  }
+}
+
+/**
+ * @param clientIp the visitor's address (Astro's clientAddress). The in-process
+ *   request has no Cloudflare headers, so it is passed in CLIENT_IP_HEADER for
+ *   the plugin route's per-client throttle (see src/lib/rate-limit.ts).
+ */
+export function createEmDashEnquiryClient(
+  emdash: PublicPluginRouteCaller,
+  origin: string,
+  clientIp?: string | null,
+): EnquirySubmitClient {
   return {
     async submitEnquiry(input: EnquiryInput, details?: EnquiryDetails): Promise<EnquiryResponse> {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (clientIp) headers[CLIENT_IP_HEADER] = clientIp
       const request = new Request(new URL(`/_emdash/api/plugins/${ENQUIRY_PLUGIN_ID}/${ENQUIRY_ROUTE}`, origin), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(buildEnquiryPayload(input, details)),
       })
       const result = await emdash.handlePublicPluginApiRoute(ENQUIRY_PLUGIN_ID, 'POST', ENQUIRY_ROUTE, request)
+      if (result.error?.code === 'RATE_LIMITED') throw new EnquiryRateLimitedError()
       if (!result.success) {
         // Surfaced by handleEnquiryRequest as a 502 "could not send" response.
         throw new Error(`Could not store enquiry: ${result.error?.code ?? 'unknown'} ${result.error?.message ?? ''}`)

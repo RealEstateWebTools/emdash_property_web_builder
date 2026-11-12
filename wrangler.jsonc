@@ -24,8 +24,10 @@
 		},
 	],
 	"vars": {
-		// Set your PWB Rails backend URL after deploying:
-		// wrangler secret put PWB_API_URL
+		// PWB Rails backend URL; empty = native EmDash listings. Read at BUILD
+		// time (import.meta.env is inlined into the Worker bundle), so set it
+		// here or in wrangler.prod.jsonc and rebuild. A runtime
+		// `wrangler secret put PWB_API_URL` does not change the backend.
 		"PWB_API_URL": "",
 		// Active colour palette. One of: default | gold | luxury | mediterranean | coastal | countryside | urban | nordic
 		// Change this and redeploy to switch the site theme. No code changes needed.

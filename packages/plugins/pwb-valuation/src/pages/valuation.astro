@@ -7,7 +7,7 @@
  * hardcoded relative paths:
  *
  *   virtual:pwb-valuation/layout     → host's BaseLayout.astro
- *   virtual:pwb-valuation/pwb-client → host's createPwbClient
+ *   virtual:pwb-valuation/site-details → host's loadSiteDetails(locale)
  *   virtual:pwb-valuation/config     → integration options
  *
  * The Vite plugin in integration.js resolves these at build time.
@@ -16,9 +16,15 @@
 // @ts-ignore — virtual modules are resolved by the Vite plugin at build time
 import BaseLayout from "virtual:pwb-valuation/layout";
 // @ts-ignore
-import { createPwbClient } from "virtual:pwb-valuation/pwb-client";
+import { loadSiteDetails } from "virtual:pwb-valuation/site-details";
 // @ts-ignore
 import { config } from "virtual:pwb-valuation/config";
+
+// /[lang]/valuation: only the site's locale prefixes are pages.
+const lang = Astro.params.lang;
+if (lang !== undefined && !(config.localePrefixes ?? []).includes(lang)) {
+  return new Response(null, { status: 404 });
+}
 
 let success = false;
 let errorMessage = "";
@@ -47,21 +53,36 @@ if (Astro.request.method === "POST") {
       "/_emdash/api/plugins/pwb-valuation/submit",
       Astro.url,
     );
+    const headers = { "Content-Type": "application/json" };
+    // The route throttles per client. Called in-process it can't see the
+    // visitor, so pass their address in the host's trusted proxy header.
+    if (config.clientIpHeader) {
+      try {
+        if (Astro.clientAddress) headers[config.clientIpHeader] = Astro.clientAddress;
+      } catch {
+        // The adapter can't tell the client address; the route won't throttle.
+      }
+    }
+    const request = new Request(submitUrl, { method: "POST", headers, body: JSON.stringify(body) });
 
     try {
-      const res = await fetch(submitUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (res.ok) {
-        return Astro.redirect(`${config.basePath}/valuation?sent=1`);
+      // In-process when EmDash offers it: a fetch to the site's own URL would
+      // reach the route from the Worker's address, not the visitor's.
+      const emdash = Astro.locals.emdash;
+      let result;
+      if (emdash?.handlePublicPluginApiRoute) {
+        result = await emdash.handlePublicPluginApiRoute("pwb-valuation", "POST", "submit", request);
       } else {
-        const json = await res.json().catch(() => ({}));
+        const res = await fetch(request);
         // EmDash API errors are { success: false, error: { code, message } }.
-        errorMessage = json.error?.message ?? "Submission failed. Please try again.";
+        result = res.ok ? { success: true } : await res.json().catch(() => ({ success: false }));
       }
+
+      if (result.success) {
+        // Back to this same page (/valuation or /<lang>/valuation).
+        return Astro.redirect(`${Astro.url.pathname}?sent=1`);
+      }
+      errorMessage = result.error?.message ?? "Submission failed. Please try again.";
     } catch {
       errorMessage = "Network error. Please try again.";
     }
@@ -69,8 +90,8 @@ if (Astro.request.method === "POST") {
 }
 
 const sent = Astro.url.searchParams.get("sent") === "1";
-const client = createPwbClient();
-const site = await client.getSiteDetails();
+// The host's loader works without PWB (see siteDetailsModule in integration.js).
+const site = await loadSiteDetails(lang ?? Astro.currentLocale ?? "en");
 ---
 
 <BaseLayout site={site} title="Request a Valuation">

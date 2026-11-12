@@ -1,3 +1,13 @@
+import { localePath } from '../locale'
+
+/**
+ * Both listing sources return default-locale marker URLs (`/properties/<slug>`);
+ * point them at the page's locale. Absolute URLs are left alone.
+ */
+export function localizeMarkerUrls<T extends { url: string }>(markers: T[], locale: string): T[] {
+  return markers.map((marker) => ({ ...marker, url: localePath(locale, marker.url) }))
+}
+
 interface PopupMarker {
   url: string
   title: string

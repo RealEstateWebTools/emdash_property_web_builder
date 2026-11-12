@@ -70,6 +70,14 @@ export default {
         if (message.html) {
           body.html = message.html
         }
+        // Resend's field names (snake_case reply_to). Enquiry notifications set
+        // replyTo to the visitor so the office can answer them directly.
+        if (typeof message.replyTo === 'string' && message.replyTo) {
+          body.reply_to = message.replyTo
+        }
+        if (Array.isArray(message.cc) && message.cc.length > 0) {
+          body.cc = message.cc
+        }
 
         const response = await ctx.http.fetch('https://api.resend.com/emails', {
           method: 'POST',

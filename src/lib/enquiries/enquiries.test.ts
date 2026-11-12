@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildEnquiryPayload, createEmDashEnquiryClient, sanitizeStoredEnquiry } from './emdash-store'
+import {
+  buildEnquiryPayload,
+  createEmDashEnquiryClient,
+  EnquiryRateLimitedError,
+  sanitizeStoredEnquiry,
+} from './emdash-store'
+import { CLIENT_IP_HEADER } from '../rate-limit'
 import { buildEnquiryNotification } from './notification'
 
 const input = { name: 'Ana Lopez', email: 'ana@example.com', phone: '+34 600', message: 'Hi\n\n---\nPage type: property' }
@@ -62,6 +68,27 @@ describe('createEmDashEnquiryClient', () => {
     expect([pluginId, method, path]).toEqual(['lead-reports', 'POST', 'enquiries'])
     expect(request.url).toBe('https://site.test/_emdash/api/plugins/lead-reports/enquiries')
     expect(await request.json()).toMatchObject({ name: 'Ana Lopez', message: 'Hi there, is it available?' })
+  })
+
+  it("passes the visitor's address in the trusted header for the route's throttle", async () => {
+    const handlePublicPluginApiRoute = vi.fn(async () => ({ success: true }))
+    await createEmDashEnquiryClient({ handlePublicPluginApiRoute }, 'https://site.test', '203.0.113.7').submitEnquiry(input)
+    const request = (handlePublicPluginApiRoute.mock.calls[0] as unknown as [string, string, string, Request])[3]
+    expect(request.headers.get(CLIENT_IP_HEADER)).toBe('203.0.113.7')
+  })
+
+  it('sends no address header when the address is unknown', async () => {
+    const handlePublicPluginApiRoute = vi.fn(async () => ({ success: true }))
+    await createEmDashEnquiryClient({ handlePublicPluginApiRoute }, 'https://site.test', null).submitEnquiry(input)
+    const request = (handlePublicPluginApiRoute.mock.calls[0] as unknown as [string, string, string, Request])[3]
+    expect(request.headers.has(CLIENT_IP_HEADER)).toBe(false)
+  })
+
+  it('reports a rate-limited route as EnquiryRateLimitedError', async () => {
+    const handlePublicPluginApiRoute = vi.fn(async () => ({ success: false, error: { code: 'RATE_LIMITED', message: 'x' } }))
+    await expect(
+      createEmDashEnquiryClient({ handlePublicPluginApiRoute }, 'https://site.test').submitEnquiry(input),
+    ).rejects.toBeInstanceOf(EnquiryRateLimitedError)
   })
 
   it('throws when the route fails, so the visitor gets an error', async () => {

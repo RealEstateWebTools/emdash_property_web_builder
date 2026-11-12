@@ -11,6 +11,7 @@ import MapView from '../MapView.astro'
 import { localePath, translateLabel } from '../../lib/locale'
 import type { SearchConfig, SearchResults, SearchFacets } from '../../lib/pwb/types'
 import { logPwbUnexpectedError } from '../../lib/pwb/errors'
+import { localizeMarkerUrls } from '../../lib/map/popup'
 
 interface Props {
   locale: string
@@ -149,7 +150,7 @@ function buildPageHref(page: number): string {
 
         {results.map_markers.length > 0 && (
           <div class="search-results__map-panel">
-            <MapView markers={results.map_markers} />
+            <MapView markers={localizeMarkerUrls(results.map_markers, locale)} />
           </div>
         )}
       </section>

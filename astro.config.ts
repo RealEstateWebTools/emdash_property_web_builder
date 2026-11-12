@@ -39,7 +39,9 @@ export default defineConfig({
 	i18n: {
 		defaultLocale: 'en',
 		locales: ['en', 'es', 'fr'],
-		fallback: { es: 'en', fr: 'en' },
+		// No `fallback`: Astro would turn every /es/ or /fr/ 404 into a 302 to
+		// the English URL. Content fallback is handled by the pages themselves
+		// (EmDash entry fallbackLocale, listing inventory locale).
 		routing: { prefixDefaultLocale: false },
 	},
 	// Cloudflare adapter is production-only. In dev, Astro runs as plain Node.
@@ -59,6 +61,10 @@ export default defineConfig({
 		pwbValuationIntegration({
 			layout: "./src/layouts/BaseLayout.astro",
 			pwbClientModule: "./src/lib/pwb/client.js",
+			// PWB site details when configured, EmDash settings otherwise.
+			siteDetailsModule: "./src/lib/site-details.ts",
+			// Must match emdash({ trustedProxyHeaders }) below.
+			clientIpHeader: "x-pwb-client-ip",
 		}),
 		emdash({
 			// Local dev: SQLite (seeded with `npx emdash seed`)
@@ -70,6 +76,12 @@ export default defineConfig({
 				? local({ directory: localUploadsDir, baseUrl: "/_emdash/api/media/file" })
 				: r2({ binding: "MEDIA" }),
 			mcp: true,
+			// The visitor address /api/enquiries and /valuation pass to plugin
+			// routes they call in-process (CLIENT_IP_HEADER, src/lib/rate-limit.ts).
+			// EmDash reads it only when Cloudflare's own client-IP headers are
+			// absent, so on Workers visitors can't spoof it. Off Cloudflare (local
+			// dev) any client can set it.
+			trustedProxyHeaders: ["x-pwb-client-ip"],
 			plugins: [...bundledPlugins, ...trustedPlugins],
 			sandboxed: [],
 			sandboxRunner: undefined,

@@ -41,5 +41,28 @@ describe('GET /sitemap-properties.xml', () => {
     const res = await GET({ url: new URL('https://agency.test/sitemap-properties.xml') } as never)
     expect(res.status).toBe(200)
     expect(await res.text()).not.toContain('<loc>')
+    // A transient outage must not be cached as the sitemap for an hour.
+    expect(res.headers.get('Cache-Control')).toBe('no-store')
+  })
+
+  it('keeps every listing when one has an unparseable updated_at', async () => {
+    // new Date('garbage').toISOString() throws; that used to empty the whole sitemap.
+    vi.stubEnv('PWB_API_URL', '')
+    vi.mocked(getListingSource).mockReturnValue({
+      searchProperties: async ({ sale_or_rental }: SearchParams) => ({
+        data: sale_or_rental === 'rental' ? [] : [
+          { slug: 'bad-date', updated_at: 'not a date' },
+          { slug: 'good-date', updated_at: '2026-10-05T12:00:00Z' },
+        ],
+        meta: { total_pages: 1 },
+      }),
+    } as never)
+
+    const res = await GET({ url: new URL('https://agency.test/sitemap-properties.xml') } as never)
+    const xml = await res.text()
+
+    expect(xml).toContain('<loc>https://agency.test/properties/bad-date</loc><changefreq>')
+    expect(xml).toContain('<loc>https://agency.test/properties/good-date</loc><lastmod>2026-10-05</lastmod>')
+    expect(res.headers.get('Cache-Control')).toBe('public, max-age=3600')
   })
 })

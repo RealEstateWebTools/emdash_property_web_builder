@@ -45,6 +45,11 @@ import { pwbValuationIntegration } from 'pwb-valuation/integration'
 pwbValuationIntegration({
   layout: './src/layouts/BaseLayout.astro',
   pwbClientModule: './src/lib/pwb/client.js',
+  // Optional: exports loadSiteDetails(locale). Needed on sites without PWB.
+  siteDetailsModule: './src/lib/site-details.ts',
+  // Optional: header for the visitor's address when the page calls the
+  // submit route in-process. Add the same name to emdash({ trustedProxyHeaders }).
+  clientIpHeader: 'x-pwb-client-ip',
 })
 
 // EmDash plugin — registers routes and admin UI
@@ -58,11 +63,13 @@ The backend descriptor uses `standard` format and runs in this site's trusted
 Supports EmDash `^1.1.0`. A future registry release must separate the sandboxed
 backend from the native Astro integration: registry installation cannot inject
 the `/valuation` page. The integration requires a host layout accepting `site`
-and `title`, and a module exporting `createPwbClient()` whose client supplies
-`getSiteDetails()`. No standalone release has been verified.
+and `title`, and either a `siteDetailsModule` exporting `loadSiteDetails(locale)`
+or a `pwbClientModule` exporting `createPwbClient()` whose client supplies
+`getSiteDetails()` (PWB required). No standalone release has been verified.
 
 Known release gaps: input validation currently checks only nonempty name/email/
-address, submissions lack plugin-level spam controls, the admin table stops at
+address, spam control is a per-client throttle only (5 submissions per 10
+minutes; no honeypot or challenge), the admin table stops at
 50 records, and the JSON list stops at 100 with no cursor. Status updates and
 deletion/retention workflows remain unimplemented. Submission logs include email.
 See the [readiness report](../../../docs/plugin-release-readiness.md).

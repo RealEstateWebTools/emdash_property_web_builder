@@ -17,11 +17,15 @@ const { locale, slug, term } = Astro.props
 
 const site = await loadSiteDetails(locale, `tag locale=${locale} slug=${slug}`);
 
-const { entries: posts } = await getEmDashCollection("posts", {
-	locale,
-	where: term?.slug ? { tag: term.slug } : {},
-	orderBy: { published_at: "desc" },
-});
+// No term means the route is a 404: don't load every post for it.
+const { entries: posts, cacheHint } = term
+	? await getEmDashCollection("posts", {
+			locale,
+			where: { tag: term.slug },
+			orderBy: { published_at: "desc" },
+		})
+	: { entries: [], cacheHint: undefined };
+if (cacheHint) Astro.cache?.set(cacheHint);
 
 // Fetch tags for display on each post card
 const filteredPosts = await Promise.all(

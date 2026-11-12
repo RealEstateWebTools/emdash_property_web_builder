@@ -22,7 +22,55 @@ export const PRESERVED_REMOTE_TABLES = new Set([
 	"credentials",
 	"oauth_accounts",
 	"users",
+	// Data production creates on its own: leads, plugin data (lead events,
+	// valuation requests), visitor comments and runtime logs. A content sync
+	// must neither wipe these nor overwrite them with local test rows.
+	"ec_enquiries",
+	"_plugin_storage",
+	"_emdash_comments",
+	"_emdash_comment_reactions",
+	"_emdash_404_log",
+	"_emdash_rate_limits",
+	"audit_logs",
 ]);
+
+/**
+ * Rows kept in tables that are otherwise synced. `where` selects the rows to
+ * keep on the remote; `matchesInsert` recognises the same rows in a dump's
+ * `INSERT INTO <table> VALUES(...)` line, so local copies are not imported.
+ */
+export const PRESERVED_REMOTE_ROWS = [
+	{
+		// Environment settings: plugin settings (e.g. the Resend API key), the
+		// chosen email/moderation providers, and the site URL. Local values
+		// (console email, http://localhost) would break production.
+		table: "options",
+		where: `"name" LIKE 'plugin:%' OR "name" LIKE 'emdash:exclusive_hook:%' OR "name" = 'emdash:site_url'`,
+		matchesInsert: (values) => {
+			const name = sqlStringValueAt(values, 0);
+			return name !== null && (name.startsWith("plugin:") || name.startsWith("emdash:exclusive_hook:") || name === "emdash:site_url");
+		},
+	},
+	{
+		// Revisions of preserved enquiries (ec_enquiries references revisions).
+		table: "revisions",
+		where: `"collection" = 'enquiries'`,
+		matchesInsert: (values) => sqlStringValueAt(values, 1) === "enquiries",
+	},
+];
+
+/** The index-th leading value of a VALUES(...) list when it is a plain SQL string, else null. */
+function sqlStringValueAt(values, index) {
+	const pattern = /^\s*'((?:[^']|'')*)'\s*,?/;
+	let rest = values;
+	for (let i = 0; i <= index; i += 1) {
+		const match = rest.match(pattern);
+		if (!match) return null;
+		if (i === index) return match[1].replaceAll("''", "'");
+		rest = rest.slice(match[0].length);
+	}
+	return null;
+}
 
 export const ADMIN_ACCESS_RESET_TABLES = [
 	"credentials",
@@ -92,9 +140,11 @@ export function keepInsertStatementsOnly(sql) {
 		.split(/\r?\n/)
 		.filter((line) => {
 			if (line.trim() === "") return true;
-			const match = line.match(/^INSERT INTO\s+("?)([A-Za-z0-9_]+)\1\b/);
+			const match = line.match(/^INSERT INTO\s+("?)([A-Za-z0-9_]+)\1\s*(?:VALUES\s*\((.*))?/);
 			if (!match) return false;
-			return !excludedTables.has(match[2]);
+			if (excludedTables.has(match[2])) return false;
+			const rowRule = PRESERVED_REMOTE_ROWS.find((rule) => rule.table === match[2]);
+			return !(rowRule && match[3] !== undefined && rowRule.matchesInsert(match[3]));
 		})
 		.join("\n");
 }
@@ -466,7 +516,12 @@ function topologicallySortTables(tables, dependencyMap) {
 
 export function buildResetSqlFromSchema(tables, dependencyMap) {
 	const orderedTables = topologicallySortTables(tables, dependencyMap);
-	return orderedTables.map((table) => `DELETE FROM "${table}";`).join("\n");
+	return orderedTables
+		.map((table) => {
+			const rowRule = PRESERVED_REMOTE_ROWS.find((rule) => rule.table === table);
+			return rowRule ? `DELETE FROM "${table}" WHERE NOT (${rowRule.where});` : `DELETE FROM "${table}";`;
+		})
+		.join("\n");
 }
 
 export function getResetPlanFromSqliteDatabase(databasePath) {

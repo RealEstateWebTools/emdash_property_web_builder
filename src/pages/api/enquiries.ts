@@ -6,7 +6,17 @@ import { handleEnquiryRequest } from '../../lib/pwb/enquiry-api'
 
 export const prerender = false
 
-export const POST: APIRoute = async ({ request, locals, url }) => {
+/** The visitor's address, or null where the adapter can't tell (it throws). */
+function clientIp(context: { clientAddress: string }): string | null {
+  try {
+    return context.clientAddress || null
+  } catch {
+    return null
+  }
+}
+
+export const POST: APIRoute = async (context) => {
+  const { request, locals, url } = context
   // With PWB, enquiries go to its leads API; without it, into EmDash.
   if (isPwbConfigured()) return handleEnquiryRequest(request, createPwbClient('en'))
 
@@ -17,5 +27,5 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
       headers: { 'Content-Type': 'application/json' },
     })
   }
-  return handleEnquiryRequest(request, createEmDashEnquiryClient(emdash, url.origin))
+  return handleEnquiryRequest(request, createEmDashEnquiryClient(emdash, url.origin, clientIp(context)))
 }

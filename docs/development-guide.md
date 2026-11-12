@@ -140,7 +140,16 @@ Important constraints:
 - the script does not ask users to edit SQL manually
 - if the remote D1 database already contains conflicting rows, the import may fail
 - `--backup` exports the current remote D1 database to `.tmp/` before any write
-- `--force-reset` clears remote table data first and then imports local data only
+- `--force-reset` clears remote table data first and then imports local data only.
+  It requires `--backup` (except with `--dry-run`), because the reset and the import
+  are separate remote steps
+- a `--force-reset` sync keeps data production owns: auth and passkeys, enquiries
+  (`ec_enquiries` and their revisions), plugin data (`_plugin_storage`: lead events,
+  valuation requests), comments, logs, and environment settings in `options`
+  (`plugin:*` settings such as the Resend API key, `emdash:exclusive_hook:*` provider
+  choices, `emdash:site_url`). The local copies of these are not imported. The lists
+  live in `PRESERVED_REMOTE_TABLES` and `PRESERVED_REMOTE_ROWS` in
+  `scripts/lib/d1-sync-utils.mjs`
 - the script intentionally removes raw SQLite transaction and `writable_schema` sections
   because remote D1 rejects them
 
@@ -401,10 +410,13 @@ wrangler r2 bucket create emdash-property-web-builder-media
 # 4. Login
 wrangler login
 
-# 5. Set the production PWB backend URL
-wrangler secret put PWB_API_URL
-# (paste the production PWB URL when prompted)
+# 5. Set the production PWB backend URL (or leave it empty for native listings)
+# in the "vars" block of wrangler.prod.jsonc: "PWB_API_URL": "https://..."
 ```
+
+`PWB_API_URL` is read at build time and compiled into the Worker, so
+`pnpm run deploy:prod` (which builds first) picks it up. A runtime Worker
+secret does not switch the backend.
 
 ### Deploying
 

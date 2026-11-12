@@ -17,6 +17,10 @@ export function pwbValuationPlugin() {
       valuations: {
         indexes: ["email", "status", "createdAt"],
       },
+      // Per-client throttle for the public submit route (src/rate-limit.js).
+      rate_limits: {
+        indexes: ["count", "window"],
+      },
     },
     adminPages: [{ path: "/", label: "Valuation Requests", icon: "list" }],
   };

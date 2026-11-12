@@ -287,7 +287,7 @@ The invocation itself is marked as an error even though the browser receives HTT
 
 **Symptom:** When deploying via the Cloudflare "Deploy to Workers" button, the configuration form shows `PWB_API_URL` twice — one field pre-filled with dots (masked) and one empty field.
 
-**Cause:** `PWB_API_URL` has been set both as a **Worker secret** (via `wrangler secret put PWB_API_URL` at some point) and as a plain **var** in `wrangler.jsonc` (`"vars": { "PWB_API_URL": "" }`). The deploy form renders one field for each. Secrets take precedence over vars at runtime, so the Worker uses the secret value.
+**Cause:** `PWB_API_URL` has been set both as a **Worker secret** (via `wrangler secret put PWB_API_URL` at some point) and as a plain **var** in `wrangler.jsonc` (`"vars": { "PWB_API_URL": "" }`). The deploy form renders one field for each. The app reads `PWB_API_URL` at build time (it is compiled into the Worker bundle), so a runtime secret does not choose the backend anyway.
 
 **Fix:** Since `PWB_API_URL` is not sensitive and should be visible and easy to change, delete the secret version:
 ```bash

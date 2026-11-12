@@ -1,5 +1,24 @@
 import { describe, it, expect } from 'vitest'
-import { buildMarkerPopupHtml } from './popup'
+import { buildMarkerPopupHtml, localizeMarkerUrls } from './popup'
+
+describe('localizeMarkerUrls', () => {
+  // Map popups on /es/properties used to link to the English listing page.
+  const markers = [
+    { url: '/properties/villa', title: 'Villa' },
+    { url: 'https://pwb.example/properties/flat', title: 'Flat' },
+  ]
+
+  it('prefixes relative marker URLs with a non-default locale', () => {
+    expect(localizeMarkerUrls(markers, 'es').map((m) => m.url)).toEqual([
+      '/es/properties/villa',
+      'https://pwb.example/properties/flat',
+    ])
+  })
+
+  it('leaves default-locale URLs unchanged and keeps other fields', () => {
+    expect(localizeMarkerUrls(markers, 'en')).toEqual(markers)
+  })
+})
 
 describe('buildMarkerPopupHtml', () => {
   it('escapes marker title and price content', () => {

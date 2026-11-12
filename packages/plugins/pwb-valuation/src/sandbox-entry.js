@@ -8,6 +8,7 @@
  */
 
 import { PluginRouteError } from "emdash";
+import { consumeRateLimit, VALUATION_RATE_LIMIT } from "./rate-limit.js";
 
 
 export function buildValuationRows(items) {
@@ -72,6 +73,9 @@ export default {
       handler: async (routeCtx, ctx) => {
         // EmDash pre-parses the POST body into routeCtx.input — do not call
         // routeCtx.request.json() as the body stream will already be consumed.
+        if (!(await consumeRateLimit(ctx.storage.rate_limits, routeCtx.requestMeta?.ip, VALUATION_RATE_LIMIT))) {
+          throw new PluginRouteError("RATE_LIMITED", "Too many requests. Please try again later.", 429);
+        }
         const body = routeCtx.input ?? {};
 
         const name = typeof body.name === "string" ? body.name.trim() : "";

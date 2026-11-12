@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const ROOT = resolve(process.cwd())
@@ -70,17 +70,25 @@ describe('EmDash cache hints', () => {
    * Every page that queries EmDash content must pass cache hints to Astro.cache
    * when the runtime provides it, without crashing when it is absent locally.
    */
-  const emdashContentPages = [
-    'src/components/pages/IndexPage.astro',
-    'src/components/pages/PostPage.astro',
-    'src/components/pages/PostsIndexPage.astro',
-    'src/components/pages/CmsPage.astro',
-  ]
+  // Discovered, not listed: a hand-kept list let the category and tag pages
+  // ship without cache hints.
+  const queryingPages = readdirSync(resolve(ROOT, 'src/components/pages'))
+    .filter((name) => name.endsWith('.astro'))
+    .map((name) => `src/components/pages/${name}`)
+    .filter((page) => /getEmDash(Collection|Entry)\(/.test(readSource(page)))
+
+  it('finds the pages that query EmDash content', () => {
+    expect(queryingPages).toEqual(expect.arrayContaining([
+      'src/components/pages/CategoryPage.astro',
+      'src/components/pages/PostsIndexPage.astro',
+      'src/components/pages/TagPage.astro',
+    ]))
+  })
 
   it('applies guarded Astro cache hints for every EmDash content page', () => {
-    for (const page of emdashContentPages) {
+    for (const page of [...queryingPages, 'src/components/pages/PostPage.astro', 'src/components/pages/CmsPage.astro']) {
       const source = readSource(page)
-      expect(source, `${page} should guard Astro.cache before setting cacheHint`).toContain('Astro.cache?.set(cacheHint)')
+      expect(source, `${page} should guard Astro.cache before setting a cache hint`).toMatch(/Astro\.cache\?\.set\(/)
     }
   })
 })

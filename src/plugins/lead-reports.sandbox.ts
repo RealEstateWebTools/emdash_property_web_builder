@@ -10,9 +10,20 @@ import {
 } from '../lib/lead-reports.js'
 import { ENQUIRIES_COLLECTION, sanitizeStoredEnquiry } from '../lib/enquiries/emdash-store.js'
 import { buildEnquiryNotification } from '../lib/enquiries/notification.js'
+import { consumeRateLimit, RATE_LIMITS, type RateLimitRule } from '../lib/rate-limit.js'
 
 /** Upper bound on events read for one report (90 days on a busy site). */
 const MAX_REPORT_EVENTS = 20_000
+
+/** Throws a 429 when this client has used up the route's allowance. */
+async function throttle(routeCtx: { requestMeta?: unknown }, ctx: { storage: Record<string, unknown> }, rule: RateLimitRule) {
+  // Typed `unknown` for sandboxed plugins; EmDash fills in { ip, userAgent, ... }.
+  const ip = (routeCtx.requestMeta as { ip?: unknown } | undefined)?.ip
+  const store = ctx.storage.rate_limits as Parameters<typeof consumeRateLimit>[0]
+  if (!(await consumeRateLimit(store, typeof ip === 'string' ? ip : null, rule))) {
+    throw new PluginRouteError('RATE_LIMITED', 'Too many requests. Please try again later.', 429)
+  }
+}
 
 /**
  * Routes:
@@ -26,7 +37,8 @@ export default {
     enquiries: {
       public: true,
       handler: async (routeCtx, ctx) => {
-        // Publicly reachable, so validate here too (not only in /api/enquiries).
+        // Publicly reachable, so throttle and validate here (not only in /api/enquiries).
+        await throttle(routeCtx, ctx, RATE_LIMITS.enquiries)
         const enquiry = sanitizeStoredEnquiry(routeCtx.input)
         if (!enquiry) throw PluginRouteError.badRequest('invalid enquiry')
         if (!ctx.content?.create) throw PluginRouteError.internal('content write access unavailable')
@@ -51,6 +63,7 @@ export default {
     track: {
       public: true,
       handler: async (routeCtx, ctx) => {
+        await throttle(routeCtx, ctx, RATE_LIMITS.track)
         const event = sanitizeLeadEvent(routeCtx.input)
         if (!event) {
           throw PluginRouteError.badRequest('invalid event')

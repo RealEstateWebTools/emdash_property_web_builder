@@ -152,6 +152,14 @@ async function main() {
 	const localDbPath = resolve(projectRoot, getArgValue(args, "--local-db", "data.db"));
 	const explicitDbName = getArgValue(args, "--db");
 
+	// A reset deletes remote data before the import runs as a separate step;
+	// without a backup a failed import leaves nothing to restore from.
+	if (forceReset && !shouldBackup && !dryRun) {
+		console.error("--force-reset clears remote data and requires --backup:");
+		console.error("  pnpm run sync:prod-db --backup --force-reset");
+		process.exit(1);
+	}
+
 	try {
 		await ensureReadable(configPath, "Wrangler config");
 		await ensureReadable(localDbPath, "Local SQLite database");
@@ -200,7 +208,7 @@ async function main() {
 			"",
 			"This imports sanitized SQL into the remote D1 database.",
 			forceReset
-				? "Remote data will be cleared before import."
+				? "Remote data will be cleared before import. Auth, enquiries, plugin data, comments, logs and environment settings (plugin settings, email provider, site URL) are kept."
 				: "If the remote database already contains conflicting rows, the import may fail.",
 			"",
 		].join("\n");
@@ -247,7 +255,7 @@ async function main() {
 			console.error("");
 			console.error("Remote import failed because the remote D1 database already contains conflicting rows.");
 			console.error("Recommended retry:");
-			console.error("  pnpm sync:prod-db --backup --force-reset");
+			console.error("  pnpm run sync:prod-db --backup --force-reset");
 			console.error("");
 			console.error("That will back up the current remote DB, clear remote table data, and then import local data.");
 			process.exit(1);

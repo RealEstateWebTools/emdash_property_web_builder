@@ -5,6 +5,7 @@ vi.mock('emdash', () => ({
 }))
 
 import plugin from './resend-email.sandbox'
+import { buildEnquiryNotification } from '../lib/enquiries/notification'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,40 @@ describe('email:deliver', () => {
     expect(body.to).toEqual(['buyer@example.com'])
     expect(body.subject).toBe('Enquiry received')
     expect(body.text).toBe('Plain text')
+  })
+
+  it('sends reply_to and cc, so the office can reply to an enquirer', async () => {
+    const ctx = makeCtx({
+      'settings:api_key': 're_abc123',
+      'settings:from_address': 'no-reply@example.com',
+    })
+    ctx.http.fetch.mockResolvedValue(makeOkResponse())
+    // The real enquiry notification, not a hand-built message.
+    const message = buildEnquiryNotification(
+      { name: 'Ana', email: 'ana@example.com', message: 'Is the villa still available?' },
+      'office@example.com',
+    )
+
+    await deliverHandler({ message: { ...message, cc: ['sales@example.com'] } }, ctx)
+
+    const body = JSON.parse(ctx.http.fetch.mock.calls[0][1].body)
+    expect(body.to).toEqual(['office@example.com'])
+    expect(body.reply_to).toBe('ana@example.com')
+    expect(body.cc).toEqual(['sales@example.com'])
+  })
+
+  it('omits reply_to and cc when the message has none', async () => {
+    const ctx = makeCtx({
+      'settings:api_key': 're_abc123',
+      'settings:from_address': 'no-reply@example.com',
+    })
+    ctx.http.fetch.mockResolvedValue(makeOkResponse())
+
+    await deliverHandler({ message: { to: 'a@b.com', subject: 'Hi', text: 'Hello' } }, ctx)
+
+    const body = JSON.parse(ctx.http.fetch.mock.calls[0][1].body)
+    expect(body).not.toHaveProperty('reply_to')
+    expect(body).not.toHaveProperty('cc')
   })
 
   it('includes html field when message has html', async () => {

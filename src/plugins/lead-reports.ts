@@ -19,6 +19,10 @@ export function leadReportsPlugin(): PluginDescriptor {
       events: {
         indexes: ['kind', 'createdAt'],
       },
+      // Per-client throttle for the public routes (src/lib/rate-limit.ts).
+      rate_limits: {
+        indexes: ['count', 'window'],
+      },
     },
     adminPages: [{ path: '/', label: 'Leads & CTAs', icon: 'chart-column' }],
   }

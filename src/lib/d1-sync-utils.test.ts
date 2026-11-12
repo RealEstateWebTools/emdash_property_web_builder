@@ -83,6 +83,38 @@ describe("keepInsertStatementsOnly", () => {
 
 		expect(keepInsertStatementsOnly(input)).toBe(["INSERT INTO test VALUES(1);", "INSERT INTO test VALUES(2);"].join("\n"));
 	});
+
+	// A --force-reset sync used to overwrite production leads, plugin data and
+	// environment settings with the local copies (local test enquiries, the
+	// console email provider, a localhost site URL).
+	it("drops local rows for data production owns", () => {
+		const input = [
+			"INSERT INTO ec_enquiries VALUES('e1','local test enquiry');",
+			"INSERT INTO _plugin_storage VALUES('lead-reports','events','1',NULL);",
+			"INSERT INTO options VALUES('site:title','\"Demo Realty\"','0');",
+			"INSERT INTO options VALUES('plugin:resend-email:settings:api_key','\"re_local\"','0');",
+			"INSERT INTO options VALUES('emdash:exclusive_hook:email:deliver','\"emdash-console-email\"','0');",
+			"INSERT INTO options VALUES('emdash:site_url','\"http://localhost:4393\"','0');",
+			"INSERT INTO options VALUES('emdash:setup_complete','true','0');",
+			"INSERT INTO revisions VALUES('r1','posts','p1','{}',NULL,'now');",
+			"INSERT INTO revisions VALUES('r2','enquiries','e1','{}',NULL,'now');",
+		].join("\n");
+
+		expect(keepInsertStatementsOnly(input).split("\n")).toEqual([
+			"INSERT INTO options VALUES('site:title','\"Demo Realty\"','0');",
+			"INSERT INTO options VALUES('emdash:setup_complete','true','0');",
+			"INSERT INTO revisions VALUES('r1','posts','p1','{}',NULL,'now');",
+		]);
+	});
+
+	it("matches preserved option names exactly, including escaped quotes", () => {
+		const input = [
+			"INSERT INTO options VALUES('emdash:site_url_note','x','0');",
+			"INSERT INTO options VALUES('it''s plugin:like','x','0');",
+		].join("\n");
+
+		expect(keepInsertStatementsOnly(input).split("\n")).toHaveLength(2);
+	});
 });
 
 describe("splitSqlStatements", () => {
@@ -153,6 +185,55 @@ describe("buildResetSqlFromSchema", () => {
 			expect(plan.sql).not.toContain('DELETE FROM "credentials";');
 		} finally {
 			db.close();
+			rmSync(tempDir, { recursive: true, force: true });
+		}
+	});
+
+	it("keeps production-owned tables and rows when the reset SQL runs", () => {
+		const tempDir = mkdtempSync(join(tmpdir(), "d1-reset-plan-"));
+		const localPath = join(tempDir, "local.db");
+		const remotePath = join(tempDir, "remote.db");
+		const schema = `
+			CREATE TABLE options (name TEXT PRIMARY KEY, value TEXT);
+			CREATE TABLE revisions (id TEXT PRIMARY KEY, collection TEXT);
+			CREATE TABLE ec_posts (id TEXT PRIMARY KEY);
+			CREATE TABLE ec_enquiries (id TEXT PRIMARY KEY, draft_revision_id TEXT REFERENCES revisions(id));
+			CREATE TABLE _plugin_storage (id TEXT PRIMARY KEY);
+		`;
+		const local = new Database(localPath);
+		const remote = new Database(remotePath);
+
+		try {
+			local.exec(schema);
+			const plan = getResetPlanFromSqliteDatabase(localPath);
+
+			// Run the plan against a "production" database with FKs enforced, as D1 does.
+			remote.exec(schema);
+			remote.pragma("foreign_keys = ON");
+			remote.exec(`
+				INSERT INTO options VALUES ('site:title', 'Prod'), ('plugin:resend-email:settings:api_key', 're_prod'),
+					('emdash:exclusive_hook:email:deliver', 'resend-email'), ('emdash:site_url', 'https://agency.example');
+				INSERT INTO revisions VALUES ('r-post', 'posts'), ('r-enq', 'enquiries');
+				INSERT INTO ec_posts VALUES ('p1');
+				INSERT INTO ec_enquiries VALUES ('e1', 'r-enq');
+				INSERT INTO _plugin_storage VALUES ('valuation-1');
+			`);
+			remote.exec(plan.sql);
+
+			expect(plan.tables).not.toContain("ec_enquiries");
+			expect(plan.tables).not.toContain("_plugin_storage");
+			expect(remote.prepare("SELECT name FROM options ORDER BY name").all().map((r: any) => r.name)).toEqual([
+				"emdash:exclusive_hook:email:deliver",
+				"emdash:site_url",
+				"plugin:resend-email:settings:api_key",
+			]);
+			expect(remote.prepare("SELECT id FROM revisions").all()).toEqual([{ id: "r-enq" }]);
+			expect(remote.prepare("SELECT count(*) AS n FROM ec_posts").get()).toEqual({ n: 0 });
+			expect(remote.prepare("SELECT count(*) AS n FROM ec_enquiries").get()).toEqual({ n: 1 });
+			expect(remote.prepare("SELECT count(*) AS n FROM _plugin_storage").get()).toEqual({ n: 1 });
+		} finally {
+			local.close();
+			remote.close();
 			rmSync(tempDir, { recursive: true, force: true });
 		}
 	});
