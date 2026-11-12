@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -5,6 +7,7 @@ import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
   entrySlug,
+  hasTranslation,
   localePath,
   translateBrand,
   translateLabel,
@@ -98,4 +101,40 @@ describe('locale helpers', () => {
       expect(translateLabel('fr', key)).not.toBe(key)
     })
   })
+})
+
+/** Literal keys passed to translateLabel/translateTermLabel in site source. */
+function literalLabelKeys(): Map<string, string> {
+  const keys = new Map<string, string>()
+  const walk = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const path = join(dir, entry.name)
+      if (entry.isDirectory()) return walk(path)
+      return /\.(astro|ts)$/.test(entry.name) && !entry.name.includes('.test.') ? [path] : []
+    })
+  const call = /translate(?:Term)?Label\(\s*[\w.?]+\s*,\s*(['"])((?:\\.|(?!\1).)*)\1/g
+  for (const file of walk('src')) {
+    for (const match of readFileSync(file, 'utf8').matchAll(call)) {
+      keys.set(match[2].replace(/\\(['"])/g, '$1'), file)
+    }
+  }
+  return keys
+}
+
+describe('UI translations', () => {
+  // About 60 labels used to render in English on /es/ and /fr/ pages, because
+  // a missing key silently falls back to the English text.
+  const keys = literalLabelKeys()
+
+  it('finds the labels used across the site', () => {
+    expect(keys.size).toBeGreaterThan(100)
+    expect(keys.has('Browse Properties')).toBe(true)
+  })
+
+  for (const locale of SUPPORTED_LOCALES) {
+    it(`translates every literal UI label into ${locale}`, () => {
+      const missing = [...keys].filter(([key]) => !hasTranslation(locale, key)).map(([key, file]) => `${key} (${file})`)
+      expect(missing).toEqual([])
+    })
+  }
 })
