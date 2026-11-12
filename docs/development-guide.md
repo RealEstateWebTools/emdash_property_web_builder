@@ -141,8 +141,18 @@ Important constraints:
 - if the remote D1 database already contains conflicting rows, the import may fail
 - `--backup` exports the current remote D1 database to `.tmp/` before any write
 - `--force-reset` clears remote table data first and then imports local data only.
-  It requires `--backup` (except with `--dry-run`), because the reset and the import
-  are separate remote steps
+  It requires `--backup` (except with `--dry-run`). The reset and the import run as
+  one file import, and D1 blocks the database during an import, so visitors never
+  see the emptied tables in between. Cloudflare does not document whether a failed
+  import rolls back, so:
+- before any remote write the script records the database's Time Travel bookmark.
+  If a write fails it prints the exact command that puts the database back as it
+  was before the sync (`npx wrangler d1 time-travel restore <db> --bookmark=<bookmark> --config <config>`),
+  plus the SQL backup's path. It never restores on its own: a restore overwrites the
+  live database, including anything written after the bookmark (such as new
+  enquiries). Time Travel reaches back 7 days on the Workers Free plan and 30 days on Paid
+- if the API token cannot use D1's import API, the script falls back to running the
+  statements in batches; that path does not block the database between batches
 - a `--force-reset` sync keeps data production owns: auth and passkeys, enquiries
   (`ec_enquiries` and their revisions), plugin data (`_plugin_storage`: lead events,
   valuation requests), comments, logs, and environment settings in `options`

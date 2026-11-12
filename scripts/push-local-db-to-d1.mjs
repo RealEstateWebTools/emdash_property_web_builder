@@ -8,14 +8,13 @@ import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { fileURLToPath } from "node:url";
 import { exportSqliteForD1 } from "./export-sqlite-for-d1.mjs";
+import { applyRemoteWrites, buildResetAndImportSql } from "./lib/d1-remote-writes.mjs";
 import {
 	getAdditiveSchemaSyncPlan,
-	chunkSqlStatements,
 	getBackupTableNamesFromSqliteDatabase,
 	getD1DatabaseNameFromConfigFile,
 	getResetPlanFromSqliteDatabase,
 	isDuplicateConstraintError,
-	splitSqlStatements,
 } from "./lib/d1-sync-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -86,48 +85,6 @@ function runCommand(command, args, options = {}) {
 	});
 }
 
-function isImportAuthError(error) {
-	const message = error instanceof Error ? `${error.message}\n${error.stderr ?? ""}\n${error.stdout ?? ""}` : String(error);
-	return message.includes("/import") && message.includes("Authentication error");
-}
-
-async function executeRemoteSqlFile(dbName, filePath, configPath) {
-	return runCommand(
-		"npx",
-		["wrangler", "d1", "execute", dbName, "--file", filePath, "--remote", "--config", configPath, "--yes"],
-		{ cwd: projectRoot, stdio: "inherit" },
-	);
-}
-
-async function executeRemoteSqlInBatches(dbName, sql, configPath, label) {
-	const statements = splitSqlStatements(sql);
-	const batches = chunkSqlStatements(statements);
-
-	console.log(`Falling back to batched remote execution for ${label}: ${batches.length} batches.`);
-
-	for (let index = 0; index < batches.length; index += 1) {
-		console.log(`Executing batch ${index + 1}/${batches.length}...`);
-		await runCommand(
-			"npx",
-			["wrangler", "d1", "execute", dbName, "--command", batches[index], "--remote", "--config", configPath, "--yes"],
-			{ cwd: projectRoot, stdio: "inherit" },
-		);
-	}
-}
-
-async function executeRemoteSqlWithFallback(dbName, filePath, configPath, label) {
-	try {
-		await executeRemoteSqlFile(dbName, filePath, configPath);
-	} catch (error) {
-		if (!isImportAuthError(error)) {
-			throw error;
-		}
-
-		const sql = await readFile(filePath, "utf8");
-		await executeRemoteSqlInBatches(dbName, sql, configPath, label);
-	}
-}
-
 async function confirmOrExit(summary, skipPrompt) {
 	if (skipPrompt) return;
 
@@ -152,8 +109,9 @@ async function main() {
 	const localDbPath = resolve(projectRoot, getArgValue(args, "--local-db", "data.db"));
 	const explicitDbName = getArgValue(args, "--db");
 
-	// A reset deletes remote data before the import runs as a separate step;
-	// without a backup a failed import leaves nothing to restore from.
+	// A reset deletes remote data. D1 doesn't document whether a failed import
+	// rolls back, so a reset always comes with a backup (and a Time Travel
+	// bookmark, see scripts/lib/d1-remote-writes.mjs).
 	if (forceReset && !shouldBackup && !dryRun) {
 		console.error("--force-reset clears remote data and requires --backup:");
 		console.error("  pnpm run sync:prod-db --backup --force-reset");
@@ -169,7 +127,7 @@ async function main() {
 		await mkdir(tempDir, { recursive: true });
 		const outputPath = resolve(tempDir, `d1-import-${Date.now()}.sql`);
 		const backupPath = resolve(tempDir, `d1-backup-${Date.now()}.sql`);
-		const resetPath = resolve(tempDir, `d1-reset-${Date.now()}.sql`);
+		const resetAndImportPath = resolve(tempDir, `d1-reset-and-import-${Date.now()}.sql`);
 		const schemaSyncPath = resolve(tempDir, `d1-schema-sync-${Date.now()}.sql`);
 		const exportMode = forceReset ? "data-only" : "full";
 		const backupTables = shouldBackup ? getBackupTableNamesFromSqliteDatabase(localDbPath) : [];
@@ -182,9 +140,11 @@ async function main() {
 
 		let resetPlan = null;
 		if (forceReset) {
+			// One file, one import: D1 blocks the database during an import, so
+			// visitors never see the emptied tables between reset and import.
 			resetPlan = getResetPlanFromSqliteDatabase(localDbPath);
-			await mkdir(tempDir, { recursive: true });
-			await writeFile(resetPath, resetPlan.sql, "utf8");
+			const importSql = await readFile(outputPath, "utf8");
+			await writeFile(resetAndImportPath, buildResetAndImportSql(resetPlan.sql, importSql), "utf8");
 		}
 
 		let schemaSyncPlan = { statements: [], sql: "" };
@@ -203,8 +163,9 @@ async function main() {
 				: "Remote backup: skipped",
 			shouldBackup ? `Schema sync file: ${schemaSyncPath}` : "Schema sync: unavailable without backup",
 			forceReset
-				? `Remote reset file: ${resetPath} (${resetPlan.tables.length} tables)`
+				? `Remote reset + import file: ${resetAndImportPath} (${resetPlan.tables.length} tables reset, one import)`
 				: "Remote reset: skipped",
+			"Recovery: a Time Travel bookmark is recorded before any write; on failure the restore command is printed.",
 			"",
 			"This imports sanitized SQL into the remote D1 database.",
 			forceReset
@@ -234,15 +195,21 @@ async function main() {
 			await writeFile(schemaSyncPath, schemaSyncPlan.sql, "utf8");
 		}
 
-		if (schemaSyncPlan.statements.length > 0) {
-			await executeRemoteSqlWithFallback(dbName, schemaSyncPath, configPath, "schema sync");
-		}
-
-		if (forceReset) {
-			await executeRemoteSqlWithFallback(dbName, resetPath, configPath, "remote reset");
-		}
-
-		await executeRemoteSqlWithFallback(dbName, outputPath, configPath, "remote import");
+		await applyRemoteWrites(
+			{
+				dbName,
+				configPath,
+				cwd: projectRoot,
+				backupPath: shouldBackup ? backupPath : undefined,
+				steps: [
+					...(schemaSyncPlan.statements.length > 0 ? [{ label: "schema sync", path: schemaSyncPath }] : []),
+					forceReset
+						? { label: "reset and import", path: resetAndImportPath }
+						: { label: "import", path: outputPath },
+				],
+			},
+			{ run: runCommand },
+		);
 
 		console.log("");
 		console.log("Remote D1 import completed successfully.");
